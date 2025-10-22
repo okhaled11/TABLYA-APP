@@ -1,16 +1,28 @@
-# React + Vite
+# 🍲 Homemade Food Platform
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A web platform for **homemade food lovers**.  
+It connects **home chefs** who cook delicious homemade meals with **customers** looking for authentic, fresh, and affordable food.
 
-Currently, two official plugins are available:
+## ✨ Features
+- 👩‍🍳 Sellers can create profiles and showcase their dishes  
+- 💬 Direct chat between sellers and customers  
+- 🧾 Customers can browse menus and view offers  
+- ❤️ Add dishes to favorites and leave reviews  
+- 🛍️ Support local home-based businesses  
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## 🧠 Purpose
+The goal of this project is to **support small home chefs** and make it easy for people to enjoy real homemade food anytime, anywhere.
 
-## React Compiler
+## ⚙️ Tech Stack
+- **Frontend:** React.js, TailwindCSS  
+- **Backend:** Strapi (Node.js)  
+- **Database:** MongoDB  
+- **Authentication:** JWT  
+- **Version Control:** Git & GitHub  
 
-The React Compiler is currently not compatible with SWC. See [this issue](https://github.com/vitejs/vite-plugin-react/issues/428) for tracking the progress.
-
-## Expanding the ESLint configuration
-
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+## 🚀 How to Run Locally
+```bash
+git clone https://github.com/your-username/homemade-food-platform.git
+cd homemade-food-platform
+npm install
+npm run dev
