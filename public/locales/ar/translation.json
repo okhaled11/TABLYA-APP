@@ -1,0 +1,15 @@
+{
+  "welcome": "مرحبًا بك في موقعي!",
+  "description": "هذا مثال لتبديل اللغة إلى العربية.",
+  "navbar": {
+    "logo_alt": "شعار تبليا",
+    "toggle_mode": "تبديل الوضع",
+    "logout": "تسجيل الخروج",
+    "sign_in": "تسجيل الدخول",
+    "sign_up": "إنشاء حساب",
+    "logout_confirm_title": "هل أنت متأكد؟",
+    "logout_confirm_description": "سيتم تسجيل خروجك من التطبيق!",
+    "cancel": "إلغاء",
+    "ok": "موافق"
+  }
+}
