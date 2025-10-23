@@ -1,0 +1,15 @@
+{
+  "welcome": "Welcome to my website!",
+  "description": "This is an example of switching language to English.",
+  "navbar": {
+    "logo_alt": "Tablya Logo",
+    "toggle_mode": "Toggle color mode",
+    "logout": "Logout",
+    "sign_in": "Sign In",
+    "sign_up": "Sign Up",
+    "logout_confirm_title": "Are You Sure?",
+    "logout_confirm_description": "You will be logged out from the application!",
+    "cancel": "Cancel",
+    "ok": "Ok"
+  }
+}

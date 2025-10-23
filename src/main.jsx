@@ -6,6 +6,7 @@ import { ChakraProvider } from "@chakra-ui/react";
 import { Provider } from "react-redux";
 import { store } from "./app/store.js";
 import { BrowserRouter } from "react-router-dom";
+import "./i18n";
 
 createRoot(document.getElementById("root")).render(
   <StrictMode>

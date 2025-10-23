@@ -22,11 +22,13 @@ import {
 import { MoonIcon, SunIcon } from "@chakra-ui/icons";
 import { Link, useNavigate } from "react-router-dom";
 import CookieService from "../services/cookies";
+import { useTranslation } from "react-i18next";
 import { FiBell, FiChevronDown } from "react-icons/fi";
 import CustomAlertDailog from "../shared/CustomAlertDailog";
 import logo from "../assets/logo.jpg";
 
 export default function Navbar() {
+  const { t } = useTranslation();
   const { isOpen, onOpen, onClose } = useDisclosure();
   const { colorMode, toggleColorMode } = useColorMode();
   const bg = useColorModeValue("white", "gray.900");
@@ -73,7 +75,7 @@ export default function Navbar() {
           >
             <Image
               src={logo}
-              alt="Tablya Logo"
+              alt={t("navbar.logo_alt")}
               boxSize="50px"
               borderRadius="full"
             />
@@ -87,7 +89,7 @@ export default function Navbar() {
                 onClick={toggleColorMode}
                 variant="ghost"
                 size="sm"
-                aria-label="Toggle color mode"
+                aria-label={t("navbar.toggle_mode")}
               >
                 {colorMode === "light" ? <MoonIcon /> : <SunIcon />}
               </Button>
@@ -131,7 +133,7 @@ export default function Navbar() {
                             onOpen();
                           }}
                         >
-                          Logout
+                          {t("navbar.logout")}
                         </MenuItem>
                       </MenuList>
                     </Menu>
@@ -149,7 +151,7 @@ export default function Navbar() {
                     fontWeight={500}
                     size="sm"
                   >
-                    Sign In
+                    {t("navbar.sign_in")}
                   </Button>
                   <Button
                     as={Link}
@@ -159,7 +161,7 @@ export default function Navbar() {
                     size="sm"
                     px={5}
                   >
-                    Sign Up
+                    {t("navbar.sign_up")}
                   </Button>
                 </Stack>
               )}
@@ -171,10 +173,10 @@ export default function Navbar() {
         isOpen={isOpen}
         onOpen={onOpen}
         onClose={onClose}
-        title={"Are You Sure?"}
-        description={"You will be logged out from the application!"}
-        cancelTxt={"Cancel"}
-        okTxt={"Ok"}
+        title={t("navbar.logout_confirm_title")}
+        description={t("navbar.logout_confirm_description")}
+        cancelTxt={t("navbar.cancel")}
+        okTxt={t("navbar.ok")}
         onOkHandler={onOkHandler}
       />
     </>

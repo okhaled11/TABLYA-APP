@@ -1,33 +1,82 @@
-import { Box, Flex, Text } from "@chakra-ui/react";
-import CookieService from "../services/cookies";
+import React from "react";
+import { useTranslation } from "react-i18next";
 
 const HomePage = () => {
+  const { t, i18n } = useTranslation();
+
+  const changeLanguage = (lang) => {
+    i18n.changeLanguage(lang);
+    document.dir = lang === "ar" ? "rtl" : "ltr";
+  };
+
   return (
-    <Flex
-      direction="column"
-      align="center"
-      justify="center"
-      px={{ base: 4, md: 10, lg: 20 }} 
-      py={{ base: 8, md: 16 }}
-      minH="80vh"
-      textAlign="center"
-      gap={6}
+    <div
+      style={{
+        minHeight: "100vh",
+        background: "linear-gradient(135deg, gray)",
+        color: "#fff",
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "center",
+        textAlign: "center",
+        fontFamily: "Poppins, sans-serif",
+      }}
     >
-      <Text
-        fontSize={{ base: "md", md: "lg", lg: "xl" }} 
-        fontWeight="bold"
-        maxW={{ base: "90%", md: "80%", lg: "60%" }} 
-        lineHeight="1.8"
+      <div
+        style={{
+          backgroundColor: "rgba(255, 255, 255, 0.1)",
+          padding: "40px 60px",
+          borderRadius: "20px",
+          boxShadow: "0 10px 25px rgba(0,0,0,0.2)",
+          maxWidth: "500px",
+        }}
       >
-        مرحبا بك في{" "}
-        <Text as="h1" color="red.400" fontWeight="extrabold">
-          طبلية
-        </Text>
-        ، المنصة التي تسهل عليك إدارة وصفاتك المفضلة ومشاركتها مع الآخرين. اكتشف
-        وصفات جديدة، احفظها في مكتبتك الشخصية، ونظّمها بكل سهولة. ابدأ رحلتك في
-        عالم الطهي معنا اليوم!
-      </Text>
-    </Flex>
+        <h1 style={{ fontSize: "2rem", marginBottom: "20px" }}>
+          {t("welcome")}
+        </h1>
+        <p style={{ fontSize: "1.1rem", marginBottom: "30px" }}>
+          {t("description")}
+        </p>
+
+        <div style={{ display: "flex", justifyContent: "center", gap: "15px" }}>
+          <button
+            onClick={() => changeLanguage("en")}
+            style={{
+              backgroundColor: "#fff",
+              color: "#3b82f6",
+              border: "none",
+              padding: "10px 20px",
+              borderRadius: "8px",
+              cursor: "pointer",
+              fontWeight: "bold",
+              transition: "0.3s",
+            }}
+            onMouseOver={(e) => (e.target.style.backgroundColor = "#e0e7ff")}
+            onMouseOut={(e) => (e.target.style.backgroundColor = "#fff")}
+          >
+            English
+          </button>
+
+          <button
+            onClick={() => changeLanguage("ar")}
+            style={{
+              backgroundColor: "#3b82f6",
+              color: "#fff",
+              border: "2px solid #fff",
+              padding: "10px 20px",
+              borderRadius: "8px",
+              cursor: "pointer",
+              fontWeight: "bold",
+              transition: "0.3s",
+            }}
+            onMouseOver={(e) => (e.target.style.backgroundColor = "#2563eb")}
+            onMouseOut={(e) => (e.target.style.backgroundColor = "#3b82f6")}
+          >
+            عربي
+          </button>
+        </div>
+      </div>
+    </div>
   );
 };
 
