@@ -1,12 +1,13 @@
 import React from "react";
 import {
-  AlertDialog,
-  AlertDialogBody,
-  AlertDialogCloseButton,
-  AlertDialogContent,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogOverlay,
+  DialogRoot,
+  DialogContent,
+  DialogHeader,
+  DialogBody,
+  DialogFooter,
+  DialogCloseTrigger,
+  DialogBackdrop,
+  DialogActionTrigger,
   Button,
 } from "@chakra-ui/react";
 
@@ -20,41 +21,39 @@ export default function CustomAlertDailog({
   onOkHandler,
   isLoading = false,
 }) {
-  const cancelRef = React.useRef();
-
   return (
-    <>
-      <AlertDialog
-        motionPreset="slideInBottom"
-        leastDestructiveRef={cancelRef}
-        onClose={onClose}
-        isOpen={isOpen}
-        isCentered
-      >
-        <AlertDialogOverlay
-          bg="blackAlpha.500"
-          backdropFilter="blur(5px) hue-rotate(20deg)"
-        />
+    <DialogRoot 
+      open={isOpen} 
+      onOpenChange={(e) => !e.open && onClose()} 
+      placement="center" 
+      motionPreset="slide-in-bottom"
+      role="alertdialog"
+    >
+      <DialogBackdrop
+        bg="blackAlpha.500"
+        backdropFilter="blur(5px) hue-rotate(20deg)"
+      />
 
-        <AlertDialogContent>
-          <AlertDialogHeader>{title}</AlertDialogHeader>
-          <AlertDialogCloseButton />
-          <AlertDialogBody>{description}</AlertDialogBody>
-          <AlertDialogFooter>
-            <Button ref={cancelRef} onClick={onClose}>
+      <DialogContent>
+        <DialogHeader>{title}</DialogHeader>
+        <DialogCloseTrigger />
+        <DialogBody>{description}</DialogBody>
+        <DialogFooter>
+          <DialogActionTrigger asChild>
+            <Button onClick={onClose}>
               {cancelTxt}
             </Button>
-            <Button
-              colorScheme="red"
-              ml={3}
-              onClick={onOkHandler}
-              isLoading={isLoading}
-            >
-              {okTxt}
-            </Button>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
-    </>
+          </DialogActionTrigger>
+          <Button
+            colorPalette="red"
+            ml={3}
+            onClick={onOkHandler}
+            loading={isLoading}
+          >
+            {okTxt}
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </DialogRoot>
   );
 }
