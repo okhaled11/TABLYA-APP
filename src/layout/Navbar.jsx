@@ -3,14 +3,11 @@ import {
   Flex,
   Avatar,
   Button,
-  Menu,
-  MenuButton,
-  MenuList,
+  MenuRoot,
+  MenuTrigger,
+  MenuContent,
   MenuItem,
-  MenuDivider,
-  useColorModeValue,
   Stack,
-  useColorMode,
   Center,
   Text,
   HStack,
@@ -19,11 +16,11 @@ import {
   useDisclosure,
   Image,
 } from "@chakra-ui/react";
-import { MoonIcon, SunIcon } from "@chakra-ui/icons";
+import { useColorMode } from "../components/ui/color-mode";
 import { Link, useNavigate } from "react-router-dom";
 import CookieService from "../services/cookies";
 import { useTranslation } from "react-i18next";
-import { FiBell, FiChevronDown } from "react-icons/fi";
+import { FiBell, FiChevronDown, FiMoon, FiSun } from "react-icons/fi";
 import CustomAlertDailog from "../shared/CustomAlertDailog";
 import logo from "../assets/logo.jpg";
 
@@ -31,8 +28,8 @@ export default function Navbar() {
   const { t } = useTranslation();
   const { isOpen, onOpen, onClose } = useDisclosure();
   const { colorMode, toggleColorMode } = useColorMode();
-  const bg = useColorModeValue("white", "gray.900");
-  const bg2 = useColorModeValue("gray.200", "gray.700");
+  const bg = colorMode === "light" ? "white" : "gray.900";
+  const bg2 = colorMode === "light" ? "gray.200" : "gray.700";
   const navigate = useNavigate();
 
   const user = CookieService.get("user");
@@ -48,7 +45,7 @@ export default function Navbar() {
   return (
     <>
       <Box
-        bg={useColorModeValue("gray.100", "gray.900")}
+        bg={colorMode === "light" ? "gray.100" : "gray.900"}
         px={{ base: 4, md: 8 }}
         boxShadow="sm"
         position="sticky"
@@ -68,7 +65,7 @@ export default function Navbar() {
             to="/"
             fontSize="xl"
             fontWeight="bold"
-            color={useColorModeValue("red.500", "red.300")}
+            color={colorMode === "light" ? "red.500" : "red.300"}
             display="flex"
             alignItems="center"
             // gap="2"
@@ -91,52 +88,48 @@ export default function Navbar() {
                 size="sm"
                 aria-label={t("navbar.toggle_mode")}
               >
-                {colorMode === "light" ? <MoonIcon /> : <SunIcon />}
+                {colorMode === "light" ? <FiMoon /> : <FiSun />}
               </Button>
 
               {/* If logged in → show avatar menu */}
               {user && (
                 <HStack spacing={{ base: "0", md: "6" }}>
                   <Flex alignItems={"center"}>
-                    <Menu>
-                      <MenuButton
-                        py={2}
-                        transition="all 0.3s"
-                        _focus={{ boxShadow: "none" }}
-                      >
-                        <HStack>
-                          <Avatar
-                            size={"sm"}
-                            src={`https://ui-avatars.com/api/?name=${user?.name}`}
-                          />
-                          <VStack
-                            display={{ base: "none", md: "flex" }}
-                            alignItems="flex-start"
-                            spacing="1px"
-                            ml="2"
-                          >
-                            <Text fontSize="sm">
-                              {user?.name || "UserName"}
-                            </Text>
-                            {/* <Text fontSize="xs" color="gray.600">
-                          Admin
-                        </Text> */}
-                          </VStack>
-                          <Box display={{ base: "none", md: "flex" }}>
-                            <FiChevronDown />
-                          </Box>
-                        </HStack>
-                      </MenuButton>
-                      <MenuList bg={bg} borderColor={bg2}>
+                    <MenuRoot>
+                      <MenuTrigger asChild>
+                        <Button variant="ghost" py={2} transition="all 0.3s">
+                          <HStack>
+                            <Avatar
+                              size={"sm"}
+                              src={`https://ui-avatars.com/api/?name=${user?.name}`}
+                            />
+                            <VStack
+                              display={{ base: "none", md: "flex" }}
+                              alignItems="flex-start"
+                              spacing="1px"
+                              ml="2"
+                            >
+                              <Text fontSize="sm">
+                                {user?.name || "UserName"}
+                              </Text>
+                            </VStack>
+                            <Box display={{ base: "none", md: "flex" }}>
+                              <FiChevronDown />
+                            </Box>
+                          </HStack>
+                        </Button>
+                      </MenuTrigger>
+                      <MenuContent bg={bg} borderColor={bg2}>
                         <MenuItem
+                          value="logout"
                           onClick={() => {
                             onOpen();
                           }}
                         >
                           {t("navbar.logout")}
                         </MenuItem>
-                      </MenuList>
-                    </Menu>
+                      </MenuContent>
+                    </MenuRoot>
                   </Flex>
                 </HStack>
               )}
@@ -156,7 +149,7 @@ export default function Navbar() {
                   <Button
                     as={Link}
                     to="/signup"
-                    colorScheme="blue"
+                    colorPalette="blue"
                     fontWeight="semibold"
                     size="sm"
                     px={5}
