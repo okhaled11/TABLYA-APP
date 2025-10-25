@@ -1,18 +1,53 @@
-// const colors = {
-//     light: {
-//         background: "#ffffff",
-//         text: "#1a202c",
-//         primary: "#3182ce",
-//         secondary: "#63b3ed",
-//         border: "#e2e8f0",
-//     },
-//     dark: {
-//         background: "#1a202c",
-//         text: "#edf2f7",
-//         primary: "#90cdf4",
-//         secondary: "#63b3ed",
-//         border: "#2d3748",
-//     },
-// };
+const colors = {
+    light: {
+        mainFixed: "#FA2C23",
+        mainDynamic: "#FA2C23",
+        bgMain: "#FFF7F0",
+        bgMain0a: "rgba(255, 247, 240, 0)",
+        bgSecond: "#FEEAE4",
+        bgThird: "#FFFFFF",
+        bgFixed: "#140402",
+        textMain: "#1F0604",
+        textMain10a: "rgba(31, 6, 4, 0.1)",
+        bgInput: "rgba(31, 6, 4, 0.04)",
+        textSub: "#968782",
+        white: "#FFF7F0",
+        white70a: "rgba(255, 247, 240, 0.7)",
+        white30a: "rgba(255, 247, 240, 0.3)",
+        white10a: "rgba(255, 247, 240, 0.1)",
+        white6a: "rgba(255, 247, 240, 0.06)",
+        border1: "#FCD0CB",
+        border2: "#4C3633",
+        warning: "#FF861F",
+        warning20a: "rgba(255, 134, 31, 0.2)",
+        Error: "#F94736",
+    },
+    dark: {
+        mainFixed: "#FA2C23",
+        mainDynamic: "#1F0604",
+        bgMain: "#1F0604",
+        bgMain0a: "rgba(31, 6, 4, 0)",
+        bgSecond: "#2E1614",
+        bgThird: "#140402",
+        bgFixed: "#140402",
+        textMain: "#FFF7F0",
+        textMain10a: "rgba(255, 247, 240, 0.1)",
+        bgInput: "rgba(255, 247, 240, 0.07)",
+        textSub: "#887672",
+        white: "#FFF7F0",
+        white70a: "rgba(255, 247, 240, 0.7)",
+        white30a: "rgba(255, 247, 240, 0.3)",
+        white10a: "rgba(255, 247, 240, 0.1)",
+        white6a: "rgba(255, 247, 240, 0.06)",
+        border1: "#3D2623",
+        border2: "#4C3633",
+        warning: "#FF861F",
+        warning20a: "rgba(255, 134, 31, 0.2)",
+        Error: "#F94736",
+    },
+};
 
-// export default colors;
+export default colors;
+
+
+
