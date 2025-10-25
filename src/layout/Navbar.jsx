@@ -16,7 +16,7 @@ import {
   useDisclosure,
   Image,
 } from "@chakra-ui/react";
-import { useColorMode } from "../components/ui/color-mode";
+import { useColorMode } from "../theme/color-mode";
 import { Link, useNavigate } from "react-router-dom";
 import CookieService from "../services/cookies";
 import { useTranslation } from "react-i18next";
