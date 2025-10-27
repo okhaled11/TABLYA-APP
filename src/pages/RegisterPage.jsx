@@ -7,7 +7,8 @@ import { FaUserAlt } from "react-icons/fa";
 import colors from "../theme/color";
 import register from "../assets/Images_Auth/register.png";
 import ChefRegister from "../components/Auth/ChefRegister";
-export default function SignUp() {
+
+export default function RegisterPage() {
   const { colorMode } = useColorMode();
 
   return (
