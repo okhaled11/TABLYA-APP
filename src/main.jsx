@@ -4,14 +4,14 @@ import "./index.css";
 import App from "./App.jsx";
 import { ChakraProvider, defaultSystem } from "@chakra-ui/react";
 import { ColorModeProvider } from "./theme/color-mode.jsx";
-import { Provider } from "react-redux";
-import { store } from "./app/store.js";
+// import { Provider } from "react-redux";
+// import { store } from "./app/store.js";
 import { BrowserRouter } from "react-router-dom";
 import "./i18n";
 
 createRoot(document.getElementById("root")).render(
   <StrictMode>
-    <Provider store={store}>
+    {/* <Provider store={store}> */}
       <BrowserRouter>
         <ChakraProvider value={defaultSystem}>
           <ColorModeProvider>
@@ -19,6 +19,6 @@ createRoot(document.getElementById("root")).render(
           </ColorModeProvider>
         </ChakraProvider>
       </BrowserRouter>
-    </Provider>
+    {/* </Provider> */}
   </StrictMode>
 );

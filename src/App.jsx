@@ -7,6 +7,7 @@ import Login from "./pages/Login";
 import SignUp from "./pages/SignUp";
 import Navbar from "./layout/Navbar";
 import CookieService from "./services/cookies";
+import Landing from "./pages/Landing";
 
 function App() {
   const token = CookieService.get("jwt");
@@ -20,8 +21,9 @@ function App() {
 
   return (
     <>
-      <Navbar />
+      {/* <Navbar /> */}
       <Routes>
+        <Route path="/landing" element={<Landing />} />
         <Route path="/" element={<HomePage />} />
         <Route path="/login" element={<Login isAuthenticated={token} />} />
         <Route path="/signup" element={<SignUp isAuthenticated={token} />} />
