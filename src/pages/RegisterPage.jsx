@@ -1,15 +1,14 @@
 import { Flex, Image, Box, VStack, Heading, Text } from "@chakra-ui/react";
-import CustomerRegister from "../components/CustomerRegister";
+import CustomerRegister from "../components/Auth/CustomerRegister";
 import { useColorMode } from "../theme/color-mode";
 import { Tabs } from "@chakra-ui/react";
 import { PiChefHatDuotone } from "react-icons/pi";
 import { FaUserAlt } from "react-icons/fa";
 import colors from "../theme/color";
-import register from "../assets/register.png"
-import Navbar from "../layout/Navbar";
+import register from "../assets/Images_Auth/register.png";
+import ChefRegister from "../components/Auth/ChefRegister";
 export default function SignUp() {
   const { colorMode } = useColorMode();
-
 
   return (
     <Flex
@@ -21,10 +20,9 @@ export default function SignUp() {
       py={10}
     >
       <Flex
-        w={{ base: "100%", md: "900px" }}
+        w={{ base: "100%", md: "1000px" }}
+        justifyContent={"center"}
         borderRadius="2xl"
-        boxShadow="2xl"
-        overflow="hidden"
         bg={colorMode == "light" ? colors.light.bgThird : colors.dark.bgFixed}
       >
         {/* Left Side: Tabs + Form */}
@@ -67,7 +65,7 @@ export default function SignUp() {
               >
                 <Tabs.Trigger
                   value="customer"
-                  px={8}
+                  px={12}
                   py={2}
                   rounded="md"
                   fontWeight="bold"
@@ -85,7 +83,7 @@ export default function SignUp() {
 
                 <Tabs.Trigger
                   value="chef"
-                  px={8}
+                  px={12}
                   py={2}
                   rounded="md"
                   fontWeight="bold"
@@ -111,7 +109,7 @@ export default function SignUp() {
 
               <Tabs.Content value="chef">
                 <Box textAlign="center" py={6} fontWeight="medium">
-                  Manage your Chef profile here 
+                  <ChefRegister />
                 </Box>
               </Tabs.Content>
             </Tabs.Root>
@@ -126,6 +124,7 @@ export default function SignUp() {
             w="100%"
             h="100%"
             src={register}
+            rounded={"md"}
           />
         </Flex>
       </Flex>
