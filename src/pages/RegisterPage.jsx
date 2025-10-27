@@ -20,7 +20,7 @@ export default function SignUp() {
       py={10}
     >
       <Flex
-        w={{ base: "100%", md: "1000px" }}
+        w={{ base: "100%", md: "80%" }}
         justifyContent={"center"}
         borderRadius="2xl"
         bg={colorMode == "light" ? colors.light.bgThird : colors.dark.bgFixed}
