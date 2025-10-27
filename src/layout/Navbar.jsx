@@ -13,85 +13,82 @@ import {
   HStack,
   IconButton,
   VStack,
-  useDisclosure,
+  // useDisclosure,
   Image,
+  Container,
 } from "@chakra-ui/react";
 import { useColorMode } from "../theme/color-mode";
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import CookieService from "../services/cookies";
 import { useTranslation } from "react-i18next";
-import { FiBell, FiChevronDown, FiMoon, FiSun } from "react-icons/fi";
+import { FiBell, FiChevronDown} from "react-icons/fi";
+import { FaMoon ,FaSun} from "react-icons/fa";
 import CustomAlertDailog from "../shared/CustomAlertDailog";
-import logo from "../assets/logo.jpg";
+import Navlogo from "../assets/Navlogo.png";
+import colors from "../theme/color";
 
 export default function Navbar() {
   const { t } = useTranslation();
-  const { isOpen, onOpen, onClose } = useDisclosure();
+  // const { isOpen, onOpen, onClose } = useDisclosure();
   const { colorMode, toggleColorMode } = useColorMode();
-  const bg = colorMode === "light" ? "white" : "gray.900";
-  const bg2 = colorMode === "light" ? "gray.200" : "gray.700";
-  const navigate = useNavigate();
+  // const bg = colorMode === "light" ? "white" : "gray.900";
+  // const bg2 = colorMode === "light" ? "gray.200" : "gray.700";
+  // const navigate = useNavigate();
 
-  const user = CookieService.get("user");
+  // const user = CookieService.get("user");
 
-  const onOkHandler = () => {
-    CookieService.remove("jwt", { path: "/" });
-    CookieService.remove("user", { path: "/" });
-    onClose();
-    window.location.reload();
-    navigate("/login");
-  };
+  // const onOkHandler = () => {
+  //   CookieService.remove("jwt", { path: "/" });
+  //   CookieService.remove("user", { path: "/" });
+  //   onClose();
+  //   window.location.reload();
+  //   navigate("/login");
+  // };
 
   return (
     <>
-      <Box
-        bg={colorMode === "light" ? "gray.100" : "gray.900"}
-        px={{ base: 4, md: 8 }}
-        boxShadow="sm"
-        position="sticky"
-        top="0"
-        zIndex="10"
-      >
-        <Flex
-          h={16}
-          alignItems="center"
-          justifyContent="space-between"
-          maxW="1200px"
-          mx="auto"
+      <Container size={"s"}>
+        <Box
+          bg={
+            colorMode === "light" ? colors.light.bgFixed : colors.dark.bgFixed
+          }
+          px={{ base: 4, md: 8 }}
+          position="sticky"
+          top="0"
+          zIndex="10"
+          borderRadius={"25px"}
+          maxH={160}
+          maxW={1600}
+          mt={4}
         >
-          {/* Logo */}
-          <Text
-            as={Link}
-            to="/"
-            fontSize="xl"
-            fontWeight="bold"
-            color={colorMode === "light" ? "red.500" : "red.300"}
-            display="flex"
+          <Flex
+            h={16}
             alignItems="center"
-            // gap="2"
+            justifyContent="space-between"
+            maxW="1200px"
+            mx="auto"
           >
-            <Image
-              src={logo}
-              alt={t("navbar.logo_alt")}
-              boxSize="50px"
-              borderRadius="full"
-            />
-            Tablya
-          </Text>
+            {/* Logo */}
+            <Image src={Navlogo} alt={t("navbar.logo_alt")} w={"150px"} />
 
-          <Flex alignItems="center">
-            <Stack direction="row" spacing={5} align="center">
-              {/* mode toggle */}
-              <Button
-                onClick={toggleColorMode}
-                variant="ghost"
-                size="sm"
-                aria-label={t("navbar.toggle_mode")}
-              >
-                {colorMode === "light" ? <FiMoon /> : <FiSun />}
-              </Button>
+            <Flex alignItems="center">
+              <Stack direction="row" spacing={5} align="center">
+                {/* mode toggle */}
+                <Button
+                  onClick={toggleColorMode}
+                  variant="ghost"
+                  size="sm"
+                  aria-label={t("navbar.toggle_mode")}
+                  bg={"#FFF7F01A"}
+                >
+                  {colorMode === "light" ? (
+                    <FaMoon color="white" />
+                  ) : (
+                    <FaSun color="white" />
+                  )}
+                </Button>
 
-              {/* If logged in → show avatar menu */}
+                {/* If logged in → show avatar menu
               {user && (
                 <HStack spacing={{ base: "0", md: "6" }}>
                   <Flex alignItems={"center"}>
@@ -135,7 +132,7 @@ export default function Navbar() {
               )}
 
               {/* If not logged in → show Sign In / Sign Up */}
-              {!user && (
+                {/* {!user && (
                 <Stack direction="row" spacing={4}>
                   <Button
                     as={Link}
@@ -157,12 +154,13 @@ export default function Navbar() {
                     {t("navbar.sign_up")}
                   </Button>
                 </Stack>
-              )}
-            </Stack>
+              )} */}
+              </Stack>
+            </Flex>
           </Flex>
-        </Flex>
-      </Box>
-      <CustomAlertDailog
+        </Box>
+      </Container>
+      {/* <CustomAlertDailog
         isOpen={isOpen}
         onOpen={onOpen}
         onClose={onClose}
@@ -171,7 +169,7 @@ export default function Navbar() {
         cancelTxt={t("navbar.cancel")}
         okTxt={t("navbar.ok")}
         onOkHandler={onOkHandler}
-      />
+      /> */}
     </>
   );
 }
