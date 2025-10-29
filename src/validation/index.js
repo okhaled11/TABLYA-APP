@@ -74,14 +74,9 @@ export const registerSchemaPersonaChef = yup
         "Phone number must be a valid Egyptian number (e.g., 01012345678)"
       ),
     idVerification: yup
-      .mixed()
-      .required("Please upload your government ID")
-      .test("fileType", "Please upload a valid file", (value) => {
-        if (!value) return false;
-        if (value instanceof File) return true;
-        if (value.file instanceof File) return true;
-        return false;
-      }),
+      .string()
+      .url("Please upload a valid image link")
+      .required("Please upload your government ID"),
   })
   .required();
 export const registerSchemaKitchenChef = yup
