@@ -7,6 +7,7 @@ import Login from "./pages/LoginPage";
 import RegisterPage from "./pages/RegisterPage";
 import Navbar from "./layout/Navbar";
 import CookieService from "./services/cookies";
+import { Toaster } from "./components/ui/toaster";
 import Landing from "./pages/Landing";
 
 function App() {
@@ -28,6 +29,7 @@ function App() {
         <Route path="/register" element={<RegisterPage />} />
         <Route path="/login" element={<Login isAuthenticated={token} />} />
       </Routes>
+      <Toaster />
     </>
   );
 }
