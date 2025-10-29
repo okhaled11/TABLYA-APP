@@ -22,9 +22,11 @@ function App() {
 
   return (
     <>
-      {/* <Navbar /> */}
       <Routes>
         <Route path="/landing" element={<Landing />} />
+      </Routes>
+      <Navbar />
+      <Routes>
         <Route path="/" element={<HomePage />} />
         <Route path="/register" element={<RegisterPage />} />
         <Route path="/login" element={<Login isAuthenticated={token} />} />
