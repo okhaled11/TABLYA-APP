@@ -70,7 +70,7 @@ export const PersonalRegisterChef = ({ nextStepHandler }) => {
           </Field.Label>
           <InputGroup startElement={<FaUser />}>
             <Input
-              rounded="20px"
+              rounded="md"
               placeholder="Enter your first name"
               bg={bgInput}
               {...register("firstName")}
@@ -93,7 +93,7 @@ export const PersonalRegisterChef = ({ nextStepHandler }) => {
           </Field.Label>
           <InputGroup startElement={<FaUser />}>
             <Input
-              rounded="20px"
+              rounded="md"
               placeholder="Enter your last name"
               bg={bgInput}
               {...register("lastName")}
@@ -117,7 +117,7 @@ export const PersonalRegisterChef = ({ nextStepHandler }) => {
         </Field.Label>
         <InputGroup startElement={<MdEmail />}>
           <Input
-            rounded="20px"
+            rounded="md"
             placeholder="Enter your email"
             bg={bgInput}
             {...register("email")}
@@ -140,7 +140,7 @@ export const PersonalRegisterChef = ({ nextStepHandler }) => {
         </Field.Label>
         <InputGroup startElement={<FaPhoneAlt />}>
           <Input
-            rounded="20px"
+            rounded="md"
             placeholder="Enter your phone number"
             bg={bgInput}
             {...register("phone")}
@@ -193,7 +193,7 @@ export const PersonalRegisterChef = ({ nextStepHandler }) => {
       </Field.Root>
 
       {/* Continue */}
-      <Button bg="#FA2c23" type="submit" w="100%" rounded="20px">
+      <Button bg="#FA2c23" type="submit" w="100%" rounded="md">
         Continue
       </Button>
 
