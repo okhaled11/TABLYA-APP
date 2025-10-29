@@ -1,0 +1,167 @@
+{
+  "users": [
+    {
+      "id": "user_001",
+      "role": "customer",
+      "name": "Ahmed Ali",
+      "email": "a@example.com",
+      "phone": "+201234567890",
+      "addresses": [
+        {
+          "id": "addr_01",
+          "label": "home",
+          "line1": "12 Alnahda St",
+          "city": "Cairo",
+          "lat": 30.0,
+          "lng": 31.2,
+          "is_default": true
+        }
+      ],
+      "created_at": "2025-10-24T10:00:00Z"
+    },
+    {
+      "id": "user_002",
+      "role": "cooker",
+      "name": "Fatma's Kitchen",
+      "email": "fatma@example.com",
+      "phone": "+201111111111",
+      "kitchen_details": {
+        "description": "Home-cooked Egyptian meals",
+        "location": { "lat": 30.01, "lng": 31.21, "address": "Nasr City" },
+        "working_hours": [
+          { "day": "Mon", "from": "10:00", "to": "20:00" },
+          { "day": "Tue", "from": "10:00", "to": "20:00" }
+        ],
+        "delivery_zones": [{ "city": "Cairo", "radius_km": 10 }]
+      },
+      "status": "approved",
+      "documents": [{ "type": "id", "url": "..." }],
+      "ratings": { "avg": 4.7, "count": 120 },
+      "created_at": "2025-06-01T09:00:00Z"
+    },
+    {
+      "id": "user_003",
+      "role": "delivery",
+      "name": "Mohamed",
+      "phone": "+201222222222",
+      "vehicle": { "type": "motorbike", "plate": "CA-1234" },
+      "status": "idle",
+      "created_at": "2025-07-01T09:00:00Z"
+    },
+    {
+      "id": "user_004",
+      "role": "admin",
+      "name": "Admin Omar",
+      "email": "admin@example.com",
+      "permissions": ["approve_cookers", "manage_reports", "refunds"]
+    }
+  ],
+  "menu_items": [
+    {
+      "id": "item_001",
+      "cooker_id": "user_002",
+      "title": "Molokhia with Rice",
+      "description": "Home-cooked molokhia served with rice and chicken",
+      "images": ["..."],
+      "price": 80.0,
+      "available": true,
+      "available_dates": [],
+      "prep_time_minutes": 30,
+      "created_at": "2025-09-01T08:00:00Z"
+    }
+  ],
+  "orders": [
+    {
+      "id": "order_1001",
+      "customer_id": "user_001",
+      "cooker_id": "user_002",
+      "items": [
+        {
+          "menu_item_id": "item_001",
+          "title": "Molokhia with Rice",
+          "price_at_order": 80.0,
+          "quantity": 2,
+          "notes": "No garlic"
+        }
+      ],
+      "subtotal": 160.0,
+      "delivery_fee": 20.0,
+      "tax": 8.0,
+      "discount": 0.0,
+      "total": 188.0,
+      "payment": {
+        "method": "card",
+        "gateway": "stripe",
+        "status": "paid",
+        "transaction_id": "txn_abc123",
+        "paid_at": "2025-10-24T11:00:00Z"
+      },
+      "type": "immediate",
+      "reservation": null,
+      "delivery": {
+        "type": "delivery",
+        "address_id": "addr_01",
+        "assigned_delivery_id": "user_003",
+        "status": "out_for_delivery",
+        "eta_minutes": 25,
+        "tracked_at": "2025-10-24T11:10:00Z"
+      },
+      "status": "out_for_delivery",
+      "history": [
+        { "status": "created", "by": "customer", "at": "2025-10-24T10:55:00Z" },
+        { "status": "confirmed", "by": "cooker", "at": "2025-10-24T10:57:00Z" },
+        { "status": "preparing", "by": "cooker", "at": "2025-10-24T11:00:00Z" },
+        {
+          "status": "ready_for_pickup",
+          "by": "cooker",
+          "at": "2025-10-24T11:25:00Z"
+        },
+        {
+          "status": "out_for_delivery",
+          "by": "delivery",
+          "at": "2025-10-24T11:30:00Z"
+        }
+      ],
+      "notes": "Leave at the door",
+      "created_at": "2025-10-24T10:55:00Z",
+      "updated_at": "2025-10-24T11:30:00Z"
+    }
+  ],
+  "reports": [
+    {
+      "id": "report_500",
+      "reporter_user_id": "user_001",
+      "target_type": "order",
+      "target_id": "order_1001",
+      "reason": "food cold and late",
+      "details": "The order arrived 40 minutes late and was cold.",
+      "status": "open",
+      "assigned_to_admin": "user_004",
+      "created_at": "2025-10-24T12:00:00Z",
+      "actions": [
+        {
+          "by": "admin",
+          "action": "contacted_cooker",
+          "at": "2025-10-24T12:10:00Z",
+          "note": "Asked for explanation"
+        },
+        {
+          "by": "admin",
+          "action": "refund_initiated",
+          "at": "2025-10-24T12:30:00Z",
+          "amount": 188.0
+        }
+      ]
+    }
+  ],
+  "cooker_approvals": [
+    {
+      "cooker_id": "user_002",
+      "applied_at": "2025-05-28T08:00:00Z",
+      "status": "approved",
+      "approved_by": "user_004",
+      "approved_at": "2025-06-01T09:00:00Z",
+      "notes": "Docs valid. Verified address."
+    }
+  ]
+}
