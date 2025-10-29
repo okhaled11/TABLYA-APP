@@ -16,7 +16,11 @@
     "@gsap/react": "^2.1.2",
     "@hookform/resolvers": "^5.2.2",
     "@reduxjs/toolkit": "^2.9.0",
+<<<<<<< HEAD
     "@supabase/supabase-js": "^2.77.0",
+=======
+    "firebase": "^12.4.0",
+>>>>>>> e44a5addb785be350b78dc21ae7e3aa12289ddc8
     "framer-motion": "^12.23.22",
     "gsap": "^3.13.0",
     "i18next": "^25.6.0",

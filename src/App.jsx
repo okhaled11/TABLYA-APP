@@ -7,6 +7,8 @@ import Login from "./pages/LoginPage";
 import RegisterPage from "./pages/RegisterPage";
 import Navbar from "./layout/Navbar";
 import CookieService from "./services/cookies";
+import AddUserForm from "./components/ui/AddUserForm"; // test
+import UsersList from "./components/ui/UsersList"; // test
 
 function App() {
   const token = CookieService.get("jwt");
@@ -26,6 +28,10 @@ function App() {
         <Route path="/register" element={<RegisterPage />} />
         <Route path="/login" element={<Login isAuthenticated={token} />} />
       </Routes>
+      <AddUserForm />
+      <hr />
+      <UsersList />
+      <hr />
     </>
   );
 }
