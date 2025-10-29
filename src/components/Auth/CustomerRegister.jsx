@@ -62,7 +62,7 @@ const CustomerRegister = () => {
         <Flex direction={"column"} gap={4} align="stretch" justify={"center"}>
           {/* First & Last Name */}
           <Flex gap={4} direction={{ base: "column", md: "row" }}>
-            <Field.Root flex={1} required>
+            <Field.Root flex={1} >
               <Field.Label>
                 First Name <Field.RequiredIndicator></Field.RequiredIndicator>
               </Field.Label>
@@ -92,7 +92,7 @@ const CustomerRegister = () => {
               )}
             </Field.Root>
 
-            <Field.Root flex={1} required>
+            <Field.Root flex={1} >
               <Field.Label>
                 Last Name <Field.RequiredIndicator></Field.RequiredIndicator>
               </Field.Label>
@@ -123,7 +123,7 @@ const CustomerRegister = () => {
           </Flex>
 
           {/* Email */}
-          <Field.Root required>
+          <Field.Root >
             <Field.Label>
               Email <Field.RequiredIndicator></Field.RequiredIndicator>
             </Field.Label>
@@ -154,7 +154,7 @@ const CustomerRegister = () => {
           </Field.Root>
 
           {/* Phone */}
-          <Field.Root required>
+          <Field.Root >
             <Field.Label>
               Phone <Field.RequiredIndicator></Field.RequiredIndicator>
             </Field.Label>
@@ -184,7 +184,7 @@ const CustomerRegister = () => {
           </Field.Root>
 
           {/* Address */}
-          <Field.Root required>
+          <Field.Root >
             <Field.Label>
               Address <Field.RequiredIndicator></Field.RequiredIndicator>
             </Field.Label>
@@ -215,7 +215,7 @@ const CustomerRegister = () => {
 
           {/* Password & Confirm Password */}
           <Flex gap={4} direction={{ base: "column", md: "row" }}>
-            <Field.Root flex={1} required>
+            <Field.Root flex={1} >
               <Field.Label>
                 Password <Field.RequiredIndicator></Field.RequiredIndicator>
               </Field.Label>
@@ -262,7 +262,7 @@ const CustomerRegister = () => {
               )}
             </Field.Root>
 
-            <Field.Root flex={1} required>
+            <Field.Root flex={1} >
               <Field.Label>
                 Confirm Password{" "}
                 <Field.RequiredIndicator></Field.RequiredIndicator>
