@@ -84,7 +84,7 @@ export default function RegisterPage() {
 
                 <Tabs.Trigger
                   value="chef"
-                  px={12}
+                  px={8}
                   py={2}
                   rounded="md"
                   fontWeight="bold"
@@ -104,7 +104,7 @@ export default function RegisterPage() {
               </Tabs.List>
 
               {/* Tab Content */}
-              <Tabs.Content value="customer">
+              <Tabs.Content value="customer" px={0}>
                 <CustomerRegister />
               </Tabs.Content>
 
