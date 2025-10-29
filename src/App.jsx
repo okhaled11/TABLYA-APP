@@ -7,6 +7,7 @@ import Login from "./pages/LoginPage";
 import RegisterPage from "./pages/RegisterPage";
 import Navbar from "./layout/Navbar";
 import CookieService from "./services/cookies";
+import { Toaster } from "./components/ui/toaster";
 
 function App() {
   const token = CookieService.get("jwt");
@@ -26,6 +27,7 @@ function App() {
         <Route path="/register" element={<RegisterPage />} />
         <Route path="/login" element={<Login isAuthenticated={token} />} />
       </Routes>
+      <Toaster />
     </>
   );
 }
