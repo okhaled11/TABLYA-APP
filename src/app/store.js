@@ -1,10 +1,12 @@
 import { configureStore } from "@reduxjs/toolkit";
+import PersonalRegisterChefReducer from "./features/PersonalRegisterChefSlice";
 // import CartSlice from "./CartSlice";
 // import { Posts } from "./PostsSlice";
 export const store = configureStore({
     reducer: {
         // CartSlice: persistedReducer,
         // [Posts.reducerPath]: Posts.reducer,
+        PersonalRegisterChef: PersonalRegisterChefReducer,
     },
 
     // middleware: (getDefaultMiddleware) =>
@@ -14,3 +16,5 @@ export const store = configureStore({
 });
 
 export default store;
+
+
