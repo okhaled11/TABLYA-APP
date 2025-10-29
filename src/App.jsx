@@ -5,7 +5,6 @@ import { useTranslation } from "react-i18next";
 import HomePage from "./pages/index";
 import Login from "./pages/LoginPage";
 import RegisterPage from "./pages/RegisterPage";
-import Navbar from "./layout/Navbar";
 import CookieService from "./services/cookies";
 import { Toaster } from "./components/ui/toaster";
 import Landing from "./pages/Landing";
@@ -25,7 +24,7 @@ function App() {
       <Routes>
         <Route path="/landing" element={<Landing />} />
       </Routes>
-      <Navbar />
+  
       <Routes>
         <Route path="/" element={<HomePage />} />
         <Route path="/register" element={<RegisterPage />} />
