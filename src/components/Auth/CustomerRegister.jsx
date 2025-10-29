@@ -1,14 +1,13 @@
 import {
   Flex,
   Box,
-  VStack,
-  HStack,
   Input,
   Button,
   Text,
-  Icon,
   Field,
   Span,
+  InputGroup,
+  TagEndElement,
 } from "@chakra-ui/react";
 import { useState } from "react";
 import { AiOutlineEye, AiOutlineEyeInvisible } from "react-icons/ai";
@@ -23,6 +22,9 @@ import {
 import { Link } from "react-router-dom";
 import { useColorMode } from "../../theme/color-mode";
 import colors from "../../theme/color";
+import { registerSchema } from "../../validation";
+import { useForm } from "react-hook-form";
+import { yupResolver } from "@hookform/resolvers/yup";
 
 const CustomerRegister = () => {
   const { colorMode } = useColorMode();
@@ -36,8 +38,6 @@ const CustomerRegister = () => {
     confirmPassword: "",
   });
 
-  // const [isPassword, setIsPassword] = useState(false);
-  // const [isConfirmPassword, setIsConfirmPassword] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
@@ -45,192 +45,269 @@ const CustomerRegister = () => {
     const { name, value } = e.target;
     setUser({ ...user, [name]: value });
   };
-
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    // Keep your existing validation logic
-    if (
-      !user.firstName ||
-      !user.lastName ||
-      !user.email ||
-      !user.phone ||
-      !user.address ||
-      !user.password ||
-      !user.confirmPassword ||
-      user.password !== user.confirmPassword
-    ) {
-      // setIsPassword(!user.password);
-      // setIsConfirmPassword(user.password !== user.confirmPassword);
-      // return;
-    }
-    console.log("Form submitted", user);
-  };
+  // Schema validation
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+    clearErrors,
+  } = useForm({
+    resolver: yupResolver(registerSchema),
+  });
+  const onSubmit = (data) => console.log(data);
 
   return (
     <Flex flex={1} p={8} align="center" justifyContent="center">
-      <Box w="full" maxW="md" as="form" onSubmit={handleSubmit}>
+      <Box w="full" maxW="md" as="form" onSubmit={handleSubmit(onSubmit)}>
         <Flex direction={"column"} gap={4} align="stretch" justify={"center"}>
           {/* First & Last Name */}
           <Flex gap={4} direction={{ base: "column", md: "row" }}>
-            <Field.Root flex={1}>
+            <Field.Root flex={1} required>
               <Field.Label>
-                First Name <Span color={"red.500"}>*</Span>
+                First Name <Field.RequiredIndicator></Field.RequiredIndicator>
               </Field.Label>
-              <Input
-                placeholder="First Name"
-                name="firstName"
-                value={user.firstName}
-                onChange={handleChange}
-                bg={
-                  colorMode == "light"
-                    ? colors.light.bgInput
-                    : colors.dark.bgInput
-                }
-                borderRadius="10px"
-              />
+              <InputGroup startElement={<FaUser />}>
+                <Input
+                  placeholder="Enter your first name"
+                  name="firstName"
+                  {...register("firstName")}
+                  type="text"
+                  value={user.firstName}
+                  onChange={(e) => {
+                    handleChange(e);
+                    clearErrors("firstName");
+                  }}
+                  bg={
+                    colorMode == "light"
+                      ? colors.light.bgInput
+                      : colors.dark.bgInput
+                  }
+                  borderRadius="10px"
+                />
+              </InputGroup>
+              {errors.firstName && (
+                <Field.HelperText color={"crimson"}>
+                  {errors?.firstName?.message}
+                </Field.HelperText>
+              )}
             </Field.Root>
 
-            <Field.Root flex={1}>
+            <Field.Root flex={1} required>
               <Field.Label>
-                Last Name <Span color={"red.500"}>*</Span>
+                Last Name <Field.RequiredIndicator></Field.RequiredIndicator>
               </Field.Label>
-              <Input
-                placeholder="Last Name"
-                name="lastName"
-                value={user.lastName}
-                onChange={handleChange}
-                bg={
-                  colorMode == "light"
-                    ? colors.light.bgInput
-                    : colors.dark.bgInput
-                }
-                borderRadius="10px"
-              />
+              <InputGroup startElement={<FaUser />}>
+                <Input
+                  placeholder="Enter your last name"
+                  name="lastName"
+                  {...register("lastName")}
+                  value={user.lastName}
+                  onChange={(e) => {
+                    handleChange(e);
+                    clearErrors("lastName");
+                  }}
+                  bg={
+                    colorMode == "light"
+                      ? colors.light.bgInput
+                      : colors.dark.bgInput
+                  }
+                  borderRadius="10px"
+                />
+              </InputGroup>
+              {errors?.lastName && (
+                <Field.HelperText color={"crimson"}>
+                  {errors?.lastName?.message}
+                </Field.HelperText>
+              )}
             </Field.Root>
           </Flex>
 
           {/* Email */}
-          <Field.Root>
+          <Field.Root required>
             <Field.Label>
-              Email <Span color={"red.500"}>*</Span>
+              Email <Field.RequiredIndicator></Field.RequiredIndicator>
             </Field.Label>
-            <Input
-              placeholder="Email"
-              type="email"
-              name="email"
-              value={user.email}
-              onChange={handleChange}
-              bg={
-                colorMode == "light"
-                  ? colors.light.bgInput
-                  : colors.dark.bgInput
-              }
-              borderRadius="10px"
-            />
+            <InputGroup startElement={<FaEnvelope />}>
+              <Input
+                placeholder="Enter your email"
+                type="email"
+                name="email"
+                {...register("email")}
+                value={user.email}
+                onChange={(e) => {
+                  handleChange(e);
+                  clearErrors("email");
+                }}
+                bg={
+                  colorMode == "light"
+                    ? colors.light.bgInput
+                    : colors.dark.bgInput
+                }
+                borderRadius="10px"
+              />
+            </InputGroup>
+            {errors?.email && (
+              <Field.HelperText color={"crimson"}>
+                {errors?.email?.message}
+              </Field.HelperText>
+            )}
           </Field.Root>
 
           {/* Phone */}
-          <Field.Root>
+          <Field.Root required>
             <Field.Label>
-              Phone <Span color={"red.500"}>*</Span>
+              Phone <Field.RequiredIndicator></Field.RequiredIndicator>
             </Field.Label>
-            <Input
-              placeholder="Phone"
-              name="phone"
-              value={user.phone}
-              onChange={handleChange}
-              bg={
-                colorMode == "light"
-                  ? colors.light.bgInput
-                  : colors.dark.bgInput
-              }
-              borderRadius="10px"
-            />
+            <InputGroup startElement={<FaPhone />}>
+              <Input
+                placeholder="Enter your phone number"
+                name="phone"
+                {...register("phone")}
+                value={user.phone}
+                onChange={(e) => {
+                  handleChange(e);
+                  clearErrors("phone");
+                }}
+                bg={
+                  colorMode == "light"
+                    ? colors.light.bgInput
+                    : colors.dark.bgInput
+                }
+                borderRadius="10px"
+              />
+            </InputGroup>
+            {errors?.phone && (
+              <Field.HelperText color={"crimson"}>
+                {errors?.phone?.message}
+              </Field.HelperText>
+            )}
           </Field.Root>
 
           {/* Address */}
-          <Field.Root>
+          <Field.Root required>
             <Field.Label>
-              Location <Span color={"red.500"}>*</Span>
+              Address <Field.RequiredIndicator></Field.RequiredIndicator>
             </Field.Label>
-            <Input
-              placeholder="Address"
-              name="address"
-              value={user.address}
-              onChange={handleChange}
-              bg={
-                colorMode == "light"
-                  ? colors.light.bgInput
-                  : colors.dark.bgInput
-              }
-              borderRadius="10px"
-            />
+            <InputGroup startElement={<FaMapMarkerAlt />}>
+              <Input
+                placeholder="Enter your address"
+                name="address"
+                {...register("address")}
+                value={user.address}
+                onChange={(e) => {
+                  handleChange(e);
+                  clearErrors("address");
+                }}
+                bg={
+                  colorMode == "light"
+                    ? colors.light.bgInput
+                    : colors.dark.bgInput
+                }
+                borderRadius="10px"
+              />
+            </InputGroup>
+            {errors?.address && (
+              <Field.HelperText color={"crimson"}>
+                {errors?.address?.message}
+              </Field.HelperText>
+            )}
           </Field.Root>
 
           {/* Password & Confirm Password */}
           <Flex gap={4} direction={{ base: "column", md: "row" }}>
-            <Field.Root flex={1}>
+            <Field.Root flex={1} required>
               <Field.Label>
-                Password <Span color={"red.500"}>*</Span>
+                Password <Field.RequiredIndicator></Field.RequiredIndicator>
               </Field.Label>
-              <Input
-                placeholder="Password"
-                type={showPassword ? "text" : "password"}
-                name="password"
-                value={user.password}
-                onChange={handleChange}
-                bg={
-                  colorMode == "light"
-                    ? colors.light.bgInput
-                    : colors.dark.bgInput
+              <InputGroup
+                startElement={<FaLock />}
+                endElement={
+                  showPassword ? (
+                    <AiOutlineEyeInvisible
+                      size={18}
+                      onClick={() => setShowPassword((prev) => !prev)}
+                    />
+                  ) : (
+                    <AiOutlineEye
+                      size={18}
+                      onClick={() => setShowPassword((prev) => !prev)}
+                    />
+                  )
                 }
-                borderRadius="10px"
-                pr="3rem"
-              />
-              <Box
-                position="absolute"
-                right="3"
-                top="70%"
-                transform="translateY(-50%)"
-                cursor="pointer"
-                onClick={() => setShowPassword((prev) => !prev)}
               >
-                {showPassword ? <AiOutlineEyeInvisible /> : <AiOutlineEye />}
-              </Box>
+                <Input
+                  placeholder="Enter your password"
+                  type={showPassword ? "text" : "password"}
+                  name="password"
+                  {...register("password")}
+                  value={user.password}
+                  onChange={(e) => {
+                    handleChange(e);
+                    clearErrors("password");
+                  }}
+                  autoComplete="password"
+                  bg={
+                    colorMode == "light"
+                      ? colors.light.bgInput
+                      : colors.dark.bgInput
+                  }
+                  borderRadius="10px"
+                  pr="3rem"
+                />
+              </InputGroup>
+              {errors?.password && (
+                <Field.HelperText color={"crimson"}>
+                  {errors?.password?.message}
+                </Field.HelperText>
+              )}
             </Field.Root>
 
-            <Field.Root flex={1}>
+            <Field.Root flex={1} required>
               <Field.Label>
-                Confirm Password <Span color={"red.500"}>*</Span>
+                Confirm Password{" "}
+                <Field.RequiredIndicator></Field.RequiredIndicator>
               </Field.Label>
-              <Input
-                placeholder="Confirm Password"
-                type={showConfirmPassword ? "text" : "password"}
-                name="confirmPassword"
-                value={user.confirmPassword}
-                onChange={handleChange}
-                bg={
-                  colorMode == "light"
-                    ? colors.light.bgInput
-                    : colors.dark.bgInput
+              <InputGroup
+                startElement={<FaLock />}
+                endElement={
+                  showConfirmPassword ? (
+                    <AiOutlineEyeInvisible
+                      size={18}
+                      onClick={() => setShowConfirmPassword((prev) => !prev)}
+                    />
+                  ) : (
+                    <AiOutlineEye
+                      size={18}
+                      onClick={() => setShowConfirmPassword((prev) => !prev)}
+                    />
+                  )
                 }
-                borderRadius="10px"
-                pr="3rem"
-              />
-              <Box
-                position="absolute"
-                right="3"
-                top="70%"
-                transform="translateY(-50%)"
-                cursor="pointer"
-                onClick={() => setShowConfirmPassword((prev) => !prev)}
               >
-                {showConfirmPassword ? (
-                  <AiOutlineEyeInvisible />
-                ) : (
-                  <AiOutlineEye />
-                )}
-              </Box>
+                <Input
+                  placeholder="Confirm password"
+                  type={showConfirmPassword ? "text" : "password"}
+                  name="confirmPassword"
+                  {...register("confirmPassword")}
+                  value={user.confirmPassword}
+                  onChange={(e) => {
+                    handleChange(e);
+                    clearErrors("confirmPassword");
+                  }}
+                  autoComplete="confirm-password"
+                  bg={
+                    colorMode == "light"
+                      ? colors.light.bgInput
+                      : colors.dark.bgInput
+                  }
+                  borderRadius="10px"
+                  pr="3rem"
+                />
+              </InputGroup>
+              {errors?.confirmPassword&&(
+                <Field.HelperText color={"crimson"}>
+                  {errors?.confirmPassword?.message}
+                </Field.HelperText>
+               )}
             </Field.Root>
           </Flex>
 
@@ -246,6 +323,7 @@ const CustomerRegister = () => {
             borderRadius={12}
             w="full"
             mt={10}
+            onClick={handleSubmit}
           >
             Create Customer Account
           </Button>
