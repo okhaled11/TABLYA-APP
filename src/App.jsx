@@ -23,9 +23,6 @@ function App() {
     <>
       <Routes>
         <Route path="/landing" element={<Landing />} />
-      </Routes>
-  
-      <Routes>
         <Route path="/" element={<HomePage />} />
         <Route path="/register" element={<RegisterPage />} />
         <Route path="/login" element={<Login isAuthenticated={token} />} />
