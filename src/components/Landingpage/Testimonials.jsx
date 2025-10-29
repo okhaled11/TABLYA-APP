@@ -68,8 +68,11 @@ export default function Testimonials() {
     <Box
       bg={colorMode === "light" ? "rgb(254, 234, 228)" : "rgb(46, 22, 20)"}
       py={{ base: 16, md: 24 }}
+
+
+
     >
-      <Container maxW="container.xl" position="relative">
+      <Container maxW="container.xl" position="relative" >
         <Heading
           textAlign="center"
           mb={10}
@@ -79,134 +82,144 @@ export default function Testimonials() {
         >
           What Our Customers Say
         </Heading>
+        <Box  >
 
-        <Swiper
-          modules={[Navigation, Pagination, EffectCoverflow, Autoplay]}
-          effect="coverflow"
-          grabCursor={true}
-          centeredSlides={true}
-          loop={true}
-          // spaceBetween={200}
-          // slidesPerView="auto"
-          slidesPerView={1}
-          breakpoints={{
-            768: { slidesPerView: 3 },
-          }}
-          coverflowEffect={{
-            rotate: 0,
-            stretch: 0,
-            depth: 180,
-            modifier: 1,
-            slideShadows: false,
-            scale: 0.8,
-          }}
-          autoplay={{ delay: 5000, disableOnInteraction: false }}
-          pagination={{
-            clickable: true,
-            el: ".custom-pagination",
-          }}
-          navigation={{
-            nextEl: ".next-button",
-            prevEl: ".prev-button",
-          }}
-          style={{ paddingBottom: "100px" }}
 
-        >
-          {testimonials.map((item) => (
-            <SwiperSlide key={item.id}>
-              <Flex justify="center" mt={"10px"}>
-                <Card.Root
 
-                  bg={colorMode === "light" ? "white" : "rgb(20, 4, 2)"}
-                  borderRadius="2xl"
-                  w={{ base: "300px", md: "400px" }}
-                  h="100%"
-                  border={"none"}
-                  shadow="sm"
-                  transition="transform 0.3s ease"
-                  _hover={{ transform: "scale(1.03)" }}
-                >
-                  <Card.Body p={5} h="100%">
-                    <FaQuoteLeft color="#f44336" size="28px" />
-                    <Text
-                      mt={4}
-                      fontSize="sm"
-                      color={colorMode === "light" ? "black" : "white"}
-                      lineHeight="1.6"
-                      mb={6}
-                      noOfLines={5}
-                    >
-                      {item.text}
-                    </Text>
 
-                    <Box
-                      h="1px"
-                      bg={
-                        colorMode === "light"
-                          ? "rgb(233, 230, 230)"
-                          : "rgb(43, 28, 26)"
-                      }
-                      my={4}
-                    />
+          <Swiper
+            modules={[Navigation, Pagination, EffectCoverflow, Autoplay]}
+            effect="coverflow"
+            grabCursor={true}
+            centeredSlides={true}
+            loop={true}
 
-                    <Flex justify="space-between" align="center">
-                      <Flex align="center" gap={3}>
-                        <Image
-                          src={item.img}
-                          alt={item.name}
-                          borderRadius="full"
-                          boxSize="45px"
-                          objectFit="cover"
-                        />
-                        <Box>
-                          <Text
-                            fontWeight="semibold"
-                            fontSize="sm"
-                            color={
-                              colorMode === "light" ? "#2e0000" : "white"
-                            }
-                          >
-                            {item.name}
-                          </Text>
-                          <Text
-                            fontSize="xs"
-                            color={
-                              colorMode === "light"
-                                ? "gray.500"
-                                : "whiteAlpha.700"
-                            }
-                          >
-                            {item.date}
-                          </Text>
-                        </Box>
-                      </Flex>
+            spaceBetween={10}
 
-                      <Flex>
-                        {Array.from({ length: 5 }).map((_, i) => (
-                          <FaStar
-                            key={i}
-                            color={i < item.rating ? "#ff7b54" : "#ddd"}
+            slidesPerView={1}
+            breakpoints={{
+              // 1000: { slidesPerView: 2 },
+              860: { slidesPerView: 3, spaceBetween: 0},
+              1200: { slidesPerView: 3, spaceBetween: 0 },
+            }}
+            coverflowEffect={{
+              rotate: 0,
+              stretch: 0,
+              depth: 180,
+              modifier: 1,
+              slideShadows: false,
+              scale: 0.8,
+
+            }}
+            autoplay={{ delay: 5000, disableOnInteraction: false }}
+            pagination={{
+              clickable: true,
+              el: ".custom-pagination",
+            }}
+            navigation={{
+              nextEl: ".next-button",
+              prevEl: ".prev-button",
+            }}
+            style={{ paddingBottom: "100px" }}
+
+          >
+            {testimonials.map((item) => (
+              <SwiperSlide key={item.id}>
+                <Flex justify="center" mt={"10px"}>
+                  <Card.Root
+
+                    bg={colorMode === "light" ? "white" : "rgb(20, 4, 2)"}
+                    borderRadius="2xl"
+                    w={{ base: "400px", md: "400px" }}
+                    h="100%"
+                    border={"none"}
+                    shadow="sm"
+                    transition="transform 0.3s ease"
+                    _hover={{ transform: "scale(1.03)" }}
+                  >
+                    <Card.Body p={5} h="100%">
+                      <FaQuoteLeft color="#f44336" size="28px" />
+                      <Text
+                        mt={4}
+                        fontSize="sm"
+                        color={colorMode === "light" ? "black" : "white"}
+                        lineHeight="1.6"
+                        mb={6}
+                        noOfLines={5}
+                      >
+                        {item.text}
+                      </Text>
+
+                      <Box
+                        h="1px"
+                        bg={
+                          colorMode === "light"
+                            ? "rgb(233, 230, 230)"
+                            : "rgb(43, 28, 26)"
+                        }
+                        my={4}
+                      />
+
+                      <Flex justify="space-between" align="center">
+                        <Flex align="center" gap={3}>
+                          <Image
+                            src={item.img}
+                            alt={item.name}
+                            borderRadius="full"
+                            boxSize="45px"
+                            objectFit="cover"
                           />
-                        ))}
+                          <Box>
+                            <Text
+                              fontWeight="semibold"
+                              fontSize="sm"
+                              color={
+                                colorMode === "light" ? "#2e0000" : "white"
+                              }
+                            >
+                              {item.name}
+                            </Text>
+                            <Text
+                              fontSize="xs"
+                              color={
+                                colorMode === "light"
+                                  ? "gray.500"
+                                  : "whiteAlpha.700"
+                              }
+                            >
+                              {item.date}
+                            </Text>
+                          </Box>
+                        </Flex>
+
+                        <Flex>
+                          {Array.from({ length: 5 }).map((_, i) => (
+                            <FaStar
+                              key={i}
+                              color={i < item.rating ? "#ff7b54" : "#ddd"}
+                            />
+                          ))}
+                        </Flex>
                       </Flex>
-                    </Flex>
-                  </Card.Body>
-                </Card.Root>
-              </Flex>
-            </SwiperSlide>
-          ))}
-        </Swiper>
+                    </Card.Body>
+                  </Card.Root>
+                </Flex>
+              </SwiperSlide>
+            ))}
+          </Swiper>
+
+        </Box>
 
 
       </Container>
 
       {/* pagination arrows and dots */}
-      <Box mx={{ base: "100px", md: "300px", lg: "700px" }}>
+      {/* <Box mx={{ base: "100px", md: "300px", lg: "700px" }}> */}
 
 
-        <Flex justify="center" align="center" mt={-10} gap={5}>
+      <Flex justify="center" align="center" mt={-10} gap={5}>
 
-          <Button
+        {/* <Button
             className="prev-button"
 
             aria-label="Previous"
@@ -220,11 +233,11 @@ export default function Testimonials() {
 
             <FaArrowLeft />
 
-          </Button>
+          </Button> */}
 
-          <Box className="custom-pagination" />
+        <Box className="custom-pagination" />
 
-          <Button
+        {/* <Button
             className="next-button"
             aria-label="Next"
             cursor={"pointer"}
@@ -238,11 +251,11 @@ export default function Testimonials() {
 
             <FaArrowRight />
 
-          </Button>
+          </Button> */}
 
-        </Flex>
+      </Flex>
 
-      </Box>
+      {/* </Box> */}
       {/* customization dots style */}
       <style>
         {`
@@ -277,6 +290,10 @@ export default function Testimonials() {
            .prev-button, .next-button {
            cursor: pointer !important;
                        } 
+
+          .swiper {
+  overflow: hidden !important;
+}
         `}
       </style>
 

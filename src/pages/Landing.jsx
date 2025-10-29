@@ -15,7 +15,7 @@ import { Link } from 'react-router-dom';
 
 export default function Landing() {
 
-  const { colorMode, toggleColorMode } = useColorMode();
+  const { colorMode} = useColorMode();
 
   return (
     <>
@@ -91,7 +91,7 @@ export default function Landing() {
         {/* curved white svg background */}
 
 
-        <Box position={"absolute"} left={0} right={0}  top={{ base: "80%", md: "80%", lg:"60%"}} height={{base :"200px" , md: "400px" , lg:"400px"}}  width= {{base : "100%", md : "100%"}} px={0} margin={0}  >
+        <Box position={"absolute"} left={0} right={0}  top={{ base: "80%", md: "60%", lg:"60%"}} height={{base :"200px" , md: "400px" , lg:"400px"}}  width= {{base : "100%", md : "100%"}} px={0} margin={0}  >
 
           <svg width="100%" preserveAspectRatio="none" viewBox="0 0 1920 490" fill="none" xmlns="http://www.w3.org/2000/svg" height={"100%"}>
             <g clip-path="url(#clip0_217_374)">
@@ -153,7 +153,7 @@ export default function Landing() {
        {/* Button of get start */}
         <Box mx={"auto"} w="200px" h="100px" >
 
-        <Link to="/">
+        <Link to="/login">
         
         <Button display="flex"
           _hover={{ transform: "scale(1.05)" }}
@@ -165,8 +165,8 @@ export default function Landing() {
           py={"25px"}
           position={"absolute"}
           borderRadius={20}
-          background={colorMode === "light" ? "rgb(31, 6, 4)" : "rgb(255, 247, 240)"}
-          color={colorMode === "light" ? "white" : "rgb(31, 6, 4)"}
+          background={colorMode === "light" ? colors.light.textMain : colors.light.white}
+          color={colorMode === "light" ? "white" : colors.light.textMain}
           top={{ base: "50%", md: "80%" }}
           fontSize={"23px"}>  Get Start<MdKeyboardDoubleArrowRight />   </Button>
         
@@ -180,13 +180,13 @@ export default function Landing() {
 
       {/* Cards section contains 3 Cards */}
 
-      <Box pt={{ base: 20, md: 10 }} bg={colorMode === "light" ? "white" : "rgb(31, 6, 4)"} >
+      <Box pt={{ base: 20, md: 10 }} bg={colorMode === "light" ? "white" : colors.dark.bgMain} >
         <Cards />
       </Box>
 
 
        {/* Testimonials section */}
-      <Box pt={{ base: 20, md: 10 }} bg={colorMode === "light" ? "white" : "rgb(31, 6, 4)"}>
+      <Box pt={{ base: 20, md: 10 }} bg={colorMode === "light" ? "white" : colors.dark. bgSecond}>
         <Testimonials />
       </Box>
 
