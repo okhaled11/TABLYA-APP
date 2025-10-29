@@ -1,142 +1,153 @@
 
-import React, { useState } from "react";
-import { useColorMode } from '../../theme/color-mode';
+import React from "react";
+import { Swiper, SwiperSlide } from "swiper/react";
+import { Navigation, Pagination, EffectCoverflow, Autoplay, } from "swiper/modules";
+import "swiper/css";
+import "swiper/css/navigation";
+import "swiper/css/pagination";
+import "swiper/css/effect-coverflow";
+
 import {
-  Box,
-  Text,
-  Heading,
-  Flex,
-  Image,
-  IconButton,
-  HStack,
-  Container,
+  Box, Text, Heading, Flex, Image, Container,
+  Button,
 } from "@chakra-ui/react";
 import { FaQuoteLeft, FaStar, FaArrowLeft, FaArrowRight } from "react-icons/fa";
 import { Card } from "@chakra-ui/react";
+import { useColorMode } from "../../theme/color-mode";
 
+
+// dummy data will be replaced next
 const testimonials = [
   {
     id: 1,
     name: "Sara K.",
     date: "August 2025",
-    text: "I'm so glad I found this website! The food is incredible, and it feels so good to support local cooks. It’s like having a home-cooked meal without any of the work.",
+    text: "I’m so glad I found this website! The food is incredible, and it feels so good to support local cooks. It’s like having a home-cooked meal without any of the work",
     rating: 5,
-    img: "https://i.pravatar.cc/60?img=1",
+    img: "/assets/customer.png",
   },
   {
     id: 2,
-    name: "Omar M.",
+    name: "Sara K.",
     date: "July 2025",
-    text: "Amazing quality and fast delivery. Feels just like homemade!",
+    text: "I’m so glad I found this website! The food is incredible, and it feels so good to support local cooks. It’s like having a home-cooked meal without any of the work",
     rating: 4,
-    img: "https://i.pravatar.cc/60?img=2",
+    img: "/assets/customer.png",
   },
   {
     id: 3,
-    name: "Lina S.",
+    name: "Sara K.",
     date: "June 2025",
-    text: "Perfect taste every time! Highly recommend this place.",
+    text: "I’m so glad I found this website! The food is incredible, and it feels so good to support local cooks. It’s like having a home-cooked meal without any of the work",
     rating: 5,
-    img: "https://i.pravatar.cc/60?img=3",
+    img: "/assets/customer.png",
   },
   {
     id: 4,
-    name: "Ali R.",
+    name: "Sara K.",
     date: "May 2025",
-    text: "Exceptional service and amazing taste!",
+    text: "I’m so glad I found this website! The food is incredible, and it feels so good to support local cooks. It’s like having a home-cooked meal without any of the work",
     rating: 5,
-    img: "https://i.pravatar.cc/60?img=4",
+    img: "/assets/customer.png",
+  },
+  {
+    id: 5,
+    name: "Sara K.",
+    date: "May 2025",
+    text: "I’m so glad I found this website! The food is incredible, and it feels so good to support local cooks. It’s like having a home-cooked meal without any of the work",
+    rating: 5,
+    img: "/assets/customer.png",
   },
 ];
 
 export default function Testimonials() {
 
-
-  const { colorMode, toggleColorMode } = useColorMode();
-  const [current, setCurrent] = useState(0);
-
-  const prevSlide = () => {
-    setCurrent((prev) => (prev === 0 ? testimonials.length - 1 : prev - 1));
-  };
-
-  const nextSlide = () => {
-    setCurrent((prev) => (prev + 1) % testimonials.length);
-  };
+  const { colorMode } = useColorMode();
 
   return (
-    <Box bg={colorMode === "light" ? "rgb(254, 234, 228)" : "rgb(46, 22, 20)"} py={{ base: 16, md: 24 }} overflow="hidden">
-      <Container maxW="container.xl">
+    <Box
+      bg={colorMode === "light" ? "rgb(254, 234, 228)" : "rgb(46, 22, 20)"}
+      py={{ base: 16, md: 24 }}
+    >
+      <Container maxW="container.xl" position="relative">
         <Heading
           textAlign="center"
-          mb={12}
+          mb={10}
           fontWeight="bold"
-          color={colorMode === "light" ? "rgb(126, 34, 24)" : "white"}
-          fontSize={{ base: "2xl", md: "4xl" }}
+          color={colorMode === "light" ? "rgb(31, 6, 4)" : "white"}
+          fontSize={{ base: "2xl", md: "50px" }}
         >
           What Our Customers Say
         </Heading>
 
-        <Flex justify="center" align="center" position="relative" minH="250px">
-          {testimonials.map((item, index) => {
-            const diff = index - current;
+        <Swiper
+          modules={[Navigation, Pagination, EffectCoverflow, Autoplay]}
+          effect="coverflow"
+          grabCursor={true}
+          centeredSlides={true}
+          loop={true}
+          // spaceBetween={200}
+          // slidesPerView="auto"
+          slidesPerView={1}
+          breakpoints={{
+            768: { slidesPerView: 3 },
+          }}
+          coverflowEffect={{
+            rotate: 0,
+            stretch: 0,
+            depth: 180,
+            modifier: 1,
+            slideShadows: false,
+            scale: 0.8,
+          }}
+          autoplay={{ delay: 5000, disableOnInteraction: false }}
+          pagination={{
+            clickable: true,
+            el: ".custom-pagination",
+          }}
+          navigation={{
+            nextEl: ".next-button",
+            prevEl: ".prev-button",
+          }}
+          style={{ paddingBottom: "100px" }}
 
-            let scale = 0.85;
-            let opacity = 0.7;
-            let zIndex = 5;
-            let xOffset = 0;
-
-            if (diff === 0) {
-
-              scale = 1;
-              opacity = 1;
-              zIndex = 10;
-              xOffset = 0;
-            } else if (diff === -1 || (diff === testimonials.length - 1 && current === 0)) {
-
-              scale = 0.85;
-              opacity = 0.7;
-              xOffset = -350;
-            } else if (diff === 1 || (diff === -(testimonials.length - 1) && current === testimonials.length - 1)) {
-
-              scale = 0.85;
-              opacity = 0.7;
-              xOffset = 350;
-            } else {
-
-              opacity = 0;
-              xOffset = diff * 400;
-              zIndex = 1;
-            }
-
-            return (
-              <Box
-                key={item.id}
-                position="absolute"
-                top="50%"
-                left="50%"
-                transform={`translate(-50%, -50%) translateX(${xOffset}px) scale(${scale})`}
-                transition="all 0.5s ease"
-                opacity={opacity}
-                zIndex={zIndex}
-                w={{ base: "320px", md: "350px" }}
-                h="250px"
-                border="none"
-
-              >
+        >
+          {testimonials.map((item) => (
+            <SwiperSlide key={item.id}>
+              <Flex justify="center" mt={"10px"}>
                 <Card.Root
+
                   bg={colorMode === "light" ? "white" : "rgb(20, 4, 2)"}
                   borderRadius="2xl"
-
-                  transition="all 0.3s"
+                  w={{ base: "300px", md: "400px" }}
                   h="100%"
+                  border={"none"}
+                  shadow="sm"
+                  transition="transform 0.3s ease"
+                  _hover={{ transform: "scale(1.03)" }}
                 >
                   <Card.Body p={5} h="100%">
                     <FaQuoteLeft color="#f44336" size="28px" />
-                    <Text mt={4} fontSize="sm" color={colorMode === "light" ? "grey.200" : "white"} lineHeight="1.6" mb={6}>
+                    <Text
+                      mt={4}
+                      fontSize="sm"
+                      color={colorMode === "light" ? "black" : "white"}
+                      lineHeight="1.6"
+                      mb={6}
+                      noOfLines={5}
+                    >
                       {item.text}
                     </Text>
 
-                    <Box h="1px" bg={colorMode === "light" ? "rgb(233, 230, 230)" : "rgb(43, 28, 26)"} my={4} />
+                    <Box
+                      h="1px"
+                      bg={
+                        colorMode === "light"
+                          ? "rgb(233, 230, 230)"
+                          : "rgb(43, 28, 26)"
+                      }
+                      my={4}
+                    />
 
                     <Flex justify="space-between" align="center">
                       <Flex align="center" gap={3}>
@@ -148,10 +159,23 @@ export default function Testimonials() {
                           objectFit="cover"
                         />
                         <Box>
-                          <Text fontWeight="semibold" fontSize="sm" color={colorMode === "light" ? "#2e0000" : "white"}      >
+                          <Text
+                            fontWeight="semibold"
+                            fontSize="sm"
+                            color={
+                              colorMode === "light" ? "#2e0000" : "white"
+                            }
+                          >
                             {item.name}
                           </Text>
-                          <Text fontSize="xs" color={colorMode === "light" ? "grey.500" : "white"}>
+                          <Text
+                            fontSize="xs"
+                            color={
+                              colorMode === "light"
+                                ? "gray.500"
+                                : "whiteAlpha.700"
+                            }
+                          >
                             {item.date}
                           </Text>
                         </Box>
@@ -159,57 +183,114 @@ export default function Testimonials() {
 
                       <Flex>
                         {Array.from({ length: 5 }).map((_, i) => (
-                          <FaStar key={i} color={i < item.rating ? "#ff7b54" : "#ddd"} />
+                          <FaStar
+                            key={i}
+                            color={i < item.rating ? "#ff7b54" : "#ddd"}
+                          />
                         ))}
                       </Flex>
                     </Flex>
                   </Card.Body>
                 </Card.Root>
-              </Box>
-            );
-          })}
-        </Flex>
+              </Flex>
+            </SwiperSlide>
+          ))}
+        </Swiper>
 
-        {/* الأسهم والدوتس */}
-        <Flex justify="center" align="center" mt={10} gap={5}>
-          <IconButton
-            p={"10px"}
-            aria-label="Previous"
-            color={"white"}
-            as={FaArrowLeft}
-            bg="#f44336"
-            rounded="full"
-            onClick={prevSlide}
-            _hover={{ bg: "red.500" }}
-            fontSize="20px"
-          />
-          <HStack spacing={2}>
-            {testimonials.map((_, i) => (
-              <Box
-                key={i}
-                w="10px"
-                h="10px"
-                bg={i === current ? "red.500" : "gray.300"}
-                rounded="full"
-                cursor="pointer"
-                onClick={() => setCurrent(i)}
-              />
-            ))}
-          </HStack>
-          <IconButton
 
-            p={"10px"}
-            aria-label="Next"
-            color={"white"}
-            // icon={<FaArrowRight size={16}/>}
-            as={FaArrowRight}
-            bg="#f44336"
-            rounded="full"
-            onClick={nextSlide}
-            _hover={{ bg: "red.500" }}
-          />
-        </Flex>
       </Container>
+
+      {/* pagination arrows and dots */}
+      <Box mx={{ base: "100px", md: "300px", lg: "700px" }}>
+
+
+        <Flex justify="center" align="center" mt={-10} gap={5}>
+
+          <Button
+            className="prev-button"
+
+            aria-label="Previous"
+            cursor={"pointer"}
+            bg="#f44336"
+            color="white"
+            rounded="full"
+            px="10px"
+            _hover={{ bg: "red.500" }}
+            size="sm">
+
+            <FaArrowLeft />
+
+          </Button>
+
+          <Box className="custom-pagination" />
+
+          <Button
+            className="next-button"
+            aria-label="Next"
+            cursor={"pointer"}
+            px="10px"
+            bg="#f44336"
+            color="white"
+            rounded="full"
+            _hover={{ bg: "red.500" }}
+            size="sm"
+          >
+
+            <FaArrowRight />
+
+          </Button>
+
+        </Flex>
+
+      </Box>
+      {/* customization dots style */}
+      <style>
+        {`
+        .custom-pagination {
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          gap: 8px;
+        }
+        .swiper-pagination-bullet {
+          background-color: rgb(232, 211, 206) !important;
+          opacity: 0.5;
+          transition: 0.3s;
+          width: 10px;
+          height: 10px;
+        }
+        .swiper-pagination-bullet-active {
+          background-color: #f44336 !important;
+          opacity: 1;
+          transform: scale(1.2)
+          }
+
+          .swiper-slide {
+         transition: opacity 0.4s ease;
+          opacity: 0.6;
+                       }
+
+            .swiper-slide-active {
+              opacity: 1; 
+            }
+
+           .prev-button, .next-button {
+           cursor: pointer !important;
+                       } 
+        `}
+      </style>
+
+
+
+
     </Box>
   );
 }
+
+
+
+
+
+
+
+

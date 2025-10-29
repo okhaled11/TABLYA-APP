@@ -1,5 +1,8 @@
 import React, { useContext } from 'react'
-import { Box, Flex, HStack, Image, Link, IconButton, Button, useDisclosure, Stack } from '@chakra-ui/react';
+import { FiMenu, FiX } from 'react-icons/fi';
+import { useState } from 'react';
+
+import { Box, Flex, HStack, Image, Link, IconButton, Button, VStack} from '@chakra-ui/react';
 import logo from '../../assets/logotitle.png';
 
 import { FiMoon, FiSun } from 'react-icons/fi';
@@ -10,14 +13,17 @@ export default function Navbar() {
   const { colorMode, toggleColorMode } = useColorMode();
 
 
+const [isOpen, setIsOpen] = useState(false);
+
+  const toggleMenu = () => setIsOpen(!isOpen);
 
 
   return (
-    <Box bg={'rgb(20, 4, 2)'} px={4} mx={20} borderRadius={20} mt={0} height={"70px"} >
+    <Box bg={'rgb(20, 4, 2)'} px={{base:"4" , md:"7"}} mx={{ base: 4, md: 20 }} borderRadius={20} mt={0} height={"70px"} >
       <Flex h="70px" alignItems="center" justifyContent={'space-between'}>
         {/* left : logo (lift aligned) */}
-        <Box alignItems={"center"} flex={1} display={'flex'} justifyContent={'flex-start'}>
-          <Image src={logo} alt='Tablya Logo' height={'40px'} />
+        <Box alignItems={"center"} flex={1} display={'flex'} justifyContent={'flex-start'} >
+          <Image src={logo} alt='Tablya Logo' height={{base : "25px" , md:"40px"}} />
 
         </Box>
 
@@ -29,29 +35,86 @@ export default function Navbar() {
             as={'nav'}
             spacing={4}
             display={{ base: 'none', md: 'flex' }}>
-            <Link px={3} py={1} href={'#features'} fontSize={'lg'} color={'white'} _hover={{ bg: "rgb(43, 28, 26)", textDecoration: "none", borderRadius: "md" }} >Home</Link>
-            <Link px={3} py={1} href={'#aboutus'} fontSize={'lg'} color={'white'} _hover={{ bg: "rgb(43, 28, 26)", textDecoration: "none", borderRadius: "md" }}>Features</Link>
-            <Link px={3} py={1} href={'#contactus'} fontSize={'lg'} color={'white'} _hover={{ bg: "rgb(43, 28, 26)", textDecoration: "none", borderRadius: "md" }}>Reviews</Link>
+            <Link px={3} py={1}  fontSize={'lg'} color={'white'} _hover={{ bg: "rgb(43, 28, 26)", textDecoration: "none", borderRadius: "md" }} >Home</Link>
+            <Link px={3} py={1}  fontSize={'lg'} color={'white'} _hover={{ bg: "rgb(43, 28, 26)", textDecoration: "none", borderRadius: "md" }}>Features</Link>
+            <Link px={3} py={1}  fontSize={'lg'} color={'white'} _hover={{ bg: "rgb(43, 28, 26)", textDecoration: "none", borderRadius: "md" }}>Reviews</Link>
           </HStack>
 
 
         </Box>
+
+
+
+        {/* right : toggle button (right aligned) */}
         <Box flex={1} display={'flex'} justifyContent={'flex-end'}>
-          <Button
+
+         
+         <IconButton
+            aria-label="Toggle Menu"
+            as={colorMode === "light" ? FiMoon : FiSun }
+            display= 'inline-flex'
+            ml={2}
+            onClick={toggleColorMode}
+             borderRadius="40%"
+             color={"white"}
+            bg="rgb(43, 28, 26)" 
+            p={"10px"}
+          />
+
+          {/* <Button
             onClick={toggleColorMode}
             variant="ghost"
             size="sm"
             aria-label={("navbar.toggle_mode")}
           >
             {colorMode === "light" ? <FiMoon color='white' /> : <FiSun />}
-          </Button>
+          </Button> */}
 
-
+          {/* Mobile Menu Toggle */}
+          <IconButton
+            aria-label="Toggle Menu"
+            as={isOpen ? FiX: FiMenu }
+            display={{ base: 'inline-flex', md: 'none' }}
+            ml={2}
+            onClick={toggleMenu}
+             borderRadius="40%"
+             color={"white"}
+            bg="rgb(43, 28, 26)" 
+            p={"5px"}
+          />
         </Box>
 
 
 
       </Flex>
+
+{/* Mobile Menu */}
+      {isOpen && (
+        <Box
+          display={{ base: 'block', md: 'none' }}
+          mt={7}
+          bg={'rgb(20, 4, 2)'}
+          borderRadius={10}
+          p={4}
+          shadow="md"
+          position="absolute"
+          left="50%"
+    transform="translateX(-50%)"
+          top="70px"
+          zIndex={9}
+          width={{ base: "90%", sm: "80%" }}
+         
+          
+        >
+          <VStack spacing={3} align="center" >
+            <Link px={3} py={1} href={'#features'} fontSize={'lg'} color={'white'} _hover={{ textDecoration: "none", color: "gray.300" }} onClick={() => setIsOpen(false)}>Home</Link>
+            <Link px={3} py={1} href={'#aboutus'} fontSize={'lg'} color={'white'} _hover={{ textDecoration: "none", color: "gray.300" }} onClick={() => setIsOpen(false)}>Features</Link>
+            <Link px={3} py={1} href={'#contactus'} fontSize={'lg'} color={'white'} _hover={{ textDecoration: "none", color: "gray.300" }} onClick={() => setIsOpen(false)}>Reviews</Link>
+          </VStack>
+        </Box>
+      )}
+
+
 
 
     </Box>

@@ -19,7 +19,7 @@ import { FaFacebook } from "react-icons/fa";
 
 const Footer = () => {
     return (
-        <Box bg="#140706" color="white" py={10} >
+        <Box bg="#140706" color="white" py={"10"} >
             <Container maxW="6xl">
                 {/* Logo */}
                 <HStack spacing={3} mb={6}>
@@ -35,6 +35,7 @@ const Footer = () => {
                     justify="space-between"
                     gap={10}
                     mb={8}
+                    mx={{base: "20px",  md:"0px"}}
 
                 >
                     <VStack align="flex-start" spacing={3}>
@@ -75,11 +76,11 @@ const Footer = () => {
 
                     <HStack spacing={5}>
 
-                        <Link color={"white"} fontSize={"30px"}><FaFacebook /></Link>
-                        <Link color={"white"} fontSize={"30px"}> <FaTiktok />  </Link>
-                        <Link color={"white"} fontSize={"30px"}><FaInstagram />   </Link>
-                        <Link color={"white"} fontSize={"30px"}><SiSnapchat /></Link>
-                        <Link color={"white"} fontSize={"30px"}><FaXTwitter /> </Link>
+                        <Link color={"white"} fontSize={"25px"}><FaFacebook /></Link>
+                        <Link color={"white"} fontSize={"25px"}> <FaTiktok />  </Link>
+                        <Link color={"white"} fontSize={"25px"}><FaInstagram />   </Link>
+                        <Link color={"white"} fontSize={"25px"}><SiSnapchat /></Link>
+                        <Link color={"white"} fontSize={"25px"}><FaXTwitter /> </Link>
 
                     </HStack>
                 </Flex>
