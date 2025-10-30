@@ -15,7 +15,7 @@ import { useState } from "react";
 import { AiOutlineEye, AiOutlineEyeInvisible } from "react-icons/ai";
 import registerPhoto from "../assets/Images_Auth/register.png";
 import { FaEnvelope, FaLock } from "react-icons/fa";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, Navigate, useNavigate } from "react-router-dom";
 import { useColorMode } from "../theme/color-mode";
 import colors from "../theme/color";
 import { LoginSchema } from "../validation";
@@ -96,6 +96,7 @@ const LoginPage = () => {
       });
     }
   };
+
 
   return (
     <>
@@ -185,12 +186,12 @@ const LoginPage = () => {
                     startElement={<FaLock />}
                     endElement={
                       showPassword ? (
-                        <AiOutlineEyeInvisible
+                        <AiOutlineEye
                           size={18}
                           onClick={() => setShowPassword((prev) => !prev)}
                         />
                       ) : (
-                        <AiOutlineEye
+                        <AiOutlineEyeInvisible
                           size={18}
                           onClick={() => setShowPassword((prev) => !prev)}
                         />
