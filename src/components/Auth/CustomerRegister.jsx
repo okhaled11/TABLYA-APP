@@ -5,9 +5,7 @@ import {
   Button,
   Text,
   Field,
-  Span,
   InputGroup,
-  TagEndElement,
 } from "@chakra-ui/react";
 import { useState } from "react";
 import { AiOutlineEye, AiOutlineEyeInvisible } from "react-icons/ai";
@@ -19,12 +17,15 @@ import {
   FaLock,
   FaUserAlt,
 } from "react-icons/fa";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useColorMode } from "../../theme/color-mode";
 import colors from "../../theme/color";
 import { registerSchema } from "../../validation";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
+import { useDispatch, useSelector } from "react-redux";
+import { registerCustomer } from "../../app/features/Auth/registerCustomerSlice";
+import { toaster } from "../ui/toaster";
 
 const CustomerRegister = () => {
   const { colorMode } = useColorMode();
@@ -40,6 +41,9 @@ const CustomerRegister = () => {
 
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const { loading } = useSelector((state) => state.register);
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -54,7 +58,34 @@ const CustomerRegister = () => {
   } = useForm({
     resolver: yupResolver(registerSchema),
   });
-  const onSubmit = (data) => console.log(data);
+  // handle submit
+  const onSubmit = async (data) => {
+    const result = await dispatch(registerCustomer(data));
+    if (registerCustomer.fulfilled.match(result)) {
+      toaster.create({
+        title: "Registration Successful",
+        description:
+          "Your account has been created successfully! Please login to continue.",
+        type: "success",
+        duration: 3000,
+        isClosable: true,
+        position: "top",
+      });
+      // redirect depends on role
+      setTimeout(() => {
+        navigate("/login");
+      }, 500);
+    } else if (registerCustomer.rejected.match(result)) {
+      toaster.create({
+        title: "Register Failed",
+        description: result.payload || "Something went wrong.",
+        type: "error",
+        duration: 3000,
+        isClosable: true,
+        position: "top",
+      });
+    }
+  };
 
   return (
     <Flex flex={1} p={8} align="center" justifyContent="center">
@@ -62,7 +93,7 @@ const CustomerRegister = () => {
         <Flex direction={"column"} gap={4} align="stretch" justify={"center"}>
           {/* First & Last Name */}
           <Flex gap={4} direction={{ base: "column", md: "row" }}>
-            <Field.Root flex={1} >
+            <Field.Root flex={1} invalid={!!errors.firstName}>
               <Field.Label>
                 First Name <Field.RequiredIndicator></Field.RequiredIndicator>
               </Field.Label>
@@ -92,7 +123,7 @@ const CustomerRegister = () => {
               )}
             </Field.Root>
 
-            <Field.Root flex={1} >
+            <Field.Root flex={1} invalid={!!errors.lastName}>
               <Field.Label>
                 Last Name <Field.RequiredIndicator></Field.RequiredIndicator>
               </Field.Label>
@@ -123,7 +154,7 @@ const CustomerRegister = () => {
           </Flex>
 
           {/* Email */}
-          <Field.Root >
+          <Field.Root invalid={!!errors.email}>
             <Field.Label>
               Email <Field.RequiredIndicator></Field.RequiredIndicator>
             </Field.Label>
@@ -154,7 +185,7 @@ const CustomerRegister = () => {
           </Field.Root>
 
           {/* Phone */}
-          <Field.Root >
+          <Field.Root invalid={!!errors.phone}>
             <Field.Label>
               Phone <Field.RequiredIndicator></Field.RequiredIndicator>
             </Field.Label>
@@ -184,7 +215,7 @@ const CustomerRegister = () => {
           </Field.Root>
 
           {/* Address */}
-          <Field.Root >
+          <Field.Root invalid={!!errors.address}>
             <Field.Label>
               Address <Field.RequiredIndicator></Field.RequiredIndicator>
             </Field.Label>
@@ -215,7 +246,7 @@ const CustomerRegister = () => {
 
           {/* Password & Confirm Password */}
           <Flex gap={4} direction={{ base: "column", md: "row" }}>
-            <Field.Root flex={1} >
+            <Field.Root flex={1} invalid={!!errors.password}>
               <Field.Label>
                 Password <Field.RequiredIndicator></Field.RequiredIndicator>
               </Field.Label>
@@ -223,12 +254,12 @@ const CustomerRegister = () => {
                 startElement={<FaLock />}
                 endElement={
                   showPassword ? (
-                    <AiOutlineEyeInvisible
+                    <AiOutlineEye
                       size={18}
                       onClick={() => setShowPassword((prev) => !prev)}
                     />
                   ) : (
-                    <AiOutlineEye
+                    <AiOutlineEyeInvisible
                       size={18}
                       onClick={() => setShowPassword((prev) => !prev)}
                     />
@@ -261,8 +292,7 @@ const CustomerRegister = () => {
                 </Field.HelperText>
               )}
             </Field.Root>
-
-            <Field.Root flex={1} >
+            <Field.Root flex={1} invalid={!!errors.confirmPassword}>
               <Field.Label>
                 Confirm Password{" "}
                 <Field.RequiredIndicator></Field.RequiredIndicator>
@@ -271,12 +301,12 @@ const CustomerRegister = () => {
                 startElement={<FaLock />}
                 endElement={
                   showConfirmPassword ? (
-                    <AiOutlineEyeInvisible
+                    <AiOutlineEye
                       size={18}
                       onClick={() => setShowConfirmPassword((prev) => !prev)}
                     />
                   ) : (
-                    <AiOutlineEye
+                    <AiOutlineEyeInvisible
                       size={18}
                       onClick={() => setShowConfirmPassword((prev) => !prev)}
                     />
@@ -303,11 +333,11 @@ const CustomerRegister = () => {
                   pr="3rem"
                 />
               </InputGroup>
-              {errors?.confirmPassword&&(
+              {errors?.confirmPassword && (
                 <Field.HelperText color={"crimson"}>
                   {errors?.confirmPassword?.message}
                 </Field.HelperText>
-               )}
+              )}
             </Field.Root>
           </Flex>
 
@@ -324,6 +354,7 @@ const CustomerRegister = () => {
             w="full"
             mt={10}
             onClick={handleSubmit}
+            loading={loading}
           >
             Create Customer Account
           </Button>

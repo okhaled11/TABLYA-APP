@@ -1,4 +1,4 @@
-import { Route, Routes } from "react-router-dom";
+import { Navigate, Route, Routes } from "react-router-dom";
 import { useEffect } from "react";
 import { useTranslation } from "react-i18next";
 
@@ -10,7 +10,7 @@ import { Toaster } from "./components/ui/toaster";
 import Landing from "./pages/Landing";
 
 function App() {
-  const token = CookieService.get("jwt");
+  const token = CookieService.get("access_token");
   const { i18n } = useTranslation();
 
   useEffect(() => {
@@ -24,8 +24,14 @@ function App() {
       <Routes>
         <Route path="/landing" element={<Landing />} />
         <Route path="/" element={<HomePage />} />
-        <Route path="/register" element={<RegisterPage />} />
-        <Route path="/login" element={<Login isAuthenticated={token} />} />
+        <Route
+          path="/register"
+          element={<RegisterPage isAuthenticated={token} />}
+        />
+        <Route
+          path="/login"
+          element={token ? <Navigate to="/" replace /> : <Login />}
+        />
       </Routes>
       <Toaster />
     </>
