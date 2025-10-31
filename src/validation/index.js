@@ -3,10 +3,12 @@ export const LoginSchema = yup
   .object({
     email: yup
       .string()
+      .trim()
       .required("Email is required")
       .matches(/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/, "Email not valid"),
     password: yup
       .string()
+      .trim()
       .required("Password is required")
       .min(6, "Password should be at least 6 characters."),
   })
@@ -16,20 +18,24 @@ export const registerSchema = yup
   .object({
     firstName: yup
       .string()
+      .trim()
       .required("First name is required")
       .matches(/^[A-Za-z\s]+$/, "First name should contain only letters")
       .min(3, "First name should be at least 3 characters."),
     lastName: yup
       .string()
+      .trim()
       .required("Last name is required")
       .matches(/^[A-Za-z\s]+$/, "Last name should contain only letters")
       .min(3, "Last name should be at least 3 characters."),
     email: yup
       .string()
+      .trim()
       .required("Email is required")
       .matches(/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/, "Email not valid"),
     phone: yup
       .string()
+      .trim()
       .required("Phone number is required")
       .matches(
         /^01[0-9]{9}$/,
@@ -37,14 +43,17 @@ export const registerSchema = yup
       ),
     address: yup
       .string()
+      .trim()
       .required("Address is required")
       .min(5, "Address should be at least 5 characters."),
     password: yup
       .string()
+      .trim()
       .required("Password is required")
       .min(6, "Password should be at least 6 characters."),
     confirmPassword: yup
       .string()
+      .trim()
       .required("Confirm Password is required")
       .oneOf([yup.ref("password")], "Passwords must match"),
   })
@@ -74,14 +83,9 @@ export const registerSchemaPersonaChef = yup
         "Phone number must be a valid Egyptian number (e.g., 01012345678)"
       ),
     idVerification: yup
-      .mixed()
-      .required("Please upload your government ID")
-      .test("fileType", "Please upload a valid file", (value) => {
-        if (!value) return false;
-        if (value instanceof File) return true;
-        if (value.file instanceof File) return true;
-        return false;
-      }),
+      .string()
+      .url("Please upload a valid image link")
+      .required("Please upload your government ID"),
   })
   .required();
 export const registerSchemaKitchenChef = yup

@@ -40,14 +40,19 @@ export default function KitchenRegisterChef() {
   } = useForm({ resolver: yupResolver(registerSchemaKitchenChef) });
 
   const onSubmit = (data) => {
-    const allDataRegisterChef = { role: "cooker", ...dataRegisterChef, ...data };
-        toaster.create({
-          title: "👨‍🍳 Chef account created successfully ",
-          description:
-            "Welcome to Tablya! Your chef profile is ready. Please log in to start managing your kitchen.",
-          type: "success",
-          duration: 3500,
-        });
+    const allDataRegisterChef = {
+      role: "cooker",
+      name: `${dataRegisterChef.firstName} ${dataRegisterChef.lastName}`,
+      ...dataRegisterChef,
+      ...data,
+    };
+    toaster.create({
+      title: "👨‍🍳 Chef account created successfully ",
+      description:
+        "Welcome to Tablya! Your chef profile is ready. Please log in to start managing your kitchen.",
+      type: "success",
+      duration: 3500,
+    });
     console.log(allDataRegisterChef);
 
     reset();
@@ -73,7 +78,7 @@ export default function KitchenRegisterChef() {
           </Field.Label>
           <InputGroup startElement={<TbToolsKitchen2 />}>
             <Input
-              rounded="20px"
+              rounded="md"
               placeholder="Enter your kitchen name"
               bg={bgInput}
               border="1px solid"
@@ -130,7 +135,7 @@ export default function KitchenRegisterChef() {
               </Field.Label>
               <InputGroup startElement={<MdAccessTime />}>
                 <Input
-                  rounded="20px"
+                  rounded="md"
                   type="time"
                   bg={bgInput}
                   border="1px solid"
@@ -168,7 +173,7 @@ export default function KitchenRegisterChef() {
               </Field.Label>
               <InputGroup startElement={<MdAccessTime />}>
                 <Input
-                  rounded="20px"
+                  rounded="md"
                   type="time"
                   bg={bgInput}
                   border="1px solid"
@@ -271,7 +276,7 @@ export default function KitchenRegisterChef() {
           bg="#FA2c23"
           type="submit"
           w="100%"
-          rounded="20px"
+          rounded="md"
           color="white"
           fontWeight="bold"
           py={6}
