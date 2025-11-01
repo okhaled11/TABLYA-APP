@@ -22,7 +22,8 @@ The goal of this project is to **support small home chefs** and make it easy for
 
 ## 🚀 How to Run Locally
 ```bash
-git clone https://github.com/your-username/homemade-food-platform.git
-cd homemade-food-platform
+git clone https://github.com/Mohamed-Essam-Elfeshawy/TABLYA-APP
+cd TABLYA-APP
 npm install
 npm run dev
+
