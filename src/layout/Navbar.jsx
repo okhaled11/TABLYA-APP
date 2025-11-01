@@ -27,14 +27,13 @@ import CustomAlertDailog from "../shared/CustomAlertDailog";
 import Navlogo from "../assets/Navlogo.png";
 import colors from "../theme/color";
 
-
 export default function Navbar() {
-   const { t, i18n } = useTranslation();
+  const { t, i18n } = useTranslation();
 
-   const changeLanguage = (lang) => {
-     i18n.changeLanguage(lang);
-     document.dir = lang === "ar" ? "rtl" : "ltr";
-   };
+  const changeLanguage = (lang) => {
+    i18n.changeLanguage(lang);
+    document.dir = lang === "ar" ? "rtl" : "ltr";
+  };
 
   // const { isOpen, onOpen, onClose } = useDisclosure();
   const { colorMode, toggleColorMode } = useColorMode();
@@ -81,13 +80,13 @@ export default function Navbar() {
             <Flex alignItems="center">
               <Stack direction="row" spacing={5} align="center">
                 {/* test language */}
-                {/* <button
+                <button
                   onClick={() => changeLanguage("en")}
                   style={{
                     backgroundColor: "#fff",
                     color: "#3b82f6",
                     border: "none",
-                    padding: "10px 20px",
+                    padding: "2px 2px",
                     borderRadius: "8px",
                     cursor: "pointer",
                     fontWeight: "bold",
@@ -107,7 +106,7 @@ export default function Navbar() {
                     backgroundColor: "#3b82f6",
                     color: "#fff",
                     border: "2px solid #fff",
-                    padding: "10px 20px",
+                    padding: "1px 2px",
                     borderRadius: "8px",
                     cursor: "pointer",
                     fontWeight: "bold",
@@ -121,7 +120,7 @@ export default function Navbar() {
                   }
                 >
                   عربي
-                </button> */}
+                </button>
                 {/* mode toggle */}
                 <Button
                   onClick={toggleColorMode}
