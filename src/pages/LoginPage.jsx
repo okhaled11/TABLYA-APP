@@ -26,8 +26,11 @@ import { useDispatch, useSelector } from "react-redux";
 import { loginUser } from "../app/features/Auth/loginSLice";
 import CookieService from "../services/cookies";
 import Footer from "../shared/Footer";
+import { useTranslation } from "react-i18next";
 
 const LoginPage = () => {
+  const { t, i18n } = useTranslation();
+  const isRTL = i18n.language === "ar";
   const { colorMode } = useColorMode();
   const [user, setUser] = useState({
     email: "",
@@ -56,8 +59,8 @@ const LoginPage = () => {
       const role = result.payload.user?.user_metadata?.role;
 
       toaster.create({
-        title: "Login Successful",
-        description: `Welcome back, ${
+        title: t("login.successTitle"),
+        description: `${t("login.successDescription")}, ${
           result.payload?.user?.user_metadata?.name || "User"
         }!`,
         type: "success",
@@ -90,11 +93,11 @@ const LoginPage = () => {
         navigate("/pending-approval");
       } else {
         toaster.create({
-          title: "Login Failed",
+          title: t("login.errorTitle"),
           description:
             result.payload?.message ||
             result.payload ||
-            "Invalid email or password",
+            t("login.errorDescription"),
           type: "error",
           duration: 3000,
           isClosable: true,
@@ -140,10 +143,10 @@ const LoginPage = () => {
                     : colors.dark.textMain
                 }
               >
-                Login
+                {t("login.title")}
               </Heading>
               <Text fontSize={"sm"} color={"#968782"}>
-                Continue your homemade experience
+                {t("login.subtitle")}
               </Text>
             </VStack>
             <Box w="full" maxW="md" as="form" onSubmit={handleSubmit(onSubmit)}>
@@ -155,12 +158,13 @@ const LoginPage = () => {
               >
                 {/* Email */}
                 <Field.Root required>
-                  <Field.Label>
-                    Email <Field.RequiredIndicator></Field.RequiredIndicator>
+                  <Field.Label dir={isRTL ? "rtl" : "ltr"}>
+                    {t("login.email")} <Field.RequiredIndicator></Field.RequiredIndicator>
                   </Field.Label>
-                  <InputGroup startElement={<FaEnvelope />}>
+                  <InputGroup {...(isRTL ? { endElement: <FaEnvelope /> } : { startElement: <FaEnvelope /> })}>
                     <Input
-                      placeholder="Enter your email"
+                      placeholder={t("login.emailPlaceholder")}
+                      textAlign={isRTL ? "right" : "left"}
                       type="email"
                       name="email"
                       {...register("email")}
@@ -185,27 +189,44 @@ const LoginPage = () => {
                 </Field.Root>
                 {/* {/* Password} */}
                 <Field.Root flex={1} required>
-                  <Field.Label>
-                    Password <Field.RequiredIndicator></Field.RequiredIndicator>
+                  <Field.Label dir={isRTL ? "rtl" : "ltr"}>
+                    {t("login.password")} <Field.RequiredIndicator></Field.RequiredIndicator>
                   </Field.Label>
                   <InputGroup
-                    startElement={<FaLock />}
-                    endElement={
-                      showPassword ? (
-                        <AiOutlineEye
-                          size={18}
-                          onClick={() => setShowPassword((prev) => !prev)}
-                        />
-                      ) : (
-                        <AiOutlineEyeInvisible
-                          size={18}
-                          onClick={() => setShowPassword((prev) => !prev)}
-                        />
-                      )
-                    }
+                    {...(isRTL
+                      ? {
+                          startElement: showPassword ? (
+                            <AiOutlineEye
+                              size={18}
+                              onClick={() => setShowPassword((prev) => !prev)}
+                            />
+                          ) : (
+                            <AiOutlineEyeInvisible
+                              size={18}
+                              onClick={() => setShowPassword((prev) => !prev)}
+                            />
+                          ),
+                          endElement: <FaLock />
+                        }
+                      : {
+                          startElement: <FaLock />,
+                          endElement: showPassword ? (
+                            <AiOutlineEye
+                              size={18}
+                              onClick={() => setShowPassword((prev) => !prev)}
+                            />
+                          ) : (
+                            <AiOutlineEyeInvisible
+                              size={18}
+                              onClick={() => setShowPassword((prev) => !prev)}
+                            />
+                          )
+                        }
+                    )}
                   >
                     <Input
-                      placeholder="Enter your password"
+                      placeholder={t("login.passwordPlaceholder")}
+                      textAlign={isRTL ? "right" : "left"}
                       type={showPassword ? "text" : "password"}
                       name="password"
                       {...register("password")}
@@ -247,11 +268,11 @@ const LoginPage = () => {
                   loading={loading}
                   color={"#FFF7F0"}
                 >
-                  Login
+                  {t("login.loginButton")}
                 </Button>
 
-                <Text textAlign="center" fontSize="sm">
-                  Don’t have an account?{" "}
+                <Text textAlign="center" fontSize="sm" dir={isRTL ? "rtl" : "ltr"}>
+                  {t("login.noAccount")}{" "}
                   <Link to="/register">
                     <Text
                       as="span"
@@ -259,7 +280,7 @@ const LoginPage = () => {
                       fontWeight="semibold"
                       _hover={{ textDecoration: "underline" }}
                     >
-                      Create Account
+                      {t("login.createAccount")}
                     </Text>
                   </Link>
                 </Text>
@@ -270,7 +291,7 @@ const LoginPage = () => {
           {/* image */}
           <Flex flex={1} display={{ base: "none", md: "block" }}>
             <Image
-              alt="Signup Image"
+              alt={t("login.imageAlt")}
               objectFit="cover"
               w="100%"
               h="100%"

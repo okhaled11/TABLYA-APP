@@ -26,8 +26,11 @@ import { yupResolver } from "@hookform/resolvers/yup";
 import { useDispatch, useSelector } from "react-redux";
 import { registerCustomer } from "../../app/features/Auth/registerCustomerSlice";
 import { toaster } from "../ui/toaster";
+import { useTranslation } from "react-i18next";
 
 const CustomerRegister = () => {
+  const { t, i18n } = useTranslation();
+  const isRTL = i18n.language === "ar";
   const { colorMode } = useColorMode();
   const [user, setUser] = useState({
     firstName: "",
@@ -63,9 +66,8 @@ const CustomerRegister = () => {
     const result = await dispatch(registerCustomer(data));
     if (registerCustomer.fulfilled.match(result)) {
       toaster.create({
-        title: "Registration Successful",
-        description:
-          "Your account has been created successfully! Please login to continue.",
+        title: t("customerRegister.successTitle"),
+        description: t("customerRegister.successDescription"),
         type: "success",
         duration: 3000,
         isClosable: true,
@@ -77,8 +79,8 @@ const CustomerRegister = () => {
       }, 500);
     } else if (registerCustomer.rejected.match(result)) {
       toaster.create({
-        title: "Register Failed",
-        description: result.payload || "Something went wrong.",
+        title: t("customerRegister.errorTitle"),
+        description: result.payload || t("customerRegister.errorDescription"),
         type: "error",
         duration: 3000,
         isClosable: true,
@@ -94,12 +96,13 @@ const CustomerRegister = () => {
           {/* First & Last Name */}
           <Flex gap={4} direction={{ base: "column", md: "row" }}>
             <Field.Root flex={1} invalid={!!errors.firstName}>
-              <Field.Label>
-                First Name <Field.RequiredIndicator></Field.RequiredIndicator>
+              <Field.Label me={"auto"}  dir={isRTL ? "rtl" : "ltr"}>
+                {t("customerRegister.firstName")} <Field.RequiredIndicator></Field.RequiredIndicator>
               </Field.Label>
-              <InputGroup startElement={<FaUser />}>
+              <InputGroup {...(isRTL ? { endElement: <FaUser /> } : { startElement: <FaUser /> })}>
                 <Input
-                  placeholder="Enter your first name"
+                  placeholder={t("customerRegister.firstNamePlaceholder")}
+                  textAlign={isRTL ? "right" : "left"}
                   name="firstName"
                   {...register("firstName")}
                   type="text"
@@ -124,12 +127,13 @@ const CustomerRegister = () => {
             </Field.Root>
 
             <Field.Root flex={1} invalid={!!errors.lastName}>
-              <Field.Label>
-                Last Name <Field.RequiredIndicator></Field.RequiredIndicator>
+              <Field.Label me={"auto"}  dir={isRTL ? "rtl" : "ltr"}>
+                {t("customerRegister.lastName")} <Field.RequiredIndicator></Field.RequiredIndicator>
               </Field.Label>
-              <InputGroup startElement={<FaUser />}>
+              <InputGroup {...(isRTL ? { endElement: <FaUser /> } : { startElement: <FaUser /> })}>
                 <Input
-                  placeholder="Enter your last name"
+                  placeholder={t("customerRegister.lastNamePlaceholder")}
+                  textAlign={isRTL ? "right" : "left"}
                   name="lastName"
                   {...register("lastName")}
                   value={user.lastName}
@@ -155,12 +159,13 @@ const CustomerRegister = () => {
 
           {/* Email */}
           <Field.Root invalid={!!errors.email}>
-            <Field.Label>
-              Email <Field.RequiredIndicator></Field.RequiredIndicator>
+            <Field.Label me={"auto"}  dir={isRTL ? "rtl" : "ltr"}>
+              {t("customerRegister.email")} <Field.RequiredIndicator></Field.RequiredIndicator>
             </Field.Label>
-            <InputGroup startElement={<FaEnvelope />}>
+            <InputGroup {...(isRTL ? { endElement: <FaEnvelope /> } : { startElement: <FaEnvelope /> })}>
               <Input
-                placeholder="Enter your email"
+                placeholder={t("customerRegister.emailPlaceholder")}
+                textAlign={isRTL ? "right" : "left"}
                 type="email"
                 name="email"
                 {...register("email")}
@@ -186,12 +191,13 @@ const CustomerRegister = () => {
 
           {/* Phone */}
           <Field.Root invalid={!!errors.phone}>
-            <Field.Label>
-              Phone <Field.RequiredIndicator></Field.RequiredIndicator>
+            <Field.Label me={"auto"}  dir={isRTL ? "rtl" : "ltr"}>
+              {t("customerRegister.phone")} <Field.RequiredIndicator></Field.RequiredIndicator>
             </Field.Label>
-            <InputGroup startElement={<FaPhone />}>
+            <InputGroup {...(isRTL ? { endElement: <FaPhone /> } : { startElement: <FaPhone /> })}>
               <Input
-                placeholder="Enter your phone number"
+                placeholder={t("customerRegister.phonePlaceholder")}
+                textAlign={isRTL ? "right" : "left"}
                 name="phone"
                 {...register("phone")}
                 value={user.phone}
@@ -216,12 +222,13 @@ const CustomerRegister = () => {
 
           {/* Address */}
           <Field.Root invalid={!!errors.address}>
-            <Field.Label>
-              Address <Field.RequiredIndicator></Field.RequiredIndicator>
+            <Field.Label me={"auto"}  dir={isRTL ? "rtl" : "ltr"}>
+              {t("customerRegister.address")} <Field.RequiredIndicator></Field.RequiredIndicator>
             </Field.Label>
-            <InputGroup startElement={<FaMapMarkerAlt />}>
+            <InputGroup {...(isRTL ? { endElement: <FaMapMarkerAlt /> } : { startElement: <FaMapMarkerAlt /> })}>
               <Input
-                placeholder="Enter your address"
+                placeholder={t("customerRegister.addressPlaceholder")}
+                textAlign={isRTL ? "right" : "left"}
                 name="address"
                 {...register("address")}
                 value={user.address}
@@ -247,27 +254,44 @@ const CustomerRegister = () => {
           {/* Password & Confirm Password */}
           <Flex gap={4} direction={{ base: "column", md: "row" }}>
             <Field.Root flex={1} invalid={!!errors.password}>
-              <Field.Label>
-                Password <Field.RequiredIndicator></Field.RequiredIndicator>
+              <Field.Label me={"auto"}  dir={isRTL ? "rtl" : "ltr"}>
+                {t("customerRegister.password")} <Field.RequiredIndicator></Field.RequiredIndicator>
               </Field.Label>
               <InputGroup
-                startElement={<FaLock />}
-                endElement={
-                  showPassword ? (
-                    <AiOutlineEye
-                      size={18}
-                      onClick={() => setShowPassword((prev) => !prev)}
-                    />
-                  ) : (
-                    <AiOutlineEyeInvisible
-                      size={18}
-                      onClick={() => setShowPassword((prev) => !prev)}
-                    />
-                  )
-                }
+                {...(isRTL
+                  ? {
+                      startElement: showPassword ? (
+                        <AiOutlineEye
+                          size={18}
+                          onClick={() => setShowPassword((prev) => !prev)}
+                        />
+                      ) : (
+                        <AiOutlineEyeInvisible
+                          size={18}
+                          onClick={() => setShowPassword((prev) => !prev)}
+                        />
+                      ),
+                      endElement: <FaLock />
+                    }
+                  : {
+                      startElement: <FaLock />,
+                      endElement: showPassword ? (
+                        <AiOutlineEye
+                          size={18}
+                          onClick={() => setShowPassword((prev) => !prev)}
+                        />
+                      ) : (
+                        <AiOutlineEyeInvisible
+                          size={18}
+                          onClick={() => setShowPassword((prev) => !prev)}
+                        />
+                      )
+                    }
+                )}
               >
                 <Input
-                  placeholder="Enter your password"
+                  placeholder={t("customerRegister.passwordPlaceholder")}
+                  textAlign={isRTL ? "right" : "left"}
                   type={showPassword ? "text" : "password"}
                   name="password"
                   {...register("password")}
@@ -293,28 +317,45 @@ const CustomerRegister = () => {
               )}
             </Field.Root>
             <Field.Root flex={1} invalid={!!errors.confirmPassword}>
-              <Field.Label>
-                Confirm Password{" "}
+              <Field.Label me={"auto"}  dir={isRTL ? "rtl" : "ltr"}>
+                {t("customerRegister.confirmPassword")}{" "}
                 <Field.RequiredIndicator></Field.RequiredIndicator>
               </Field.Label>
               <InputGroup
-                startElement={<FaLock />}
-                endElement={
-                  showConfirmPassword ? (
-                    <AiOutlineEye
-                      size={18}
-                      onClick={() => setShowConfirmPassword((prev) => !prev)}
-                    />
-                  ) : (
-                    <AiOutlineEyeInvisible
-                      size={18}
-                      onClick={() => setShowConfirmPassword((prev) => !prev)}
-                    />
-                  )
-                }
+                {...(isRTL
+                  ? {
+                      startElement: showConfirmPassword ? (
+                        <AiOutlineEye
+                          size={18}
+                          onClick={() => setShowConfirmPassword((prev) => !prev)}
+                        />
+                      ) : (
+                        <AiOutlineEyeInvisible
+                          size={18}
+                          onClick={() => setShowConfirmPassword((prev) => !prev)}
+                        />
+                      ),
+                      endElement: <FaLock />
+                    }
+                  : {
+                      startElement: <FaLock />,
+                      endElement: showConfirmPassword ? (
+                        <AiOutlineEye
+                          size={18}
+                          onClick={() => setShowConfirmPassword((prev) => !prev)}
+                        />
+                      ) : (
+                        <AiOutlineEyeInvisible
+                          size={18}
+                          onClick={() => setShowConfirmPassword((prev) => !prev)}
+                        />
+                      )
+                    }
+                )}
               >
                 <Input
-                  placeholder="Confirm password"
+                  placeholder={t("customerRegister.confirmPasswordPlaceholder")}
+                  textAlign={isRTL ? "right" : "left"}
                   type={showConfirmPassword ? "text" : "password"}
                   name="confirmPassword"
                   {...register("confirmPassword")}
@@ -357,11 +398,11 @@ const CustomerRegister = () => {
             loading={loading}
             color={"#FFF7F0"}
           >
-            Create Customer Account
+            {t("customerRegister.createAccount")}
           </Button>
 
-          <Text textAlign="center" fontSize="sm">
-            Already a user?{" "}
+          <Text textAlign="center" fontSize="sm" dir={isRTL ? "rtl" : "ltr"}>
+            {t("customerRegister.alreadyUser")}{" "}
             <Link to="/login">
               <Text
                 as="span"
@@ -369,7 +410,7 @@ const CustomerRegister = () => {
                 fontWeight="semibold"
                 _hover={{ textDecoration: "underline" }}
               >
-                Login
+                {t("customerRegister.login")}
               </Text>
             </Link>
           </Text>
