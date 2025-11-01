@@ -22,14 +22,13 @@ function App() {
 
   return (
     <>
+
       <Routes>
-        <Route path="/landing" element={<Landing />} />
-        <Route path="/" element={<HomePage />} />
-        <Route
-          path="/register"
-          element={<RegisterPage isAuthenticated={token} />}
-        />
-        <Route path="/login" element={<Login />} />
+         <Route path="/" element={<Landing />} />
+        <Route path="/login" element={<Login isAuthenticated={token} />} />
+
+        <Route path="/register" element={<RegisterPage isAuthenticated={token} /> } />
+ 
         <Route path="/pending-approval" element={<PendingApprovalPage />} />
       </Routes>
       <Toaster />
