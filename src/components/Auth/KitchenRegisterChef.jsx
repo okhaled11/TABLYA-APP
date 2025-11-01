@@ -21,9 +21,12 @@ import { toaster } from "../ui/toaster";
 import { uploadImageToImgBB } from "../../services/uploadImageToImageBB";
 import { useRegisterChefMutation } from "../../app/features/Auth/registerChefSlice";
 import { useNavigate } from "react-router-dom";
+import { Link as LinkRoute } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 
 export default function KitchenRegisterChef() {
   /* ---------------state----------------- */
+  const { t } = useTranslation();
   const { colorMode } = useColorMode();
   const navigate = useNavigate();
   const [showPassword, setShowPassword] = useState(false);
@@ -55,7 +58,6 @@ export default function KitchenRegisterChef() {
       name: `${dataRegisterChef.firstName} ${dataRegisterChef.lastName}`,
       ...dataRegisterChef,
       ...data,
-
     };
     console.log(allDataRegisterChef);
     registerChef(allDataRegisterChef);
@@ -68,9 +70,8 @@ export default function KitchenRegisterChef() {
       setTimeout(
         () =>
           toaster.create({
-            title: "👨‍🍳 Chef account created successfully",
-            description:
-              "Welcome to Tablya! Your chef profile is ready. Please log in to start managing your kitchen.",
+            title: t("kitchenRegisterChef.successTitle"),
+            description: t("kitchenRegisterChef.successDescription"),
             type: "success",
             duration: 3500,
           }),
@@ -81,13 +82,13 @@ export default function KitchenRegisterChef() {
 
     if (isError && error) {
       toaster.create({
-        title: "❌ Registration failed",
-        description: error?.message || "Something went wrong. Try again!",
+        title: t("kitchenRegisterChef.errorTitle"),
+        description: error?.message || t("kitchenRegisterChef.errorDescription"),
         type: "error",
         duration: 4000,
       });
     }
-  }, [isError, error, data, isSuccess, navigate]);
+  }, [isError, error, data, isSuccess, navigate,t]);
 
   return (
     <>
@@ -102,7 +103,7 @@ export default function KitchenRegisterChef() {
             }
             mb={2}
           >
-            Kitchen Name
+            {t("kitchenRegisterChef.kitchenName")}
             <Text as="span" color="#FA2c23">
               *
             </Text>
@@ -110,7 +111,7 @@ export default function KitchenRegisterChef() {
           <InputGroup startElement={<TbToolsKitchen2 />}>
             <Input
               rounded="md"
-              placeholder="Enter your kitchen name"
+              placeholder={t("kitchenRegisterChef.kitchenNamePlaceholder")}
               bg={bgInput}
               border="1px solid"
               borderColor={colorMode === "light" ? "gray.200" : "transparent"}
@@ -140,7 +141,7 @@ export default function KitchenRegisterChef() {
               fontWeight="medium"
               mb={2}
             >
-              Working Hours
+              {t("kitchenRegisterChef.workingHours")}
               <Text as="span" color="#FA2c23">
                 *
               </Text>
@@ -159,7 +160,7 @@ export default function KitchenRegisterChef() {
                     : colors.dark.textSub
                 }
               >
-                Start Time
+                {t("kitchenRegisterChef.startTime")}
                 <Text as="span" color="#FA2c23">
                   *
                 </Text>
@@ -197,7 +198,7 @@ export default function KitchenRegisterChef() {
                     : colors.dark.textSub
                 }
               >
-                End Time
+                {t("kitchenRegisterChef.endTime")}
                 <Text as="span" color="#FA2c23">
                   *
                 </Text>
@@ -229,7 +230,7 @@ export default function KitchenRegisterChef() {
         {/* Password */}
         <Field.Root flex={1} invalid={!!errors.password}>
           <Field.Label>
-            Password{" "}
+            {t("kitchenRegisterChef.password")}{" "}
             <Text as="span" color="#FA2c23">
               *
             </Text>
@@ -251,7 +252,7 @@ export default function KitchenRegisterChef() {
             }
           >
             <Input
-              placeholder="Enter your password"
+              placeholder={t("kitchenRegisterChef.passwordPlaceholder")}
               type={showPassword ? "text" : "password"}
               bg={bgInput}
               borderRadius="10px"
@@ -267,7 +268,7 @@ export default function KitchenRegisterChef() {
         {/* Confirm Password */}
         <Field.Root flex={1} invalid={!!errors.confirmPassword}>
           <Field.Label>
-            Confirm Password
+            {t("kitchenRegisterChef.confirmPassword")}
             <Text as="span" color="#FA2c23">
               *
             </Text>
@@ -289,7 +290,7 @@ export default function KitchenRegisterChef() {
             }
           >
             <Input
-              placeholder="Confirm password"
+              placeholder={t("kitchenRegisterChef.confirmPasswordPlaceholder")}
               type={showConfirmPassword ? "text" : "password"}
               bg={bgInput}
               borderRadius="10px"
@@ -305,7 +306,7 @@ export default function KitchenRegisterChef() {
         {/* Upload selfie with your ID card */}
         <Field.Root invalid={!!errors.idSelfie}>
           <Field.Label>
-            Upload selfie with your ID card
+            {t("kitchenRegisterChef.uploadIdSelfie")}
             <Text as="span" color="#FA2c23">
               *
             </Text>
@@ -363,7 +364,7 @@ export default function KitchenRegisterChef() {
           mt={6}
           _hover={{ bg: "#d91f17" }}
         >
-          Create Chef Account
+          {t("kitchenRegisterChef.createChefAccount")}
         </Button>
 
         {/* Login link */}
@@ -373,14 +374,15 @@ export default function KitchenRegisterChef() {
             colorMode === "light" ? colors.light.textMain : colors.dark.textMain
           }
         >
-          Already have an account?{" "}
+          {t("kitchenRegisterChef.alreadyHaveAccount")}{" "}
           <Link
+            as={LinkRoute}
+            to={"/login"}
             fontWeight="bold"
             _focus={{ outline: "none" }}
             color="#FA2c23"
-            href="#"
           >
-            Login
+            {t("kitchenRegisterChef.login")}
           </Link>
         </Text>
       </Box>

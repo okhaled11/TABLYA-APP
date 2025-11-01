@@ -24,13 +24,14 @@ import { useState } from "react";
 import { toaster } from "../ui/toaster";
 import { uploadImageToImgBB } from "../../services/uploadImageToImageBB";
 import { useTranslation } from "react-i18next";
+import { Link as LinkRoute } from "react-router-dom";
 
 export const PersonalRegisterChef = ({ nextStepHandler }) => {
   /* ---------------state----------------- */
   const { colorMode } = useColorMode();
   const [linkImg, setLinkImg] = useState("");
   const dispatch = useDispatch();
-    const { t } = useTranslation();
+  const { t } = useTranslation();
 
   /* ---------------variable----------------- */
   const bgInput =
@@ -210,11 +211,12 @@ export const PersonalRegisterChef = ({ nextStepHandler }) => {
       <Text textAlign="center">
         {t("personalRegisterChef.alreadyHaveAccount")}
         <Link
+          as={LinkRoute}
+          to={"/login"}
           fontWeight="bold"
           ms={1}
           _focus={{ outline: "none" }}
           color="#FA2c23"
-          href="#"
         >
           {t("personalRegisterChef.login")}
         </Link>

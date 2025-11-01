@@ -15,6 +15,7 @@
     "@emotion/styled": "^11.14.1",
     "@gsap/react": "^2.1.2",
     "@hookform/resolvers": "^5.2.2",
+    "@phosphor-icons/react": "^2.1.10",
     "@reduxjs/toolkit": "^2.9.0",
     "@supabase/supabase-js": "^2.77.0",
     "framer-motion": "^12.23.22",
