@@ -11,5 +11,23 @@
     "logout_confirm_description": "You will be logged out from the application!",
     "cancel": "Cancel",
     "ok": "Ok"
+  },
+  "personalRegisterChef": {
+    "firstName": "First Name",
+    "lastName": "Last Name",
+    "email": "Email",
+    "phone": "Phone",
+    "idVerification": "ID Verification",
+    "firstNamePlaceholder": "Enter your first name",
+    "lastNamePlaceholder": "Enter your last name",
+    "emailPlaceholder": "Enter your email",
+    "phonePlaceholder": "Enter your phone number",
+    "uploadId": "Upload your government ID",
+    "chooseFile": "Choose File",
+    "continue": "Continue",
+    "alreadyHaveAccount": "Already have an account?",
+    "login": "Login",
+    "successTitle": "👨‍🍳 Personal Info Saved!",
+    "successDescription": "Your data was saved successfully. Continue to the next step."
   }
 }

@@ -8,6 +8,7 @@ import colors from "../theme/color";
 import register from "../assets/Images_Auth/register.png";
 import ChefRegister from "../components/Auth/ChefRegister";
 import Navbar from "../layout/Navbar";
+import Footer from "../shared/Footer";
 
 export default function RegisterPage() {
   const { colorMode } = useColorMode();
@@ -133,6 +134,7 @@ export default function RegisterPage() {
           </Flex>
         </Flex>
       </Flex>
+      <Footer/>
     </>
   );
 }
