@@ -11,7 +11,7 @@ export const registerCustomer = createAsyncThunk(
   "auth/registerCustomer",
   async (userData, { rejectWithValue }) => {
     try {
-      const { firstName, lastName, email, password, address, phone } = userData;
+      const { firstName, lastName, email, password, phone, address } = userData;
 
       const username = `${firstName} ${lastName}`;
 
@@ -20,7 +20,7 @@ export const registerCustomer = createAsyncThunk(
         password,
         options: {
           data: {
-            name:username,
+            name: username,
             address,
             phone,
             role: "customer",
