@@ -9,8 +9,10 @@ import register from "../assets/Images_Auth/register.png";
 import ChefRegister from "../components/Auth/ChefRegister";
 import Navbar from "../layout/Navbar";
 import Footer from "../shared/Footer";
+import { useTranslation } from "react-i18next";
 
 export default function RegisterPage() {
+  const { t } = useTranslation();
   const { colorMode } = useColorMode();
 
   return (
@@ -52,10 +54,10 @@ export default function RegisterPage() {
                         : colors.dark.textMain
                     }
                   >
-                    Create Account
+                    {t("register.title")}
                   </Heading>
                   <Text fontSize={"sm"} color={"#968782"}>
-                    Join Tablya as a Customer or a Home Chef
+                    {t("register.subtitle")}
                   </Text>
                 </VStack>
                 <Tabs.List
@@ -83,7 +85,7 @@ export default function RegisterPage() {
                     }}
                   >
                     <FaUserAlt style={{ marginRight: "6px" }} />
-                    Customer
+                    {t("register.customer")}
                   </Tabs.Trigger>
 
                   <Tabs.Trigger
@@ -101,7 +103,7 @@ export default function RegisterPage() {
                     }}
                   >
                     <PiChefHatDuotone style={{ marginRight: "6px" }} />
-                    Chef
+                    {t("register.chef")}
                   </Tabs.Trigger>
 
                   <Tabs.Indicator display="none" />
@@ -124,7 +126,7 @@ export default function RegisterPage() {
           {/* Right Side: Image */}
           <Flex flex={1} display={{ base: "none", md: "block" }}>
             <Image
-              alt="Signup Image"
+              alt={t("register.imageAlt")}
               objectFit="cover"
               w="100%"
               h="100%"

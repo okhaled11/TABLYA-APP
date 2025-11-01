@@ -14,8 +14,11 @@ import { FaClock, FaEnvelope, FaHome } from "react-icons/fa";
 import { MdPendingActions } from "react-icons/md";
 import Navbar from "../layout/Navbar";
 import Footer from "../shared/Footer";
+import { useTranslation } from "react-i18next";
 
 const PendingApprovalPage = () => {
+  const { t, i18n } = useTranslation();
+  const isRTL = i18n.language === "ar";
   const { colorMode } = useColorMode();
   const navigate = useNavigate();
 
@@ -86,7 +89,7 @@ const PendingApprovalPage = () => {
                     : colors.dark.textMain
                 }
               >
-                Account Pending Approval
+                {t("pendingApproval.title")}
               </Heading>
 
               {/* Description */}
@@ -95,9 +98,9 @@ const PendingApprovalPage = () => {
                   fontSize={{ base: "md", md: "lg" }}
                   color={colorMode === "light" ? "gray.600" : "gray.400"}
                   lineHeight="tall"
+                  dir={isRTL ? "rtl" : "ltr"}
                 >
-                  Your chef account is currently under review by our admin team.
-                  This process typically takes 24-48 hours.
+                  {t("pendingApproval.description")}
                 </Text>
 
                 <Box
@@ -121,17 +124,16 @@ const PendingApprovalPage = () => {
                         colorMode === "light" ? "orange.800" : "orange.200"
                       }
                     >
-                      What happens next?
+                      {t("pendingApproval.whatNext")}
                     </Text>
                   </Flex>
                   <Text
                     fontSize="sm"
                     color={colorMode === "light" ? "orange.700" : "orange.300"}
-                    textAlign="left"
+                    textAlign={isRTL ? "right" : "left"}
+                    dir={isRTL ? "rtl" : "ltr"}
                   >
-                    We'll review your submitted documents and kitchen
-                    information. You'll receive an email notification once your
-                    account is approved.
+                    {t("pendingApproval.whatNextDescription")}
                   </Text>
                 </Box>
               </VStack>
@@ -156,7 +158,7 @@ const PendingApprovalPage = () => {
                   }}
                   transition="all 0.2s"
                 >
-                  Go to Home
+                  {t("pendingApproval.goHome")}
                 </Button>
 
                 <Button
@@ -185,7 +187,7 @@ const PendingApprovalPage = () => {
                         : "rgba(251, 211, 141, 0.1)",
                   }}
                 >
-                  Contact Support
+                  {t("pendingApproval.contactSupport")}
                 </Button>
               </VStack>
 
@@ -194,8 +196,9 @@ const PendingApprovalPage = () => {
                 fontSize="xs"
                 color={colorMode === "light" ? "gray.500" : "gray.500"}
                 mt={4}
+                dir={isRTL ? "rtl" : "ltr"}
               >
-                Need immediate assistance? Contact us at support@tablya.com
+                {t("pendingApproval.needHelp")}
               </Text>
             </VStack>
           </Box>

@@ -31,7 +31,8 @@ export const PersonalRegisterChef = ({ nextStepHandler }) => {
   const { colorMode } = useColorMode();
   const [linkImg, setLinkImg] = useState("");
   const dispatch = useDispatch();
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
+  const isRTL = i18n.language === "ar";
 
   /* ---------------variable----------------- */
   const bgInput =
@@ -65,17 +66,18 @@ export const PersonalRegisterChef = ({ nextStepHandler }) => {
       <Flex gap="4" direction={{ base: "column", md: "row" }}>
         {/* First Name */}
         <Field.Root invalid={!!errors.firstName}>
-          <Field.Label>
+          <Field.Label me={"auto"} dir={isRTL ? "rtl" : "ltr"} >
             {t("personalRegisterChef.firstName")}
             <Text as="span" color="#FA2c23">
               *
             </Text>
           </Field.Label>
-          <InputGroup startElement={<FaUser />}>
+          <InputGroup {...(isRTL ? { endElement: <FaUser /> } : { startElement: <FaUser /> })}>
             <Input
               rounded="md"
               placeholder={t("personalRegisterChef.firstNamePlaceholder")}
               bg={bgInput}
+              textAlign={isRTL ? "right" : "left"}
               {...register("firstName")}
             />
           </InputGroup>
@@ -88,17 +90,18 @@ export const PersonalRegisterChef = ({ nextStepHandler }) => {
 
         {/* Last Name */}
         <Field.Root invalid={!!errors.lastName}>
-          <Field.Label>
+          <Field.Label me={"auto"} dir={isRTL ? "rtl" : "ltr"}>
             {t("personalRegisterChef.lastName")}
             <Text as="span" color="#FA2c23">
               *
             </Text>
           </Field.Label>
-          <InputGroup startElement={<FaUser />}>
+          <InputGroup {...(isRTL ? { endElement: <FaUser /> } : { startElement: <FaUser /> })}>
             <Input
               rounded="md"
               placeholder={t("personalRegisterChef.lastNamePlaceholder")}
               bg={bgInput}
+              textAlign={isRTL ? "right" : "left"}
               {...register("lastName")}
             />
           </InputGroup>
@@ -112,17 +115,18 @@ export const PersonalRegisterChef = ({ nextStepHandler }) => {
 
       {/* Email */}
       <Field.Root invalid={!!errors.email}>
-        <Field.Label>
+        <Field.Label me={"auto"} dir={isRTL ? "rtl" : "ltr"}>
           {t("personalRegisterChef.email")}
           <Text as="span" color="#FA2c23">
             *
           </Text>
         </Field.Label>
-        <InputGroup startElement={<MdEmail />}>
+        <InputGroup {...(isRTL ? { endElement: <MdEmail /> } : { startElement: <MdEmail /> })}>
           <Input
             rounded="md"
             placeholder={t("personalRegisterChef.emailPlaceholder")}
             bg={bgInput}
+            textAlign={isRTL ? "right" : "left"}
             {...register("email")}
           />
         </InputGroup>
@@ -135,17 +139,18 @@ export const PersonalRegisterChef = ({ nextStepHandler }) => {
 
       {/* Phone */}
       <Field.Root invalid={!!errors.phone}>
-        <Field.Label>
+        <Field.Label me={"auto"} dir={isRTL ? "rtl" : "ltr"}>
           {t("personalRegisterChef.phone")}
           <Text as="span" color="#FA2c23">
             *
           </Text>
         </Field.Label>
-        <InputGroup startElement={<FaPhoneAlt />}>
+        <InputGroup {...(isRTL ? { endElement: <FaPhoneAlt /> } : { startElement: <FaPhoneAlt /> })}>
           <Input
             rounded="md"
             placeholder={t("personalRegisterChef.phonePlaceholder")}
             bg={bgInput}
+            textAlign={isRTL ? "right" : "left"}
             {...register("phone")}
           />
         </InputGroup>
@@ -158,7 +163,7 @@ export const PersonalRegisterChef = ({ nextStepHandler }) => {
 
       {/* ID Verification */}
       <Field.Root invalid={!!errors.idVerification}>
-        <Field.Label>
+        <Field.Label me={"auto"} dir={isRTL ? "rtl" : "ltr"}>
           {t("personalRegisterChef.idVerification")}
           <Text as="span" color="#FA2c23">
             *
@@ -208,11 +213,11 @@ export const PersonalRegisterChef = ({ nextStepHandler }) => {
       </Button>
 
       {/* Login */}
-      <Text textAlign="center">
+      <Text textAlign="center" dir={isRTL ? "rtl" : "ltr"}>
         {t("personalRegisterChef.alreadyHaveAccount")}
         <Link
           as={LinkRoute}
-          to={"/login"}
+          to="/login"
           fontWeight="bold"
           ms={1}
           _focus={{ outline: "none" }}
