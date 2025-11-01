@@ -6,13 +6,13 @@ const PageNotFound = () => {
       <div className="px-4 lg:py-12">
         <div className="lg:gap-4 lg:flex">
           <div className="flex flex-col items-center justify-center md:py-24 lg:py-32">
-            <h1 className="font-bold text-indigo-600 text-9xl">404</h1>
+            <h1 className="font-bold text-indigo-600 text-9xl">Pending Approval</h1>
             <p className="mb-2 text-2xl font-bold text-center  md:text-3xl">
-              <span className="text-red-500">Oops!</span>{" "}
-              <span>Page not found</span>
+              <span className="text-red-500">Waiting for approval!</span>{" "}
+              <span>Your request is pending approval</span>
             </p>
             <p className="mb-8 text-center md:text-lg">
-              The page you’re looking for doesn’t exist.
+              Your request has been submitted and is waiting for approval.
             </p>
             <Link
               to={"/"}
