@@ -22,12 +22,15 @@ import { useDispatch } from "react-redux";
 import { getDataRegisterChef } from "../../app/features/PersonalRegisterChefSlice";
 import { useState } from "react";
 import { toaster } from "../ui/toaster";
+import { uploadImageToImgBB } from "../../services/uploadImageToImageBB";
+import { useTranslation } from "react-i18next";
 
 export const PersonalRegisterChef = ({ nextStepHandler }) => {
   /* ---------------state----------------- */
   const { colorMode } = useColorMode();
   const [linkImg, setLinkImg] = useState("");
   const dispatch = useDispatch();
+    const { t } = useTranslation();
 
   /* ---------------variable----------------- */
   const bgInput =
@@ -46,9 +49,8 @@ export const PersonalRegisterChef = ({ nextStepHandler }) => {
     dispatch(getDataRegisterChef(dataUpdated));
 
     toaster.create({
-      title: "👨‍🍳 Personal Info Saved!",
-      description:
-        "Your data was saved successfully. Continue to the next step.",
+      title: t("personalRegisterChef.successTitle"),
+      description: t("personalRegisterChef.successDescription"),
       type: "success",
       duration: 3500,
     });
@@ -63,15 +65,15 @@ export const PersonalRegisterChef = ({ nextStepHandler }) => {
         {/* First Name */}
         <Field.Root invalid={!!errors.firstName}>
           <Field.Label>
-            First Name
+            {t("personalRegisterChef.firstName")}
             <Text as="span" color="#FA2c23">
               *
             </Text>
           </Field.Label>
           <InputGroup startElement={<FaUser />}>
             <Input
-              rounded="20px"
-              placeholder="Enter your first name"
+              rounded="md"
+              placeholder={t("personalRegisterChef.firstNamePlaceholder")}
               bg={bgInput}
               {...register("firstName")}
             />
@@ -86,15 +88,15 @@ export const PersonalRegisterChef = ({ nextStepHandler }) => {
         {/* Last Name */}
         <Field.Root invalid={!!errors.lastName}>
           <Field.Label>
-            Last Name
+            {t("personalRegisterChef.lastName")}
             <Text as="span" color="#FA2c23">
               *
             </Text>
           </Field.Label>
           <InputGroup startElement={<FaUser />}>
             <Input
-              rounded="20px"
-              placeholder="Enter your last name"
+              rounded="md"
+              placeholder={t("personalRegisterChef.lastNamePlaceholder")}
               bg={bgInput}
               {...register("lastName")}
             />
@@ -110,15 +112,15 @@ export const PersonalRegisterChef = ({ nextStepHandler }) => {
       {/* Email */}
       <Field.Root invalid={!!errors.email}>
         <Field.Label>
-          Email
+          {t("personalRegisterChef.email")}
           <Text as="span" color="#FA2c23">
             *
           </Text>
         </Field.Label>
         <InputGroup startElement={<MdEmail />}>
           <Input
-            rounded="20px"
-            placeholder="Enter your email"
+            rounded="md"
+            placeholder={t("personalRegisterChef.emailPlaceholder")}
             bg={bgInput}
             {...register("email")}
           />
@@ -133,15 +135,15 @@ export const PersonalRegisterChef = ({ nextStepHandler }) => {
       {/* Phone */}
       <Field.Root invalid={!!errors.phone}>
         <Field.Label>
-          Phone
+          {t("personalRegisterChef.phone")}
           <Text as="span" color="#FA2c23">
             *
           </Text>
         </Field.Label>
         <InputGroup startElement={<FaPhoneAlt />}>
           <Input
-            rounded="20px"
-            placeholder="Enter your phone number"
+            rounded="md"
+            placeholder={t("personalRegisterChef.phonePlaceholder")}
             bg={bgInput}
             {...register("phone")}
           />
@@ -156,7 +158,7 @@ export const PersonalRegisterChef = ({ nextStepHandler }) => {
       {/* ID Verification */}
       <Field.Root invalid={!!errors.idVerification}>
         <Field.Label>
-          ID Verification
+          {t("personalRegisterChef.idVerification")}
           <Text as="span" color="#FA2c23">
             *
           </Text>
@@ -165,25 +167,32 @@ export const PersonalRegisterChef = ({ nextStepHandler }) => {
         <FileUpload.Root
           alignItems="stretch"
           maxFiles={1}
-          onFileAccept={(details) => {
+          onFileAccept={async (details) => {
             const file = details.files?.[0];
-            setLinkImg(file.name);
-            console.log(file.name);
-
-            setValue("idVerification", file, { shouldValidate: true });
+            if (!file) return;
+            const imageUrl = await uploadImageToImgBB(file);
+            setLinkImg(imageUrl);
+            setValue("idVerification", imageUrl, { shouldValidate: true });
           }}
         >
           <FileUpload.HiddenInput />
-          <FileUpload.Dropzone rounded="xl" p={6} bg={bgInput}>
+          <FileUpload.Dropzone
+            rounded="xl"
+            p={6}
+            bg={bgInput}
+            backgroundImage={linkImg ? `url(${linkImg})` : "none"}
+            backgroundSize="cover"
+            backgroundPosition="center"
+            backgroundRepeat="no-repeat"
+          >
             <Icon size="md" color="fg.muted">
               <LuUpload />
             </Icon>
             <FileUpload.DropzoneContent>
-              <Box>Upload your government ID</Box>
-              <Box color="fg.muted">Choose File</Box>
+              <Box>{t("personalRegisterChef.uploadId")}</Box>
+              <Box color="fg.muted">{t("personalRegisterChef.chooseFile")}</Box>
             </FileUpload.DropzoneContent>
           </FileUpload.Dropzone>
-          <FileUpload.List />
         </FileUpload.Root>
         {errors.idVerification && (
           <Field.ErrorText fontWeight="bold">
@@ -193,13 +202,13 @@ export const PersonalRegisterChef = ({ nextStepHandler }) => {
       </Field.Root>
 
       {/* Continue */}
-      <Button bg="#FA2c23" type="submit" w="100%" rounded="20px">
-        Continue
+      <Button bg="#FA2c23" type="submit" w="100%" rounded="md">
+        {t("personalRegisterChef.continue")}
       </Button>
 
       {/* Login */}
       <Text textAlign="center">
-        Already have an account?
+        {t("personalRegisterChef.alreadyHaveAccount")}
         <Link
           fontWeight="bold"
           ms={1}
@@ -207,7 +216,7 @@ export const PersonalRegisterChef = ({ nextStepHandler }) => {
           color="#FA2c23"
           href="#"
         >
-          Login
+          {t("personalRegisterChef.login")}
         </Link>
       </Text>
     </Box>
