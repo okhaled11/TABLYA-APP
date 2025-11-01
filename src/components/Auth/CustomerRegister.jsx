@@ -355,6 +355,7 @@ const CustomerRegister = () => {
             mt={10}
             onClick={handleSubmit}
             loading={loading}
+            color={"#FFF7F0"}
           >
             Create Customer Account
           </Button>

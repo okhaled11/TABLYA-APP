@@ -1,3 +1,13 @@
 body {
   font-family: "Alexandria", sans-serif;
 }
+
+html.light,
+body.light {
+  background: #FFF7F0;
+}
+
+html.dark,
+body.dark {
+  background: #1F0604;
+}

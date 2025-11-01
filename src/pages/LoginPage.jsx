@@ -25,6 +25,7 @@ import Navbar from "../layout/Navbar";
 import { useDispatch, useSelector } from "react-redux";
 import { loginUser } from "../app/features/Auth/loginSLice";
 import CookieService from "../services/cookies";
+import Footer from "../shared/Footer";
 
 const LoginPage = () => {
   const { colorMode } = useColorMode();
@@ -102,7 +103,6 @@ const LoginPage = () => {
       }
     }
   };
-
 
   return (
     <>
@@ -245,6 +245,7 @@ const LoginPage = () => {
                   mt={10}
                   onClick={handleSubmit}
                   loading={loading}
+                  color={"#FFF7F0"}
                 >
                   Login
                 </Button>
@@ -279,6 +280,7 @@ const LoginPage = () => {
           </Flex>
         </Flex>
       </Flex>
+      <Footer />
     </>
   );
 };
