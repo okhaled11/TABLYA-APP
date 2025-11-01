@@ -8,6 +8,7 @@ import RegisterPage from "./pages/RegisterPage";
 import CookieService from "./services/cookies";
 import { Toaster } from "./components/ui/toaster";
 import Landing from "./pages/Landing";
+import PendingApprovalPage from "./pages/PendingApprovalPage";
 
 function App() {
   const token = CookieService.get("access_token");
@@ -28,10 +29,8 @@ function App() {
           path="/register"
           element={<RegisterPage isAuthenticated={token} />}
         />
-        <Route
-          path="/login"
-          element={token ? <Navigate to="/" replace /> : <Login />}
-        />
+        <Route path="/login" element={<Login />} />
+        <Route path="/pending-approval" element={<PendingApprovalPage />} />
       </Routes>
       <Toaster />
     </>

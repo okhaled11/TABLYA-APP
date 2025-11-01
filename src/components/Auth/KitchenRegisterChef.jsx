@@ -1,11 +1,13 @@
-import { Box } from "@chakra-ui/react";
+import { Box, FileUpload } from "@chakra-ui/react";
+import { LuFileUp } from "react-icons/lu";
+import { CloseButton } from "@chakra-ui/react";
 import { FaLock } from "react-icons/fa";
 import { Link } from "@chakra-ui/react";
 import { Flex, Text } from "@chakra-ui/react";
 import { Field, Input } from "@chakra-ui/react";
 import { InputGroup } from "@chakra-ui/react";
 import { Button } from "@chakra-ui/react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { TbToolsKitchen2 } from "react-icons/tb";
 import { MdAccessTime } from "react-icons/md";
 import colors from "../../theme/color";
@@ -16,12 +18,19 @@ import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { registerSchemaKitchenChef } from "../../validation";
 import { toaster } from "../ui/toaster";
+import { uploadImageToImgBB } from "../../services/uploadImageToImageBB";
+import { useRegisterChefMutation } from "../../app/features/Auth/registerChefSlice";
+import { useNavigate } from "react-router-dom";
 
 export default function KitchenRegisterChef() {
   /* ---------------state----------------- */
   const { colorMode } = useColorMode();
+  const navigate = useNavigate();
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [registerChef, { data, isError, error, isSuccess, isLoading }] =
+    useRegisterChefMutation();
+  console.log(data, isError, isLoading, isSuccess);
 
   /* ----------------data in store------------- */
   const { dataRegisterChef } = useSelector(
@@ -36,6 +45,7 @@ export default function KitchenRegisterChef() {
     register,
     handleSubmit,
     formState: { errors },
+    setValue,
     reset,
   } = useForm({ resolver: yupResolver(registerSchemaKitchenChef) });
 
@@ -45,18 +55,39 @@ export default function KitchenRegisterChef() {
       name: `${dataRegisterChef.firstName} ${dataRegisterChef.lastName}`,
       ...dataRegisterChef,
       ...data,
-    };
-    toaster.create({
-      title: "👨‍🍳 Chef account created successfully ",
-      description:
-        "Welcome to Tablya! Your chef profile is ready. Please log in to start managing your kitchen.",
-      type: "success",
-      duration: 3500,
-    });
-    console.log(allDataRegisterChef);
 
+    };
+    console.log(allDataRegisterChef);
+    registerChef(allDataRegisterChef);
     reset();
   };
+
+  /* --------------effect---------------- */
+  useEffect(() => {
+    if (isSuccess && data) {
+      setTimeout(
+        () =>
+          toaster.create({
+            title: "👨‍🍳 Chef account created successfully",
+            description:
+              "Welcome to Tablya! Your chef profile is ready. Please log in to start managing your kitchen.",
+            type: "success",
+            duration: 3500,
+          }),
+        200
+      );
+      setTimeout(() => navigate("/login"), 500);
+    }
+
+    if (isError && error) {
+      toaster.create({
+        title: "❌ Registration failed",
+        description: error?.message || "Something went wrong. Try again!",
+        type: "error",
+        duration: 4000,
+      });
+    }
+  }, [isError, error, data, isSuccess, navigate]);
 
   return (
     <>
@@ -271,6 +302,54 @@ export default function KitchenRegisterChef() {
           </Field.ErrorText>
         </Field.Root>
 
+        {/* Upload selfie with your ID card */}
+        <Field.Root invalid={!!errors.idSelfie}>
+          <Field.Label>
+            Upload selfie with your ID card
+            <Text as="span" color="#FA2c23">
+              *
+            </Text>
+          </Field.Label>
+
+          <FileUpload.Root
+            gap="1"
+            maxWidth="300px"
+            onFileAccept={async (details) => {
+              const file = details.files?.[0];
+              if (!file) return;
+              const imageUrl = await uploadImageToImgBB(file);
+              setValue("idSelfie", imageUrl, { shouldValidate: true });
+            }}
+          >
+            <FileUpload.HiddenInput />
+            <InputGroup
+              startElement={<LuFileUp />}
+              endElement={
+                <FileUpload.ClearTrigger asChild>
+                  <CloseButton
+                    me="-1"
+                    size="xs"
+                    variant="plain"
+                    focusVisibleRing="inside"
+                    focusRingWidth="2px"
+                    pointerEvents="auto"
+                  />
+                </FileUpload.ClearTrigger>
+              }
+            >
+              <Input asChild>
+                <FileUpload.Trigger>
+                  <FileUpload.FileText lineClamp={1} />
+                </FileUpload.Trigger>
+              </Input>
+            </InputGroup>
+          </FileUpload.Root>
+
+          <Field.ErrorText fontWeight="bold">
+            {errors.idSelfie?.message}
+          </Field.ErrorText>
+        </Field.Root>
+
         {/* Submit Button */}
         <Button
           bg="#FA2c23"
@@ -279,6 +358,7 @@ export default function KitchenRegisterChef() {
           rounded="md"
           color="white"
           fontWeight="bold"
+          loading={isLoading}
           py={6}
           mt={6}
           _hover={{ bg: "#d91f17" }}

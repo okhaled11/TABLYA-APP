@@ -35,7 +35,7 @@ const LoginPage = () => {
   const [showPassword, setShowPassword] = useState(false);
   const navigate = useNavigate();
   const dispatch = useDispatch();
-  const { loading } = useSelector((state) => state.auth);
+  const { loading, isPending } = useSelector((state) => state.auth);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -83,17 +83,23 @@ const LoginPage = () => {
         }
       }, 500);
     } else if (loginUser.rejected.match(result)) {
-      toaster.create({
-        title: "Login Failed",
-        description:
-          result.payload?.message ||
-          result.payload ||
-          "Invalid email or password",
-        type: "error",
-        duration: 3000,
-        isClosable: true,
-        position: "top",
-      });
+      // Check if it's a pending approval case
+      if (result.payload?.type === "pending") {
+        // Navigate to pending approval page instead of showing toast
+        navigate("/pending-approval");
+      } else {
+        toaster.create({
+          title: "Login Failed",
+          description:
+            result.payload?.message ||
+            result.payload ||
+            "Invalid email or password",
+          type: "error",
+          duration: 3000,
+          isClosable: true,
+          position: "top",
+        });
+      }
     }
   };
 
