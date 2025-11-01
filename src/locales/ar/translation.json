@@ -10,7 +10,11 @@
     "logout_confirm_title": "هل أنت متأكد؟",
     "logout_confirm_description": "سيتم تسجيل خروجك من التطبيق!",
     "cancel": "إلغاء",
-    "ok": "موافق"
+    "ok": "موافق",
+    "home": "الرئيسية",
+    "features": "المميزات",
+    "reviews": "التقييمات",
+    "logoAlt": "شعار تبليا"
   },
   "personalRegisterChef": {
     "firstName": "الاسم الأول",
@@ -65,5 +69,108 @@
     "privacyPolicy": "سياسة الخصوصية",
     "madeBy": "صنع بواسطة",
     "team": "فريق 2025"
+  },
+  "customerRegister": {
+    "firstName": "الاسم الأول",
+    "lastName": "اسم العائلة",
+    "email": "البريد الإلكتروني",
+    "phone": "رقم الهاتف",
+    "address": "العنوان",
+    "password": "كلمة المرور",
+    "confirmPassword": "تأكيد كلمة المرور",
+    "firstNamePlaceholder": "أدخل اسمك الأول",
+    "lastNamePlaceholder": "أدخل اسم العائلة",
+    "emailPlaceholder": "أدخل بريدك الإلكتروني",
+    "phonePlaceholder": "أدخل رقم هاتفك",
+    "addressPlaceholder": "أدخل عنوانك",
+    "passwordPlaceholder": "أدخل كلمة المرور",
+    "confirmPasswordPlaceholder": "أكد كلمة المرور",
+    "createAccount": "إنشاء حساب عميل",
+    "alreadyUser": "لديك حساب بالفعل؟",
+    "login": "تسجيل الدخول",
+    "successTitle": "تم التسجيل بنجاح",
+    "successDescription": "تم إنشاء حسابك بنجاح! يرجى تسجيل الدخول للمتابعة.",
+    "errorTitle": "فشل التسجيل",
+    "errorDescription": "حدث خطأ ما."
+  },
+  "landing": {
+    "heroTitle1": "تعال كل،",
+    "heroTitle2": "اشعر بالمنزل",
+    "getStart": "ابدأ الآن",
+    "tablyaAlt": "شعار تبليا"
+  },
+  "validation": {
+    "emailRequired": "البريد الإلكتروني مطلوب",
+    "emailInvalid": "البريد الإلكتروني غير صالح",
+    "passwordRequired": "كلمة المرور مطلوبة",
+    "passwordMin": "يجب أن تكون كلمة المرور 6 أحرف على الأقل.",
+    "firstNameRequired": "الاسم الأول مطلوب",
+    "firstNameLetters": "يجب أن يحتوي الاسم الأول على حروف فقط",
+    "firstNameMin": "يجب أن يكون الاسم الأول 3 أحرف على الأقل.",
+    "lastNameRequired": "اسم العائلة مطلوب",
+    "lastNameLetters": "يجب أن يحتوي اسم العائلة على حروف فقط",
+    "lastNameMin": "يجب أن يكون اسم العائلة 3 أحرف على الأقل.",
+    "phoneRequired": "رقم الهاتف مطلوب",
+    "phoneInvalid": "يجب أن يكون رقم الهاتف رقم مصري صالح (مثال: 01012345678)",
+    "addressRequired": "العنوان مطلوب",
+    "addressMin": "يجب أن يكون العنوان 5 أحرف على الأقل.",
+    "confirmPasswordRequired": "تأكيد كلمة المرور مطلوب",
+    "passwordsMatch": "كلمات المرور يجب أن تتطابق",
+    "idVerificationUrl": "يرجى تحميل رابط صورة صالح",
+    "idVerificationRequired": "يرجى تحميل بطاقة الهوية الحكومية",
+    "kitchenNameRequired": "اسم المطبخ مطلوب",
+    "kitchenNameLetters": "يجب أن يحتوي اسم المطبخ على حروف فقط",
+    "kitchenNameMin": "يجب أن يكون اسم المطبخ 3 أحرف على الأقل.",
+    "startTimeRequired": "وقت البدء مطلوب",
+    "startTimeInvalid": "صيغة الوقت غير صالحة (HH:MM)",
+    "endTimeRequired": "وقت الانتهاء مطلوب",
+    "endTimeInvalid": "صيغة الوقت غير صالحة (HH:MM)",
+    "endTimeAfter": "يجب أن يكون وقت الانتهاء بعد وقت البدء",
+    "idSelfieRequired": "قم بتحميل صورة شخصية مع بطاقة الهوية"
+  },
+  "login": {
+    "title": "تسجيل الدخول",
+    "subtitle": "تابع تجربتك المنزلية",
+    "email": "البريد الإلكتروني",
+    "password": "كلمة المرور",
+    "emailPlaceholder": "أدخل بريدك الإلكتروني",
+    "passwordPlaceholder": "أدخل كلمة المرور",
+    "loginButton": "تسجيل الدخول",
+    "noAccount": "ليس لديك حساب؟",
+    "createAccount": "إنشاء حساب",
+    "successTitle": "تم تسجيل الدخول بنجاح",
+    "successDescription": "مرحبًا بعودتك",
+    "errorTitle": "فشل تسجيل الدخول",
+    "errorDescription": "البريد الإلكتروني أو كلمة المرور غير صحيحة",
+    "imageAlt": "صورة التسجيل"
+  },
+  "register": {
+    "title": "إنشاء حساب",
+    "subtitle": "انضم إلى تبليا كعميل أو طاهي منزلي",
+    "customer": "عميل",
+    "chef": "طاهي",
+    "imageAlt": "صورة التسجيل"
+  },
+  "pendingApproval": {
+    "title": "الحساب قيد الموافقة",
+    "description": "حساب الطاهي الخاص بك قيد المراجعة حاليًا من قبل فريق الإدارة. تستغرق هذه العملية عادةً 24-48 ساعة.",
+    "whatNext": "ماذا سيحدث بعد ذلك؟",
+    "whatNextDescription": "سنراجع المستندات المقدمة ومعلومات المطبخ. ستتلقى إشعارًا عبر البريد الإلكتروني بمجرد الموافقة على حسابك.",
+    "goHome": "الذهاب للصفحة الرئيسية",
+    "contactSupport": "اتصل بالدعم",
+    "needHelp": "هل تحتاج إلى مساعدة فورية؟ اتصل بنا على support@tablya.com"
+  },
+  "cards": {
+    "homemadeMeals": "وجبات منزلية",
+    "homemadeMealsDesc": "استمتع بقائمة متنوعة من الأطباق المصنوعة بحب ومكونات طازجة",
+    "supportCooks": "ادعم الطهاة المحليين",
+    "supportCooksDesc": "قم بتمكين الطهاة المنزليين الموهوبين في مجتمعك وتذوق شغفهم",
+    "easyDelivery": "توصيل سهل",
+    "easyDeliveryDesc": "احصل على وجباتك المفضلة موصلة إلى باب منزلك، بدون متاعب"
+  },
+  "testimonials": {
+    "title": "ماذا يقول عملاؤنا",
+    "customerName": "سارة ك.",
+    "customerReview": "أنا سعيدة جدًا لأنني وجدت هذا الموقع! الطعام رائع، ومن الجيد دعم الطهاة المحليين. إنه مثل تناول وجبة منزلية دون أي عناء"
   }
 }

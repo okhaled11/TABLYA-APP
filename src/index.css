@@ -1,13 +1,16 @@
-body {
-  font-family: "Alexandria", sans-serif;
+* {
+  font-family: "Alexandria", sans-serif !important;
+}
+html{
+  scroll-behavior:smooth;
 }
 
 html.light,
 body.light {
-  background: #FFF7F0;
+  background: #fff7f0;
 }
 
 html.dark,
 body.dark {
-  background: #1F0604;
+  background: #1f0604;
 }
