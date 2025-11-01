@@ -10,13 +10,9 @@ import colors from '../../theme/color';
 
 const CardItem = ({ title, text, svg }) => {
 
-
-
-
-
-
-
   const { colorMode } = useColorMode();
+
+
   return (
 
 
@@ -68,8 +64,6 @@ const CardItem = ({ title, text, svg }) => {
 
 
 export default function Cards() {
-
-
 
   return (
     <Container maxW="7xl" py={{ base: 10, md: 20 }} >

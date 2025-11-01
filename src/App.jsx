@@ -22,11 +22,8 @@ function App() {
   return (
     <>
       <Routes>
-        <Route path="/" element={<Landing />} />
-      </Routes>
-  
-      <Routes>
-        <Route path="/home" element={<HomePage />} />
+        <Route path="/landing" element={<Landing />} />
+        <Route path="/" element={<HomePage />} />
         <Route path="/register" element={<RegisterPage />} />
         <Route path="/login" element={<Login isAuthenticated={token} />} />
       </Routes>

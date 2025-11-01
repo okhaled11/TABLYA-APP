@@ -180,13 +180,13 @@ export default function Landing() {
 
       {/* Cards section contains 3 Cards */}
 
-      <Box pt={{ base: 20, md: 10 }} bg={colorMode === "light" ? "white" : colors.dark.bgMain} >
+      <Box py={20}  bg={colorMode === "light" ? "white" : colors.dark.bgMain} >
         <Cards />
       </Box>
 
 
        {/* Testimonials section */}
-      <Box pt={{ base: 20, md: 10 }} bg={colorMode === "light" ? "white" : colors.dark. bgSecond}>
+      <Box pt={{ base: 20, md: 10 }}  bg={colorMode === "light" ? "white" : colors.dark. bgSecond}>
         <Testimonials />
       </Box>
 

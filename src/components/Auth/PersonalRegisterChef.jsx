@@ -70,7 +70,7 @@ export const PersonalRegisterChef = ({ nextStepHandler }) => {
           </Field.Label>
           <InputGroup startElement={<FaUser />}>
             <Input
-              rounded="20px"
+              rounded="md"
               placeholder="Enter your first name"
               bg={bgInput}
               {...register("firstName")}
@@ -93,7 +93,7 @@ export const PersonalRegisterChef = ({ nextStepHandler }) => {
           </Field.Label>
           <InputGroup startElement={<FaUser />}>
             <Input
-              rounded="20px"
+              rounded="md"
               placeholder="Enter your last name"
               bg={bgInput}
               {...register("lastName")}
@@ -117,7 +117,7 @@ export const PersonalRegisterChef = ({ nextStepHandler }) => {
         </Field.Label>
         <InputGroup startElement={<MdEmail />}>
           <Input
-            rounded="20px"
+            rounded="md"
             placeholder="Enter your email"
             bg={bgInput}
             {...register("email")}
@@ -140,7 +140,7 @@ export const PersonalRegisterChef = ({ nextStepHandler }) => {
         </Field.Label>
         <InputGroup startElement={<FaPhoneAlt />}>
           <Input
-            rounded="20px"
+            rounded="md"
             placeholder="Enter your phone number"
             bg={bgInput}
             {...register("phone")}
@@ -165,16 +165,62 @@ export const PersonalRegisterChef = ({ nextStepHandler }) => {
         <FileUpload.Root
           alignItems="stretch"
           maxFiles={1}
-          onFileAccept={(details) => {
+          onFileAccept={async (details) => {
             const file = details.files?.[0];
-            setLinkImg(file.name);
-            console.log(file.name);
+            if (!file) return;
 
-            setValue("idVerification", file, { shouldValidate: true });
+            const formData = new FormData();
+            formData.append("image", file);
+
+            try {
+              const res = await fetch(
+                `https://api.imgbb.com/1/upload?key=d183504d942d2c443013abb243f6852a`,
+                {
+                  method: "POST",
+                  body: formData,
+                }
+              );
+
+              const data = await res.json();
+
+              if (data.success) {
+                const imageUrl = data.data.url;
+                setLinkImg(imageUrl);
+                setValue("idVerification", imageUrl, { shouldValidate: true });
+
+                toaster.create({
+                  title: "👨‍🍳 ID Uploaded!",
+                  description: "Your ID image has been uploaded successfully.",
+                  type: "success",
+                  duration: 3000,
+                  position: "top-center",
+                });
+              } else {
+                throw new Error("Upload failed");
+              }
+            } catch (error) {
+              console.error("Error uploading image:", error);
+              toaster.create({
+                title: "Upload Failed",
+                description:
+                  "There was an issue uploading your ID. Please try again.",
+                type: "error",
+                duration: 3000,
+                position: "top-center",
+              });
+            }
           }}
         >
           <FileUpload.HiddenInput />
-          <FileUpload.Dropzone rounded="xl" p={6} bg={bgInput}>
+          <FileUpload.Dropzone
+            rounded="xl"
+            p={6}
+            bg={bgInput}
+            backgroundImage={linkImg ? `url(${linkImg})` : "none"}
+            backgroundSize="cover"
+            backgroundPosition="center"
+            backgroundRepeat="no-repeat"
+          >
             <Icon size="md" color="fg.muted">
               <LuUpload />
             </Icon>
@@ -183,7 +229,6 @@ export const PersonalRegisterChef = ({ nextStepHandler }) => {
               <Box color="fg.muted">Choose File</Box>
             </FileUpload.DropzoneContent>
           </FileUpload.Dropzone>
-          <FileUpload.List />
         </FileUpload.Root>
         {errors.idVerification && (
           <Field.ErrorText fontWeight="bold">
@@ -193,7 +238,7 @@ export const PersonalRegisterChef = ({ nextStepHandler }) => {
       </Field.Root>
 
       {/* Continue */}
-      <Button bg="#FA2c23" type="submit" w="100%" rounded="20px">
+      <Button bg="#FA2c23" type="submit" w="100%" rounded="md">
         Continue
       </Button>
 
