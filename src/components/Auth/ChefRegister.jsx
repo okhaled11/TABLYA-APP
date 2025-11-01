@@ -6,7 +6,7 @@ import { PersonalRegisterChef } from "./personalRegisterChef";
 
 function CustomerRegister() {
   /* ---------------state----------------- */
-  const [currentStep, setCurrentStep] = useState(1);
+  const [currentStep, setCurrentStep] = useState(2);
   /* ---------------variable----------------- */
   const nextStepHandler = () => {
     setCurrentStep((prev) => prev + 1);
