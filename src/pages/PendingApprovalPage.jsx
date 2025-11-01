@@ -13,6 +13,7 @@ import colors from "../theme/color";
 import { FaClock, FaEnvelope, FaHome } from "react-icons/fa";
 import { MdPendingActions } from "react-icons/md";
 import Navbar from "../layout/Navbar";
+import Footer from "../shared/Footer";
 
 const PendingApprovalPage = () => {
   const { colorMode } = useColorMode();
@@ -31,7 +32,9 @@ const PendingApprovalPage = () => {
       >
         <Container maxW="2xl">
           <Box
-            bg={colorMode === "light" ? colors.light.bgThird : colors.dark.bgFixed}
+            bg={
+              colorMode === "light" ? colors.light.bgThird : colors.dark.bgFixed
+            }
             borderRadius="2xl"
             p={{ base: 8, md: 12 }}
             boxShadow="2xl"
@@ -103,7 +106,9 @@ const PendingApprovalPage = () => {
                   bg={colorMode === "light" ? "orange.50" : "orange.900"}
                   borderRadius="lg"
                   borderLeft="4px solid"
-                  borderColor={colorMode === "light" ? "orange.400" : "orange.600"}
+                  borderColor={
+                    colorMode === "light" ? "orange.400" : "orange.600"
+                  }
                 >
                   <Flex align="center" gap={3} mb={2}>
                     <FaClock
@@ -112,7 +117,9 @@ const PendingApprovalPage = () => {
                     />
                     <Text
                       fontWeight="semibold"
-                      color={colorMode === "light" ? "orange.800" : "orange.200"}
+                      color={
+                        colorMode === "light" ? "orange.800" : "orange.200"
+                      }
                     >
                       What happens next?
                     </Text>
@@ -122,9 +129,9 @@ const PendingApprovalPage = () => {
                     color={colorMode === "light" ? "orange.700" : "orange.300"}
                     textAlign="left"
                   >
-                    We'll review your submitted documents and kitchen information.
-                    You'll receive an email notification once your account is
-                    approved.
+                    We'll review your submitted documents and kitchen
+                    information. You'll receive an email notification once your
+                    account is approved.
                   </Text>
                 </Box>
               </VStack>
@@ -168,7 +175,9 @@ const PendingApprovalPage = () => {
                   size="lg"
                   w="full"
                   borderRadius="lg"
-                  onClick={() => (window.location.href = "mailto:support@tablya.com")}
+                  onClick={() =>
+                    (window.location.href = "mailto:support@tablya.com")
+                  }
                   _hover={{
                     bg:
                       colorMode === "light"
@@ -192,6 +201,7 @@ const PendingApprovalPage = () => {
           </Box>
         </Container>
       </Flex>
+      <Footer />
 
       {/* CSS Animation */}
       <style>
