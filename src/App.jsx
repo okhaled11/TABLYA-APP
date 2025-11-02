@@ -2,13 +2,13 @@ import { Navigate, Route, Routes } from "react-router-dom";
 import { useEffect } from "react";
 import { useTranslation } from "react-i18next";
 
-import HomePage from "./pages/index";
 import Login from "./pages/LoginPage";
 import RegisterPage from "./pages/RegisterPage";
 import CookieService from "./services/cookies";
 import { Toaster } from "./components/ui/toaster";
 import Landing from "./pages/Landing";
 import PendingApprovalPage from "./pages/PendingApprovalPage";
+import CustomerPage from "./pages/CustomerPage";
 
 function App() {
   const token = CookieService.get("access_token");
@@ -22,14 +22,18 @@ function App() {
 
   return (
     <>
-
       <Routes>
-         <Route path="/" element={<Landing />} />
+        <Route path="/" element={<Landing />} />
         <Route path="/login" element={<Login isAuthenticated={token} />} />
 
-        <Route path="/register" element={<RegisterPage isAuthenticated={token} /> } />
- 
+        <Route
+          path="/register"
+          element={<RegisterPage isAuthenticated={token} />}
+        />
+
         <Route path="/pending-approval" element={<PendingApprovalPage />} />
+        {/* customer Routes */}
+        <Route path="/home" element={<CustomerPage />} />
       </Routes>
       <Toaster />
     </>
