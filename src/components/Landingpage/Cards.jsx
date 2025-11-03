@@ -11,13 +11,9 @@ import { useTranslation } from 'react-i18next';
 
 const CardItem = ({ title, text, svg }) => {
 
-
-
-
-
-
-
   const { colorMode } = useColorMode();
+
+
   return (
 
 
@@ -57,7 +53,7 @@ const CardItem = ({ title, text, svg }) => {
 
       {/* card content*/}
       <VStack spacing={8} align="center" mt={6}>
-        <Heading as="h3" size="md" mt={6} fontSize={"28px"} fontWeight={"bold"} mb={3} lineHeight={"1"}>{title}    </Heading>
+        <Heading as="h3" size="md" mt={6} fontSize={"28px"} fontWeight={"semibold"} mb={3} lineHeight={"1"}>{title}    </Heading>
         <Text color="rgb(150, 135, 130)" fontSize={"18px"} >{text}</Text>
 
       </VStack>
@@ -72,7 +68,7 @@ export default function Cards() {
   const { t } = useTranslation();
 
   return (
-    <Container maxW="7xl" py={{ base: 10, md: 20 }} >
+    <Container maxW="7xl" py={{ base: 10, md: 20 }}  >
       <SimpleGrid columns={{ base: 1, md: 3 }} spacing={"40px"} justifyItems="center" columnGap={{base: "30px" , md:"30px" , lg:"80px"}} rowGap="60px">
         <CardItem title={t('cards.homemadeMeals')} text={t('cards.homemadeMealsDesc')}
 

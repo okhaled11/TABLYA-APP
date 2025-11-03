@@ -68,6 +68,7 @@ const [isOpen, setIsOpen] = useState(false);
               {t("navbar.home")}
             </Link>
             <Link
+              href='#features'
               px={3}
               py={1}
               fontSize={"lg"}
@@ -81,6 +82,7 @@ const [isOpen, setIsOpen] = useState(false);
               {t("navbar.features")}
             </Link>
             <Link
+              href='#reviews'
               px={3}
               py={1}
               fontSize={"lg"}
@@ -100,7 +102,7 @@ const [isOpen, setIsOpen] = useState(false);
         <Box flex={1} display={"flex"} justifyContent={"flex-end"}>
           {/* ---------------------------------------------------------- */}
           {/* test language */}
-          <button
+          {/* <button
             onClick={() => changeLanguage("en")}
             style={{
               backgroundColor: "#fff",
@@ -134,7 +136,12 @@ const [isOpen, setIsOpen] = useState(false);
             onMouseOut={(e) => (e.target.style.backgroundColor = "#3b82f6")}
           >
             عربي
-          </button>
+          </button> */}
+
+
+
+          {/* theme toggle for dark and light modes */}
+          
           <IconButton
             aria-label="Toggle Menu"
             as={colorMode === "light" ? FiMoon : FiSun}
@@ -147,15 +154,7 @@ const [isOpen, setIsOpen] = useState(false);
             p={"10px"}
           />
           {/* ---------------------------------------------------------- */}
-          {/* <Button
-            onClick={toggleColorMode}
-            variant="ghost"
-            size="sm"
-            aria-label={("navbar.toggle_mode")}
-          >
-            {colorMode === "light" ? <FiMoon color='white' /> : <FiSun />}
-          </Button> */}
-
+          
           {/* Mobile Menu Toggle */}
           <IconButton
             aria-label="Toggle Menu"
