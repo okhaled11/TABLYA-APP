@@ -28,7 +28,7 @@ import CookieService from "../services/cookies";
 import Footer from "../shared/Footer";
 import { useTranslation } from "react-i18next";
 
-const LoginPage = () => {
+const LoginPage = ({ isAuthenticated }) => {
   const { t, i18n } = useTranslation();
   const isRTL = i18n.language === "ar";
   const { colorMode } = useColorMode();
@@ -39,7 +39,7 @@ const LoginPage = () => {
   const [showPassword, setShowPassword] = useState(false);
   const navigate = useNavigate();
   const dispatch = useDispatch();
-  const { loading, isPending } = useSelector((state) => state.auth);
+  const { loading } = useSelector((state) => state.auth);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -77,13 +77,13 @@ const LoginPage = () => {
       // redirect depends on role
       setTimeout(() => {
         if (role === "admin") {
-          navigate("/admin/dashboard");
+          navigate("/admin");
         } else if (role === "chef") {
-          navigate("/chef");
+          navigate("/chef", { replace: true });
         } else if (role === "customer") {
-          navigate("/home");
+          navigate("/home", { replace: true });
         } else {
-          navigate("/");
+          navigate("/", { replace: true });
         }
       }, 500);
     } else if (loginUser.rejected.match(result)) {
@@ -106,6 +106,8 @@ const LoginPage = () => {
       }
     }
   };
+  // Redirect to landing if authenticated
+  if (isAuthenticated) return <Navigate to="/home" replace />;
 
   return (
     <>
@@ -159,9 +161,14 @@ const LoginPage = () => {
                 {/* Email */}
                 <Field.Root required>
                   <Field.Label dir={isRTL ? "rtl" : "ltr"}>
-                    {t("login.email")} <Field.RequiredIndicator></Field.RequiredIndicator>
+                    {t("login.email")}{" "}
+                    <Field.RequiredIndicator></Field.RequiredIndicator>
                   </Field.Label>
-                  <InputGroup {...(isRTL ? { endElement: <FaEnvelope /> } : { startElement: <FaEnvelope /> })}>
+                  <InputGroup
+                    {...(isRTL
+                      ? { endElement: <FaEnvelope /> }
+                      : { startElement: <FaEnvelope /> })}
+                  >
                     <Input
                       placeholder={t("login.emailPlaceholder")}
                       textAlign={isRTL ? "right" : "left"}
@@ -190,7 +197,8 @@ const LoginPage = () => {
                 {/* {/* Password} */}
                 <Field.Root flex={1} required>
                   <Field.Label dir={isRTL ? "rtl" : "ltr"}>
-                    {t("login.password")} <Field.RequiredIndicator></Field.RequiredIndicator>
+                    {t("login.password")}{" "}
+                    <Field.RequiredIndicator></Field.RequiredIndicator>
                   </Field.Label>
                   <InputGroup
                     {...(isRTL
@@ -206,7 +214,7 @@ const LoginPage = () => {
                               onClick={() => setShowPassword((prev) => !prev)}
                             />
                           ),
-                          endElement: <FaLock />
+                          endElement: <FaLock />,
                         }
                       : {
                           startElement: <FaLock />,
@@ -220,9 +228,8 @@ const LoginPage = () => {
                               size={18}
                               onClick={() => setShowPassword((prev) => !prev)}
                             />
-                          )
-                        }
-                    )}
+                          ),
+                        })}
                   >
                     <Input
                       placeholder={t("login.passwordPlaceholder")}
@@ -271,7 +278,11 @@ const LoginPage = () => {
                   {t("login.loginButton")}
                 </Button>
 
-                <Text textAlign="center" fontSize="sm" dir={isRTL ? "rtl" : "ltr"}>
+                <Text
+                  textAlign="center"
+                  fontSize="sm"
+                  dir={isRTL ? "rtl" : "ltr"}
+                >
                   {t("login.noAccount")}{" "}
                   <Link to="/register">
                     <Text

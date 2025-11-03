@@ -2,13 +2,20 @@ import { Navigate, Route, Routes } from "react-router-dom";
 import { useEffect } from "react";
 import { useTranslation } from "react-i18next";
 
-import HomePage from "./pages/index";
 import Login from "./pages/LoginPage";
 import RegisterPage from "./pages/RegisterPage";
 import CookieService from "./services/cookies";
 import { Toaster } from "./components/ui/toaster";
 import Landing from "./pages/Landing";
 import PendingApprovalPage from "./pages/PendingApprovalPage";
+import CustomerPage from "./pages/CustomerPage";
+import SidebarLayout from "./components/Admin/SidebarLayout";
+import ChefVerification from "./pages/AdminPages/ChefVerification";
+import Analytics from "./pages/AdminPages/Analytics";
+import Dashboard from "./pages/AdminPages/Dashboard";
+import Deliveries from "./pages/AdminPages/Deliveries";
+import Complaints from "./pages/AdminPages/Complaints";
+import UserManagement from "./pages/AdminPages/UserManagement";
 
 function App() {
   const token = CookieService.get("access_token");
@@ -22,14 +29,25 @@ function App() {
 
   return (
     <>
-
       <Routes>
-         <Route path="/" element={<Landing />} />
+        <Route path="/" element={<Landing />} />
         <Route path="/login" element={<Login isAuthenticated={token} />} />
-
-        <Route path="/register" element={<RegisterPage isAuthenticated={token} /> } />
- 
+        <Route
+          path="/register"
+          element={<RegisterPage isAuthenticated={token} />}
+        />
         <Route path="/pending-approval" element={<PendingApprovalPage />} />
+        {/* customer Routes */}
+        <Route path="/home" element={<CustomerPage />} />
+        {/* Admin Routes */}
+        <Route path="/admin"  element={<SidebarLayout />}>
+          <Route index element={<Dashboard />} />
+          <Route path="analytics" element={<Analytics />} />
+          <Route path="chef-verification" element={<ChefVerification />} />
+          <Route path="user-management" element={<UserManagement />} />
+          <Route path="deliveries" element={<Deliveries />} />
+          <Route path="complaints" element={<Complaints />} />
+        </Route>
       </Routes>
       <Toaster />
     </>
