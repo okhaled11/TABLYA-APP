@@ -70,7 +70,7 @@ export default function Landing() {
               lineHeight="0.8"
               textAlign={"center"}
               whiteSpace={"nowrap"}
-              fontSize={{ base: "60px", sm: "100px", md: "100px", lg: "150px" }}
+              fontSize={{ base: "60px", sm: "90px", md: "100px", lg: "150px" }}
               m={0}
             >
               {t("landing.heroTitle1")}
@@ -82,7 +82,7 @@ export default function Landing() {
               lineHeight="0.8"
               textAlign={"center"}
               whiteSpace={"nowrap"}
-              fontSize={{ base: "60px", sm: "100px", md: "100px", lg: "150px" }}
+              fontSize={{ base: "60px", sm: "90px", md: "100px", lg: "150px" }}
               m={0}
             >
               {t("landing.heroTitle2")}
@@ -205,18 +205,13 @@ export default function Landing() {
 
       {/* Cards section contains 3 Cards */}
 
-      <Box
-        pt={{ base: 20, md: 10 }}
-        bg={colorMode === "light" ? "white" : colors.dark.bgMain}
-      >
+      <Box py={{base :10 , md:16}}  bg={colorMode === "light" ? "white" : colors.dark.bgMain}  id ="features">
         <Cards />
       </Box>
 
-      {/* Testimonials section */}
-      <Box
-        pt={{ base: 20, md: 10 }}
-        bg={colorMode === "light" ? "white" : colors.dark.bgSecond}
-      >
+
+       {/* Testimonials section */}
+      <Box pt={{ base: 20, md: 10 }}  bg={colorMode === "light" ? "white" : colors.dark. bgSecond} id= "reviews">
         <Testimonials />
       </Box>
 

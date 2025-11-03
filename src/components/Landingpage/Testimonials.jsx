@@ -6,6 +6,8 @@ import "swiper/css";
 import "swiper/css/navigation";
 import "swiper/css/pagination";
 import "swiper/css/effect-coverflow";
+import i18n from "../../i18n";
+import { useEffect } from "react";
 
 import {
   Box, Text, Heading, Flex, Image, Container,
@@ -14,6 +16,9 @@ import {
 import { FaQuoteLeft, FaStar, FaArrowLeft, FaArrowRight } from "react-icons/fa";
 import { Card } from "@chakra-ui/react";
 import { useColorMode } from "../../theme/color-mode";
+import { useTranslation } from "react-i18next";
+
+
 
 
 // dummy data will be replaced next
@@ -62,7 +67,14 @@ const testimonials = [
 
 export default function Testimonials() {
 
+  const { t } = useTranslation();
+
   const { colorMode } = useColorMode();
+
+
+  //   useEffect(() => {
+  //   document.documentElement.dir = i18n.language === "ar" ? "rtl" : "ltr";
+  // }, [i18n.language]);
 
   return (
     <Box
@@ -79,27 +91,32 @@ export default function Testimonials() {
           fontWeight="bold"
           color={colorMode === "light" ? "rgb(31, 6, 4)" : "white"}
           fontSize={{ base: "2xl", md: "50px" }}
+
         >
-          What Our Customers Say
+          {/* What Our Customers Say */}
+          {t("testimonials.title")}
         </Heading>
-        <Box  >
+        <Box dir={i18n.language === "ar" ? "rtl" : "ltr"}>
 
 
 
 
           <Swiper
+
             modules={[Navigation, Pagination, EffectCoverflow, Autoplay]}
             effect="coverflow"
             grabCursor={true}
             centeredSlides={true}
             loop={true}
+            dir="ltr"
+            style={{ direction: "ltr", paddingBottom: "100px" }}
 
             spaceBetween={10}
 
             slidesPerView={1}
             breakpoints={{
               // 1000: { slidesPerView: 2 },
-              860: { slidesPerView: 3, spaceBetween: 0},
+              860: { slidesPerView: 3, spaceBetween: 0 },
               1200: { slidesPerView: 3, spaceBetween: 0 },
             }}
             coverflowEffect={{
@@ -120,7 +137,7 @@ export default function Testimonials() {
               nextEl: ".next-button",
               prevEl: ".prev-button",
             }}
-            style={{ paddingBottom: "100px" }}
+
 
           >
             {testimonials.map((item) => (
@@ -259,6 +276,12 @@ export default function Testimonials() {
       {/* customization dots style */}
       <style>
         {`
+
+
+
+
+
+
         .custom-pagination {
           display: flex;
           justify-content: center;
