@@ -77,7 +77,7 @@ const LoginPage = ({ isAuthenticated }) => {
       // redirect depends on role
       setTimeout(() => {
         if (role === "admin") {
-          navigate("/admin/dashboard", { replace: true });
+          navigate("/admin");
         } else if (role === "chef") {
           navigate("/chef", { replace: true });
         } else if (role === "customer") {
