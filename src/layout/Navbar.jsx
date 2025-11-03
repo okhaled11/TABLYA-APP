@@ -3,53 +3,84 @@ import {
   Flex,
   Avatar,
   Button,
-  MenuRoot,
-  MenuTrigger,
-  MenuContent,
-  MenuItem,
+  Menu,
   Stack,
   Center,
   Text,
   HStack,
   IconButton,
   VStack,
-  // useDisclosure,
   Image,
   Container,
+  Icon,
+  Portal,
+  useDialog,
+  Separator,
+  Switch,
+  Badge,
+  Input,
+  InputGroup,
 } from "@chakra-ui/react";
+import {
+  User,
+  CreditCard,
+  Moon,
+  Globe,
+  SignOut,
+  Sun,
+  ShoppingBagIcon,
+  ShoppingCartSimple,
+} from "@phosphor-icons/react";
+import { FiSearch } from "react-icons/fi";
 import { useColorMode } from "../theme/color-mode";
-import { Link } from "react-router-dom";
 import CookieService from "../services/cookies";
 import { useTranslation } from "react-i18next";
-import { FiBell, FiChevronDown } from "react-icons/fi";
-import { FaMoon, FaSun } from "react-icons/fa";
-import CustomAlertDailog from "../shared/CustomAlertDailog";
+import CustomAlertDialog from "../shared/CustomAlertDailog";
 import Navlogo from "../assets/Navlogo.png";
 import colors from "../theme/color";
+import { useGetUserDataQuery } from "../app/features/Auth/authSlice";
+import { useNavigate } from "react-router-dom";
+import { authApi } from "../app/features/Auth/authSlice";
+import { useDispatch } from "react-redux";
+import { useState } from "react";
+import { FiShoppingCart } from "react-icons/fi";
 
 export default function Navbar() {
   const { t, i18n } = useTranslation();
+  const isArabic = i18n.language === "ar";
+  const [checkedLang, setCheckedLang] = useState(isArabic);
 
-  const changeLanguage = (lang) => {
-    i18n.changeLanguage(lang);
-    document.dir = lang === "ar" ? "rtl" : "ltr";
-  };
-
-  // const { isOpen, onOpen, onClose } = useDisclosure();
+  const dispatch = useDispatch();
   const { colorMode, toggleColorMode } = useColorMode();
-  // const bg = colorMode === "light" ? "white" : "gray.900";
-  // const bg2 = colorMode === "light" ? "gray.200" : "gray.700";
-  // const navigate = useNavigate();
+  const [checked, setChecked] = useState(colorMode === "dark");
+  const dialog = useDialog();
+  const navigate = useNavigate();
 
-  // const user = CookieService.get("user");
+  const token = CookieService.get("access_token");
+  const { data: user } = useGetUserDataQuery(undefined, {
+    skip: !token,
+  });
 
-  // const onOkHandler = () => {
-  //   CookieService.remove("jwt", { path: "/" });
-  //   CookieService.remove("user", { path: "/" });
-  //   onClose();
-  //   window.location.reload();
-  //   navigate("/login");
-  // };
+  // handler for color mode switch
+  const handleChange = (e) => {
+    setChecked(e.checked);
+    toggleColorMode();
+  };
+  //  handler for language switch
+  const handleLanguageChange = (e) => {
+    setCheckedLang(e.checked);
+    const newLang = e.checked ? "ar" : "en";
+
+    i18n.changeLanguage(newLang);
+    document.dir = newLang === "ar" ? "rtl" : "ltr";
+  };
+  // logout handler
+  const onOkHandler = () => {
+    CookieService.remove("access_token", { path: "/" });
+    dispatch(authApi.util.resetApiState());
+    navigate("/login");
+    window.location.reload();
+  };
 
   return (
     <>
@@ -76,148 +107,204 @@ export default function Navbar() {
           >
             {/* Logo */}
             <Image src={Navlogo} alt={t("navbar.logo_alt")} w={"150px"} />
-
+            {user && (
+              <Flex
+                flex="1"
+                maxW={"400px"}
+                // mx="auto"
+                justifyContent="center"
+                display={{ base: "none", md: "flex" }}
+              >
+                <InputGroup startElement={<FiSearch color="#FFF7F04D" />}>
+                  <Input
+                    placeholder="Search"
+                    bg={"#FFF7F01A"}
+                    borderRadius="12px"
+                    size="md"
+                    _placeholder={{ color: "#FFF7F04D" }}
+                    color="white"
+                    border="none"
+                  />
+                </InputGroup>
+              </Flex>
+            )}
             <Flex alignItems="center">
               <Stack direction="row" spacing={5} align="center">
-                {/* test language */}
-                <button
-                  onClick={() => changeLanguage("en")}
-                  style={{
-                    backgroundColor: "#fff",
-                    color: "#3b82f6",
-                    border: "none",
-                    padding: "2px 2px",
-                    borderRadius: "8px",
-                    cursor: "pointer",
-                    fontWeight: "bold",
-                    transition: "0.3s",
-                  }}
-                  onMouseOver={(e) =>
-                    (e.target.style.backgroundColor = "#e0e7ff")
-                  }
-                  onMouseOut={(e) => (e.target.style.backgroundColor = "#fff")}
-                >
-                  English
-                </button>
-
-                <button
-                  onClick={() => changeLanguage("ar")}
-                  style={{
-                    backgroundColor: "#3b82f6",
-                    color: "#fff",
-                    border: "2px solid #fff",
-                    padding: "1px 2px",
-                    borderRadius: "8px",
-                    cursor: "pointer",
-                    fontWeight: "bold",
-                    transition: "0.3s",
-                  }}
-                  onMouseOver={(e) =>
-                    (e.target.style.backgroundColor = "#2563eb")
-                  }
-                  onMouseOut={(e) =>
-                    (e.target.style.backgroundColor = "#3b82f6")
-                  }
-                >
-                  عربي
-                </button>
-                {/* mode toggle */}
-                <Button
-                  onClick={toggleColorMode}
-                  variant="ghost"
-                  size="sm"
-                  aria-label={t("navbar.toggle_mode")}
-                  bg={"#FFF7F01A"}
-                >
-                  {colorMode === "light" ? (
-                    <FaMoon color="white" />
-                  ) : (
-                    <FaSun color="white" />
-                  )}
-                </Button>
-
-                {/* If logged in → show avatar menu
-              {user && (
-                <HStack spacing={{ base: "0", md: "6" }}>
-                  <Flex alignItems={"center"}>
-                    <MenuRoot>
-                      <MenuTrigger asChild>
-                        <Button variant="ghost" py={2} transition="all 0.3s">
-                          <HStack>
-                            <Avatar
-                              size={"sm"}
+                {/* mode and cart stack */}
+                {!user ? (
+                  <Button
+                    onClick={toggleColorMode}
+                    variant="ghost"
+                    size="sm"
+                    aria-label={t("navbar.toggle_mode")}
+                    bg={"#FFF7F01A"}
+                  >
+                    {colorMode === "light" ? (
+                      <Moon size={32} weight="fill" color="white" />
+                    ) : (
+                      <Icon as={Sun} boxSize={5} />
+                    )}
+                  </Button>
+                ) : (
+                  <HStack spacing={{ base: "0", md: "6" }}>
+                    <Flex gap={3} alignItems={"center"} position="relative">
+                      <IconButton
+                        aria-label="Cart"
+                        variant="outline"
+                        border={"none"}
+                        color={"white"}
+                        size="2xl"
+                        _hover={{ bg: "transparent" }}
+                      >
+                        <Icon as={ShoppingCartSimple} boxSize={8} />
+                        <Badge
+                          position="absolute"
+                          top="3"
+                          right="2"
+                          bg="red.500"
+                          borderRadius="full"
+                          width="20px"
+                          height="20px"
+                          display="flex"
+                          alignItems="center"
+                          justifyContent="center"
+                          color="white"
+                        >
+                          2
+                        </Badge>
+                      </IconButton>
+                    </Flex>
+                    <Flex alignItems={"center"}>
+                      <Menu.Root
+                        positioning={{ placement: "bottom" }}
+                        closeOnSelect={false}
+                      >
+                        <Menu.Trigger rounded="full" focusRing="none">
+                          <Avatar.Root
+                            borderColor="#FA2C23"
+                            borderWidth="3px"
+                            size="sm"
+                          >
+                            <Avatar.Fallback
+                              color="red"
+                              name={`https://ui-avatars.com/api/?name=${user?.name}`}
+                            />
+                            <Avatar.Image
                               src={`https://ui-avatars.com/api/?name=${user?.name}`}
                             />
-                            <VStack
-                              display={{ base: "none", md: "flex" }}
-                              alignItems="flex-start"
-                              spacing="1px"
-                              ml="2"
+                          </Avatar.Root>
+                        </Menu.Trigger>
+                        <Portal>
+                          <Menu.Positioner>
+                            <Menu.Content
+                              bg={
+                                colorMode === "light"
+                                  ? colors.light.bgSecond
+                                  : colors.dark.bgFixed
+                              }
                             >
-                              <Text fontSize="sm">
-                                {user?.name || "UserName"}
-                              </Text>
-                            </VStack>
-                            <Box display={{ base: "none", md: "flex" }}>
-                              <FiChevronDown />
-                            </Box>
-                          </HStack>
-                        </Button>
-                      </MenuTrigger>
-                      <MenuContent bg={bg} borderColor={bg2}>
-                        <MenuItem
-                          value="logout"
-                          onClick={() => {
-                            onOpen();
-                          }}
-                        >
-                          {t("navbar.logout")}
-                        </MenuItem>
-                      </MenuContent>
-                    </MenuRoot>
-                  </Flex>
-                </HStack>
-              )}
-
-              {/* If not logged in → show Sign In / Sign Up */}
-                {/* {!user && (
-                <Stack direction="row" spacing={4}>
-                  <Button
-                    as={Link}
-                    to="/login"
-                    variant="ghost"
-                    fontWeight={500}
-                    size="sm"
-                  >
-                    {t("navbar.sign_in")}
-                  </Button>
-                  <Button
-                    as={Link}
-                    to="/signup"
-                    colorPalette="blue"
-                    fontWeight="semibold"
-                    size="sm"
-                    px={5}
-                  >
-                    {t("navbar.sign_up")}
-                  </Button>
-                </Stack>
-              )} */}
+                              <Menu.Item value="Personal-Info">
+                                <HStack spacing={3}>
+                                  <Icon as={User} boxSize={4} />
+                                  <Text>Personal Info</Text>
+                                </HStack>
+                              </Menu.Item>
+                              <Menu.Item value="Payment-method">
+                                <HStack spacing={3}>
+                                  <Icon as={CreditCard} boxSize={4} />
+                                  <Text fontSize={"sm"}>Payment Method</Text>
+                                </HStack>
+                              </Menu.Item>
+                              <Separator />
+                              {/* Dark Mode with Switch */}
+                              <Menu.Item value="color-mode">
+                                <HStack justify="space-between" w="full">
+                                  <HStack spacing={3}>
+                                    <Icon as={Moon} boxSize={4} />
+                                    <Text>
+                                      {colorMode === "light"
+                                        ? "Dark Mode"
+                                        : "Light Mode"}
+                                    </Text>
+                                    <Switch.Root
+                                      checked={checked}
+                                      onCheckedChange={handleChange}
+                                      colorPalette={"green"}
+                                      size="sm"
+                                    >
+                                      <Switch.HiddenInput />
+                                      <Switch.Control>
+                                        <Switch.Thumb />
+                                      </Switch.Control>
+                                    </Switch.Root>
+                                  </HStack>
+                                </HStack>
+                              </Menu.Item>
+                              {/* Language Switch */}
+                              <Menu.Item value="lang">
+                                <HStack justify="space-between" w="full">
+                                  <HStack spacing={3}>
+                                    <Icon as={Globe} boxSize={4} />
+                                    <Text>
+                                      {i18n.language === "en"
+                                        ? "Arabic"
+                                        : "English"}
+                                    </Text>
+                                  </HStack>
+                                  <HStack>
+                                    <Switch.Root
+                                      checked={checkedLang}
+                                      onCheckedChange={handleLanguageChange}
+                                      size="sm"
+                                      colorPalette={"green"}
+                                    >
+                                      <Switch.HiddenInput />
+                                      <Switch.Control>
+                                        <Switch.Thumb />
+                                      </Switch.Control>
+                                    </Switch.Root>
+                                  </HStack>
+                                </HStack>
+                              </Menu.Item>
+                              <Separator />
+                              <Menu.Item
+                                value="logout"
+                                color="red.500"
+                                onClick={() => dialog.setOpen(true)}
+                              >
+                                <HStack spacing={3}>
+                                  <Icon as={SignOut} boxSize={4} />
+                                  <Text>Logout</Text>
+                                </HStack>
+                              </Menu.Item>
+                            </Menu.Content>
+                          </Menu.Positioner>
+                        </Portal>
+                      </Menu.Root>
+                    </Flex>
+                    <Flex alignItems={"flex-start"} direction={"column"}>
+                      <Text fontSize="12px" color="#FFF7F0B2">
+                        Hello
+                      </Text>
+                      <Text fontSize="12px" color="#FFF7F0">
+                        {user?.name || "UserName"}
+                      </Text>
+                    </Flex>
+                  </HStack>
+                )}
               </Stack>
             </Flex>
           </Flex>
         </Box>
       </Container>
-      {/* <CustomAlertDailog
-        isOpen={isOpen}
-        onOpen={onOpen}
-        onClose={onClose}
+      <CustomAlertDialog
+        dialog={dialog}
         title={t("navbar.logout_confirm_title")}
         description={t("navbar.logout_confirm_description")}
         cancelTxt={t("navbar.cancel")}
         okTxt={t("navbar.ok")}
         onOkHandler={onOkHandler}
-      /> */}
+      />
     </>
   );
 }

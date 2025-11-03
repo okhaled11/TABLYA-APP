@@ -2,15 +2,14 @@ import { Navigate, Route, Routes } from "react-router-dom";
 import { useEffect } from "react";
 import { useTranslation } from "react-i18next";
 
-import HomePage from "./pages/index";
 import Login from "./pages/LoginPage";
 import RegisterPage from "./pages/RegisterPage";
 import CookieService from "./services/cookies";
 import { Toaster } from "./components/ui/toaster";
 import Landing from "./pages/Landing";
 import PendingApprovalPage from "./pages/PendingApprovalPage";
+import CustomerPage from "./pages/CustomerPage";
 import SidebarLayout from "./components/Admin/SidebarLayout";
-
 import ChefVerification from "./pages/AdminPages/ChefVerification";
 import Analytics from "./pages/AdminPages/Analytics";
 import Dashboard from "./pages/AdminPages/Dashboard";
@@ -38,6 +37,8 @@ function App() {
           element={<RegisterPage isAuthenticated={token} />}
         />
         <Route path="/pending-approval" element={<PendingApprovalPage />} />
+        {/* customer Routes */}
+        <Route path="/home" element={<CustomerPage />} />
         {/* Admin Routes */}
         <Route path="/admin"  element={<SidebarLayout />}>
           <Route index element={<Dashboard />} />

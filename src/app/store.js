@@ -6,11 +6,13 @@ import { supabaseApi } from "./features/MenuSlices";
 import authReducer from "./features/Auth/loginSlice";
 import registerReducer from "./features/Auth/registerCustomerSlice";
 import { registerChef } from "./features/Auth/registerChefSlice";
+import { authApi } from "./features/Auth/authSlice";
 
 export const store = configureStore({
   reducer: {
     auth: authReducer,
     register: registerReducer,
+    [authApi.reducerPath]: authApi.reducer,
     [registerChef.reducerPath]: registerChef.reducer,
     // CartSlice: persistedReducer,
     // [Posts.reducerPath]: Posts.reducer,
@@ -23,7 +25,11 @@ export const store = configureStore({
   //         serializableCheck: false,
   //     }).concat([Posts.middleware]),
   middleware: (getDefaultMiddleware) =>
-    getDefaultMiddleware().concat(supabaseApi.middleware, registerChef.middleware),
+    getDefaultMiddleware().concat(
+      supabaseApi.middleware,
+      registerChef.middleware,
+      authApi.middleware
+    ),
 });
 
 export default store;
