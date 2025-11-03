@@ -68,13 +68,13 @@ const testimonials = [
 export default function Testimonials() {
 
   const { t } = useTranslation();
- 
+
   const { colorMode } = useColorMode();
 
 
-//   useEffect(() => {
-//   document.documentElement.dir = i18n.language === "ar" ? "rtl" : "ltr";
-// }, [i18n.language]);
+  //   useEffect(() => {
+  //   document.documentElement.dir = i18n.language === "ar" ? "rtl" : "ltr";
+  // }, [i18n.language]);
 
   return (
     <Box
@@ -91,32 +91,32 @@ export default function Testimonials() {
           fontWeight="bold"
           color={colorMode === "light" ? "rgb(31, 6, 4)" : "white"}
           fontSize={{ base: "2xl", md: "50px" }}
-          
+
         >
           {/* What Our Customers Say */}
-           {t("testimonials.title")}
+          {t("testimonials.title")}
         </Heading>
-        <Box  dir={i18n.language === "ar" ? "rtl" : "ltr"}>
+        <Box dir={i18n.language === "ar" ? "rtl" : "ltr"}>
 
 
 
 
           <Swiper
-          
+
             modules={[Navigation, Pagination, EffectCoverflow, Autoplay]}
             effect="coverflow"
             grabCursor={true}
             centeredSlides={true}
             loop={true}
-             dir="ltr" 
-             style={{ direction: "ltr", paddingBottom: "100px" }}
+            dir="ltr"
+            style={{ direction: "ltr", paddingBottom: "100px" }}
 
             spaceBetween={10}
 
             slidesPerView={1}
             breakpoints={{
               // 1000: { slidesPerView: 2 },
-              860: { slidesPerView: 3, spaceBetween: 0},
+              860: { slidesPerView: 3, spaceBetween: 0 },
               1200: { slidesPerView: 3, spaceBetween: 0 },
             }}
             coverflowEffect={{
@@ -137,7 +137,7 @@ export default function Testimonials() {
               nextEl: ".next-button",
               prevEl: ".prev-button",
             }}
-           
+
 
           >
             {testimonials.map((item) => (
