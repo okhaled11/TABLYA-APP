@@ -17,8 +17,11 @@ import { FaTiktok, FaInstagram, FaXTwitter } from "react-icons/fa6";
 import { SiSnapchat } from "react-icons/si";
 import logo from '../assets/logotitle.png';
 import { FaFacebook } from "react-icons/fa";
+import { useTranslation } from 'react-i18next';
 
 const Footer = () => {
+    const { t } = useTranslation();
+
     return (
         <Box bg="#140706" color="white" py={"10"} position={"relative"} overflow="hidden" >
             <Container maxW="6xl" position={"relative"}>
@@ -40,24 +43,24 @@ const Footer = () => {
 
                 >
                     <VStack align="flex-start" spacing={3}>
-                        <Heading fontSize="lg">For Customers</Heading>
-                        <Link color={"rgb(184, 174, 169)"}>Browse Sellers</Link>
-                        <Link color={"rgb(184, 174, 169)"}>How It Works</Link>
-                        <Link color={"rgb(184, 174, 169)"}>Customer Support</Link>
+                        <Heading fontSize="lg"> {t("footer.forCustomers")}</Heading>
+                        <Link color={"rgb(184, 174, 169)"}>{t("footer.browseSellers")}    </Link>
+                        <Link color={"rgb(184, 174, 169)"}>{t("footer.howItWorks")}    </Link>
+                        <Link color={"rgb(184, 174, 169)"}>{t("footer.customerSupport")}    </Link>
                     </VStack>
 
                     <VStack align="flex-start" spacing={3}>
-                        <Heading fontSize="lg">For Sellers</Heading>
-                        <Link color={"rgb(184, 174, 169)"}>Start Selling</Link>
-                        <Link color={"rgb(184, 174, 169)"}>Seller Resources</Link>
-                        <Link color={"rgb(184, 174, 169)"}>Seller Support</Link>
+                        <Heading fontSize="lg"> {t("footer.forSellers")}</Heading>
+                        <Link color={"rgb(184, 174, 169)"}>{t("footer.startSelling")}       </Link>
+                        <Link color={"rgb(184, 174, 169)"}>{t("footer.sellerResources")}      </Link>
+                        <Link color={"rgb(184, 174, 169)"}>{t("footer.sellerSupport")}      </Link>
                     </VStack>
 
                     <VStack align="flex-start" spacing={3}>
-                        <Heading fontSize="lg">Company</Heading>
-                        <Link color={"rgb(184, 174, 169)"}>About Us</Link>
-                        <Link color={"rgb(184, 174, 169)"}>Contact</Link>
-                        <Link color={"rgb(184, 174, 169)"}>Privacy Policy</Link>
+                        <Heading fontSize="lg"> {t("footer.company")} </Heading>
+                        <Link color={"rgb(184, 174, 169)"}>{t("footer.aboutUs")} </Link>
+                        <Link color={"rgb(184, 174, 169)"}>{t("footer.contact")}  </Link>
+                        <Link color={"rgb(184, 174, 169)"}>{t("footer.privacyPolicy")} </Link>
                     </VStack>
                 </Flex>
 
@@ -72,7 +75,7 @@ const Footer = () => {
                     gap={4}
                 >
                     <Text fontSize="sm">
-                        Made By <Text as="span" fontWeight="bold">Tablya</Text> Team 2025
+                        {t("footer.madeBy")} <Text as="span" fontWeight="bold">Tablya</Text> {t("footer.team")} 
                     </Text>
 
                     <HStack spacing={5}>

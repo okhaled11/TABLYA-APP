@@ -22,12 +22,17 @@ import { useDispatch } from "react-redux";
 import { getDataRegisterChef } from "../../app/features/PersonalRegisterChefSlice";
 import { useState } from "react";
 import { toaster } from "../ui/toaster";
+import { uploadImageToImgBB } from "../../services/uploadImageToImageBB";
+import { useTranslation } from "react-i18next";
+import { Link as LinkRoute } from "react-router-dom";
 
 export const PersonalRegisterChef = ({ nextStepHandler }) => {
   /* ---------------state----------------- */
   const { colorMode } = useColorMode();
   const [linkImg, setLinkImg] = useState("");
   const dispatch = useDispatch();
+  const { t, i18n } = useTranslation();
+  const isRTL = i18n.language === "ar";
 
   /* ---------------variable----------------- */
   const bgInput =
@@ -46,9 +51,8 @@ export const PersonalRegisterChef = ({ nextStepHandler }) => {
     dispatch(getDataRegisterChef(dataUpdated));
 
     toaster.create({
-      title: "👨‍🍳 Personal Info Saved!",
-      description:
-        "Your data was saved successfully. Continue to the next step.",
+      title: t("personalRegisterChef.successTitle"),
+      description: t("personalRegisterChef.successDescription"),
       type: "success",
       duration: 3500,
     });
@@ -62,17 +66,18 @@ export const PersonalRegisterChef = ({ nextStepHandler }) => {
       <Flex gap="4" direction={{ base: "column", md: "row" }}>
         {/* First Name */}
         <Field.Root invalid={!!errors.firstName}>
-          <Field.Label>
-            First Name
+          <Field.Label me={"auto"} dir={isRTL ? "rtl" : "ltr"} >
+            {t("personalRegisterChef.firstName")}
             <Text as="span" color="#FA2c23">
               *
             </Text>
           </Field.Label>
-          <InputGroup startElement={<FaUser />}>
+          <InputGroup {...(isRTL ? { endElement: <FaUser /> } : { startElement: <FaUser /> })}>
             <Input
               rounded="md"
-              placeholder="Enter your first name"
+              placeholder={t("personalRegisterChef.firstNamePlaceholder")}
               bg={bgInput}
+              textAlign={isRTL ? "right" : "left"}
               {...register("firstName")}
             />
           </InputGroup>
@@ -85,17 +90,18 @@ export const PersonalRegisterChef = ({ nextStepHandler }) => {
 
         {/* Last Name */}
         <Field.Root invalid={!!errors.lastName}>
-          <Field.Label>
-            Last Name
+          <Field.Label me={"auto"} dir={isRTL ? "rtl" : "ltr"}>
+            {t("personalRegisterChef.lastName")}
             <Text as="span" color="#FA2c23">
               *
             </Text>
           </Field.Label>
-          <InputGroup startElement={<FaUser />}>
+          <InputGroup {...(isRTL ? { endElement: <FaUser /> } : { startElement: <FaUser /> })}>
             <Input
               rounded="md"
-              placeholder="Enter your last name"
+              placeholder={t("personalRegisterChef.lastNamePlaceholder")}
               bg={bgInput}
+              textAlign={isRTL ? "right" : "left"}
               {...register("lastName")}
             />
           </InputGroup>
@@ -109,17 +115,18 @@ export const PersonalRegisterChef = ({ nextStepHandler }) => {
 
       {/* Email */}
       <Field.Root invalid={!!errors.email}>
-        <Field.Label>
-          Email
+        <Field.Label me={"auto"} dir={isRTL ? "rtl" : "ltr"}>
+          {t("personalRegisterChef.email")}
           <Text as="span" color="#FA2c23">
             *
           </Text>
         </Field.Label>
-        <InputGroup startElement={<MdEmail />}>
+        <InputGroup {...(isRTL ? { endElement: <MdEmail /> } : { startElement: <MdEmail /> })}>
           <Input
             rounded="md"
-            placeholder="Enter your email"
+            placeholder={t("personalRegisterChef.emailPlaceholder")}
             bg={bgInput}
+            textAlign={isRTL ? "right" : "left"}
             {...register("email")}
           />
         </InputGroup>
@@ -132,17 +139,18 @@ export const PersonalRegisterChef = ({ nextStepHandler }) => {
 
       {/* Phone */}
       <Field.Root invalid={!!errors.phone}>
-        <Field.Label>
-          Phone
+        <Field.Label me={"auto"} dir={isRTL ? "rtl" : "ltr"}>
+          {t("personalRegisterChef.phone")}
           <Text as="span" color="#FA2c23">
             *
           </Text>
         </Field.Label>
-        <InputGroup startElement={<FaPhoneAlt />}>
+        <InputGroup {...(isRTL ? { endElement: <FaPhoneAlt /> } : { startElement: <FaPhoneAlt /> })}>
           <Input
             rounded="md"
-            placeholder="Enter your phone number"
+            placeholder={t("personalRegisterChef.phonePlaceholder")}
             bg={bgInput}
+            textAlign={isRTL ? "right" : "left"}
             {...register("phone")}
           />
         </InputGroup>
@@ -155,8 +163,8 @@ export const PersonalRegisterChef = ({ nextStepHandler }) => {
 
       {/* ID Verification */}
       <Field.Root invalid={!!errors.idVerification}>
-        <Field.Label>
-          ID Verification
+        <Field.Label me={"auto"} dir={isRTL ? "rtl" : "ltr"}>
+          {t("personalRegisterChef.idVerification")}
           <Text as="span" color="#FA2c23">
             *
           </Text>
@@ -168,47 +176,9 @@ export const PersonalRegisterChef = ({ nextStepHandler }) => {
           onFileAccept={async (details) => {
             const file = details.files?.[0];
             if (!file) return;
-
-            const formData = new FormData();
-            formData.append("image", file);
-
-            try {
-              const res = await fetch(
-                `https://api.imgbb.com/1/upload?key=d183504d942d2c443013abb243f6852a`,
-                {
-                  method: "POST",
-                  body: formData,
-                }
-              );
-
-              const data = await res.json();
-
-              if (data.success) {
-                const imageUrl = data.data.url;
-                setLinkImg(imageUrl);
-                setValue("idVerification", imageUrl, { shouldValidate: true });
-
-                toaster.create({
-                  title: "👨‍🍳 ID Uploaded!",
-                  description: "Your ID image has been uploaded successfully.",
-                  type: "success",
-                  duration: 3000,
-                  position: "top-center",
-                });
-              } else {
-                throw new Error("Upload failed");
-              }
-            } catch (error) {
-              console.error("Error uploading image:", error);
-              toaster.create({
-                title: "Upload Failed",
-                description:
-                  "There was an issue uploading your ID. Please try again.",
-                type: "error",
-                duration: 3000,
-                position: "top-center",
-              });
-            }
+            const imageUrl = await uploadImageToImgBB(file);
+            setLinkImg(imageUrl);
+            setValue("idVerification", imageUrl, { shouldValidate: true });
           }}
         >
           <FileUpload.HiddenInput />
@@ -225,8 +195,8 @@ export const PersonalRegisterChef = ({ nextStepHandler }) => {
               <LuUpload />
             </Icon>
             <FileUpload.DropzoneContent>
-              <Box>Upload your government ID</Box>
-              <Box color="fg.muted">Choose File</Box>
+              <Box>{t("personalRegisterChef.uploadId")}</Box>
+              <Box color="fg.muted">{t("personalRegisterChef.chooseFile")}</Box>
             </FileUpload.DropzoneContent>
           </FileUpload.Dropzone>
         </FileUpload.Root>
@@ -239,20 +209,21 @@ export const PersonalRegisterChef = ({ nextStepHandler }) => {
 
       {/* Continue */}
       <Button bg="#FA2c23" type="submit" w="100%" rounded="md">
-        Continue
+        {t("personalRegisterChef.continue")}
       </Button>
 
       {/* Login */}
-      <Text textAlign="center">
-        Already have an account?
+      <Text textAlign="center" dir={isRTL ? "rtl" : "ltr"}>
+        {t("personalRegisterChef.alreadyHaveAccount")}
         <Link
+          as={LinkRoute}
+          to="/login"
           fontWeight="bold"
           ms={1}
           _focus={{ outline: "none" }}
           color="#FA2c23"
-          href="#"
         >
-          Login
+          {t("personalRegisterChef.login")}
         </Link>
       </Text>
     </Box>

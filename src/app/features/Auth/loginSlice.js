@@ -5,9 +5,10 @@ const initialState = {
   userData: null,
   loading: false,
   error: null,
+  isPending: false,
 };
 
-// handle login
+// ✅ handle login with approval check
 export const loginUser = createAsyncThunk(
   "auth/loginUser",
   async (user, { rejectWithValue }) => {
@@ -18,6 +19,41 @@ export const loginUser = createAsyncThunk(
         return rejectWithValue(error.message);
       }
 
+      const currentUser = data?.user;
+
+      if (!currentUser) {
+        return rejectWithValue("User not found");
+      }
+
+      // 🔍 get role from user metadata
+      const role = currentUser.user_metadata?.role;
+
+      // ✅ if cooker => check approval
+      if (role === "cooker") {
+        // check if approved
+        const { data: cookerData, error: cookerError } = await supabase
+          .from("cookers")
+          .select("is_approved")
+          .eq("user_id", currentUser.id)
+          .single();
+
+        if (cookerError && cookerError.code !== "PGRST116") {
+          // (PGRST116 = no rows found, so ignore that)
+          return rejectWithValue(cookerError.message);
+        }
+
+        if (!cookerData || cookerData.is_approved === false) {
+          // لو مش approved
+          await supabase.auth.signOut(); // signout immediately
+          return rejectWithValue({
+            type: "pending",
+            message:
+              "Your account is pending admin approval. Please try again later.",
+          });
+        }
+      }
+
+      // ✅ success
       return data;
     } catch (err) {
       return rejectWithValue(err.message);
@@ -47,7 +83,7 @@ const loginSlice = createSlice({
   reducers: {},
   extraReducers: (builder) => {
     builder
-      //login
+      // login
       .addCase(loginUser.pending, (state) => {
         state.loading = true;
         state.error = null;
@@ -58,10 +94,17 @@ const loginSlice = createSlice({
       })
       .addCase(loginUser.rejected, (state, action) => {
         state.loading = false;
-        state.error = action.payload;
+        // Check if it's a pending approval case
+        if (action.payload?.type === "pending") {
+          state.isPending = true;
+          state.error = null;
+        } else {
+          state.error = action.payload;
+          state.isPending = false;
+        }
       })
 
-      //   logout
+      // logout
       .addCase(logoutUser.fulfilled, (state) => {
         state.userData = null;
       })

@@ -3,10 +3,12 @@ export const LoginSchema = yup
   .object({
     email: yup
       .string()
+      .trim()
       .required("Email is required")
       .matches(/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/, "Email not valid"),
     password: yup
       .string()
+      .trim()
       .required("Password is required")
       .min(6, "Password should be at least 6 characters."),
   })
@@ -16,20 +18,24 @@ export const registerSchema = yup
   .object({
     firstName: yup
       .string()
+      .trim()
       .required("First name is required")
       .matches(/^[A-Za-z\s]+$/, "First name should contain only letters")
       .min(3, "First name should be at least 3 characters."),
     lastName: yup
       .string()
+      .trim()
       .required("Last name is required")
       .matches(/^[A-Za-z\s]+$/, "Last name should contain only letters")
       .min(3, "Last name should be at least 3 characters."),
     email: yup
       .string()
+      .trim()
       .required("Email is required")
       .matches(/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/, "Email not valid"),
     phone: yup
       .string()
+      .trim()
       .required("Phone number is required")
       .matches(
         /^01[0-9]{9}$/,
@@ -37,14 +43,17 @@ export const registerSchema = yup
       ),
     address: yup
       .string()
+      .trim()
       .required("Address is required")
       .min(5, "Address should be at least 5 characters."),
     password: yup
       .string()
+      .trim()
       .required("Password is required")
       .min(6, "Password should be at least 6 characters."),
     confirmPassword: yup
       .string()
+      .trim()
       .required("Confirm Password is required")
       .oneOf([yup.ref("password")], "Passwords must match"),
   })
@@ -56,23 +65,27 @@ export const registerSchemaPersonaChef = yup
       .string()
       .required("First name is required")
       .matches(/^[A-Za-z\s]+$/, "First name should contain only letters")
-      .min(3, "First name should be at least 3 characters."),
+      .min(3, "First name should be at least 3 characters.")
+      .trim(),
     lastName: yup
       .string()
       .required("Last name is required")
       .matches(/^[A-Za-z\s]+$/, "Last name should contain only letters")
-      .min(3, "Last name should be at least 3 characters."),
+      .min(3, "Last name should be at least 3 characters.")
+      .trim(),
     email: yup
       .string()
       .required("Email is required")
-      .matches(/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/, "Email not valid"),
+      .matches(/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/, "Email not valid")
+      .trim(),
     phone: yup
       .string()
       .required("Phone number is required")
       .matches(
         /^01[0-9]{9}$/,
         "Phone number must be a valid Egyptian number (e.g., 01012345678)"
-      ),
+      )
+      .trim(),
     idVerification: yup
       .string()
       .url("Please upload a valid image link")
@@ -85,11 +98,13 @@ export const registerSchemaKitchenChef = yup
       .string()
       .required("First name is required")
       .matches(/^[A-Za-z\s]+$/, "First name should contain only letters")
-      .min(3, "First name should be at least 3 characters."),
+      .min(3, "First name should be at least 3 characters.")
+      .trim(),
     StartTime: yup
       .string()
       .required("Start time is required")
-      .matches(/^([01]\d|2[0-3]):([0-5]\d)$/, "Invalid time format (HH:MM)"),
+      .matches(/^([01]\d|2[0-3]):([0-5]\d)$/, "Invalid time format (HH:MM)")
+      .trim(),
 
     EndTime: yup
       .string()
@@ -107,10 +122,17 @@ export const registerSchemaKitchenChef = yup
     password: yup
       .string()
       .required("Password is required")
-      .min(6, "Password should be at least 6 characters."),
+      .min(6, "Password should be at least 6 characters.")
+      .trim(),
     confirmPassword: yup
       .string()
       .required("Confirm Password is required")
-      .oneOf([yup.ref("password")], "Passwords must match"),
+      .oneOf([yup.ref("password")], "Passwords must match")
+      .trim(),
+    idSelfie: yup
+      .string()
+      .url()
+      .required("Upload selfie with your ID card"),
+
   })
   .required();

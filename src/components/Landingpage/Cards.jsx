@@ -4,6 +4,7 @@ import { Box, Heading, Text, VStack, Button, Container, SimpleGrid } from "@chak
 
 import { useColorMode } from '../../theme/color-mode';
 import colors from '../../theme/color';
+import { useTranslation } from 'react-i18next';
 
 
 
@@ -52,7 +53,7 @@ const CardItem = ({ title, text, svg }) => {
 
       {/* card content*/}
       <VStack spacing={8} align="center" mt={6}>
-        <Heading as="h3" size="md" mt={6} fontSize={"28px"} fontWeight={"bold"} mb={3} lineHeight={"1"}>{title}    </Heading>
+        <Heading as="h3" size="md" mt={6} fontSize={"28px"} fontWeight={"semibold"} mb={3} lineHeight={"1"}>{title}    </Heading>
         <Text color="rgb(150, 135, 130)" fontSize={"18px"} >{text}</Text>
 
       </VStack>
@@ -64,11 +65,12 @@ const CardItem = ({ title, text, svg }) => {
 
 
 export default function Cards() {
+  const { t } = useTranslation();
 
   return (
-    <Container maxW="7xl" py={{ base: 10, md: 20 }} >
+    <Container maxW="7xl" py={{ base: 10, md: 20 }}  >
       <SimpleGrid columns={{ base: 1, md: 3 }} spacing={"40px"} justifyItems="center" columnGap={{base: "30px" , md:"30px" , lg:"80px"}} rowGap="60px">
-        <CardItem title="Homemade Meals" text="Enjoy a diverse menu of dishes made with love and fresh ingredients"
+        <CardItem title={t('cards.homemadeMeals')} text={t('cards.homemadeMealsDesc')}
 
 
           svg={<svg width="100" height="100" viewBox="0 0 132 132" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -79,7 +81,7 @@ export default function Cards() {
 
 
         />
-        <CardItem title="Support Local Cooks" text=" Empower talented home cooks in your community and taste their passion"
+        <CardItem title={t('cards.supportCooks')} text={t('cards.supportCooksDesc')}
 
           
 
@@ -90,7 +92,7 @@ export default function Cards() {
           }
 
         />
-        <CardItem title="Easy Delivery" text="Get your favourite meals delivered right to your doorstep, hassle-free"
+        <CardItem title={t('cards.easyDelivery')} text={t('cards.easyDeliveryDesc')}
 
           svg={<svg width="100" height="100" viewBox="0 0 132 132" fill="none" xmlns="http://www.w3.org/2000/svg">
             <path d="M123.199 50.968C120.986 48.655 118.696 46.2716 117.833 44.1758C117.035 42.2561 116.988 39.0743 116.941 35.9923C116.853 30.2626 116.759 23.7698 112.245 19.2554C107.73 14.7409 101.237 14.647 95.5077 14.5589C92.4257 14.512 89.2439 14.465 87.3242 13.6666C85.2284 12.8036 82.845 10.5141 80.532 8.30094C76.4755 4.40877 71.8788 0 65.75 0C59.6212 0 55.0245 4.40877 50.968 8.30094C48.655 10.5141 46.2716 12.8036 44.1758 13.6666C42.2679 14.465 39.0743 14.512 35.9923 14.5589C30.2626 14.647 23.7698 14.7409 19.2554 19.2554C14.7409 23.7698 14.6763 30.2626 14.5589 35.9923C14.512 39.0743 14.465 42.2561 13.6666 44.1758C12.8036 46.2716 10.5141 48.655 8.30094 50.968C4.40877 55.0187 0 59.6212 0 65.75C0 71.8788 4.40877 76.4755 8.30094 80.532C10.5141 82.845 12.8036 85.2284 13.6666 87.3242C14.465 89.2439 14.512 92.4257 14.5589 95.5077C14.647 101.237 14.7409 107.73 19.2554 112.245C23.7698 116.759 30.2626 116.853 35.9923 116.941C39.0743 116.988 42.2561 117.035 44.1758 117.833C46.2657 118.696 48.655 120.986 50.968 123.199C55.0245 127.091 59.6212 131.5 65.75 131.5C71.8788 131.5 76.4755 127.091 80.532 123.199C82.845 120.986 85.2284 118.696 87.3242 117.833C89.2439 117.035 92.4257 116.988 95.5077 116.941C101.237 116.853 107.73 116.759 112.245 112.245C116.759 107.73 116.853 101.237 116.941 95.5077C116.988 92.4257 117.035 89.2439 117.833 87.3242C118.696 85.2343 120.986 82.845 123.199 80.532C127.091 76.4813 131.5 71.8788 131.5 65.75C131.5 59.6212 127.091 55.0245 123.199 50.968Z" fill="#FA2C23" />

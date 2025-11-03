@@ -21,14 +21,20 @@ import { useColorMode } from "../theme/color-mode";
 import { Link } from "react-router-dom";
 import CookieService from "../services/cookies";
 import { useTranslation } from "react-i18next";
-import { FiBell, FiChevronDown} from "react-icons/fi";
-import { FaMoon ,FaSun} from "react-icons/fa";
+import { FiBell, FiChevronDown } from "react-icons/fi";
+import { FaMoon, FaSun } from "react-icons/fa";
 import CustomAlertDailog from "../shared/CustomAlertDailog";
 import Navlogo from "../assets/Navlogo.png";
 import colors from "../theme/color";
 
 export default function Navbar() {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
+
+  const changeLanguage = (lang) => {
+    i18n.changeLanguage(lang);
+    document.dir = lang === "ar" ? "rtl" : "ltr";
+  };
+
   // const { isOpen, onOpen, onClose } = useDisclosure();
   const { colorMode, toggleColorMode } = useColorMode();
   // const bg = colorMode === "light" ? "white" : "gray.900";
@@ -73,6 +79,48 @@ export default function Navbar() {
 
             <Flex alignItems="center">
               <Stack direction="row" spacing={5} align="center">
+                {/* test language */}
+                <button
+                  onClick={() => changeLanguage("en")}
+                  style={{
+                    backgroundColor: "#fff",
+                    color: "#3b82f6",
+                    border: "none",
+                    padding: "2px 2px",
+                    borderRadius: "8px",
+                    cursor: "pointer",
+                    fontWeight: "bold",
+                    transition: "0.3s",
+                  }}
+                  onMouseOver={(e) =>
+                    (e.target.style.backgroundColor = "#e0e7ff")
+                  }
+                  onMouseOut={(e) => (e.target.style.backgroundColor = "#fff")}
+                >
+                  English
+                </button>
+
+                <button
+                  onClick={() => changeLanguage("ar")}
+                  style={{
+                    backgroundColor: "#3b82f6",
+                    color: "#fff",
+                    border: "2px solid #fff",
+                    padding: "1px 2px",
+                    borderRadius: "8px",
+                    cursor: "pointer",
+                    fontWeight: "bold",
+                    transition: "0.3s",
+                  }}
+                  onMouseOver={(e) =>
+                    (e.target.style.backgroundColor = "#2563eb")
+                  }
+                  onMouseOut={(e) =>
+                    (e.target.style.backgroundColor = "#3b82f6")
+                  }
+                >
+                  عربي
+                </button>
                 {/* mode toggle */}
                 <Button
                   onClick={toggleColorMode}

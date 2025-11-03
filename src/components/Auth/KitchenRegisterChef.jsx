@@ -1,11 +1,13 @@
-import { Box } from "@chakra-ui/react";
+import { Box, FileUpload } from "@chakra-ui/react";
+import { LuFileUp } from "react-icons/lu";
+import { CloseButton } from "@chakra-ui/react";
 import { FaLock } from "react-icons/fa";
 import { Link } from "@chakra-ui/react";
 import { Flex, Text } from "@chakra-ui/react";
 import { Field, Input } from "@chakra-ui/react";
 import { InputGroup } from "@chakra-ui/react";
 import { Button } from "@chakra-ui/react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { TbToolsKitchen2 } from "react-icons/tb";
 import { MdAccessTime } from "react-icons/md";
 import colors from "../../theme/color";
@@ -16,12 +18,23 @@ import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { registerSchemaKitchenChef } from "../../validation";
 import { toaster } from "../ui/toaster";
+import { uploadImageToImgBB } from "../../services/uploadImageToImageBB";
+import { useRegisterChefMutation } from "../../app/features/Auth/registerChefSlice";
+import { useNavigate } from "react-router-dom";
+import { Link as LinkRoute } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 
 export default function KitchenRegisterChef() {
   /* ---------------state----------------- */
+  const { t, i18n } = useTranslation();
+  const isRTL = i18n.language === "ar";
   const { colorMode } = useColorMode();
+  const navigate = useNavigate();
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [registerChef, { data, isError, error, isSuccess, isLoading }] =
+    useRegisterChefMutation();
+  console.log(data, isError, isLoading, isSuccess);
 
   /* ----------------data in store------------- */
   const { dataRegisterChef } = useSelector(
@@ -36,6 +49,7 @@ export default function KitchenRegisterChef() {
     register,
     handleSubmit,
     formState: { errors },
+    setValue,
     reset,
   } = useForm({ resolver: yupResolver(registerSchemaKitchenChef) });
 
@@ -46,17 +60,37 @@ export default function KitchenRegisterChef() {
       ...dataRegisterChef,
       ...data,
     };
-    toaster.create({
-      title: "👨‍🍳 Chef account created successfully ",
-      description:
-        "Welcome to Tablya! Your chef profile is ready. Please log in to start managing your kitchen.",
-      type: "success",
-      duration: 3500,
-    });
     console.log(allDataRegisterChef);
-
+    registerChef(allDataRegisterChef);
     reset();
   };
+
+  /* --------------effect---------------- */
+  useEffect(() => {
+    if (isSuccess && data) {
+      setTimeout(
+        () =>
+          toaster.create({
+            title: t("kitchenRegisterChef.successTitle"),
+            description: t("kitchenRegisterChef.successDescription"),
+            type: "success",
+            duration: 3500,
+          }),
+        200
+      );
+      setTimeout(() => navigate("/login"), 500);
+    }
+
+    if (isError && error) {
+      toaster.create({
+        title: t("kitchenRegisterChef.errorTitle"),
+        description:
+          error?.message || t("kitchenRegisterChef.errorDescription"),
+        type: "error",
+        duration: 4000,
+      });
+    }
+  }, [isError, error, data, isSuccess, navigate, t]);
 
   return (
     <>
@@ -64,22 +98,29 @@ export default function KitchenRegisterChef() {
         {/* Kitchen Name */}
         <Field.Root invalid={!!errors.KitchenName}>
           <Field.Label
+            me={"auto"}
             color={
               colorMode === "light"
                 ? colors.light.textMain
                 : colors.dark.textMain
             }
             mb={2}
+            me={"auto"}
+            dir={isRTL ? "rtl" : "ltr"}
           >
-            Kitchen Name
+            {t("kitchenRegisterChef.kitchenName")}
             <Text as="span" color="#FA2c23">
               *
             </Text>
           </Field.Label>
-          <InputGroup startElement={<TbToolsKitchen2 />}>
+          <InputGroup
+            {...(isRTL
+              ? { endElement: <TbToolsKitchen2 /> }
+              : { startElement: <TbToolsKitchen2 /> })}
+          >
             <Input
               rounded="md"
-              placeholder="Enter your kitchen name"
+              placeholder={t("kitchenRegisterChef.kitchenNamePlaceholder")}
               bg={bgInput}
               border="1px solid"
               borderColor={colorMode === "light" ? "gray.200" : "transparent"}
@@ -89,6 +130,7 @@ export default function KitchenRegisterChef() {
                   : colors.dark.textMain
               }
               _placeholder={{ color: "gray.500" }}
+              textAlign={isRTL ? "right" : "left"}
               {...register("KitchenName")}
             />
           </InputGroup>
@@ -101,6 +143,7 @@ export default function KitchenRegisterChef() {
         <Box>
           <Field.Root>
             <Field.Label
+              me={"auto"}
               color={
                 colorMode === "light"
                   ? colors.light.textMain
@@ -108,8 +151,9 @@ export default function KitchenRegisterChef() {
               }
               fontWeight="medium"
               mb={2}
+              dir={isRTL ? "rtl" : "ltr"}
             >
-              Working Hours
+              {t("kitchenRegisterChef.workingHours")}
               <Text as="span" color="#FA2c23">
                 *
               </Text>
@@ -120,6 +164,7 @@ export default function KitchenRegisterChef() {
             {/* Start Time */}
             <Field.Root invalid={!!errors.StartTime} flex={1}>
               <Field.Label
+                me={"auto"}
                 fontSize="sm"
                 mb={2}
                 color={
@@ -127,13 +172,18 @@ export default function KitchenRegisterChef() {
                     ? colors.light.textSub
                     : colors.dark.textSub
                 }
+                dir={isRTL ? "rtl" : "ltr"}
               >
-                Start Time
+                {t("kitchenRegisterChef.startTime")}
                 <Text as="span" color="#FA2c23">
                   *
                 </Text>
               </Field.Label>
-              <InputGroup startElement={<MdAccessTime />}>
+              <InputGroup
+                {...(isRTL
+                  ? { endElement: <MdAccessTime /> }
+                  : { startElement: <MdAccessTime /> })}
+              >
                 <Input
                   rounded="md"
                   type="time"
@@ -147,6 +197,7 @@ export default function KitchenRegisterChef() {
                       ? colors.light.textSub
                       : colors.dark.textSub
                   }
+                  textAlign={isRTL ? "right" : "left"}
                   {...register("StartTime")}
                 />
               </InputGroup>
@@ -158,6 +209,7 @@ export default function KitchenRegisterChef() {
             {/* End Time */}
             <Field.Root invalid={!!errors.EndTime} flex={1}>
               <Field.Label
+                me={"auto"}
                 fontSize="sm"
                 mb={2}
                 color={
@@ -165,13 +217,18 @@ export default function KitchenRegisterChef() {
                     ? colors.light.textSub
                     : colors.dark.textSub
                 }
+                dir={isRTL ? "rtl" : "ltr"}
               >
-                End Time
+                {t("kitchenRegisterChef.endTime")}
                 <Text as="span" color="#FA2c23">
                   *
                 </Text>
               </Field.Label>
-              <InputGroup startElement={<MdAccessTime />}>
+              <InputGroup
+                {...(isRTL
+                  ? { endElement: <MdAccessTime /> }
+                  : { startElement: <MdAccessTime /> })}
+              >
                 <Input
                   rounded="md"
                   type="time"
@@ -185,6 +242,7 @@ export default function KitchenRegisterChef() {
                       ? colors.light.textSub
                       : colors.dark.textSub
                   }
+                  textAlign={isRTL ? "right" : "left"}
                   {...register("EndTime")}
                 />
               </InputGroup>
@@ -197,34 +255,50 @@ export default function KitchenRegisterChef() {
 
         {/* Password */}
         <Field.Root flex={1} invalid={!!errors.password}>
-          <Field.Label>
-            Password{" "}
+          <Field.Label me={"auto"} dir={isRTL ? "rtl" : "ltr"}>
+            {t("kitchenRegisterChef.password")}{" "}
             <Text as="span" color="#FA2c23">
               *
             </Text>
           </Field.Label>
           <InputGroup
-            startElement={<FaLock />}
-            endElement={
-              showPassword ? (
-                <AiOutlineEyeInvisible
-                  size={18}
-                  onClick={() => setShowPassword((prev) => !prev)}
-                />
-              ) : (
-                <AiOutlineEye
-                  size={18}
-                  onClick={() => setShowPassword((prev) => !prev)}
-                />
-              )
-            }
+            {...(isRTL
+              ? {
+                  startElement: showPassword ? (
+                    <AiOutlineEyeInvisible
+                      size={18}
+                      onClick={() => setShowPassword((prev) => !prev)}
+                    />
+                  ) : (
+                    <AiOutlineEye
+                      size={18}
+                      onClick={() => setShowPassword((prev) => !prev)}
+                    />
+                  ),
+                  endElement: <FaLock />,
+                }
+              : {
+                  startElement: <FaLock />,
+                  endElement: showPassword ? (
+                    <AiOutlineEyeInvisible
+                      size={18}
+                      onClick={() => setShowPassword((prev) => !prev)}
+                    />
+                  ) : (
+                    <AiOutlineEye
+                      size={18}
+                      onClick={() => setShowPassword((prev) => !prev)}
+                    />
+                  ),
+                })}
           >
             <Input
-              placeholder="Enter your password"
+              placeholder={t("kitchenRegisterChef.passwordPlaceholder")}
               type={showPassword ? "text" : "password"}
               bg={bgInput}
               borderRadius="10px"
               pr="3rem"
+              textAlign={isRTL ? "right" : "left"}
               {...register("password")}
             />
           </InputGroup>
@@ -235,39 +309,125 @@ export default function KitchenRegisterChef() {
 
         {/* Confirm Password */}
         <Field.Root flex={1} invalid={!!errors.confirmPassword}>
-          <Field.Label>
-            Confirm Password
+          <Field.Label me={"auto"} dir={isRTL ? "rtl" : "ltr"}>
+            {t("kitchenRegisterChef.confirmPassword")}
             <Text as="span" color="#FA2c23">
               *
             </Text>
           </Field.Label>
           <InputGroup
-            startElement={<FaLock />}
-            endElement={
-              showConfirmPassword ? (
-                <AiOutlineEyeInvisible
-                  size={18}
-                  onClick={() => setShowConfirmPassword((prev) => !prev)}
-                />
-              ) : (
-                <AiOutlineEye
-                  size={18}
-                  onClick={() => setShowConfirmPassword((prev) => !prev)}
-                />
-              )
-            }
+            {...(isRTL
+              ? {
+                  startElement: showConfirmPassword ? (
+                    <AiOutlineEyeInvisible
+                      size={18}
+                      onClick={() => setShowConfirmPassword((prev) => !prev)}
+                    />
+                  ) : (
+                    <AiOutlineEye
+                      size={18}
+                      onClick={() => setShowConfirmPassword((prev) => !prev)}
+                    />
+                  ),
+                  endElement: <FaLock />,
+                }
+              : {
+                  startElement: <FaLock />,
+                  endElement: showConfirmPassword ? (
+                    <AiOutlineEyeInvisible
+                      size={18}
+                      onClick={() => setShowConfirmPassword((prev) => !prev)}
+                    />
+                  ) : (
+                    <AiOutlineEye
+                      size={18}
+                      onClick={() => setShowConfirmPassword((prev) => !prev)}
+                    />
+                  ),
+                })}
           >
             <Input
-              placeholder="Confirm password"
+              placeholder={t("kitchenRegisterChef.confirmPasswordPlaceholder")}
               type={showConfirmPassword ? "text" : "password"}
               bg={bgInput}
               borderRadius="10px"
               pr="3rem"
+              textAlign={isRTL ? "right" : "left"}
               {...register("confirmPassword")}
             />
           </InputGroup>
           <Field.ErrorText fontWeight="bold">
             {errors.confirmPassword?.message}
+          </Field.ErrorText>
+        </Field.Root>
+
+        {/* Upload selfie with your ID card */}
+        <Field.Root invalid={!!errors.idSelfie}>
+          <Field.Label me={"auto"} dir={isRTL ? "rtl" : "ltr"}>
+            {t("kitchenRegisterChef.uploadIdSelfie")}
+            <Text as="span" color="#FA2c23">
+              *
+            </Text>
+          </Field.Label>
+
+          <FileUpload.Root
+            gap="2"
+            maxWidth="100%"
+            style={{
+              display: "flex",
+              justifyContent: isRTL ? "flex-end" : "flex-ebd", // 👈 هنا السطر المهم
+            }}
+            onFileAccept={async (details) => {
+              const file = details.files?.[0];
+              if (!file) return;
+              const imageUrl = await uploadImageToImgBB(file);
+              setValue("idSelfie", imageUrl, { shouldValidate: true });
+            }}
+          >
+            <FileUpload.HiddenInput />
+            <InputGroup
+              {...(isRTL
+                ? {
+                    startElement: (
+                      <FileUpload.ClearTrigger asChild>
+                        <CloseButton
+                          me="-1"
+                          size="xs"
+                          variant="plain"
+                          focusVisibleRing="inside"
+                          focusRingWidth="2px"
+                          pointerEvents="auto"
+                        />
+                      </FileUpload.ClearTrigger>
+                    ),
+                    endElement: <LuFileUp />,
+                  }
+                : {
+                    startElement: <LuFileUp />,
+                    endElement: (
+                      <FileUpload.ClearTrigger asChild>
+                        <CloseButton
+                          me="-1"
+                          size="xs"
+                          variant="plain"
+                          focusVisibleRing="inside"
+                          focusRingWidth="2px"
+                          pointerEvents="auto"
+                        />
+                      </FileUpload.ClearTrigger>
+                    ),
+                  })}
+            >
+              <Input asChild textAlign={isRTL ? "right" : "left"}>
+                <FileUpload.Trigger>
+                  <FileUpload.FileText lineClamp={1} />
+                </FileUpload.Trigger>
+              </Input>
+            </InputGroup>
+          </FileUpload.Root>
+
+          <Field.ErrorText fontWeight="bold">
+            {errors.idSelfie?.message}
           </Field.ErrorText>
         </Field.Root>
 
@@ -279,11 +439,12 @@ export default function KitchenRegisterChef() {
           rounded="md"
           color="white"
           fontWeight="bold"
+          loading={isLoading}
           py={6}
           mt={6}
           _hover={{ bg: "#d91f17" }}
         >
-          Create Chef Account
+          {t("kitchenRegisterChef.createChefAccount")}
         </Button>
 
         {/* Login link */}
@@ -293,14 +454,15 @@ export default function KitchenRegisterChef() {
             colorMode === "light" ? colors.light.textMain : colors.dark.textMain
           }
         >
-          Already have an account?{" "}
+          {t("kitchenRegisterChef.alreadyHaveAccount")}{" "}
           <Link
+            as={LinkRoute}
+            to={"/login"}
             fontWeight="bold"
             _focus={{ outline: "none" }}
             color="#FA2c23"
-            href="#"
           >
-            Login
+            {t("kitchenRegisterChef.login")}
           </Link>
         </Text>
       </Box>
