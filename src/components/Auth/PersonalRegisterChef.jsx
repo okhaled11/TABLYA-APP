@@ -20,16 +20,16 @@ import { yupResolver } from "@hookform/resolvers/yup";
 import { registerSchemaPersonaChef } from "../../validation";
 import { useDispatch } from "react-redux";
 import { getDataRegisterChef } from "../../app/features/PersonalRegisterChefSlice";
-import { useState } from "react";
 import { toaster } from "../ui/toaster";
 import { uploadImageToImgBB } from "../../services/uploadImageToImageBB";
 import { useTranslation } from "react-i18next";
 import { Link as LinkRoute } from "react-router-dom";
+import { CloseButton } from "@chakra-ui/react";
+import { MdInsertPhoto } from "react-icons/md";
 
 export const PersonalRegisterChef = ({ nextStepHandler }) => {
   /* ---------------state----------------- */
   const { colorMode } = useColorMode();
-  const [linkImg, setLinkImg] = useState("");
   const dispatch = useDispatch();
   const { t, i18n } = useTranslation();
   const isRTL = i18n.language === "ar";
@@ -47,7 +47,8 @@ export const PersonalRegisterChef = ({ nextStepHandler }) => {
   } = useForm({ resolver: yupResolver(registerSchemaPersonaChef) });
 
   const onSubmit = (data) => {
-    const dataUpdated = { ...data, idVerification: linkImg };
+    console.log(data);
+    const dataUpdated = { ...data };
     dispatch(getDataRegisterChef(dataUpdated));
 
     toaster.create({
@@ -66,13 +67,17 @@ export const PersonalRegisterChef = ({ nextStepHandler }) => {
       <Flex gap="4" direction={{ base: "column", md: "row" }}>
         {/* First Name */}
         <Field.Root invalid={!!errors.firstName}>
-          <Field.Label me={"auto"} dir={isRTL ? "rtl" : "ltr"} >
+          <Field.Label me={"auto"} dir={isRTL ? "rtl" : "ltr"}>
             {t("personalRegisterChef.firstName")}
             <Text as="span" color="#FA2c23">
               *
             </Text>
           </Field.Label>
-          <InputGroup {...(isRTL ? { endElement: <FaUser /> } : { startElement: <FaUser /> })}>
+          <InputGroup
+            {...(isRTL
+              ? { endElement: <FaUser /> }
+              : { startElement: <FaUser /> })}
+          >
             <Input
               rounded="md"
               placeholder={t("personalRegisterChef.firstNamePlaceholder")}
@@ -96,7 +101,11 @@ export const PersonalRegisterChef = ({ nextStepHandler }) => {
               *
             </Text>
           </Field.Label>
-          <InputGroup {...(isRTL ? { endElement: <FaUser /> } : { startElement: <FaUser /> })}>
+          <InputGroup
+            {...(isRTL
+              ? { endElement: <FaUser /> }
+              : { startElement: <FaUser /> })}
+          >
             <Input
               rounded="md"
               placeholder={t("personalRegisterChef.lastNamePlaceholder")}
@@ -121,7 +130,11 @@ export const PersonalRegisterChef = ({ nextStepHandler }) => {
             *
           </Text>
         </Field.Label>
-        <InputGroup {...(isRTL ? { endElement: <MdEmail /> } : { startElement: <MdEmail /> })}>
+        <InputGroup
+          {...(isRTL
+            ? { endElement: <MdEmail /> }
+            : { startElement: <MdEmail /> })}
+        >
           <Input
             rounded="md"
             placeholder={t("personalRegisterChef.emailPlaceholder")}
@@ -145,7 +158,11 @@ export const PersonalRegisterChef = ({ nextStepHandler }) => {
             *
           </Text>
         </Field.Label>
-        <InputGroup {...(isRTL ? { endElement: <FaPhoneAlt /> } : { startElement: <FaPhoneAlt /> })}>
+        <InputGroup
+          {...(isRTL
+            ? { endElement: <FaPhoneAlt /> }
+            : { startElement: <FaPhoneAlt /> })}
+        >
           <Input
             rounded="md"
             placeholder={t("personalRegisterChef.phonePlaceholder")}
@@ -161,50 +178,227 @@ export const PersonalRegisterChef = ({ nextStepHandler }) => {
         )}
       </Field.Root>
 
-      {/* ID Verification */}
-      <Field.Root invalid={!!errors.idVerification}>
+      {/*  there img */}
+      {/* Upload selfie with your ID card front */}
+      <Field.Root invalid={!!errors.id_card_front_url} spaceY={1}>
         <Field.Label me={"auto"} dir={isRTL ? "rtl" : "ltr"}>
-          {t("personalRegisterChef.idVerification")}
+          National ID (Front Side)
           <Text as="span" color="#FA2c23">
             *
           </Text>
         </Field.Label>
 
         <FileUpload.Root
-          alignItems="stretch"
-          maxFiles={1}
+          gap="2"
+          maxWidth="100%"
+          bg={bgInput}
+          rounded={"md"}
+          style={{
+            display: "flex",
+            justifyContent: isRTL ? "flex-end" : "flex-ebd",
+          }}
           onFileAccept={async (details) => {
             const file = details.files?.[0];
             if (!file) return;
             const imageUrl = await uploadImageToImgBB(file);
-            setLinkImg(imageUrl);
-            setValue("idVerification", imageUrl, { shouldValidate: true });
+            setValue("id_card_front_url", imageUrl, {
+              shouldValidate: true,
+            });
           }}
         >
           <FileUpload.HiddenInput />
-          <FileUpload.Dropzone
-            rounded="xl"
-            p={6}
-            bg={bgInput}
-            backgroundImage={linkImg ? `url(${linkImg})` : "none"}
-            backgroundSize="cover"
-            backgroundPosition="center"
-            backgroundRepeat="no-repeat"
+          <InputGroup
+            {...(isRTL
+              ? {
+                  startElement: (
+                    <FileUpload.ClearTrigger asChild>
+                      <CloseButton
+                        me="-1"
+                        size="xs"
+                        variant="plain"
+                        focusVisibleRing="inside"
+                        focusRingWidth="2px"
+                        pointerEvents="auto"
+                      />
+                    </FileUpload.ClearTrigger>
+                  ),
+                  endElement: <MdInsertPhoto />,
+                }
+              : {
+                  startElement: <MdInsertPhoto />,
+                  endElement: (
+                    <FileUpload.ClearTrigger asChild>
+                      <CloseButton
+                        me="-1"
+                        size="xs"
+                        variant="plain"
+                        focusVisibleRing="inside"
+                        focusRingWidth="2px"
+                        pointerEvents="auto"
+                      />
+                    </FileUpload.ClearTrigger>
+                  ),
+                })}
           >
-            <Icon size="md" color="fg.muted">
-              <LuUpload />
-            </Icon>
-            <FileUpload.DropzoneContent>
-              <Box>{t("personalRegisterChef.uploadId")}</Box>
-              <Box color="fg.muted">{t("personalRegisterChef.chooseFile")}</Box>
-            </FileUpload.DropzoneContent>
-          </FileUpload.Dropzone>
+            <Input asChild textAlign={isRTL ? "right" : "left"}>
+              <FileUpload.Trigger>
+                <FileUpload.FileText lineClamp={1} />
+              </FileUpload.Trigger>
+            </Input>
+          </InputGroup>
         </FileUpload.Root>
-        {errors.idVerification && (
-          <Field.ErrorText fontWeight="bold">
-            {errors.idVerification.message}
-          </Field.ErrorText>
-        )}
+
+        <Field.ErrorText fontWeight="bold">
+          {errors.id_card_front_url?.message}
+        </Field.ErrorText>
+      </Field.Root>
+
+      {/* Upload selfie with your ID card back */}
+      <Field.Root invalid={!!errors.id_card_back_url} spaceY={1}>
+        <Field.Label me={"auto"} dir={isRTL ? "rtl" : "ltr"}>
+          National ID (Back Side)
+          <Text as="span" color="#FA2c23">
+            *
+          </Text>
+        </Field.Label>
+
+        <FileUpload.Root
+          gap="2"
+          maxWidth="100%"
+          bg={bgInput}
+          rounded={"md"}
+          style={{
+            display: "flex",
+            justifyContent: isRTL ? "flex-end" : "flex-ebd",
+          }}
+          onFileAccept={async (details) => {
+            const file = details.files?.[0];
+            if (!file) return;
+            const imageUrl = await uploadImageToImgBB(file);
+            setValue("id_card_back_url", imageUrl, {
+              shouldValidate: true,
+            });
+          }}
+        >
+          <FileUpload.HiddenInput />
+          <InputGroup
+            {...(isRTL
+              ? {
+                  startElement: (
+                    <FileUpload.ClearTrigger asChild>
+                      <CloseButton
+                        me="-1"
+                        size="xs"
+                        variant="plain"
+                        focusVisibleRing="inside"
+                        focusRingWidth="2px"
+                        pointerEvents="auto"
+                      />
+                    </FileUpload.ClearTrigger>
+                  ),
+                  endElement: <MdInsertPhoto />,
+                }
+              : {
+                  startElement: <MdInsertPhoto />,
+                  endElement: (
+                    <FileUpload.ClearTrigger asChild>
+                      <CloseButton
+                        me="-1"
+                        size="xs"
+                        variant="plain"
+                        focusVisibleRing="inside"
+                        focusRingWidth="2px"
+                        pointerEvents="auto"
+                      />
+                    </FileUpload.ClearTrigger>
+                  ),
+                })}
+          >
+            <Input asChild textAlign={isRTL ? "right" : "left"}>
+              <FileUpload.Trigger>
+                <FileUpload.FileText lineClamp={1} />
+              </FileUpload.Trigger>
+            </Input>
+          </InputGroup>
+        </FileUpload.Root>
+
+        <Field.ErrorText fontWeight="bold">
+          {errors.id_card_back_url?.message}
+        </Field.ErrorText>
+      </Field.Root>
+
+      {/* Upload Selfie with National ID */}
+      <Field.Root invalid={!!errors.selfie_with_id_url} spaceY={2}>
+        <Field.Label me={"auto"} dir={isRTL ? "rtl" : "ltr"}>
+          Selfie with National ID
+          <Text as="span" color="#FA2c23">
+            *
+          </Text>
+        </Field.Label>
+
+        <FileUpload.Root
+          gap="2"
+          maxWidth="100%"
+          bg={bgInput}
+          rounded={"md"}
+          style={{
+            display: "flex",
+            justifyContent: isRTL ? "flex-end" : "flex-ebd",
+          }}
+          onFileAccept={async (details) => {
+            const file = details.files?.[0];
+            if (!file) return;
+            const imageUrl = await uploadImageToImgBB(file);
+            setValue("selfie_with_id_url", imageUrl, {
+              shouldValidate: true,
+            });
+          }}
+        >
+          <FileUpload.HiddenInput />
+          <InputGroup
+            {...(isRTL
+              ? {
+                  startElement: (
+                    <FileUpload.ClearTrigger asChild>
+                      <CloseButton
+                        me="-1"
+                        size="xs"
+                        variant="plain"
+                        focusVisibleRing="inside"
+                        focusRingWidth="2px"
+                        pointerEvents="auto"
+                      />
+                    </FileUpload.ClearTrigger>
+                  ),
+                  endElement: <MdInsertPhoto />,
+                }
+              : {
+                  startElement: <MdInsertPhoto />,
+                  endElement: (
+                    <FileUpload.ClearTrigger asChild>
+                      <CloseButton
+                        me="-1"
+                        size="xs"
+                        variant="plain"
+                        focusVisibleRing="inside"
+                        focusRingWidth="2px"
+                        pointerEvents="auto"
+                      />
+                    </FileUpload.ClearTrigger>
+                  ),
+                })}
+          >
+            <Input asChild textAlign={isRTL ? "right" : "left"}>
+              <FileUpload.Trigger>
+                <FileUpload.FileText lineClamp={1} />
+              </FileUpload.Trigger>
+            </Input>
+          </InputGroup>
+        </FileUpload.Root>
+
+        <Field.ErrorText fontWeight="bold">
+          {errors.selfie_with_id_url?.message}
+        </Field.ErrorText>
       </Field.Root>
 
       {/* Continue */}

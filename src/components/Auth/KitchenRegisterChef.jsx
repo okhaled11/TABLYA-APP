@@ -1,6 +1,4 @@
-import { Box, FileUpload } from "@chakra-ui/react";
-import { LuFileUp } from "react-icons/lu";
-import { CloseButton } from "@chakra-ui/react";
+import { Box} from "@chakra-ui/react";
 import { FaLock } from "react-icons/fa";
 import { Link } from "@chakra-ui/react";
 import { Flex, Text } from "@chakra-ui/react";
@@ -18,7 +16,6 @@ import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { registerSchemaKitchenChef } from "../../validation";
 import { toaster } from "../ui/toaster";
-import { uploadImageToImgBB } from "../../services/uploadImageToImageBB";
 import { useRegisterChefMutation } from "../../app/features/Auth/registerChefSlice";
 import { useNavigate } from "react-router-dom";
 import { Link as LinkRoute } from "react-router-dom";
@@ -49,16 +46,17 @@ export default function KitchenRegisterChef() {
     register,
     handleSubmit,
     formState: { errors },
-    setValue,
     reset,
   } = useForm({ resolver: yupResolver(registerSchemaKitchenChef) });
 
   const onSubmit = (data) => {
+    console.log(dataRegisterChef);
     const allDataRegisterChef = {
       role: "cooker",
       name: `${dataRegisterChef.firstName} ${dataRegisterChef.lastName}`,
       ...dataRegisterChef,
       ...data,
+    
     };
     console.log(allDataRegisterChef);
     registerChef(allDataRegisterChef);
@@ -361,76 +359,7 @@ export default function KitchenRegisterChef() {
           </Field.ErrorText>
         </Field.Root>
 
-        {/* Upload selfie with your ID card */}
-        <Field.Root invalid={!!errors.idSelfie}>
-          <Field.Label me={"auto"} dir={isRTL ? "rtl" : "ltr"}>
-            {t("kitchenRegisterChef.uploadIdSelfie")}
-            <Text as="span" color="#FA2c23">
-              *
-            </Text>
-          </Field.Label>
-
-          <FileUpload.Root
-            gap="2"
-            maxWidth="100%"
-            style={{
-              display: "flex",
-              justifyContent: isRTL ? "flex-end" : "flex-ebd", // 👈 هنا السطر المهم
-            }}
-            onFileAccept={async (details) => {
-              const file = details.files?.[0];
-              if (!file) return;
-              const imageUrl = await uploadImageToImgBB(file);
-              setValue("idSelfie", imageUrl, { shouldValidate: true });
-            }}
-          >
-            <FileUpload.HiddenInput />
-            <InputGroup
-              {...(isRTL
-                ? {
-                    startElement: (
-                      <FileUpload.ClearTrigger asChild>
-                        <CloseButton
-                          me="-1"
-                          size="xs"
-                          variant="plain"
-                          focusVisibleRing="inside"
-                          focusRingWidth="2px"
-                          pointerEvents="auto"
-                        />
-                      </FileUpload.ClearTrigger>
-                    ),
-                    endElement: <LuFileUp />,
-                  }
-                : {
-                    startElement: <LuFileUp />,
-                    endElement: (
-                      <FileUpload.ClearTrigger asChild>
-                        <CloseButton
-                          me="-1"
-                          size="xs"
-                          variant="plain"
-                          focusVisibleRing="inside"
-                          focusRingWidth="2px"
-                          pointerEvents="auto"
-                        />
-                      </FileUpload.ClearTrigger>
-                    ),
-                  })}
-            >
-              <Input asChild textAlign={isRTL ? "right" : "left"}>
-                <FileUpload.Trigger>
-                  <FileUpload.FileText lineClamp={1} />
-                </FileUpload.Trigger>
-              </Input>
-            </InputGroup>
-          </FileUpload.Root>
-
-          <Field.ErrorText fontWeight="bold">
-            {errors.idSelfie?.message}
-          </Field.ErrorText>
-        </Field.Root>
-
+  
         {/* Submit Button */}
         <Button
           bg="#FA2c23"

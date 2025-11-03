@@ -86,10 +86,19 @@ export const registerSchemaPersonaChef = yup
         "Phone number must be a valid Egyptian number (e.g., 01012345678)"
       )
       .trim(),
-    idVerification: yup
+    selfie_with_id_url: yup
       .string()
-      .url("Please upload a valid image link")
-      .required("Please upload your government ID"),
+      .url()
+      .required("Upload selfie with your ID card"),
+    id_card_front_url: yup
+      .string()
+      .url()
+      .required("Upload National ID (Front Side)"),
+    id_card_back_url: yup
+      .string()
+      .url()
+      .required("Upload National ID (back Side)"),
+
   })
   .required();
 export const registerSchemaKitchenChef = yup
@@ -129,10 +138,7 @@ export const registerSchemaKitchenChef = yup
       .required("Confirm Password is required")
       .oneOf([yup.ref("password")], "Passwords must match")
       .trim(),
-    idSelfie: yup
-      .string()
-      .url()
-      .required("Upload selfie with your ID card"),
+
 
   })
   .required();
