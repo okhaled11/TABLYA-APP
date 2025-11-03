@@ -124,7 +124,7 @@ export default function RegisterPage() {
           </Flex>
 
           {/* Right Side: Image */}
-          <Flex flex={1} display={{ base: "none", md: "block" }}>
+          <Flex flex={1} display={{ base: "none", lg: "block" }}>
             <Image
               alt={t("register.imageAlt")}
               objectFit="cover"
@@ -136,7 +136,7 @@ export default function RegisterPage() {
           </Flex>
         </Flex>
       </Flex>
-      <Footer/>
+      <Footer />
     </>
   );
 }
