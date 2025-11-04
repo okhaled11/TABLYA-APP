@@ -63,7 +63,13 @@ const CustomerRegister = () => {
   });
   // handle submit
   const onSubmit = async (data) => {
-    const result = await dispatch(registerCustomer(data));
+    const result = await dispatch(
+      registerCustomer({
+        ...data,
+        role: "customer",
+        name: `${data.firstName} ${data.lastName}`,
+      })
+    );
     if (registerCustomer.fulfilled.match(result)) {
       toaster.create({
         title: t("customerRegister.successTitle"),
@@ -96,10 +102,15 @@ const CustomerRegister = () => {
           {/* First & Last Name */}
           <Flex gap={4} direction={{ base: "column", md: "row" }}>
             <Field.Root flex={1} invalid={!!errors.firstName}>
-              <Field.Label me={"auto"}  dir={isRTL ? "rtl" : "ltr"}>
-                {t("customerRegister.firstName")} <Field.RequiredIndicator></Field.RequiredIndicator>
+              <Field.Label me={"auto"} dir={isRTL ? "rtl" : "ltr"}>
+                {t("customerRegister.firstName")}{" "}
+                <Field.RequiredIndicator></Field.RequiredIndicator>
               </Field.Label>
-              <InputGroup {...(isRTL ? { endElement: <FaUser /> } : { startElement: <FaUser /> })}>
+              <InputGroup
+                {...(isRTL
+                  ? { endElement: <FaUser /> }
+                  : { startElement: <FaUser /> })}
+              >
                 <Input
                   placeholder={t("customerRegister.firstNamePlaceholder")}
                   textAlign={isRTL ? "right" : "left"}
@@ -127,10 +138,15 @@ const CustomerRegister = () => {
             </Field.Root>
 
             <Field.Root flex={1} invalid={!!errors.lastName}>
-              <Field.Label me={"auto"}  dir={isRTL ? "rtl" : "ltr"}>
-                {t("customerRegister.lastName")} <Field.RequiredIndicator></Field.RequiredIndicator>
+              <Field.Label me={"auto"} dir={isRTL ? "rtl" : "ltr"}>
+                {t("customerRegister.lastName")}{" "}
+                <Field.RequiredIndicator></Field.RequiredIndicator>
               </Field.Label>
-              <InputGroup {...(isRTL ? { endElement: <FaUser /> } : { startElement: <FaUser /> })}>
+              <InputGroup
+                {...(isRTL
+                  ? { endElement: <FaUser /> }
+                  : { startElement: <FaUser /> })}
+              >
                 <Input
                   placeholder={t("customerRegister.lastNamePlaceholder")}
                   textAlign={isRTL ? "right" : "left"}
@@ -159,10 +175,15 @@ const CustomerRegister = () => {
 
           {/* Email */}
           <Field.Root invalid={!!errors.email}>
-            <Field.Label me={"auto"}  dir={isRTL ? "rtl" : "ltr"}>
-              {t("customerRegister.email")} <Field.RequiredIndicator></Field.RequiredIndicator>
+            <Field.Label me={"auto"} dir={isRTL ? "rtl" : "ltr"}>
+              {t("customerRegister.email")}{" "}
+              <Field.RequiredIndicator></Field.RequiredIndicator>
             </Field.Label>
-            <InputGroup {...(isRTL ? { endElement: <FaEnvelope /> } : { startElement: <FaEnvelope /> })}>
+            <InputGroup
+              {...(isRTL
+                ? { endElement: <FaEnvelope /> }
+                : { startElement: <FaEnvelope /> })}
+            >
               <Input
                 placeholder={t("customerRegister.emailPlaceholder")}
                 textAlign={isRTL ? "right" : "left"}
@@ -191,10 +212,15 @@ const CustomerRegister = () => {
 
           {/* Phone */}
           <Field.Root invalid={!!errors.phone}>
-            <Field.Label me={"auto"}  dir={isRTL ? "rtl" : "ltr"}>
-              {t("customerRegister.phone")} <Field.RequiredIndicator></Field.RequiredIndicator>
+            <Field.Label me={"auto"} dir={isRTL ? "rtl" : "ltr"}>
+              {t("customerRegister.phone")}{" "}
+              <Field.RequiredIndicator></Field.RequiredIndicator>
             </Field.Label>
-            <InputGroup {...(isRTL ? { endElement: <FaPhone /> } : { startElement: <FaPhone /> })}>
+            <InputGroup
+              {...(isRTL
+                ? { endElement: <FaPhone /> }
+                : { startElement: <FaPhone /> })}
+            >
               <Input
                 placeholder={t("customerRegister.phonePlaceholder")}
                 textAlign={isRTL ? "right" : "left"}
@@ -222,10 +248,15 @@ const CustomerRegister = () => {
 
           {/* Address */}
           <Field.Root invalid={!!errors.address}>
-            <Field.Label me={"auto"}  dir={isRTL ? "rtl" : "ltr"}>
-              {t("customerRegister.address")} <Field.RequiredIndicator></Field.RequiredIndicator>
+            <Field.Label me={"auto"} dir={isRTL ? "rtl" : "ltr"}>
+              {t("customerRegister.address")}{" "}
+              <Field.RequiredIndicator></Field.RequiredIndicator>
             </Field.Label>
-            <InputGroup {...(isRTL ? { endElement: <FaMapMarkerAlt /> } : { startElement: <FaMapMarkerAlt /> })}>
+            <InputGroup
+              {...(isRTL
+                ? { endElement: <FaMapMarkerAlt /> }
+                : { startElement: <FaMapMarkerAlt /> })}
+            >
               <Input
                 placeholder={t("customerRegister.addressPlaceholder")}
                 textAlign={isRTL ? "right" : "left"}
@@ -254,8 +285,9 @@ const CustomerRegister = () => {
           {/* Password & Confirm Password */}
           <Flex gap={4} direction={{ base: "column", md: "row" }}>
             <Field.Root flex={1} invalid={!!errors.password}>
-              <Field.Label me={"auto"}  dir={isRTL ? "rtl" : "ltr"}>
-                {t("customerRegister.password")} <Field.RequiredIndicator></Field.RequiredIndicator>
+              <Field.Label me={"auto"} dir={isRTL ? "rtl" : "ltr"}>
+                {t("customerRegister.password")}{" "}
+                <Field.RequiredIndicator></Field.RequiredIndicator>
               </Field.Label>
               <InputGroup
                 {...(isRTL
@@ -271,7 +303,7 @@ const CustomerRegister = () => {
                           onClick={() => setShowPassword((prev) => !prev)}
                         />
                       ),
-                      endElement: <FaLock />
+                      endElement: <FaLock />,
                     }
                   : {
                       startElement: <FaLock />,
@@ -285,9 +317,8 @@ const CustomerRegister = () => {
                           size={18}
                           onClick={() => setShowPassword((prev) => !prev)}
                         />
-                      )
-                    }
-                )}
+                      ),
+                    })}
               >
                 <Input
                   placeholder={t("customerRegister.passwordPlaceholder")}
@@ -317,7 +348,7 @@ const CustomerRegister = () => {
               )}
             </Field.Root>
             <Field.Root flex={1} invalid={!!errors.confirmPassword}>
-              <Field.Label me={"auto"}  dir={isRTL ? "rtl" : "ltr"}>
+              <Field.Label me={"auto"} dir={isRTL ? "rtl" : "ltr"}>
                 {t("customerRegister.confirmPassword")}{" "}
                 <Field.RequiredIndicator></Field.RequiredIndicator>
               </Field.Label>
@@ -327,31 +358,38 @@ const CustomerRegister = () => {
                       startElement: showConfirmPassword ? (
                         <AiOutlineEye
                           size={18}
-                          onClick={() => setShowConfirmPassword((prev) => !prev)}
+                          onClick={() =>
+                            setShowConfirmPassword((prev) => !prev)
+                          }
                         />
                       ) : (
                         <AiOutlineEyeInvisible
                           size={18}
-                          onClick={() => setShowConfirmPassword((prev) => !prev)}
+                          onClick={() =>
+                            setShowConfirmPassword((prev) => !prev)
+                          }
                         />
                       ),
-                      endElement: <FaLock />
+                      endElement: <FaLock />,
                     }
                   : {
                       startElement: <FaLock />,
                       endElement: showConfirmPassword ? (
                         <AiOutlineEye
                           size={18}
-                          onClick={() => setShowConfirmPassword((prev) => !prev)}
+                          onClick={() =>
+                            setShowConfirmPassword((prev) => !prev)
+                          }
                         />
                       ) : (
                         <AiOutlineEyeInvisible
                           size={18}
-                          onClick={() => setShowConfirmPassword((prev) => !prev)}
+                          onClick={() =>
+                            setShowConfirmPassword((prev) => !prev)
+                          }
                         />
-                      )
-                    }
-                )}
+                      ),
+                    })}
               >
                 <Input
                   placeholder={t("customerRegister.confirmPasswordPlaceholder")}
