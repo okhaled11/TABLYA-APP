@@ -11,20 +11,15 @@ export const registerCustomer = createAsyncThunk(
   "auth/registerCustomer",
   async (userData, { rejectWithValue }) => {
     try {
-      const { firstName, lastName, email, password, phone, address } = userData;
+      const { email, password, ...userMetaData } = userData;
 
-      const username = `${firstName} ${lastName}`;
+      // const name = `${firstName} ${lastName}`;
 
       const { data, error } = await supabase.auth.signUp({
         email,
         password,
         options: {
-          data: {
-            name: username,
-            address,
-            phone,
-            role: "customer",
-          },
+          data: userMetaData
         },
       });
 

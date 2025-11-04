@@ -10,10 +10,12 @@ import ChefRegister from "../components/Auth/ChefRegister";
 import Navbar from "../layout/Navbar";
 import Footer from "../shared/Footer";
 import { useTranslation } from "react-i18next";
+import { Navigate } from "react-router-dom";
 
-export default function RegisterPage() {
+export default function RegisterPage({ isAuthenticated }) {
   const { t } = useTranslation();
   const { colorMode } = useColorMode();
+  
 
   return (
     <>
@@ -111,7 +113,11 @@ export default function RegisterPage() {
 
                 {/* Tab Content */}
                 <Tabs.Content value="customer" px={0}>
-                  <CustomerRegister />
+                  {isAuthenticated ? (
+                    <Navigate to="/home" replace={true} />
+                  ) : (
+                    <CustomerRegister />
+                  )}
                 </Tabs.Content>
 
                 <Tabs.Content value="chef">
