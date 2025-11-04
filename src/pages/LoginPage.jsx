@@ -78,8 +78,8 @@ const LoginPage = ({ isAuthenticated }) => {
       setTimeout(() => {
         if (role === "admin") {
           navigate("/admin");
-        } else if (role === "chef") {
-          navigate("/chef", { replace: true });
+        } else if (role === "cooker") {
+          navigate("/cooker", { replace: true });
         } else if (role === "customer") {
           navigate("/home", { replace: true });
         } else {
@@ -107,7 +107,7 @@ const LoginPage = ({ isAuthenticated }) => {
     }
   };
   // Redirect to landing if authenticated
-  if (isAuthenticated) return <Navigate to="/home" replace />;
+  if (isAuthenticated) return <Navigate to="/home" replace={true} />;
 
   return (
     <>
