@@ -24,6 +24,8 @@ const ChefProfileCard = ({
   start_time,
   end_time,
   is_available,
+  kitchen_name,
+  total_reviews,
 }) => {
   const { colorMode } = useColorMode();
   const [fav, setFav] = useState(false);
@@ -94,7 +96,7 @@ const ChefProfileCard = ({
                   : colors.dark.textMain
               }
             >
-              {users?.name || "Chef Name"}
+              {kitchen_name || "Chef Name"}
             </Text>
             {/* check status */}
             {is_available ? (
@@ -167,7 +169,7 @@ const ChefProfileCard = ({
                       : colors.dark.textMain
                   }
                 >
-                  {avg_rating || 0}(324 Reviews)
+                  {avg_rating || 0}({total_reviews || "0"} Reviews)
                 </Text>
                 <Icon
                   as={FaPhoneAlt}
@@ -257,7 +259,7 @@ const ChefProfileCard = ({
                       : colors.dark.textMain
                   }
                 >
-                  {avg_rating} (324 Reviews)
+                  {avg_rating || 0}({total_reviews || "0"} Reviews)
                 </Text>
               </Flex>
               <Flex align="center" gap={2}>
