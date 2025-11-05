@@ -5,6 +5,7 @@ import authReducer from "./features/Auth/loginSlice";
 import registerReducer from "./features/Auth/registerCustomerSlice";
 import { registerChef } from "./features/Auth/registerChefSlice";
 import { authApi } from "./features/Auth/authSlice";
+import { cookersApi } from "./features/Customer/CookersApi";
 
 import { cookersApi } from "./features/Admin/cookerSlice";
 import { cookerApprovalsApi } from "./features/Admin/cookerApprovals";
