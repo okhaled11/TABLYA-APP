@@ -3,9 +3,7 @@ import { LuHouse } from "react-icons/lu";
 import { RiFileList3Line } from "react-icons/ri";
 import { FaRegHeart } from "react-icons/fa6";
 import colors from "../../theme/color";
-// import { useColorMode } from "../theme/color-mode";
 import CustomerHome from "../../pages/customer/home/CustomerHome";
-import CustomerOrders from "../../pages/customer/CustomerOrders";
 import CustomerFavourite from "../../pages/customer/CustomerFavourite";
 import { useLocation, useNavigate } from "react-router-dom";
 
