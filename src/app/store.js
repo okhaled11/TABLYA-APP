@@ -7,6 +7,10 @@ import { registerChef } from "./features/Auth/registerChefSlice";
 import { authApi } from "./features/Auth/authSlice";
 import { cookersApi } from "./features/Customer/CookersApi";
 
+import { cookersApi } from "./features/Admin/cookerSlice";
+import { cookerApprovalsApi } from "./features/Admin/cookerApprovals";
+import { ordersApi } from "./features/Admin/ordersApi";
+
 export const store = configureStore({
   reducer: {
     auth: authReducer,
@@ -16,6 +20,8 @@ export const store = configureStore({
     PersonalRegisterChef: PersonalRegisterChefReducer,
     [supabaseApi.reducerPath]: supabaseApi.reducer,
     [cookersApi.reducerPath]: cookersApi.reducer,
+    [cookerApprovalsApi.reducerPath]: cookerApprovalsApi.reducer,
+    [ordersApi.reducerPath]: ordersApi.reducer,
   },
 
   middleware: (getDefaultMiddleware) =>
@@ -23,7 +29,9 @@ export const store = configureStore({
       supabaseApi.middleware,
       registerChef.middleware,
       authApi.middleware,
-      cookersApi.middleware
+      cookersApi.middleware,
+      cookerApprovalsApi.middleware,
+      ordersApi.middleware
     ),
 });
 
