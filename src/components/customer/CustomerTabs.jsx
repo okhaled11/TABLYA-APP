@@ -7,10 +7,11 @@ import colors from "../../theme/color";
 import CustomerHome from "../../pages/customer/home/CustomerHome";
 import CustomerOrders from "../../pages/customer/CustomerOrders";
 import CustomerFavourite from "../../pages/customer/CustomerFavourite";
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 
 const CustomerTabs = () => {
   const location = useLocation();
+  const navigate = useNavigate();
   const isCookersPage = location.pathname.startsWith("/home/cookers");
 
   return (
@@ -37,7 +38,11 @@ const CustomerTabs = () => {
               color: colors.light.mainFixed,
             }}
           >
-            <Flex alignItems="center" gap={1}>
+            <Flex
+              alignItems="center"
+              gap={1}
+              onClick={() => navigate("/home/order")}
+            >
               <RiFileList3Line size={20} />
               Orders
             </Flex>
@@ -60,9 +65,6 @@ const CustomerTabs = () => {
 
       <Tabs.Content value="Home">
         {!isCookersPage && <CustomerHome />}
-      </Tabs.Content>
-      <Tabs.Content value="Orders">
-        <CustomerOrders />
       </Tabs.Content>
       <Tabs.Content value="favourities">
         <CustomerFavourite />

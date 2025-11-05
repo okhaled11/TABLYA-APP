@@ -6,8 +6,7 @@ import registerReducer from "./features/Auth/registerCustomerSlice";
 import { registerChef } from "./features/Auth/registerChefSlice";
 import { authApi } from "./features/Auth/authSlice";
 import { cookersApi } from "./features/Customer/CookersApi";
-
-import { cookersApi } from "./features/Admin/cookerSlice";
+import { cookersApi as aminCookersApi } from "./features/Admin/cookerSlice";
 import { cookerApprovalsApi } from "./features/Admin/cookerApprovals";
 import { ordersApi } from "./features/Admin/ordersApi";
 
@@ -31,7 +30,8 @@ export const store = configureStore({
       authApi.middleware,
       cookersApi.middleware,
       cookerApprovalsApi.middleware,
-      ordersApi.middleware
+      ordersApi.middleware,
+      aminCookersApi.middleware
     ),
 });
 
