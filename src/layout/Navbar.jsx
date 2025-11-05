@@ -39,7 +39,7 @@ import CustomAlertDialog from "../shared/CustomAlertDailog";
 import Navlogo from "../assets/Navlogo.png";
 import colors from "../theme/color";
 import { useGetUserDataQuery } from "../app/features/Auth/authSlice";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { authApi } from "../app/features/Auth/authSlice";
 import { useDispatch } from "react-redux";
 import { useState } from "react";
@@ -282,7 +282,11 @@ export default function Navbar() {
                         </Portal>
                       </Menu.Root>
                     </Flex>
-                    <Flex alignItems={"flex-start"} direction={"column"}>
+                    <Flex
+                      alignItems={"flex-start"}
+                      direction={"column"}
+                      display={{ base: "none", md: "flex" }}
+                    >
                       <Text fontSize="12px" color="#FFF7F0B2">
                         Hello
                       </Text>

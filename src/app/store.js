@@ -5,6 +5,7 @@ import authReducer from "./features/Auth/loginSlice";
 import registerReducer from "./features/Auth/registerCustomerSlice";
 import { registerChef } from "./features/Auth/registerChefSlice";
 import { authApi } from "./features/Auth/authSlice";
+import { cookersApi } from "./features/Customer/CookersApi";
 
 export const store = configureStore({
   reducer: {
@@ -14,13 +15,15 @@ export const store = configureStore({
     [registerChef.reducerPath]: registerChef.reducer,
     PersonalRegisterChef: PersonalRegisterChefReducer,
     [supabaseApi.reducerPath]: supabaseApi.reducer,
+    [cookersApi.reducerPath]: cookersApi.reducer,
   },
 
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware().concat(
       supabaseApi.middleware,
       registerChef.middleware,
-      authApi.middleware
+      authApi.middleware,
+      cookersApi.middleware
     ),
 });
 

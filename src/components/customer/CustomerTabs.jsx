@@ -4,11 +4,15 @@ import { RiFileList3Line } from "react-icons/ri";
 import { FaRegHeart } from "react-icons/fa6";
 import colors from "../../theme/color";
 // import { useColorMode } from "../theme/color-mode";
-import CustomerHome from "../../pages/customer/CustomerHome";
+import CustomerHome from "../../pages/customer/home/CustomerHome";
 import CustomerOrders from "../../pages/customer/CustomerOrders";
 import CustomerFavourite from "../../pages/customer/CustomerFavourite";
+import { useLocation } from "react-router-dom";
 
 const CustomerTabs = () => {
+  const location = useLocation();
+  const isCookersPage = location.pathname.startsWith("/home/cookers");
+
   return (
     <Tabs.Root defaultValue="Home">
       <Tabs.List>
@@ -55,7 +59,7 @@ const CustomerTabs = () => {
       </Tabs.List>
 
       <Tabs.Content value="Home">
-        <CustomerHome />
+        {!isCookersPage && <CustomerHome />}
       </Tabs.Content>
       <Tabs.Content value="Orders">
         <CustomerOrders />

@@ -16,6 +16,9 @@ import Dashboard from "./pages/AdminPages/Dashboard";
 import Deliveries from "./pages/AdminPages/Deliveries";
 import Complaints from "./pages/AdminPages/Complaints";
 import UserManagement from "./pages/AdminPages/UserManagement";
+import AllCookers from "./pages/customer/home/AllCookers";
+import ChefMenuProfile from "./pages/customer/home/ChefMenuProfile";
+import CustomerHome from "./pages/customer/home/CustomerHome";
 
 function App() {
   const token = CookieService.get("access_token");
@@ -38,9 +41,13 @@ function App() {
         />
         <Route path="/pending-approval" element={<PendingApprovalPage />} />
         {/* customer Routes */}
-        <Route path="/home" element={<CustomerPage />} />
+        <Route path="/home" element={<CustomerPage />}>
+          {/* <Route index element={<CustomerHome />} /> */}
+          <Route path="cookers" element={<AllCookers />} />
+          <Route path="cookers/:id" element={<ChefMenuProfile />} />
+        </Route>
         {/* Admin Routes */}
-        <Route path="/admin"  element={<SidebarLayout />}>
+        <Route path="/admin" element={<SidebarLayout />}>
           <Route index element={<Dashboard />} />
           <Route path="analytics" element={<Analytics />} />
           <Route path="chef-verification" element={<ChefVerification />} />
