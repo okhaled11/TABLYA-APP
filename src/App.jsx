@@ -19,6 +19,8 @@ import UserManagement from "./pages/AdminPages/UserManagement";
 import AllCookers from "./pages/customer/home/AllCookers";
 import ChefMenuProfile from "./pages/customer/home/ChefMenuProfile";
 import CustomerHome from "./pages/customer/home/CustomerHome";
+import OrderPage from "./pages/customer/OrderPage";
+import OrderDetails from "./pages/customer/OrderDetails";
 
 function App() {
   const token = CookieService.get("access_token");
@@ -45,6 +47,8 @@ function App() {
           {/* <Route index element={<CustomerHome />} /> */}
           <Route path="cookers" element={<AllCookers />} />
           <Route path="cookers/:id" element={<ChefMenuProfile />} />
+          <Route path="order" element={<OrderPage />} />
+          <Route path="details" element={<OrderDetails />} />
         </Route>
         {/* Admin Routes */}
         <Route path="/admin" element={<SidebarLayout />}>
