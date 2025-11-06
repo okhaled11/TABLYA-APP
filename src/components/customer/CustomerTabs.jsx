@@ -23,7 +23,7 @@ const CustomerTabs = () => {
               color: colors.light.mainFixed,
             }}
           >
-            <Flex alignItems="center" gap={1}>
+            <Flex alignItems="center" gap={1} onClick={() => navigate("/home")}>
               <LuHouse size={20} />
               Home
             </Flex>
@@ -53,20 +53,17 @@ const CustomerTabs = () => {
               color: colors.light.mainFixed,
             }}
           >
-            <Flex alignItems="center" gap={1}>
+            <Flex
+              alignItems="center"
+              gap={1}
+              onClick={() => navigate("/home/favourities")}
+            >
               <FaRegHeart size={20} />
               Favourites
             </Flex>
           </Tabs.Trigger>
         </Flex>
       </Tabs.List>
-
-      <Tabs.Content value="Home">
-        {!isCookersPage && <CustomerHome />}
-      </Tabs.Content>
-      <Tabs.Content value="favourities">
-        <CustomerFavourite />
-      </Tabs.Content>
     </Tabs.Root>
   );
 };
