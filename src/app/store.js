@@ -41,6 +41,14 @@ export const store = configureStore({
     [addressApi.reducerPath]: addressApi.reducer,
     PersonalRegisterChef: PersonalRegisterChefReducer,
     [supabaseApi.reducerPath]: supabaseApi.reducer,
+    [cookersApi.reducerPath]: cookersApi.reducer,
+    [OrdersApiCustomerSlice.reducerPath]: OrdersApiCustomerSlice.reducer,
+    [OrdersHistoryCustomerSlice.reducerPath]: OrdersHistoryCustomerSlice.reducer,
+    [cookerApprovalsApi.reducerPath]: cookerApprovalsApi.reducer,
+    [ordersApi.reducerPath]: ordersApi.reducer,
+
+    cart: persistedCart,
+    [reviewsApi.reducerPath]: reviewsApi.reducer,
   },
 
   middleware: (getDefaultMiddleware) =>
@@ -48,10 +56,21 @@ export const store = configureStore({
       supabaseApi.middleware,
       registerChef.middleware,
       authApi.middleware,
+<<<<<<< HEAD
       passwordApi.middleware,
       personalInfoApi.middleware,
       addressApi.middleware
+=======
+      cookersApi.middleware,
+      cookerApprovalsApi.middleware,
+      ordersApi.middleware,
+      aminCookersApi.middleware,
+      OrdersApiCustomerSlice.middleware,
+      OrdersHistoryCustomerSlice.middleware,
+    
+      reviewsApi.middleware,
+>>>>>>> 50a3e0678b859a9d84a4d1dde49033d6fb3ddc1f
     ),
 });
 
-export default store;
+export const persistor = persistStore(store);
