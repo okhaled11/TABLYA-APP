@@ -4,252 +4,275 @@ import {
   Flex,
   Stack,
   Table,
-  Button,
   Pagination,
   ButtonGroup,
   IconButton,
+  Input,
+  InputGroup,
+  NativeSelect,
+  Spinner,
+  SimpleGrid,
+  Button,
 } from "@chakra-ui/react";
 import { useGetOrdersQuery } from "../../app/features/Admin/ordersApi";
 import { LuChevronLeft, LuChevronRight } from "react-icons/lu";
-import { FiPackage } from "react-icons/fi";
-import { FiTruck } from "react-icons/fi";
-import { FaRegCheckCircle } from "react-icons/fa";
+import { FiPackage, FiTruck } from "react-icons/fi";
 import { CiSearch } from "react-icons/ci";
-import { FaEye } from "react-icons/fa";
-import { FaEdit } from "react-icons/fa";
-import { FaUserXmark } from "react-icons/fa6";
-import { useState } from "react";
+import { useState, useMemo } from "react";
+import StatCard from "../../components/Admin/StatCard";
+import { useColorMode } from "../../theme/color-mode";
+import { FaRegCheckCircle, FaClipboardCheck, FaEye } from "react-icons/fa";
+import { MdOutlineDeliveryDining, MdCancel } from "react-icons/md";
+import OrderModal from "../../components/Admin/OrderModal";
 function Deliveries() {
   const { data: orders, isLoading } = useGetOrdersQuery();
   console.log(orders);
- 
-  const ordersData = [
-    {
-      id: "1",
-      orderNumber: "#ORD-2401",
-      restaurant: "Maria's Kitchen",
-      customer: "John Doe",
-      items: 3,
-      total: "$45.99",
-      status: "Delivered",
-      deliveryPartner: "Mike Ross",
-      orderDate: "2024-01-20",
-    },
-    {
-      id: "2",
-      orderNumber: "#ORD-2402",
-      restaurant: "Spice Haven",
-      customer: "Sarah Chen",
-      items: 2,
-      total: "$32.50",
-      status: "In Transit",
-      deliveryPartner: "Mike Ross",
-      orderDate: "2024-01-20",
-    },
-    {
-      id: "3",
-      orderNumber: "#ORD-2403",
-      restaurant: "Tokyo Delights",
-      customer: "Emily White",
-      items: 5,
-      total: "$78.20",
-      status: "Pending",
-      deliveryPartner: "Unassigned",
-      orderDate: "2024-01-20",
-    },
-    {
-      id: "4",
-      orderNumber: "#ORD-2404",
-      restaurant: "Pasta Palace",
-      customer: "Carlos Rivera",
-      items: 4,
-      total: "$56.75",
-      status: "Delivered",
-      deliveryPartner: "Lisa Park",
-      orderDate: "2024-01-19",
-    },
-    {
-      id: "5",
-      orderNumber: "#ORD-2405",
-      restaurant: "Taco Express",
-      customer: "Lisa Park",
-      items: 2,
-      total: "$28.40",
-      status: "In Transit",
-      deliveryPartner: "Mike Ross",
-      orderDate: "2024-01-20",
-    },
-  ];
+  const { colorMode } = useColorMode();
+  const [selectedOrder, setSelectedOrder] = useState(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [statusFilter, setStatusFilter] = useState("");
   const [page, setPage] = useState(1);
-  const pageSize = 3; 
-  const totalPages = Math.ceil(ordersData.length / pageSize);
+  const pageSize = 5;
 
+  // Handle user input
+  const handleSearchChange = (e) => setSearchTerm(e.target.value);
+  const handleFilterChange = (e) => setStatusFilter(e.target.value);
+const handleOpenModal = (order) => {
+  setSelectedOrder(order);
+  setIsModalOpen(true);
+};
+
+const handleCloseModal = () => {
+  setIsModalOpen(false);
+  setSelectedOrder(null);
+  };
+  
+
+  const ordersData = useMemo(() => {
+    if (!orders) return [];
+    return orders.map((order) => ({
+      id: order.id,
+      restaurant: order.cooker?.users?.name || "Unknown Chef",
+      customer: order.customer?.users?.name || "Unknown Customer",
+      deliveryPartner: order.delivery?.users?.name || "Unassigned",
+      status: order.status,
+      total: `$${order.total?.toFixed(2) || "0.00"}`,
+      orderDate: order.created_at,
+      orderTime: order.created_at,
+    }));
+  }, [orders]);
+
+  const filteredOrders = ordersData.filter(
+    (order) =>
+      (statusFilter === "" || order.status === statusFilter) &&
+      (searchTerm === "" ||
+        order.restaurant.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        order.customer.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        order.deliveryPartner.toLowerCase().includes(searchTerm.toLowerCase()))
+  );
+
+  // Pagination logic
+  const totalPages = Math.ceil(filteredOrders.length / pageSize);
   const startIndex = (page - 1) * pageSize;
-  const endIndex = startIndex + pageSize;
-  const paginatedOrders = ordersData.slice(startIndex, endIndex);
+  const paginatedOrders = filteredOrders.slice(
+    startIndex,
+    startIndex + pageSize
+  );
 
+  // Status badge color
   const getStatusColor = (status) => {
     switch (status) {
-      case "Delivered":
-        return "green";
-      case "In Transit":
+      case "confirmed":
+        return "blue";
+      case "preparing":
         return "orange";
-      case "Pending":
+      case "ready_for_pickup":
         return "yellow";
+      case "out_for_delivery":
+        return "purple";
+      case "delivered":
+        return "green";
+      case "cancelled":
+        return "red";
       default:
         return "gray";
     }
   };
 
-  // if (isLoading) return <p>Loading...</p>;
+  if (isLoading)
+    return (
+      <Flex justify="center" align="center" h="60vh">
+        <Spinner size="xl" />
+      </Flex>
+    );
+    console.log("OrderModal received order:", selectedOrder);
 
   return (
     <>
-      <Box textStyle="3xl">Orders & Deliveries</Box>
-      <Box textStyle="md" color="gray.500" margin={5}>
+      {/* Header */}
+      <Box textStyle="3xl" color={colorMode === "light" ? "black" : "white"}>
+        Orders & Deliveries
+      </Box>
+      <Box textStyle="md" marginBlock={5} color="gray.500">
         Track all orders and delivery status
       </Box>
-      {/* Cards */}
-      <Flex height="1/6" gap="6" marginBlockEnd={5}>
-        <Stack
-          flex={1}
-          direction="row"
-          borderWidth="1px"
-          borderRadius={10}
-          padding={5}
-        >
-          <Flex>
-            <Box
-              height="fit-content"
-              background="#fdf8e9"
-              padding={2}
-              borderRadius={10}
-              marginInlineEnd="5"
-              alignContent="center"
+
+      {/* Stats */}
+      <SimpleGrid columns={[2, null, 3]} gap="10px" marginBottom={5}>
+        {/* Confirmed Orders */}
+        <StatCard
+          icon={FaClipboardCheck}
+          iconBg="#eaf2ff"
+          backgroundColor={colorMode === "light" ? "white" : "#261c17"}
+          iconColor="#3b82f6"
+          label="Confirmed Orders"
+          value={ordersData.filter((o) => o.status === "confirmed").length}
+          valueColor="#3b82f6"
+        />
+
+        {/* Preparing Orders */}
+        <StatCard
+          icon={FiPackage}
+          iconBg="#fdf8e9"
+          backgroundColor={colorMode === "light" ? "white" : "#261c17"}
+          iconColor="#f4c127"
+          label="Preparing Orders"
+          value={ordersData.filter((o) => o.status === "preparing").length}
+          valueColor="#e77240"
+        />
+
+        {/* Ready for Pickup */}
+        <StatCard
+          icon={MdOutlineDeliveryDining}
+          iconBg="#fff5e6"
+          backgroundColor={colorMode === "light" ? "white" : "#261c17"}
+          iconColor="#fb923c"
+          label="Ready for Pickup"
+          value={
+            ordersData.filter((o) => o.status === "ready_for_pickup").length
+          }
+          valueColor="#fb923c"
+        />
+
+        {/* Out for Delivery */}
+        <StatCard
+          icon={FiTruck}
+          iconBg="#e8f5fc"
+          backgroundColor={colorMode === "light" ? "white" : "#261c17"}
+          iconColor="#19a2e6"
+          label="Out for Delivery"
+          value={
+            ordersData.filter((o) => o.status === "out_for_delivery").length
+          }
+          valueColor="#19a2e6"
+        />
+
+        {/* Delivered Orders */}
+        <StatCard
+          icon={FaRegCheckCircle}
+          iconBg="#e7f5ec"
+          backgroundColor={colorMode === "light" ? "white" : "#261c17"}
+          iconColor="#24a855"
+          label="Delivered Orders"
+          value={ordersData.filter((o) => o.status === "delivered").length}
+          valueColor="#24a855"
+        />
+
+        {/* Cancelled Orders */}
+        <StatCard
+          icon={MdCancel}
+          iconBg="#fdecec"
+          backgroundColor={colorMode === "light" ? "white" : "#261c17"}
+          iconColor="#ef4444"
+          label="Cancelled Orders"
+          value={ordersData.filter((o) => o.status === "cancelled").length}
+          valueColor="#ef4444"
+        />
+      </SimpleGrid>
+
+      {/* Table container */}
+      <Stack
+        borderWidth="1px"
+        borderRadius={10}
+        p={5}
+        borderColor={colorMode === "light" ? "gray.100" : "gray.900"}
+        background={colorMode === "light" ? "white" : "#261c17"}
+      >
+        {/* Search + Filter */}
+        <Flex mb={4} gap={4} alignItems="center">
+          <InputGroup flex={2} startElement={<CiSearch />}>
+            <Input
+              placeholder="Search by restaurant, customer, or partner"
+              value={searchTerm}
+              onChange={handleSearchChange}
+            />
+          </InputGroup>
+
+          <NativeSelect.Root flex={1}>
+            <NativeSelect.Field
+              value={statusFilter}
+              onChange={handleFilterChange}
             >
-              <FiPackage color="#f4c127" size={50} />
-            </Box>
-          </Flex>
-          <Flex>
-            <Box textStyle="sm" color="gray.500">
-              Pending Orders
-              <Box
-                textStyle="3xl"
-                fontWeight="bold"
-                marginBlockStart={3}
-                color="#e77240"
-                textAlign="start"
-              >
-                {2}
-              </Box>
-            </Box>
-          </Flex>
-        </Stack>
-        <Stack
-          flex={1}
-          direction="row"
-          borderWidth="1px"
-          borderRadius={10}
-          padding={5}
-        >
-          <Flex>
-            <Box
-              height="fit-content"
-              background="#e8f5fc"
-              padding={2}
-              borderRadius={10}
-              marginInlineEnd="5"
-              alignContent="center"
+              <option value="">All Statuses</option>
+              <option value="confirmed">Confirmed</option>
+              <option value="preparing">Preparing</option>
+              <option value="ready_for_pickup">Ready for Pickup</option>
+              <option value="out_for_delivery">Out for Delivery</option>
+              <option value="delivered">Delivered</option>
+              <option value="cancelled">Cancelled</option>
+            </NativeSelect.Field>
+            <NativeSelect.Indicator />
+          </NativeSelect.Root>
+        </Flex>
+
+        {/* Table */}
+        <Table.Root size="sm">
+          <Table.Header
+            background={colorMode === "light" ? "white" : "#261c17"}
+          >
+            <Table.Row
+              _hover={{
+                bg: colorMode === "light" ? "gray.100" : "#140f0cff",
+              }}
+              background={colorMode === "light" ? "white" : "#261c17"}
             >
-              <FiTruck color="#19a2e6" size={50} />
-            </Box>
-          </Flex>
-          <Flex>
-            <Box textStyle="sm" color="gray.500">
-              In Transit
-              <Box
-                textStyle="3xl"
-                fontWeight="bold"
-                marginBlockStart={3}
-                color="#19a2e6"
-                textAlign="start"
-              >
-                {2}
-              </Box>
-            </Box>
-          </Flex>
-        </Stack>
-        <Stack
-          flex={1}
-          direction="row"
-          borderWidth="1px"
-          borderRadius={10}
-          padding={5}
-        >
-          <Flex>
-            <Box
-              height="fit-content"
-              background="#e7f5ec"
-              padding={2}
-              borderRadius={10}
-              marginInlineEnd="5"
-              alignContent="center"
-            >
-              <FaRegCheckCircle color="#24a855" size={50} />
-            </Box>
-          </Flex>
-          <Flex>
-            <Box textStyle="sm" color="gray.500">
-              Delivered Today
-              <Box
-                textStyle="3xl"
-                fontWeight="bold"
-                marginBlockStart={3}
-                color="#24a855"
-                textAlign="start"
-              >
-                {2}
-              </Box>
-            </Box>
-          </Flex>
-        </Stack>
-      </Flex>
-      <Stack width="full" gap="5">
-        <Table.Root size="sm" bg="inherit" color="inherit">
-          <Table.Header>
-            <Table.Row _hover={{ background: "gray.200" }}>
-              <Table.ColumnHeader>Order Number</Table.ColumnHeader>
               <Table.ColumnHeader>Restaurant</Table.ColumnHeader>
               <Table.ColumnHeader>Customer</Table.ColumnHeader>
-              <Table.ColumnHeader>Items</Table.ColumnHeader>
-              <Table.ColumnHeader>Total</Table.ColumnHeader>
-              <Table.ColumnHeader>Status</Table.ColumnHeader>
               <Table.ColumnHeader>Delivery Partner</Table.ColumnHeader>
-              <Table.ColumnHeader>Order Date</Table.ColumnHeader>
+              <Table.ColumnHeader>Status</Table.ColumnHeader>
+              <Table.ColumnHeader>Total</Table.ColumnHeader>
+              <Table.ColumnHeader>Date</Table.ColumnHeader>
+              <Table.ColumnHeader>Time</Table.ColumnHeader>
               <Table.ColumnHeader>Actions</Table.ColumnHeader>
             </Table.Row>
           </Table.Header>
 
-          <Table.Body border="none">
+          <Table.Body>
             {paginatedOrders.map((order) => (
-              <Table.Row key={order.id} _hover={{ background: "gray.100" }}>
-                <Table.Cell>{order.orderNumber}</Table.Cell>
+              <Table.Row
+                key={order.id}
+                _hover={{
+                  bg: colorMode === "light" ? "gray.100" : "#140f0cff",
+                }}
+                height="10px"
+                background={colorMode === "light" ? "white" : "#261c17"}
+              >
                 <Table.Cell>{order.restaurant}</Table.Cell>
                 <Table.Cell>{order.customer}</Table.Cell>
-                <Table.Cell>{order.items}</Table.Cell>
-                <Table.Cell fontWeight="bold">{order.total}</Table.Cell>
+                <Table.Cell>{order.deliveryPartner}</Table.Cell>
                 <Table.Cell>
                   <Badge
                     colorPalette={getStatusColor(order.status)}
-                    borderRadius="20px"
-                    borderWidth="1px"
+                    borderRadius="full"
                     px="3"
                     py="1"
+                    textTransform="capitalize"
                   >
-                    {order.status}
+                    {order.status.replace(/_/g, " ")}
                   </Badge>
                 </Table.Cell>
-                <Table.Cell>{order.deliveryPartner}</Table.Cell>
+                <Table.Cell fontWeight="bold">{order.total}</Table.Cell>
                 <Table.Cell>
                   {new Intl.DateTimeFormat("en-US", {
                     year: "numeric",
@@ -257,59 +280,41 @@ function Deliveries() {
                     day: "2-digit",
                   }).format(new Date(order.orderDate))}
                 </Table.Cell>
-                <Table.Cell textAlign="end">
-                  <Flex gap={2}>
-                    <Button
-                      size="sm"
-                      variant="ghost"
-                      borderWidth="1px"
-                      borderColor="gray.200"
-                      borderRadius="10px"
-                      _hover={{ backgroundColor: "#16a249", color: "white" }}
-                    >
-                      <FaEye />
-                    </Button>
-                    <Button
-                      size="sm"
-                      variant="ghost"
-                      borderWidth="1px"
-                      borderColor="gray.200"
-                      borderRadius="10px"
-                      _hover={{ backgroundColor: "#16a249", color: "white" }}
-                    >
-                      <FaEdit />
-                    </Button>
-                    <Button
-                      size="sm"
-                      variant="ghost"
-                      colorScheme="red"
-                      borderWidth="1px"
-                      borderColor="red.500"
-                      borderRadius="10px"
-                      _hover={{ backgroundColor: "#f9e7e6" }}
-                    >
-                      <FaUserXmark color="red" />
-                    </Button>
-                  </Flex>
+                <Table.Cell>
+                  {new Intl.DateTimeFormat("en-US", {
+                    hour: "2-digit",
+                    minute: "2-digit",
+                  }).format(new Date(order.orderTime))}
+                </Table.Cell>
+                <Table.Cell>
+                  <Button
+                    key={order.id}
+                    size="sm"
+                    variant="outline"
+                    colorScheme="teal"
+                    onClick={() => {
+                      const fullOrder = orders?.find((o) => o.id === order.id);
+                      setSelectedOrder(fullOrder);
+                      setIsModalOpen(true);
+                    }}
+                  >
+                    <FaEye />
+                  </Button>
                 </Table.Cell>
               </Table.Row>
             ))}
           </Table.Body>
         </Table.Root>
 
-        {/* Pagination Controls */}
+        {/* Pagination */}
         <Pagination.Root
-          count={ordersData.length}
+          count={filteredOrders.length}
           pageSize={pageSize}
+          alignSelf="center"
           page={page}
           onPageChange={(e) => setPage(e.page)}
         >
-          <ButtonGroup
-            variant="ghost"
-            size="sm"
-            wrap="wrap"
-            justifyContent="center"
-          >
+          <ButtonGroup variant="ghost" size="sm" wrap="wrap">
             <Pagination.PrevTrigger asChild>
               <IconButton isDisabled={page === 1}>
                 <LuChevronLeft />
@@ -321,7 +326,7 @@ function Deliveries() {
                 <IconButton
                   key={pageItem.value}
                   variant={pageItem.value === page ? "solid" : "ghost"}
-                  background={pageItem.value === page ? "green.500" : "white"}
+                  background={pageItem.value === page ? "gray.800" : "white"}
                   color={pageItem.value === page ? "white" : "gray.500"}
                   onClick={() => setPage(pageItem.value)}
                 >
@@ -338,6 +343,12 @@ function Deliveries() {
           </ButtonGroup>
         </Pagination.Root>
       </Stack>
+
+      <OrderModal
+        isOpen={isModalOpen}
+        onClose={handleCloseModal}
+        order={selectedOrder}
+      />
     </>
   );
 }

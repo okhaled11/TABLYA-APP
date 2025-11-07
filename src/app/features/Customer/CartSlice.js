@@ -4,6 +4,7 @@ import { toaster } from "../../../components/ui/toaster";
 
 const initialState = {
   cartItems: [],
+  cookerId: null,
 };
 
 const cartSlice = createSlice({
@@ -11,10 +12,10 @@ const cartSlice = createSlice({
   initialState,
   reducers: {
     addToCart: (state, action) => {
-      state.cartItems = addItemToShoppingCart(
-        action.payload,
-        state.cartItems
-      );
+      state.cartItems = addItemToShoppingCart(action.payload, state.cartItems);
+      if (!state.cookerId && state.cartItems.length > 0) {
+        state.cookerId = action.payload.cooker_id;
+      }
     },
     removeItemFromCart: (state, action) => {
       state.cartItems = state.cartItems.filter(
@@ -29,8 +30,22 @@ const cartSlice = createSlice({
         position: "top",
       });
     },
+    updateQuantity: (state, action) => {
+      const { id, quantity } = action.payload;
+      const itemIndex = state.cartItems.findIndex((item) => item.id === id);
+
+      if (itemIndex >= 0) {
+        // Create a new array with the updated item
+        state.cartItems = state.cartItems.map((item, index) =>
+          index === itemIndex
+            ? { ...item, quantity: Math.max(1, quantity) } // Ensure quantity is at least 1
+            : item
+        );
+      }
+    },
     clearCart: (state) => {
       state.cartItems = [];
+      state.cookerId = null;
       toaster.create({
         title: "Cart Cleared Successfully",
         description: `Your Cart is empty now.`,
@@ -43,5 +58,6 @@ const cartSlice = createSlice({
   },
 });
 
-export const { addToCart, removeItemFromCart, clearCart } = cartSlice.actions;
+export const { addToCart, removeItemFromCart, updateQuantity, clearCart } =
+  cartSlice.actions;
 export default cartSlice.reducer;
