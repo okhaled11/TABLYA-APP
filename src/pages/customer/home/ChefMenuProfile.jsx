@@ -5,6 +5,8 @@ import { Link, useNavigate, useParams } from "react-router-dom";
 import ChefProfileCard from "../../../components/customer/ChefProfileCard";
 import { useGetCookerByIdQuery } from "../../../app/features/Customer/CookersApi";
 import ChefProfileCardSkeleton from "../../../components/ui/ChefProfileSkeleton";
+import ChefMenuSection from "../../../components/customer/ChefMenuSection";
+import CustomerReviewSection from "../../../components/customer/CustomerReviewSection";
 
 const ChefMenuProfile = () => {
   const { id } = useParams();
@@ -55,6 +57,8 @@ const ChefMenuProfile = () => {
       ) : (
         <ChefProfileCard {...cooker} />
       )}
+      <ChefMenuSection />
+      <CustomerReviewSection />
     </>
   );
 };

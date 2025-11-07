@@ -14,7 +14,12 @@ import { useColorMode } from "../../theme/color-mode";
 import colors from "../../theme/color";
 import { Link } from "react-router-dom";
 
-const ChefCard = ({ avg_rating, user_id, users,total_reviews }) => {
+const ChefCard = ({
+  avg_rating,
+  user_id,
+  users,
+  total_reviews,
+}) => {
   const { colorMode } = useColorMode();
   const [fav, setFav] = useState(false);
   return (

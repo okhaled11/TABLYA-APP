@@ -51,6 +51,20 @@ export const cookersApi = createApi({
       },
       providesTags: ["Cookers"],
     }),
+    // Get menu items by cooker id
+    getMenuItemsByCookerId: builder.query({
+      async queryFn(cookerId) {
+        const { data, error } = await supabase
+          .from("menu_items")
+          .select("*")
+          .eq("cooker_id", cookerId)
+          .eq("available", true); //show only available items
+
+        if (error) return { error };
+        return { data };
+      },
+      providesTags: (result, error, id) => [{ type: "Cooker", id }],
+    }),
   }),
 });
 
@@ -58,4 +72,5 @@ export const {
   useGetTopCookersQuery,
   useGetAllCookersQuery,
   useGetCookerByIdQuery,
+  useGetMenuItemsByCookerIdQuery,
 } = cookersApi;
