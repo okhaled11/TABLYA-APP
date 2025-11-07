@@ -6,20 +6,15 @@ import {
 } from "@chakra-ui/react";
 
 
-
+import {useGetUserGrowthByTypeQuery } from '../../../app/features/Admin/dashboardApi';
 
 export default function UserGrowthChart() {
-
+     const {data: userGrowth} = useGetUserGrowthByTypeQuery(); 
+console.log (userGrowth);
+     
     const chart = useChart({
-        data: [
-            { chefs: 10, customer: 20, delivery: 12, month: "January" },
-            { chefs: 95, customer: 70, delivery: 4, month: "February" },
-            { chefs: 87, customer: 50, delivery: 5, month: "March" },
-            { chefs: 88, customer: 60, delivery: 6, month: "May" },
-            { chefs: 65, customer: 40, delivery: 12, month: "June" },
-            { chefs: 90, customer: 80, delivery: 9, month: "August" },
-        ],
-        series: [{ name: "chefs", color: "teal.solid" }, { name: "customer", color: "yellow.solid" }, { name: "delivery", color: "orange.solid" }],
+        data: userGrowth,
+        series: [{ name: "cooker", color: "teal.solid" }, { name: "customer", color: "yellow.solid" }, { name: "delivery", color: "orange.solid" }],
     })
 
 

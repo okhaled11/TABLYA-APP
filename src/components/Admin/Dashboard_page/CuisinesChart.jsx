@@ -8,20 +8,28 @@ import {
     CardHeader,
     Heading,
 } from "@chakra-ui/react";
+import { useMemo } from 'react';
 
 import { useColorMode } from "../../../theme/color-mode";
+import { useGetTopPerformingCuisinesQuery } from '../../../app/features/Admin/dashboardApi';
 
 
 export default function CuisinesChart() {
 
-    const chart = useChart({
-        data: [
-            { name: "windows", value: 400, color: "blue.solid" },
-            { name: "mac", value: 300, color: "orange.solid" },
-            { name: "linux", value: 300, color: "pink.solid" },
-            { name: "other", value: 200, color: "green.solid" },
-        ],
-    })
+    const { data: topCuisine = [], isLoading } = useGetTopPerformingCuisinesQuery();
+    const chartData = useMemo(() => {
+        if (!topCuisine.length) return [];
+        const colors = ["#14b8a6", "#f59e0b", "#ef4444", "#3b82f6", "#8b5cf6"];
+        return topCuisine.map((item, index) => ({
+            name: item.title || "Unknown",
+            value: item.count || 0,
+            color: colors[index % colors.length],
+        }));
+    }, [topCuisine]);
+    console.log(chartData);
+
+   const chart = useChart({ data: chartData });
+
 
 
     const { colorMode } = useColorMode();
@@ -45,8 +53,8 @@ export default function CuisinesChart() {
 
             <CardBody>
                 <Box w="100%" h="300px">
-                    <Chart.Root boxSize="320px" mx="auto" chart={chart}>
-                        <PieChart>
+                    <Chart.Root boxSize="320px" mx="auto" chart= {chart} >
+                        <PieChart width={300} height={300}>
                             <Tooltip
                                 cursor={false}
                                 animationDuration={100}
@@ -54,12 +62,12 @@ export default function CuisinesChart() {
                             />
                             <Pie
                                 isAnimationActive={false}
-                                data={chart.data}
-                                dataKey={chart.key("value")}
+                                data={chartData}
+                                dataKey="value"
                             >
                                 <LabelList position="inside" fill="white" stroke="none" />
-                                {chart.data.map((item) => (
-                                    <Cell key={item.name} fill={chart.color(item.color)} />
+                                {chartData.map((item) => (
+                                    <Cell key={item.name} fill={item.color}/>
                                 ))}
                             </Pie>
                         </PieChart>

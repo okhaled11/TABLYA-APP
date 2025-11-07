@@ -2,10 +2,11 @@ import React from 'react'
 import { Box, CardBody, Heading, SimpleGrid, Text, VStack } from '@chakra-ui/react'
 import { Card } from '@chakra-ui/react'
 import ChefTable from '../../components/Admin/ChefVeri_page/ChefTable'
-import {useGetCookersApprovalsQuery } from '../../app/features/Admin/cookerSlice';
+import { useGetCookerApprovalsQuery } from '../../app/features/Admin/cookerApprovalsApi'
 export default function ChefVerification() {
 
-const {data: cooker_approvals= [] , isLoading , error} = useGetCookersApprovalsQuery();
+const {data: cooker_approvals= [] , isLoading , error} = useGetCookerApprovalsQuery();
+console.log (cooker_approvals);
 
 const pending = cooker_approvals.filter(cooker => cooker.status=== "pending").length;
 const approved = cooker_approvals.filter (cooker => cooker.status === "approved").length;

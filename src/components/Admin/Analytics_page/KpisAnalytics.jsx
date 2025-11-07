@@ -1,13 +1,15 @@
 import React from 'react'
 import { Box, SimpleGrid, Text, Card, CardBody, Container, VStack, Flex } from '@chakra-ui/react'
 import { useColorMode } from "../../../theme/color-mode";
-
-
-
-
+import { useGetTotalRevenueQuery } from '../../../app/features/Admin/dashboardApi';
+import { useGetTotalOrdersQuery } from '../../../app/features/Admin/dashboardApi';
+import { useGetPlatformProfitQuery } from '../../../app/features/Admin/dashboardApi';
 export default function KpisAnalytics() {
 
 const { colorMode } = useColorMode();
+const {data :totalRevenue = [] }= useGetTotalRevenueQuery();
+const {data :totalOrders = []}=  useGetTotalOrdersQuery();
+const {data :platformProfit = []}=  useGetPlatformProfitQuery();
 
 
 
@@ -34,7 +36,7 @@ const { colorMode } = useColorMode();
     
                                 {/* Value + Icon */}
                                 
-                                    <Text fontWeight="bold" fontSize="20px">$45.50</Text>
+                                    <Text fontWeight="bold" fontSize="20px">{totalRevenue} EGP</Text>
                                     
                                 
     
@@ -66,7 +68,7 @@ const { colorMode } = useColorMode();
     
                                 {/* Value + Icon */}
                                
-                                    <Text fontWeight="bold" fontSize="20px">520</Text>
+                                    <Text fontWeight="bold" fontSize="20px">{totalOrders}</Text>
                                     
                                
     
@@ -103,7 +105,7 @@ const { colorMode } = useColorMode();
     
                                 {/* Value + Icon */}
                                 
-                                    <Text fontWeight="bold" fontSize="20px">23.4%</Text>
+                                    <Text fontWeight="bold" fontSize="20px">{platformProfit}EGP</Text>
                                     
                                
     
