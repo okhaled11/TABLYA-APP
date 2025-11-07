@@ -23,7 +23,7 @@ import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import Navbar from "../layout/Navbar";
 import { useDispatch, useSelector } from "react-redux";
-import { loginUser } from "../app/features/Auth/loginSLice";
+import { loginUser } from "../app/features/Auth/loginSlice";
 import CookieService from "../services/cookies";
 import Footer from "../shared/Footer";
 import { useTranslation } from "react-i18next";

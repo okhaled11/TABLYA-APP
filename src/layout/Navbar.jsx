@@ -39,9 +39,9 @@ import CustomAlertDialog from "../shared/CustomAlertDailog";
 import Navlogo from "../assets/Navlogo.png";
 import colors from "../theme/color";
 import { useGetUserDataQuery } from "../app/features/Auth/authSlice";
-import { useNavigate, Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { authApi } from "../app/features/Auth/authSlice";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { useState } from "react";
 import { FiShoppingCart } from "react-icons/fi";
 
@@ -49,7 +49,7 @@ export default function Navbar() {
   const { t, i18n } = useTranslation();
   const isArabic = i18n.language === "ar";
   const [checkedLang, setCheckedLang] = useState(isArabic);
-
+  const { cartItems } = useSelector((state) => state.cart);
   const dispatch = useDispatch();
   const { colorMode, toggleColorMode } = useColorMode();
   const [checked, setChecked] = useState(colorMode === "dark");
@@ -170,7 +170,7 @@ export default function Navbar() {
                           justifyContent="center"
                           color="white"
                         >
-                          2
+                          {cartItems.length || "0"}
                         </Badge>
                       </IconButton>
                     </Flex>
@@ -284,7 +284,11 @@ export default function Navbar() {
                         </Portal>
                       </Menu.Root>
                     </Flex>
-                    <Flex alignItems={"flex-start"} direction={"column"}>
+                    <Flex
+                      alignItems={"flex-start"}
+                      direction={"column"}
+                      display={{ base: "none", md: "flex" }}
+                    >
                       <Text fontSize="12px" color="#FFF7F0B2">
                         Hello
                       </Text>

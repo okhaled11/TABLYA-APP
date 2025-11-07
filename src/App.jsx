@@ -18,6 +18,14 @@ import Dashboard from "./pages/AdminPages/Dashboard";
 import Deliveries from "./pages/AdminPages/Deliveries";
 import Complaints from "./pages/AdminPages/Complaints";
 import UserManagement from "./pages/AdminPages/UserManagement";
+import AllCookers from "./pages/customer/home/AllCookers";
+import ChefMenuProfile from "./pages/customer/home/ChefMenuProfile";
+import CustomerHome from "./pages/customer/home/CustomerHome";
+import OrderPage from "./pages/customer/OrderPage";
+import OrderDetails from "./pages/customer/OrderDetails";
+import CustomerFavourite from "./pages/customer/CustomerFavourite";
+import MealDetails from "./pages/customer/home/MealDetails";
+
 
 function App() {
   const token = CookieService.get("access_token");
@@ -43,8 +51,17 @@ function App() {
         <Route path="/home" element={<CustomerPage />} />
         <Route path="/personal-info" element={<PersonalInfo />} />
         <Route path="/reset-password" element={<ResetPasswordPage />} />
+        <Route path="/home" element={<CustomerPage />}>
+          {<Route index element={<CustomerHome />} />}
+          <Route path="cookers" element={<AllCookers />} />
+          <Route path="cookers/:id" element={<ChefMenuProfile />} />
+          <Route path="cookers/:chefId/meals/:mealId" element={<MealDetails  />} />
+          <Route path="order" element={<OrderPage />} />
+          <Route path="details/:orderId" element={<OrderDetails />} />
+          <Route path="favourities" element={<CustomerFavourite />} />
+        </Route>
         {/* Admin Routes */}
-        <Route path="/admin"  element={<SidebarLayout />}>
+        <Route path="/admin" element={<SidebarLayout />}>
           <Route index element={<Dashboard />} />
           <Route path="analytics" element={<Analytics />} />
           <Route path="chef-verification" element={<ChefVerification />} />
