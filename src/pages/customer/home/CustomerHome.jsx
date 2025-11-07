@@ -5,7 +5,6 @@ import colors from "../../../theme/color.js";
 import { Link, Outlet } from "react-router-dom";
 import { useGetTopCookersQuery } from "../../../app/features/Customer/CookersApi.js";
 import ChefCardSkelaton from "../../../components/ui/ChefCardSkelaton.jsx";
-import Navbar from "../../../layout/Navbar.jsx";
 const CustomerHome = () => {
   const { colorMode } = useColorMode();
   const { data: cookers, isLoading, error } = useGetTopCookersQuery();
@@ -55,7 +54,9 @@ const CustomerHome = () => {
           ) : error ? (
             <Text>Error loading cookers.</Text>
           ) : (
-            cookers?.map((cooker) => <ChefCard key={cooker.id} {...cooker} />)
+            cookers?.map((cooker) => (
+              <ChefCard key={cooker.user_id} {...cooker} />
+            ))
           )}
         </Grid>
       </Container>

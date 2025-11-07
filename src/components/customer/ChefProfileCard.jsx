@@ -97,7 +97,7 @@ const ChefProfileCard = ({
                   : colors.dark.textMain
               }
             >
-              {kitchen_name || "Chef Name"}
+              {kitchen_name || users?.name || "Chef Name"}
             </Text>
             {/* check status */}
             {is_available ? (

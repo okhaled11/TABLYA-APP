@@ -90,9 +90,13 @@ export default function Navbar() {
             colorMode === "light" ? colors.light.bgFixed : colors.dark.bgFixed
           }
           px={{ base: 4, md: 8 }}
-          position="sticky"
+          position="fixed"
           top="0"
-          zIndex="10"
+          left="0"
+          right="0"
+          w="95%"
+          mx="auto"
+          zIndex="1000"
           borderRadius={"25px"}
           maxH={160}
           maxW={1600}
@@ -107,7 +111,7 @@ export default function Navbar() {
           >
             {/* Logo */}
             <Image src={Navlogo} alt={t("navbar.logo_alt")} w={"150px"} />
-            {user && (
+            {/* {user && (
               <Flex
                 flex="1"
                 maxW={"400px"}
@@ -127,7 +131,7 @@ export default function Navbar() {
                   />
                 </InputGroup>
               </Flex>
-            )}
+            )} */}
             <Flex alignItems="center">
               <Stack direction="row" spacing={5} align="center">
                 {/* mode and cart stack */}
@@ -149,6 +153,8 @@ export default function Navbar() {
                   <HStack spacing={{ base: "0", md: "6" }}>
                     <Flex gap={3} alignItems={"center"} position="relative">
                       <IconButton
+                        as={Link}
+                        to="/home/cart"
                         aria-label="Cart"
                         variant="outline"
                         border={"none"}
@@ -301,6 +307,7 @@ export default function Navbar() {
           </Flex>
         </Box>
       </Container>
+      <Box h={{ base: 20, md: 24 }} />
       <CustomAlertDialog
         dialog={dialog}
         title={t("navbar.logout_confirm_title")}
