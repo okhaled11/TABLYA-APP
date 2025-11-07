@@ -20,6 +20,7 @@ const AllCookers = () => {
   const navigate = useNavigate();
 
   const { data: cookers, isLoading, error } = useGetAllCookersQuery();
+  // console.log("Cookers Data:", cookers);
 
   const handleBackBtn = () => {
     navigate(-1);

@@ -8,6 +8,7 @@ import {
   IconButton,
   useBreakpointValue,
   Stack,
+  Status,
 } from "@chakra-ui/react";
 import { FaStar, FaPhoneAlt, FaClock } from "react-icons/fa";
 import { MdAlternateEmail } from "react-icons/md";

@@ -22,6 +22,7 @@ import CustomerHome from "./pages/customer/home/CustomerHome";
 import OrderPage from "./pages/customer/OrderPage";
 import OrderDetails from "./pages/customer/OrderDetails";
 import CustomerFavourite from "./pages/customer/CustomerFavourite";
+import MealDetails from "./pages/customer/home/MealDetails";
 
 function App() {
   const token = CookieService.get("access_token");
@@ -48,6 +49,7 @@ function App() {
           {<Route index element={<CustomerHome />} />}
           <Route path="cookers" element={<AllCookers />} />
           <Route path="cookers/:id" element={<ChefMenuProfile />} />
+          <Route path="cookers/:chefId/meals/:mealId" element={<MealDetails  />} />
           <Route path="order" element={<OrderPage />} />
           <Route path="details" element={<OrderDetails />} />
           <Route path="favourities" element={<CustomerFavourite />} />
