@@ -16,6 +16,7 @@ import CartSlice from "./features/Customer/CartSlice";
 import { persistReducer, persistStore } from "redux-persist";
 import storage from "redux-persist/lib/storage";
 import { reviewsApi } from "./features/Customer/reviewsApi";
+import { reportsApi } from "./features/Admin/reportsApi";
 
 const persistCartConfig = {
   key: "cart",
@@ -34,10 +35,11 @@ export const store = configureStore({
     [supabaseApi.reducerPath]: supabaseApi.reducer,
     [cookersApi.reducerPath]: cookersApi.reducer,
     [OrdersApiCustomerSlice.reducerPath]: OrdersApiCustomerSlice.reducer,
-    [OrdersHistoryCustomerSlice.reducerPath]: OrdersHistoryCustomerSlice.reducer,
+    [OrdersHistoryCustomerSlice.reducerPath]:
+      OrdersHistoryCustomerSlice.reducer,
     [cookerApprovalsApi.reducerPath]: cookerApprovalsApi.reducer,
     [ordersApi.reducerPath]: ordersApi.reducer,
-
+    [reportsApi.reducerPath]: reportsApi.reducer,
     cart: persistedCart,
     [reviewsApi.reducerPath]: reviewsApi.reducer,
   },
@@ -53,8 +55,8 @@ export const store = configureStore({
       aminCookersApi.middleware,
       OrdersApiCustomerSlice.middleware,
       OrdersHistoryCustomerSlice.middleware,
-    
-      reviewsApi.middleware,
+      reportsApi.middleware,
+      reviewsApi.middleware
     ),
 });
 
