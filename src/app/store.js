@@ -57,7 +57,12 @@ export const store = configureStore({
   },
 
   middleware: (getDefaultMiddleware) =>
-    getDefaultMiddleware().concat(
+    getDefaultMiddleware({
+      serializableCheck: {
+        ignoredActions: ['persist/PERSIST', 'persist/REHYDRATE'],
+        ignoredPaths: ['register'],
+      },
+    }).concat(
       authApi.middleware,
       registerChef.middleware,
       supabaseApi.middleware,
