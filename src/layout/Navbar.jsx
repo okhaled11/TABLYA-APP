@@ -39,7 +39,7 @@ import CustomAlertDialog from "../shared/CustomAlertDailog";
 import Navlogo from "../assets/Navlogo.png";
 import colors from "../theme/color";
 import { useGetUserDataQuery } from "../app/features/Auth/authSlice";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { authApi } from "../app/features/Auth/authSlice";
 import { useDispatch } from "react-redux";
 import { useState } from "react";
@@ -187,10 +187,10 @@ export default function Navbar() {
                           >
                             <Avatar.Fallback
                               color="red"
-                              name={`https://ui-avatars.com/api/?name=${user?.name}`}
+                              name={user?.name}
                             />
                             <Avatar.Image
-                              src={`https://ui-avatars.com/api/?name=${user?.name}`}
+                              src={user?.avatar_url || `https://ui-avatars.com/api/?name=${user?.name}`}
                             />
                           </Avatar.Root>
                         </Menu.Trigger>
@@ -203,11 +203,13 @@ export default function Navbar() {
                                   : colors.dark.bgFixed
                               }
                             >
-                              <Menu.Item value="Personal-Info">
-                                <HStack spacing={3}>
-                                  <Icon as={User} boxSize={4} />
-                                  <Text>Personal Info</Text>
-                                </HStack>
+                              <Menu.Item value="Personal-Info" asChild>
+                                <Link to="/personal-info">
+                                  <HStack spacing={3}>
+                                    <Icon as={User} boxSize={4} />
+                                    <Text>Personal Info</Text>
+                                  </HStack>
+                                </Link>
                               </Menu.Item>
                               <Menu.Item value="Payment-method">
                                 <HStack spacing={3}>

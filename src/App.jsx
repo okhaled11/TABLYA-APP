@@ -9,6 +9,8 @@ import { Toaster } from "./components/ui/toaster";
 import Landing from "./pages/Landing";
 import PendingApprovalPage from "./pages/PendingApprovalPage";
 import CustomerPage from "./pages/CustomerPage";
+import PersonalInfo from "./pages/customer/PersonalInfo";
+import ResetPasswordPage from "./pages/ResetPasswordPage";
 import SidebarLayout from "./components/Admin/SidebarLayout";
 import ChefVerification from "./pages/AdminPages/ChefVerification";
 import Analytics from "./pages/AdminPages/Analytics";
@@ -39,6 +41,8 @@ function App() {
         <Route path="/pending-approval" element={<PendingApprovalPage />} />
         {/* customer Routes */}
         <Route path="/home" element={<CustomerPage />} />
+        <Route path="/personal-info" element={<PersonalInfo />} />
+        <Route path="/reset-password" element={<ResetPasswordPage />} />
         {/* Admin Routes */}
         <Route path="/admin"  element={<SidebarLayout />}>
           <Route index element={<Dashboard />} />
