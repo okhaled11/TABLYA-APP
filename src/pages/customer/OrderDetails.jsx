@@ -23,29 +23,64 @@ import {
 import { useColorMode } from "../../theme/color-mode";
 import colors from "../../theme/color";
 import imgChef from "../../assets/image 17.png";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
+import { useGetOrderDetailsQuery } from "../../app/features/Customer/Orders/ordersApiCustomerSlice";
 
-function OrderDetails({ setPageOrder }) {
+function OrderDetails() {
   /* ------------variable------------------------ */
-  const statueTest = "Order Placed";
-  /* --------------------------state------------------------- */
+  const { orderId } = useParams();
   const { colorMode } = useColorMode();
   const [currentStep, setCurrentStep] = useState(1);
-  const navigate=useNavigate();
-  /* ----------------------HANDLER------------------ */
-  const stepperStatus = () => {
-    if (statueTest.trim() === "Order Placed") {
-      setCurrentStep(1);
-    } else if (statueTest.trim() === "Cooking") {
-      setCurrentStep(2);
-    } else if (statueTest.trim() === "Out for Delivery") {
-      setCurrentStep(3);
-    } else if (statueTest.trim() === "Delivered") {
-      setCurrentStep(4);
-    }
-  };
+  const navigate = useNavigate();
+  
+  /* ----------------------DATA FETCHING------------------ */
+  const { data: orderDetails, isLoading, error } = useGetOrderDetailsQuery(orderId, {
+    skip: !orderId,
+  });
 
-  // Sample order data
+  useEffect(() => {
+    if (orderDetails?.status) {
+      const status = orderDetails.status;
+      if (status === "confirmed" || status === "created") {
+        setCurrentStep(1);
+      } else if (status === "preparing") {
+        setCurrentStep(2);
+      } else if (status === "out_for_delivery") {
+        setCurrentStep(3);
+      } else if (status === "delivered") {
+        setCurrentStep(4);
+      }
+    }
+  }, [orderDetails?.status]);
+
+  // Loading state
+  if (isLoading) {
+    return (
+      <Box minH="100vh" p={{ base: 3, md: 8 }}>
+        <Text>Loading order details...</Text>
+      </Box>
+    );
+  }
+
+  // Error state
+  if (error) {
+    return (
+      <Box minH="100vh" p={{ base: 3, md: 8 }}>
+        <Text color="red.500">Error loading order: {error}</Text>
+      </Box>
+    );
+  }
+
+  // No data
+  if (!orderDetails) {
+    return (
+      <Box minH="100vh" p={{ base: 3, md: 8 }}>
+        <Text>Order not found</Text>
+      </Box>
+    );
+  }
+
+  // Sample order data (fallback)
   const orderData = {
     date: "29/10/2025",
     time: "10:50 AM",
@@ -106,10 +141,10 @@ function OrderDetails({ setPageOrder }) {
   };
 
   const steps = [
-    { key: "placed", title: "Order Placed", icon: "📋" },
-    { key: "cooking", title: "Cooking", icon: "🔥" },
-    { key: "out_for_delivery", title: "Out for Delivery", icon: "🚚" },
-    { key: "delivered", title: "Delivered", icon: "🏠" },
+    { key: "placed", title: "confirmed", icon: "📋" },
+    { key: "cooking", title: "preparing", icon: "🔥" },
+    { key: "out_for_delivery", title: "out_for_delivery", icon: "🚚" },
+    { key: "delivered", title: "delivered", icon: "🏠" },
   ];
   useEffect(() => {
     stepperStatus();
@@ -118,9 +153,13 @@ function OrderDetails({ setPageOrder }) {
     <Box minH="100vh" p={{ base: 3, md: 8 }}>
       <Box maxW="6xl" mx="auto">
         {/* Header */}
-        <Flex align="center" gap={{ base: 2, md: 4 }} mb={{ base: 4, md: 6 }} onClick={()=>navigate(-1)}>
+        <Flex
+          align="center"
+          gap={{ base: 2, md: 4 }}
+          mb={{ base: 4, md: 6 }}
+          onClick={() => navigate(-1)}
+        >
           <Button
-            onClick={() => setPageOrder(1)}
             variant="ghost"
             color="white"
             _hover={{ color: "gray.300" }}
@@ -158,7 +197,7 @@ function OrderDetails({ setPageOrder }) {
             fontSize={{ base: "xs", md: "sm" }}
             mb={{ base: 4, md: 8 }}
           >
-            {orderData.date} | {orderData.time} | {orderData.orderId}
+            {new Date(orderDetails.created_at).toLocaleDateString("en-GB")} | {new Date(orderDetails.created_at).toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" })} | #{orderDetails.id.slice(0, 8)}
           </Text>
 
           {/* Status Tracker */}
@@ -281,7 +320,7 @@ function OrderDetails({ setPageOrder }) {
                 {/* Order Items */}
                 <Box borderRadius="xl" p={{ base: 2, md: 4 }}>
                   <VStack gap={{ base: 2, md: 3 }} align="stretch">
-                    {orderData.items.map((item) => (
+                    {orderDetails.order_items?.map((item) => (
                       <Flex
                         key={item.id}
                         align="center"
@@ -304,8 +343,8 @@ function OrderDetails({ setPageOrder }) {
                           flexShrink={0}
                         >
                           <Image
-                            src={item.image}
-                            alt="Naruto Uzumaki"
+                            src={item.menu_items?.menu_img || imgChef}
+                            alt={item.menu_items?.title || "Food item"}
                             w="full"
                             h="full"
                             objectFit="cover"
@@ -323,13 +362,13 @@ function OrderDetails({ setPageOrder }) {
                             mb={1}
                             noOfLines={1}
                           >
-                            {item.name}
+                            {item.title || item.menu_items?.title}
                           </Heading>
                           <Text
                             color="gray.400"
                             fontSize={{ base: "xs", md: "sm" }}
                           >
-                            Price: {item.price.toFixed(2)} LE
+                            Price: {(item.price_at_order || item.menu_items?.price || 0).toFixed(2)} LE
                           </Text>
                         </Box>
                         <Text

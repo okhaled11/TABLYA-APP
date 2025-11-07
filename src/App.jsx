@@ -23,6 +23,7 @@ import OrderPage from "./pages/customer/OrderPage";
 import OrderDetails from "./pages/customer/OrderDetails";
 import CustomerFavourite from "./pages/customer/CustomerFavourite";
 
+
 function App() {
   const token = CookieService.get("access_token");
   const { i18n } = useTranslation();
@@ -49,7 +50,7 @@ function App() {
           <Route path="cookers" element={<AllCookers />} />
           <Route path="cookers/:id" element={<ChefMenuProfile />} />
           <Route path="order" element={<OrderPage />} />
-          <Route path="details" element={<OrderDetails />} />
+          <Route path="details/:orderId" element={<OrderDetails />} />
           <Route path="favourities" element={<CustomerFavourite />} />
         </Route>
         {/* Admin Routes */}
