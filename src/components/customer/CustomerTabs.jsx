@@ -3,12 +3,21 @@ import { LuHouse } from "react-icons/lu";
 import { RiFileList3Line } from "react-icons/ri";
 import { FaRegHeart } from "react-icons/fa6";
 import colors from "../../theme/color";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 
 const CustomerTabs = () => {
   const navigate = useNavigate();
+  const location = useLocation();
+  const getActiveTab = () => {
+    const path = location.pathname;
+    if (path === "/home") return "Home";
+    if (path === "/home/order") return "Orders";
+    if (path === "/home/favourities") return "favourities";
+    return "Home"; 
+  };
+
   return (
-    <Tabs.Root defaultValue="Home">
+    <Tabs.Root value={getActiveTab()}>
       <Tabs.List>
         <Flex w="100%" justifyContent="center" gap={6}>
           <Tabs.Trigger

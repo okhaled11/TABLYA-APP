@@ -9,6 +9,9 @@ import { cookersApi } from "./features/Customer/CookersApi";
 import { cookersApi as aminCookersApi } from "./features/Admin/cookerSlice";
 import { cookerApprovalsApi } from "./features/Admin/cookerApprovals";
 import { ordersApi } from "./features/Admin/ordersApi";
+import { OrdersHistoryCustomerSlice } from "./features/Customer/Orders/OrdersHistoryCustomerSlice";
+import { OrdersApiCustomerSlice } from "./features/Customer/Orders/ordersApiCustomerSlice";
+
 import CartSlice from "./features/Customer/CartSlice";
 import { persistReducer, persistStore } from "redux-persist";
 import storage from "redux-persist/lib/storage";
@@ -30,8 +33,11 @@ export const store = configureStore({
     PersonalRegisterChef: PersonalRegisterChefReducer,
     [supabaseApi.reducerPath]: supabaseApi.reducer,
     [cookersApi.reducerPath]: cookersApi.reducer,
+    [OrdersApiCustomerSlice.reducerPath]: OrdersApiCustomerSlice.reducer,
+    [OrdersHistoryCustomerSlice.reducerPath]: OrdersHistoryCustomerSlice.reducer,
     [cookerApprovalsApi.reducerPath]: cookerApprovalsApi.reducer,
     [ordersApi.reducerPath]: ordersApi.reducer,
+
     cart: persistedCart,
     [reviewsApi.reducerPath]: reviewsApi.reducer,
   },
@@ -45,6 +51,9 @@ export const store = configureStore({
       cookerApprovalsApi.middleware,
       ordersApi.middleware,
       aminCookersApi.middleware,
+      OrdersApiCustomerSlice.middleware,
+      OrdersHistoryCustomerSlice.middleware,
+    
       reviewsApi.middleware,
     ),
 });
