@@ -24,6 +24,7 @@ import OrderDetails from "./pages/customer/OrderDetails";
 import CustomerFavourite from "./pages/customer/CustomerFavourite";
 import MealDetails from "./pages/customer/home/MealDetails";
 
+
 function App() {
   const token = CookieService.get("access_token");
   const { i18n } = useTranslation();
@@ -51,7 +52,7 @@ function App() {
           <Route path="cookers/:id" element={<ChefMenuProfile />} />
           <Route path="cookers/:chefId/meals/:mealId" element={<MealDetails  />} />
           <Route path="order" element={<OrderPage />} />
-          <Route path="details" element={<OrderDetails />} />
+          <Route path="details/:orderId" element={<OrderDetails />} />
           <Route path="favourities" element={<CustomerFavourite />} />
         </Route>
         {/* Admin Routes */}
