@@ -259,6 +259,24 @@ const LoginPage = ({ isAuthenticated }) => {
                   )}
                 </Field.Root>
 
+                {/* Forgot Password Link */}
+                <Text
+                  textAlign={isRTL ? "left" : "right"}
+                  fontSize="sm"
+                  mt={-2}
+                >
+                  <Link to="/forgot-password">
+                    <Text
+                      as="span"
+                      color={colors.light.mainFixed}
+                      fontWeight="medium"
+                      _hover={{ textDecoration: "underline" }}
+                    >
+                      {t("login.forgotPassword")}
+                    </Text>
+                  </Link>
+                </Text>
+
                 {/* Submit Button */}
                 <Button
                   type="submit"
