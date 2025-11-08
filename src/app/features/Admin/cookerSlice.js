@@ -2,7 +2,7 @@ import { createApi, fakeBaseQuery } from "@reduxjs/toolkit/query/react";
 import { supabase } from "../../../services/supabaseClient";
 
 export const cookersApi = createApi({
-  reducerPath: "cookersApi",
+  reducerPath: "adminCookersApi",
   baseQuery: fakeBaseQuery(),
   tagTypes: ["Cooker"],
   endpoints: (builder) => ({
