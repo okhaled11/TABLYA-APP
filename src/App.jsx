@@ -11,6 +11,7 @@ import PendingApprovalPage from "./pages/PendingApprovalPage";
 import CustomerPage from "./pages/CustomerPage";
 import PersonalInfo from "./pages/customer/PersonalInfo";
 import ResetPasswordPage from "./pages/ResetPasswordPage";
+import ForgotPasswordPage from "./pages/ForgotPasswordPage";
 import SidebarLayout from "./components/Admin/SidebarLayout";
 import ChefVerification from "./pages/AdminPages/ChefVerification";
 import Analytics from "./pages/AdminPages/Analytics";
@@ -48,10 +49,11 @@ function App() {
           element={<RegisterPage isAuthenticated={token} />}
         />
         <Route path="/pending-approval" element={<PendingApprovalPage />} />
+        <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+        <Route path="/reset-password" element={<ResetPasswordPage />} />
         {/* customer Routes */}
         <Route path="/home" element={<CustomerPage />} />
         <Route path="/personal-info" element={<PersonalInfo />} />
-        <Route path="/reset-password" element={<ResetPasswordPage />} />
         <Route path="/home" element={<CustomerPage />}>
           {<Route index element={<CustomerHome />} />}
           <Route path="cookers" element={<AllCookers />} />
