@@ -12,31 +12,41 @@ import {
   HStack,
   Steps,
   Image,
+  Skeleton,
+  SkeletonCircle,
+  SkeletonText,
 } from "@chakra-ui/react";
+import DialogCancelOrder from "../../components/Order/DialogCancelOrder.jsx";
 import {
   IoArrowBack,
   IoLocationSharp,
   IoTimeOutline,
   IoCall,
   IoStar,
+  IoPersonSharp,
 } from "react-icons/io5";
 import { useColorMode } from "../../theme/color-mode";
 import colors from "../../theme/color";
 import imgChef from "../../assets/image 17.png";
 import { useNavigate, useParams } from "react-router-dom";
-import { useGetOrderDetailsQuery } from "../../app/features/Customer/Orders/ordersApiCustomerSlice";
+import { useGetOrderDetailsQuery, useCancelOrderMutation } from "../../app/features/Customer/Orders/ordersApiCustomerSlice";
 
 function OrderDetails() {
   /* ------------variable------------------------ */
   const { orderId } = useParams();
   const { colorMode } = useColorMode();
   const [currentStep, setCurrentStep] = useState(1);
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
   const navigate = useNavigate();
-  
+
   /* ----------------------DATA FETCHING------------------ */
   const { data: orderDetails, isLoading, error } = useGetOrderDetailsQuery(orderId, {
     skip: !orderId,
   });
+  const [cancelOrderMutation, { isLoading: isCancelling }] = useCancelOrderMutation();
+  console.log(orderDetails);
+
+
 
   useEffect(() => {
     if (orderDetails?.status) {
@@ -53,11 +63,122 @@ function OrderDetails() {
     }
   }, [orderDetails?.status]);
 
+  /* -----------------cancel order------------------------ */
+  const shouldShowCancelButton = () => {
+    if (orderDetails?.status === "confirmed" || orderDetails?.status === "created") {
+      return "block";
+    } else {
+      return "none";
+    }
+  };
+
+  const handleCancelOrder = async () => {
+    try {
+      await cancelOrderMutation(orderId).unwrap();
+      setIsDialogOpen(false);
+      // Navigate to orders page after successful cancellation
+      navigate("/home/order");
+    } catch (error) {
+      console.error("Failed to cancel order:", error);
+      setIsDialogOpen(false);
+    }
+  };
+
   // Loading state
   if (isLoading) {
     return (
       <Box minH="100vh" p={{ base: 3, md: 8 }}>
-        <Text>Loading order details...</Text>
+        <Box maxW="6xl" mx="auto">
+          {/* Header Skeleton */}
+          <Flex align="center" gap={4} mb={6}>
+            <SkeletonCircle size="10" />
+            <Skeleton height="40px" width="200px" />
+          </Flex>
+
+          {/* Main Content Skeleton */}
+          <Box
+            border="2px"
+            bg={
+              colorMode === "light" ? colors.light.bgThird : colors.dark.bgThird
+            }
+            borderRadius="lg"
+            p={{ base: 3, md: 6 }}
+          >
+            {/* Order Info Skeleton */}
+            <Skeleton height="20px" width="300px" mb={8} />
+
+            {/* Status Tracker Skeleton */}
+            <Box mb={8}>
+              <HStack justify="space-around" mb={12}>
+                <SkeletonCircle size="16" />
+                <SkeletonCircle size="16" />
+                <SkeletonCircle size="16" />
+                <SkeletonCircle size="16" />
+              </HStack>
+            </Box>
+
+            {/* Content Grid Skeleton */}
+            <Grid
+              templateColumns={{ base: "1fr", lg: "repeat(2, 1fr)" }}
+              gap={{ base: 4, md: 6 }}
+            >
+              {/* Left Column */}
+              <GridItem>
+                <VStack gap={3} align="stretch">
+                  <Skeleton height="100px" borderRadius="lg" />
+                  <Skeleton height="100px" borderRadius="lg" />
+                  <Skeleton height="100px" borderRadius="lg" />
+                  <Skeleton height="50px" width="150px" mx="auto" borderRadius="lg" />
+                </VStack>
+              </GridItem>
+
+              {/* Right Column */}
+              <GridItem>
+                <VStack gap={4} align="stretch">
+                  {/* Bill Details Skeleton */}
+                  <Box
+                    bg={
+                      colorMode === "light"
+                        ? colors.light.mainFixed10a
+                        : colors.dark.mainFixed10a
+                    }
+                    borderRadius="xl"
+                    p={5}
+                  >
+                    <Skeleton height="30px" width="150px" mb={4} />
+                    <SkeletonText noOfLines={4} spacing={3} />
+                  </Box>
+
+                  {/* Delivery Info Skeleton */}
+                  <Box
+                    bg={
+                      colorMode === "light"
+                        ? colors.light.mainFixed10a
+                        : colors.dark.mainFixed10a
+                    }
+                    borderRadius="xl"
+                    p={5}
+                  >
+                    <Skeleton height="30px" width="200px" mb={4} />
+                    <SkeletonText noOfLines={4} spacing={3} />
+                  </Box>
+
+                  {/* Cooker Info Skeleton */}
+                  <Box borderRadius="xl" p={5}>
+                    <Skeleton height="30px" width="180px" mb={4} />
+                    <Flex align="center" gap={4}>
+                      <SkeletonCircle size="20" />
+                      <Box flex={1}>
+                        <Skeleton height="25px" width="150px" mb={2} />
+                        <Skeleton height="20px" width="100px" />
+                      </Box>
+                    </Flex>
+                  </Box>
+                </VStack>
+              </GridItem>
+            </Grid>
+          </Box>
+        </Box>
       </Box>
     );
   }
@@ -80,65 +201,12 @@ function OrderDetails() {
     );
   }
 
-  // Sample order data (fallback)
-  const orderData = {
-    date: "29/10/2025",
-    time: "10:50 AM",
-    orderId: "#ORD-2025-001234",
-    status: "cooking", // 'placed', 'cooking', 'out_for_delivery', 'delivered'
-    items: [
-      {
-        id: 1,
-        name: "Traditional Koshari",
-        price: 55.0,
-        quantity: 5,
-        image: imgChef,
-      },
-      {
-        id: 2,
-        name: "Traditional Koshari",
-        price: 55.0,
-        quantity: 5,
-        image: imgChef,
-      },
-      {
-        id: 3,
-        name: "Traditional Koshari",
-        price: 55.0,
-        quantity: 5,
-        image: imgChef,
-      },
 
-      {
-        id: 4,
-        name: "Egyptian Meat Hawawshi Pie",
-        price: 95.0,
-        quantity: 3,
-        image: imgChef,
-      },
-      {
-        id: 5,
-        name: "Meat Béchamel Pasta",
-        price: 120.0,
-        quantity: 4,
-        image: imgChef,
-      },
-    ],
-    subtotal: 500,
-    deliveryFee: 35,
-    total: 535,
-    delivery: {
-      address: "123 Ahmed Oraby Street, Suez",
-      time: "Today, 07:00 PM",
-      phone: "01234567890",
-    },
-    cooker: {
-      name: "Chef Ahmed's Kitchen",
-      rating: 4.8,
-      reviews: 324,
-      image: imgChef,
-    },
-  };
+  const subtotal = orderDetails?.subtotal;
+
+
+  const deliveryFee = orderDetails?.delivery_fee || 0;
+  const total = orderDetails?.total;
 
   const steps = [
     { key: "placed", title: "confirmed", icon: "📋" },
@@ -146,9 +214,6 @@ function OrderDetails() {
     { key: "out_for_delivery", title: "out_for_delivery", icon: "🚚" },
     { key: "delivered", title: "delivered", icon: "🏠" },
   ];
-  useEffect(() => {
-    stepperStatus();
-  }, [setCurrentStep]);
   return (
     <Box minH="100vh" p={{ base: 3, md: 8 }}>
       <Box maxW="6xl" mx="auto">
@@ -259,46 +324,6 @@ function OrderDetails() {
                   </Steps.Item>
                 ))}
               </Steps.List>
-
-              {/* Navigation Buttons */}
-              <Flex
-                justify="center"
-                gap={{ base: 2, md: 4 }}
-                mt={{ base: 14, md: 12 }}
-              >
-                <Steps.PrevTrigger asChild>
-                  <Button
-                    size={{ base: "xs", md: "sm" }}
-                    variant="outline"
-                    colorPalette="green"
-                    onClick={() =>
-                      setCurrentStep((prev) => Math.max(0, prev - 1))
-                    }
-                    isDisabled={currentStep === 0}
-                    fontSize={{ base: "xs", md: "sm" }}
-                    px={{ base: 3, md: 4 }}
-                  >
-                    Previous
-                  </Button>
-                </Steps.PrevTrigger>
-                <Steps.NextTrigger asChild>
-                  <Button
-                    size={{ base: "xs", md: "sm" }}
-                    variant="outline"
-                    colorPalette="green"
-                    onClick={() =>
-                      setCurrentStep((prev) =>
-                        Math.min(steps.length - 1, prev + 1)
-                      )
-                    }
-                    isDisabled={currentStep === steps.length - 1}
-                    fontSize={{ base: "xs", md: "sm" }}
-                    px={{ base: 3, md: 4 }}
-                  >
-                    Next
-                  </Button>
-                </Steps.NextTrigger>
-              </Flex>
             </Steps.Root>
           </Box>
 
@@ -306,9 +331,11 @@ function OrderDetails() {
           <Grid
             templateColumns={{ base: "1fr", lg: "repeat(2, 1fr)" }}
             gap={{ base: 4, md: 6 }}
+
           >
             {/* Left Column - Order Items */}
             <GridItem
+              mt={6}
               rounded={"lg"}
               bg={
                 colorMode === "light"
@@ -388,34 +415,53 @@ function OrderDetails() {
                   </VStack>
                 </Box>
 
-                {/* Cancel Order Button */}
-                <Button
-                  w="fit"
-                  mx={"auto"}
-                  mb={{ base: 2, md: 4 }}
-                  py={{ base: 3, md: 5 }}
-                  px={{ base: 6, md: 8 }}
-                  border="2px solid"
-                  borderColor={
-                    colorMode === "light"
-                      ? colors.light.mainFixed
-                      : colors.dark.mainFixed
-                  }
-                  color="red.500"
-                  bg="transparent"
-                  borderRadius="lg"
-                  fontWeight="semibold"
-                  fontSize={{ base: "sm", md: "md" }}
-                  _hover={{ bg: "red.600/10" }}
-                  transition="all 0.2s"
+                {/* Cancel Order Button with Dialog */}
+                <DialogCancelOrder
+                  isOpen={isDialogOpen}
+                  onOpenChange={(e) => setIsDialogOpen(e.open)}
+                  onConfirm={handleCancelOrder}
+                  isLoading={isCancelling}
+                  display={shouldShowCancelButton()}
                 >
-                  Cancel Order
-                </Button>
+                  <Button
+                    w="full"
+                    maxW="300px"
+                    mx="auto"
+                    mb={{ base: 2, md: 4 }}
+                    h={{ base: "45px", md: "50px" }}
+                    border="2px solid"
+                    borderColor={
+                      colorMode === "light"
+                        ? colors.light.mainFixed
+                        : colors.dark.mainFixed
+                    }
+                    color={
+                      colorMode === "light"
+                        ? colors.light.mainFixed
+                        : colors.dark.mainFixed
+                    }
+                    bg="transparent"
+                    borderRadius="xl"
+                    fontWeight="bold"
+                    fontSize={{ base: "md", md: "lg" }}
+                    _hover={{ 
+                      bg: colorMode === "light" 
+                        ? colors.light.mainFixed10a 
+                        : colors.dark.mainFixed10a,
+                      transform: "translateY(-2px)",
+                      boxShadow: "lg"
+                    }}
+                    transition="all 0.3s ease"
+                    display={shouldShowCancelButton()}
+                  >
+                    Cancel Order
+                  </Button>
+                </DialogCancelOrder>
               </VStack>
             </GridItem>
 
             {/* Right Column - Bill & Info */}
-            <GridItem>
+            <GridItem mt={6}>
               <VStack gap={{ base: 3, md: 4 }} align="stretch">
                 {/* Bill Details */}
                 <Box
@@ -457,7 +503,7 @@ function OrderDetails() {
                             : colors.dark.textMain
                         }
                       >
-                        {orderData.subtotal} LE
+                        {subtotal.toFixed(2)} LE
                       </Text>
                     </Flex>
                     <Flex justify="space-between" color="gray.300">
@@ -477,7 +523,7 @@ function OrderDetails() {
                             : colors.dark.textMain
                         }
                       >
-                        {orderData.deliveryFee} LE
+                        {deliveryFee.toFixed(2)} LE
                       </Text>
                     </Flex>
                     <Box borderTop="1px" borderColor="red.800" my={3} />
@@ -488,7 +534,7 @@ function OrderDetails() {
                       fontWeight="bold"
                     >
                       <Text>Total</Text>
-                      <Text>{orderData.total} LE</Text>
+                      <Text>{total.toFixed(2)} LE</Text>
                     </Flex>
                   </VStack>
                 </Box>
@@ -497,8 +543,8 @@ function OrderDetails() {
                 <Box
                   bg={
                     colorMode === "light"
-                      ? colors.light.info10a
-                      : colors.dark.info10a
+                      ? colors.light.mainFixed10a
+                      : colors.dark.mainFixed10a
                   }
                   borderRadius="xl"
                   p={{ base: 3, md: 5 }}
@@ -515,46 +561,95 @@ function OrderDetails() {
                   >
                     Delivery Information
                   </Heading>
-                  <VStack gap={3} align="stretch">
-                    <HStack align="start" gap={3} color="cyan.400">
+                  <VStack gap={2} align="stretch">
+                    <HStack gap={3}>
                       <Icon
-                        as={IoLocationSharp}
+                        as={IoPersonSharp}
                         boxSize={5}
                         flexShrink={0}
-                        mt={1}
+                        color={
+                          colorMode === "light"
+                            ? colors.light.mainFixed
+                            : colors.dark.mainFixed
+                        }
                       />
                       <Text
                         color={
                           colorMode === "light"
-                            ? colors.light.textSub
-                            : colors.dark.textSub
+                            ? colors.light.textMain
+                            : colors.dark.textMain
                         }
+                        fontWeight="medium"
                       >
-                        {orderData.delivery.address}
+                        {orderDetails?.customer?.name || "N/A"}
                       </Text>
                     </HStack>
-                    <HStack gap={3} color="cyan.400">
-                      <Icon as={IoTimeOutline} boxSize={5} flexShrink={0} />
+                    <HStack gap={3}>
+                      <Icon
+                        as={IoLocationSharp}
+                        boxSize={5}
+                        flexShrink={0}
+                        color={
+                          colorMode === "light"
+                            ? colors.light.mainFixed
+                            : colors.dark.mainFixed
+                        }
+                      />
                       <Text
                         color={
                           colorMode === "light"
-                            ? colors.light.textSub
-                            : colors.dark.textSub
+                            ? colors.light.textMain
+                            : colors.dark.textMain
                         }
+                        fontWeight="medium"
                       >
-                        {orderData.delivery.time}
+                        {orderDetails?.customer?.address || "N/A"}
                       </Text>
                     </HStack>
-                    <HStack gap={3} color="cyan.400">
-                      <Icon as={IoCall} boxSize={5} flexShrink={0} />
+                    <HStack gap={3}>
+                      <Icon
+                        as={IoCall}
+                        boxSize={5}
+                        flexShrink={0}
+                        color={
+                          colorMode === "light"
+                            ? colors.light.mainFixed
+                            : colors.dark.mainFixed
+                        }
+                      />
                       <Text
                         color={
                           colorMode === "light"
-                            ? colors.light.textSub
-                            : colors.dark.textSub
+                            ? colors.light.textMain
+                            : colors.dark.textMain
                         }
+                        fontWeight="medium"
                       >
-                        {orderData.delivery.phone}
+                        {orderDetails?.customer?.phone || "N/A"}
+                      </Text>
+                    </HStack>
+                    <HStack gap={3}>
+                      <Icon
+                        as={IoTimeOutline}
+                        boxSize={5}
+                        flexShrink={0}
+                        color={
+                          colorMode === "light"
+                            ? colors.light.mainFixed
+                            : colors.dark.mainFixed
+                        }
+                      />
+                      <Text
+                        color={
+                          colorMode === "light"
+                            ? colors.light.textMain
+                            : colors.dark.textMain
+                        }
+                        fontWeight="medium"
+                      >
+                        {orderDetails?.order_delivery?.eta_minutes
+                          ? `${orderDetails.order_delivery.eta_minutes} min`
+                          : "30-45 min"}
                       </Text>
                     </HStack>
                   </VStack>
@@ -596,8 +691,8 @@ function OrderDetails() {
                         fontSize={{ base: "2xl", md: "3xl" }}
                       >
                         <Image
-                          src={orderData.cooker.image}
-                          alt="Naruto Uzumaki"
+                          src={orderDetails?.cooker?.users?.avatar_url || imgChef}
+                          alt={orderDetails?.cooker?.kitchen_name || "Chef"}
                           w="full"
                           h="full"
                           objectFit="cover"
@@ -611,7 +706,7 @@ function OrderDetails() {
                         mb={{ base: 1, md: 2 }}
                         noOfLines={1}
                       >
-                        {orderData.cooker.name}
+                        {orderDetails?.cooker?.kitchen_name || orderDetails?.cooker?.users?.name || "N/A"}
                       </Heading>
                       <HStack
                         gap={{ base: 1, md: 2 }}
@@ -623,7 +718,7 @@ function OrderDetails() {
                           color="orange.400"
                         />
                         <Text fontWeight="bold" color="orange.400">
-                          {orderData.cooker.rating}
+                          {orderDetails?.cooker?.avg_rating?.toFixed(1) || "N/A"}
                         </Text>
                         <Text
                           color={
@@ -633,7 +728,7 @@ function OrderDetails() {
                           }
                           fontSize={{ base: "xs", md: "sm" }}
                         >
-                          ({orderData.cooker.reviews} Reviews)
+                          ({orderDetails?.cooker?.total_reviews || 0} Reviews)
                         </Text>
                       </HStack>
                     </Box>

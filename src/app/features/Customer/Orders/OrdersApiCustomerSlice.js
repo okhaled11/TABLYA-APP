@@ -28,6 +28,7 @@ export const OrdersApiCustomerSlice = createApi({
         getOrderDetails: builder.query({
             async queryFn(orderId) {
                 try {
+              
                     const { data: orderData, error: orderError } = await supabase
                         .from("orders")
                         .select("*")
@@ -35,6 +36,36 @@ export const OrdersApiCustomerSlice = createApi({
                         .single();
 
                     if (orderError) return { error: orderError.message };
+
+                    const { data: customerData, error: customerError } = await supabase
+                        .from("users")
+                        .select("id, name, email, phone, avatar_url")
+                        .eq("id", orderData.customer_id)
+                        .single();
+
+      
+                    const { data: customerAddressData } = await supabase
+                        .from("customers")
+                        .select("address")
+                        .eq("user_id", orderData.customer_id)
+                        .single();
+
+                    const { data: cookerData, error: cookerError } = await supabase
+                        .from("cookers")
+                        .select("user_id, kitchen_name, avg_rating, total_reviews")
+                        .eq("user_id", orderData.cooker_id)
+                        .single();
+
+                    let cookerUserData = null;
+                    if (cookerData?.user_id) {
+                        const { data: userData } = await supabase
+                            .from("users")
+                            .select("name, avatar_url, email, phone")
+                            .eq("id", cookerData.user_id)
+                            .single();
+                        cookerUserData = userData;
+                    }
+
 
                     const { data: orderItems, error: itemsError } = await supabase
                         .from("order_items")
@@ -62,6 +93,14 @@ export const OrdersApiCustomerSlice = createApi({
                     
                     const fullOrderData = {
                         ...orderData,
+                        customer: customerData ? {
+                            ...customerData,
+                            address: customerAddressData?.address || null
+                        } : null,
+                        cooker: cookerData ? {
+                            ...cookerData,
+                            users: cookerUserData
+                        } : null,
                         order_items: orderItems || [],
                         order_delivery: orderDelivery || null,
                     };
@@ -85,7 +124,6 @@ export const OrdersApiCustomerSlice = createApi({
 
                     if (mealError) return { error: mealError.message };
 
-                    // جلب بيانات الطاهي مع بيانات المستخدم
                     const { data: chefData, error: chefError } = await supabase
                         .from("cookers")
                         .select("*, users(name, avatar_url, email, phone)")
@@ -139,6 +177,25 @@ export const OrdersApiCustomerSlice = createApi({
             invalidatesTags: ["MealDetails"],
         }),
 
+        cancelOrder: builder.mutation({
+            async queryFn(orderId) {
+                try {
+                    const { data, error } = await supabase
+                        .from("orders")
+                        .delete()
+                        .eq("id", orderId)
+                        .select();
+
+                    if (error) return { error: error.message };
+
+                    return { data };
+                } catch (err) {
+                    return { error: err.message };
+                }
+            },
+            invalidatesTags: ["Orders", "OrderDetails"],
+        }),
+
     }),
 });
 
@@ -147,4 +204,5 @@ export const {
     useGetOrderDetailsQuery,
     useGetMealAndChefDetailsQuery,
     useUpdateMealStockMutation,
+    useCancelOrderMutation,
 } = OrdersApiCustomerSlice;
