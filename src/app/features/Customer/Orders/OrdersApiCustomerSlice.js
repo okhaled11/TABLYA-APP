@@ -107,6 +107,38 @@ export const OrdersApiCustomerSlice = createApi({
             providesTags: ["MealDetails"],
         }),
 
+        updateMealStock: builder.mutation({
+            async queryFn({ mealId, quantityToReduce }) {
+                try {
+                    // Get current stock
+                    const { data: currentItem, error: fetchError } = await supabase
+                        .from("menu_items")
+                        .select("stock")
+                        .eq("id", mealId)
+                        .single();
+
+                    if (fetchError) return { error: fetchError.message };
+
+                    const newStock = currentItem.stock - quantityToReduce;
+
+                    // Update stock in database
+                    const { data, error: updateError } = await supabase
+                        .from("menu_items")
+                        .update({ stock: newStock })
+                        .eq("id", mealId)
+                        .select()
+                        .single();
+
+                    if (updateError) return { error: updateError.message };
+
+                    return { data: { ...data, newStock } };
+                } catch (err) {
+                    return { error: err.message };
+                }
+            },
+            invalidatesTags: ["MealDetails"],
+        }),
+
     }),
 });
 
@@ -114,4 +146,5 @@ export const {
     useGetCustomerOrdersQuery,
     useGetOrderDetailsQuery,
     useGetMealAndChefDetailsQuery,
+    useUpdateMealStockMutation,
 } = OrdersApiCustomerSlice;
