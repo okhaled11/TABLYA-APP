@@ -8,7 +8,6 @@ import registerReducer from "./features/Auth/registerCustomerSlice";
 import { registerChef } from "./features/Auth/registerChefSlice";
 import { authApi } from "./features/Auth/authSlice";
 
-import { supabaseApi } from "./features/MenuSlices";
 import { cookersApi } from "./features/Customer/CookersApi";
 import { cookersApi as aminCookersApi } from "./features/Admin/cookerSlice";
 import { cookerApprovalsApi } from "./features/Admin/cookerApprovals";
@@ -42,7 +41,7 @@ export const store = configureStore({
     // APIs
     [authApi.reducerPath]: authApi.reducer,
     [registerChef.reducerPath]: registerChef.reducer,
-    [supabaseApi.reducerPath]: supabaseApi.reducer,
+
     [cookersApi.reducerPath]: cookersApi.reducer,
     [aminCookersApi.reducerPath]: aminCookersApi.reducer,
     [cookerApprovalsApi.reducerPath]: cookerApprovalsApi.reducer,
@@ -52,20 +51,21 @@ export const store = configureStore({
     [personalInfoApi.reducerPath]: personalInfoApi.reducer,
     [addressApi.reducerPath]: addressApi.reducer,
     [OrdersApiCustomerSlice.reducerPath]: OrdersApiCustomerSlice.reducer,
-    [OrdersHistoryCustomerSlice.reducerPath]: OrdersHistoryCustomerSlice.reducer,
+    [OrdersHistoryCustomerSlice.reducerPath]:
+      OrdersHistoryCustomerSlice.reducer,
     [reviewsApi.reducerPath]: reviewsApi.reducer,
   },
 
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({
       serializableCheck: {
-        ignoredActions: ['persist/PERSIST', 'persist/REHYDRATE'],
-        ignoredPaths: ['register'],
+        ignoredActions: ["persist/PERSIST", "persist/REHYDRATE"],
+        ignoredPaths: ["register"],
       },
     }).concat(
       authApi.middleware,
       registerChef.middleware,
-      supabaseApi.middleware,
+
       cookersApi.middleware,
       aminCookersApi.middleware,
       cookerApprovalsApi.middleware,
