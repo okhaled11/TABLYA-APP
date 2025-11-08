@@ -17,7 +17,7 @@ export const addItemToShoppingCart = (
       position: "top",
     });
     return shoppingCartItems.map((item) =>
-      item.id === cartItem.id ? { ...item, quantity: item.quantity + 1 } : item
+      item.id === cartItem.id ? { ...item, quantity: item.quantity + cartItem.quantity } : item
     );
   }
   toaster.create({
@@ -27,7 +27,7 @@ export const addItemToShoppingCart = (
     isClosable: true,
     position: "top",
   });
-  return [...shoppingCartItems, { ...cartItem, quantity: 1 }];
+  return [...shoppingCartItems, cartItem];
 };
 
 // to split review date

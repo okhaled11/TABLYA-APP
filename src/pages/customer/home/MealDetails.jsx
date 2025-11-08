@@ -4,7 +4,7 @@ import { LuChefHat, LuHouse, LuShirt } from "react-icons/lu";
 import { Link, useNavigate } from "react-router-dom";
 import { useParams } from "react-router-dom";
 import MealDetailsCard from "../../../components/customer/Order/MealDetailsCard";
-import { useGetMealAndChefDetailsQuery } from "../../../app/features/Customer/Orders/OrdersApiCustomerSlice";
+import { useGetMealAndChefDetailsQuery } from "../../../app/features/Customer/Orders/ordersApiCustomerSlice";
 
 const MealDetails = () => {
   /* ---------------------hooks-------------------- */
@@ -15,7 +15,7 @@ const MealDetails = () => {
     { mealId, chefId },
     { skip: !mealId || !chefId }
   );
-
+  
   return (
     <>
       <Breadcrumb.Root>
