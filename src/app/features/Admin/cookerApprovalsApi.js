@@ -1,33 +1,38 @@
+
 import { createApi, fakeBaseQuery } from '@reduxjs/toolkit/query/react';
 import { supabase } from "../../../services/supabaseClient";
 
-export const cookerApprovalsApi = createApi({
-  reducerPath: 'cookerApprovalsApi',
+export const cookersApprovalsApi = createApi({
+  reducerPath: 'cookersApprovalsApi',
   baseQuery: fakeBaseQuery(),
-  tagTypes: ['CookerApprovals'],
+  tagTypes: ['CookerApprovals', 'Cookers'],
   endpoints: (builder) => ({
 
-    // 1️⃣ Get all cooker approvals with cooker info
+    //  Get all cooker approvals with cooker info
     getCookerApprovals: builder.query({
       async queryFn() {
         try {
-         // get approvals data
           const { data: approvals, error: approvalsError } = await supabase
-            .from('cooker_approvals')
-            .select('*');
+            .from("cooker_approvals")
+            .select("*");
           if (approvalsError) return { error: approvalsError };
 
-         //get cookers data 
           const { data: cookers, error: cookersError } = await supabase
-            .from('cookers')
-            .select('*');
+            .from("cookers")
+            .select("*");
           if (cookersError) return { error: cookersError };
 
-         // join manually cookers and cooker approval
-          const data = approvals.map(app => ({
-            ...app,
-            cooker: cookers.find(c => c.user_id === app.cooker_id) || null
-          }));
+          const { data: users, error: usersError } = await supabase
+            .from("users")
+            .select("id, name, email, phone, avatar_url");
+          if (usersError) return { error: usersError };
+
+          const data = approvals.map((app) => {
+            const cooker = cookers.find(c => c.user_id === app.cooker_id) || null;
+            const user = users.find(u => u.id === app.cooker_id) || null;
+
+            return { ...app, cooker, user };
+          });
 
           return { data };
         } catch (err) {
@@ -37,76 +42,110 @@ export const cookerApprovalsApi = createApi({
       providesTags: ['CookerApprovals'],
     }),
 
+    //  Approve cooker
+    approveCooker: builder.mutation({
+      async queryFn({ id, approved_by }) {
+        try {
+          // جلب approval
+          const { data: approval, error: fetchError } = await supabase
+            .from('cooker_approvals')
+            .select('*')
+            .eq('id', id)
+            .single();
+          if (fetchError) return { error: fetchError };
 
+          // تحديث approval إلى approved
+          const { data: updatedApproval, error: updateError } = await supabase
+            .from('cooker_approvals')
+            .update({ status: 'approved', approved_at: new Date().toISOString(), approved_by: null })
+            .eq('id', id);
+          if (updateError) return { error: updateError };
 
+          // إضافة cooker للجدول لو مش موجود
+          const { data: existingCooker } = await supabase
+            .from('cookers')
+            .select('*')
+            .eq('user_id', approval.cooker_id)
+            .single();
 
-  approveCooker: builder.mutation({
-  async queryFn({ id, approved_by }) {
-    try {
+          if (!existingCooker) {
+            const { data: newCooker, error: insertError } = await supabase
+              .from('cookers')
+              .insert([{
+                user_id: approval.cooker_id,
+                kitchen_name: approval.name || null,
+                bio: '',
+                specialty: '',
+                avg_rating: 0,
+                is_approved: true,
+                is_available: true,
+                total_reviews: 0,
+              }]);
+            if (insertError) return { error: insertError };
+          }
 
+          return { data: updatedApproval };
+        } catch (err) {
+          return { error: err };
+        }
+      },
+      invalidatesTags: ['CookerApprovals', 'Cookers'],
+    }),
 
-     const { data: adminData, error: adminError } = await supabase
-        .from('admins')
-        .select(`
-          user_id,
-          users(name)
-        `)
-        .eq('user_id', approved_by)
-        .single();
+    //  Delete cooker approval (and cooker if موجود)
+    deleteCookerApproval: builder.mutation({
+      async queryFn(id) {
+        try {
+          const { data: approval, error: fetchError } = await supabase
+            .from('cooker_approvals')
+            .select('*')
+            .eq('id', id)
+            .single();
+          if (fetchError) return { error: fetchError };
 
-      if (adminError) return { error: adminError };
+          const cookerId = approval.cooker_id;
 
-      const adminName = adminData?.users?.name || "Unknown Admin";
+          // حذف approval
+          const { data: deletedApproval, error: deleteApprovalError } = await supabase
+            .from('cooker_approvals')
+            .delete()
+            .eq('id', id);
+          if (deleteApprovalError) return { error: deleteApprovalError };
 
-      
-      const { data: approval, error: fetchError } = await supabase
-        .from('cooker_approvals')
-        .select('*')
-        .eq('id', id)
-        .single();
-      if (fetchError) return { error: fetchError };
+          // حذف cooker لو موجود
+          const { data: existingCooker } = await supabase
+            .from('cookers')
+            .select('*')
+            .eq('user_id', cookerId)
+            .single();
 
-      //update approval
-      const { data: updatedApproval, error: updateError } = await supabase
-        .from('cooker_approvals')
-        .update({ status: 'approved', approved_at: new Date(), approved_by: adminName })
-        .eq('id', id);
-      if (updateError) return { error: updateError };
+          if (existingCooker) {
+            const { error: deleteCookerError } = await supabase
+              .from('cookers')
+              .delete()
+              .eq('user_id', cookerId);
+            if (deleteCookerError) return { error: deleteCookerError };
+          }
+          
+             const { error: deleteUserError } = await supabase
+             .from('users')
+             .delete()
+             .eq('id', cookerId);
 
-      //if cooker not found add him to the table
-      const { data: existingCooker } = await supabase
-        .from('cookers')
-        .select('*')
-        .eq('user_id', approval.cooker_id)
-        .single();
+            if (deleteUserError) return { error: deleteUserError };
 
-      if (!existingCooker) {
-        const { data: newCooker, error: insertError } = await supabase
-          .from('cookers')
-          .insert([{
-            user_id: approval.cooker_id,
-            kitchen_name: approval.name,
-            bio: '', 
-            specialty: '',
-            avg_rating: 0,
-            is_approved: true,
-            is_available: true,
-            total_reviews: 0,
-          }]);
-        if (insertError) return { error: insertError };
-      }
-
-      return { data: updatedApproval };
+      return { data: { message: "Cooker approval, cooker, and user deleted successfully" } };
     } catch (err) {
       return { error: err };
     }
-  },
-  invalidatesTags: ['CookerApprovals', 'cookers'],
-}),
+      },
+      invalidatesTags: ['CookerApprovals', 'Cookers'],
+    }),
+    
+  //reject cooker approval 
 
-
-    // 3️⃣ Reject a cooker
-    rejectCooker: builder.mutation({
+//   Reject a cooker
+    rejectCookerApproval: builder.mutation({
       async queryFn({ id, notes }) {
         const { data, error } = await supabase
           .from('cooker_approvals')
@@ -117,26 +156,13 @@ export const cookerApprovalsApi = createApi({
       },
       invalidatesTags: ['CookerApprovals'],
     }),
-
-    // 4️⃣ Delete a cooker approval
-    deleteCookerApproval: builder.mutation({
-      async queryFn(id) {
-        const { data, error } = await supabase
-          .from('cooker_approvals')
-          .delete()
-          .eq('id', id);
-        if (error) return { error };
-        return { data };
-      },
-      invalidatesTags: ['CookerApprovals'],
-    }),
-
   }),
 });
 
 export const {
-  useGetCookerApprovalsQuery,
+  useGetCookerApprovalsQuery: useGetAllCookerApprovalsQuery,
+
   useApproveCookerMutation,
-  useRejectCookerMutation,
   useDeleteCookerApprovalMutation,
-} = cookerApprovalsApi;
+  useRejectCookerApprovalMutation
+} = cookersApprovalsApi;
