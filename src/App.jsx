@@ -26,6 +26,7 @@ import OrderDetails from "./pages/customer/OrderDetails";
 import CustomerFavourite from "./pages/customer/CustomerFavourite";
 import MealDetails from "./pages/customer/home/MealDetails";
 import CartPage from "./pages/customer/CartPage";
+import ProtectedRoute from "./routes/ProtectedRoute";
 
 
 function App() {
@@ -48,28 +49,31 @@ function App() {
           element={<RegisterPage isAuthenticated={token} />}
         />
         <Route path="/pending-approval" element={<PendingApprovalPage />} />
-        {/* customer Routes */}
-        <Route path="/home" element={<CustomerPage />} />
-        <Route path="/personal-info" element={<PersonalInfo />} />
-        <Route path="/reset-password" element={<ResetPasswordPage />} />
-        <Route path="/home" element={<CustomerPage />}>
-          {<Route index element={<CustomerHome />} />}
-          <Route path="cookers" element={<AllCookers />} />
-          <Route path="cookers/:id" element={<ChefMenuProfile />} />
-          <Route path="cookers/:chefId/meals/:mealId" element={<MealDetails  />} />
-          <Route path="order" element={<OrderPage />} />
-          <Route path="details/:orderId" element={<OrderDetails />} />
-          <Route path="favourities" element={<CustomerFavourite />} />
-          <Route path="cart" element={<CartPage />} />
-        </Route>
-        {/* Admin Routes */}
-        <Route path="/admin" element={<SidebarLayout />}>
-          <Route index element={<Dashboard />} />
-          <Route path="analytics" element={<Analytics />} />
-          <Route path="chef-verification" element={<ChefVerification />} />
-          <Route path="user-management" element={<UserManagement />} />
-          <Route path="deliveries" element={<Deliveries />} />
-          <Route path="complaints" element={<Complaints />} />
+        {/* Protected Routes */}
+        <Route element={<ProtectedRoute />}>
+          {/* customer Routes */}
+          <Route path="/home" element={<CustomerPage />} />
+          <Route path="/personal-info/*" element={<PersonalInfo />} />
+          <Route path="/reset-password" element={<ResetPasswordPage />} />
+          <Route path="/home" element={<CustomerPage />}>
+            {<Route index element={<CustomerHome />} />}
+            <Route path="cookers" element={<AllCookers />} />
+            <Route path="cookers/:id" element={<ChefMenuProfile />} />
+            <Route path="cookers/:chefId/meals/:mealId" element={<MealDetails  />} />
+            <Route path="order" element={<OrderPage />} />
+            <Route path="details/:orderId" element={<OrderDetails />} />
+            <Route path="favourities" element={<CustomerFavourite />} />
+            <Route path="cart" element={<CartPage />} />
+          </Route>
+          {/* Admin Routes */}
+          <Route path="/admin" element={<SidebarLayout />}>
+            <Route index element={<Dashboard />} />
+            <Route path="analytics" element={<Analytics />} />
+            <Route path="chef-verification" element={<ChefVerification />} />
+            <Route path="user-management" element={<UserManagement />} />
+            <Route path="deliveries" element={<Deliveries />} />
+            <Route path="complaints" element={<Complaints />} />
+          </Route>
         </Route>
       </Routes>
       <Toaster />
