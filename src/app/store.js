@@ -22,6 +22,8 @@ import { OrdersApiCustomerSlice } from "./features/Customer/Orders/ordersApiCust
 import { reviewsApi } from "./features/Customer/reviewsApi";
 
 import CartSlice from "./features/Customer/CartSlice";
+import favoriteCookersReducer from "./features/Customer/favoriteCookersSlice";
+import { favoritesApi } from "./features/Customer/favoritesApi";
 
 const persistCartConfig = {
   key: "cart",
@@ -37,6 +39,7 @@ export const store = configureStore({
     PersonalRegisterChef: PersonalRegisterChefReducer,
 
     cart: persistedCart,
+    favoriteCookers: favoriteCookersReducer,
 
     // APIs
     [authApi.reducerPath]: authApi.reducer,
@@ -54,6 +57,7 @@ export const store = configureStore({
     [OrdersHistoryCustomerSlice.reducerPath]:
       OrdersHistoryCustomerSlice.reducer,
     [reviewsApi.reducerPath]: reviewsApi.reducer,
+    [favoritesApi.reducerPath]: favoritesApi.reducer,
   },
 
   middleware: (getDefaultMiddleware) =>
@@ -75,7 +79,8 @@ export const store = configureStore({
       addressApi.middleware,
       OrdersApiCustomerSlice.middleware,
       OrdersHistoryCustomerSlice.middleware,
-      reviewsApi.middleware
+      reviewsApi.middleware,
+      favoritesApi.middleware
     ),
 });
 

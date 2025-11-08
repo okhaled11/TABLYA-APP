@@ -218,10 +218,12 @@ export default function Navbar() {
                                 </Link>
                               </Menu.Item>
                               <Menu.Item value="Payment-method">
+                                <Link to="/personal-info/payment">
                                 <HStack spacing={3}>
                                   <Icon as={CreditCard} boxSize={4} />
                                   <Text fontSize={"sm"}>Payment Method</Text>
                                 </HStack>
+                                </Link>
                               </Menu.Item>
                               <Separator />
                               {/* Dark Mode with Switch */}
