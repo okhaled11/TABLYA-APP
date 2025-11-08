@@ -135,6 +135,7 @@
     "password": "كلمة المرور",
     "emailPlaceholder": "أدخل بريدك الإلكتروني",
     "passwordPlaceholder": "أدخل كلمة المرور",
+    "forgotPassword": "نسيت كلمة المرور؟",
     "loginButton": "تسجيل الدخول",
     "noAccount": "ليس لديك حساب؟",
     "createAccount": "إنشاء حساب",
@@ -143,6 +144,18 @@
     "errorTitle": "فشل تسجيل الدخول",
     "errorDescription": "البريد الإلكتروني أو كلمة المرور غير صحيحة",
     "imageAlt": "صورة التسجيل"
+  },
+  "forgotPassword": {
+    "title": "نسيت كلمة المرور",
+    "subtitle": "أدخل عنوان بريدك الإلكتروني وسنرسل لك رابطًا لإعادة تعيين كلمة المرور",
+    "sendButton": "إرسال رابط إعادة التعيين",
+    "backToLogin": "العودة لتسجيل الدخول",
+    "successTitle": "تم إرسال البريد!",
+    "successDescription": "تحقق من بريدك الإلكتروني للحصول على تعليمات إعادة تعيين كلمة المرور",
+    "errorTitle": "خطأ",
+    "errorDescription": "فشل إرسال البريد الإلكتروني. حاول مرة أخرى.",
+    "emailSentTitle": "تحقق من بريدك الإلكتروني",
+    "emailSentDescription": "لقد أرسلنا رابط إعادة تعيين كلمة المرور إلى:"
   },
   "register": {
     "title": "إنشاء حساب",

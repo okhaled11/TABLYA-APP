@@ -135,6 +135,7 @@
     "password": "Password",
     "emailPlaceholder": "Enter your email",
     "passwordPlaceholder": "Enter your password",
+    "forgotPassword": "Forgot Password?",
     "loginButton": "Login",
     "noAccount": "Don't have an account?",
     "createAccount": "Create Account",
@@ -143,6 +144,18 @@
     "errorTitle": "Login Failed",
     "errorDescription": "Invalid email or password",
     "imageAlt": "Signup Image"
+  },
+  "forgotPassword": {
+    "title": "Forgot Password",
+    "subtitle": "Enter your email address and we'll send you a link to reset your password",
+    "sendButton": "Send Reset Link",
+    "backToLogin": "Back to Login",
+    "successTitle": "Email Sent!",
+    "successDescription": "Check your email for password reset instructions",
+    "errorTitle": "Error",
+    "errorDescription": "Failed to send reset email. Please try again.",
+    "emailSentTitle": "Check Your Email",
+    "emailSentDescription": "We've sent a password reset link to:"
   },
   "register": {
     "title": "Create Account",

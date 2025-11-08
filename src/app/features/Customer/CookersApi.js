@@ -65,6 +65,20 @@ export const cookersApi = createApi({
       },
       providesTags: (result, error, id) => [{ type: "Cooker", id }],
     }),
+
+    // Get multiple cookers by a list of user_ids to handle favourites
+    getCookersByIds: builder.query({
+      async queryFn(ids) {
+        if (!ids || ids.length === 0) return { data: [] };
+        const { data, error } = await supabase
+          .from("cookers")
+          .select("*, users(name, avatar_url)")
+          .in("user_id", ids);
+        if (error) return { error };
+        return { data };
+      },
+      providesTags: ["Cookers"],
+    }),
   }),
 });
 
@@ -73,4 +87,5 @@ export const {
   useGetAllCookersQuery,
   useGetCookerByIdQuery,
   useGetMenuItemsByCookerIdQuery,
+  useGetCookersByIdsQuery,
 } = cookersApi;

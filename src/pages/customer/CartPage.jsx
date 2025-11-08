@@ -1,12 +1,19 @@
 import { Box, Container, SimpleGrid } from "@chakra-ui/react";
 import { useNavigate } from "react-router-dom";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import CartSection from "../../components/cart/CartSection";
 import OrderSummarySection from "../../components/cart/OrderSummarySection";
+import { useGetUserDataQuery } from "../../app/features/Auth/authSlice";
+import { toaster } from "../../components/ui/toaster";
+import { useCreateOrderMutation } from "../../app/features/Customer/ordersSlice";
+import { clearCart } from "../../app/features/Customer/CartSlice";
 
 export default function CartPage() {
   const navigate = useNavigate();
-  const { cartItems } = useSelector((state) => state.cart);
+  const dispatch = useDispatch();
+  const { cartItems, cookerId } = useSelector((state) => state.cart);
+  const { data: user } = useGetUserDataQuery();
+  const [createOrder] = useCreateOrderMutation();
 
   // Calculate subtotal from cart items
   const subtotal = cartItems.reduce((total, item) => {
@@ -17,9 +24,52 @@ export default function CartPage() {
     navigate("/home");
   };
 
-  const handleCheckout = () => {
-    // Handle checkout logic here
-    console.log("Proceeding to checkout");
+  const handleCheckout = async (notes = "") => {
+    const address = user?.address?.trim?.() || "";
+    if (!address) {
+      toaster.create({
+        title: "Address required",
+        description: "Please add your delivery address before checkout.",
+        type: "warning",
+        duration: 2500,
+        isClosable: true,
+        position: "top",
+      });
+      navigate("/personal-info/address");
+      return;
+    }
+    try {
+      const delivery_fee = 0;
+      const tax = 0;
+      const total = subtotal + delivery_fee + tax;
+      const resp = await createOrder({
+        cooker_id: cookerId,
+        subtotal,
+        delivery_fee,
+        tax,
+        total,
+        notes,
+      }).unwrap();
+      toaster.create({
+        title: "Order created",
+        description: `Order #${resp?.id || ""} created successfully`,
+        type: "success",
+        duration: 3000,
+        isClosable: true,
+        position: "top",
+      });
+      dispatch(clearCart());
+      navigate("/home");
+    } catch (e) {
+      toaster.create({
+        title: "Failed to create order",
+        description: e?.message || "Please try again",
+        type: "error",
+        duration: 3000,
+        isClosable: true,
+        position: "top",
+      });
+    }
   };
 
   return (
