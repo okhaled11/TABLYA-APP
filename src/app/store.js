@@ -69,7 +69,6 @@ export const store = configureStore({
     }).concat(
       authApi.middleware,
       registerChef.middleware,
-
       cookersApi.middleware,
       aminCookersApi.middleware,
       cookerApprovalsApi.middleware,

@@ -11,6 +11,7 @@ import PendingApprovalPage from "./pages/PendingApprovalPage";
 import CustomerPage from "./pages/CustomerPage";
 import PersonalInfo from "./pages/customer/PersonalInfo";
 import ResetPasswordPage from "./pages/ResetPasswordPage";
+import ForgotPasswordPage from "./pages/ForgotPasswordPage";
 import SidebarLayout from "./components/Admin/SidebarLayout";
 import ChefVerification from "./pages/AdminPages/ChefVerification";
 import Analytics from "./pages/AdminPages/Analytics";
@@ -28,13 +29,11 @@ import MealDetails from "./pages/customer/home/MealDetails";
 import CartPage from "./pages/customer/CartPage";
 import ProtectedRoute from "./routes/ProtectedRoute";
 
-
 function App() {
   const token = CookieService.get("access_token");
   const { i18n } = useTranslation();
 
   useEffect(() => {
-    /* direction page  */
     document.documentElement.dir = i18n.language === "ar" ? "rtl" : "ltr";
     document.documentElement.lang = i18n.language;
   }, [i18n.language]);
@@ -49,22 +48,28 @@ function App() {
           element={<RegisterPage isAuthenticated={token} />}
         />
         <Route path="/pending-approval" element={<PendingApprovalPage />} />
+        <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+        <Route path="/reset-password" element={<ResetPasswordPage />} />
+
         {/* Protected Routes */}
         <Route element={<ProtectedRoute />}>
-          {/* customer Routes */}
-          <Route path="/home" element={<CustomerPage />} />
-          <Route path="/personal-info/*" element={<PersonalInfo />} />
-          <Route path="/reset-password" element={<ResetPasswordPage />} />
+          {/* Customer Routes */}
           <Route path="/home" element={<CustomerPage />}>
-            {<Route index element={<CustomerHome />} />}
+            <Route index element={<CustomerHome />} />
             <Route path="cookers" element={<AllCookers />} />
             <Route path="cookers/:id" element={<ChefMenuProfile />} />
-            <Route path="cookers/:chefId/meals/:mealId" element={<MealDetails  />} />
+            <Route
+              path="cookers/:chefId/meals/:mealId"
+              element={<MealDetails />}
+            />
             <Route path="order" element={<OrderPage />} />
             <Route path="details/:orderId" element={<OrderDetails />} />
             <Route path="favourities" element={<CustomerFavourite />} />
             <Route path="cart" element={<CartPage />} />
           </Route>
+
+          <Route path="/personal-info/*" element={<PersonalInfo />} />
+
           {/* Admin Routes */}
           <Route path="/admin" element={<SidebarLayout />}>
             <Route index element={<Dashboard />} />
@@ -76,6 +81,7 @@ function App() {
           </Route>
         </Route>
       </Routes>
+
       <Toaster />
     </>
   );

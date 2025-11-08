@@ -104,6 +104,9 @@ export default function AddressTab() {
       async (position) => {
         const { latitude: lat, longitude: lng } = position.coords;
 
+        console.log("📍 Current Location:", { lat, lng });
+        console.log("📍 Accuracy:", position.coords.accuracy, "meters");
+
         try {
           // Save coordinates
           setLatitude(lat);
@@ -114,45 +117,58 @@ export default function AddressTab() {
             `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&addressdetails=1`
           );
           const data = await response.json();
+          
+          console.log("🗺️ Reverse Geocoding Response:", data);
 
           if (data && data.address) {
             // Extract address components
             const address = data.address;
+            
+            console.log("📋 Address Components:", address);
             
             // Set city
             const cityName = address.city || address.town || address.village || address.county || "";
             setCity(cityName);
 
             // Set area (suburb, neighbourhood, or district)
-            const areaName = address.suburb || address.neighbourhood || address.district || "";
+            const areaName = address.suburb || address.neighbourhood || address.district || address.hamlet || "";
             setArea(areaName);
 
             // Set street
-            const streetName = address.road || address.street || "";
+            const streetName = address.road || address.street || address.pedestrian || "";
             setStreet(streetName);
 
             // Set building number if available
             const houseNumber = address.house_number || "";
             setBuildingNumber(houseNumber);
 
+            console.log("✅ Extracted Address:", {
+              city: cityName,
+              area: areaName,
+              street: streetName,
+              building: houseNumber,
+            });
+
             toaster.create({
               title: "Success",
-              description: "Location detected successfully",
+              description: `Location detected: ${cityName || "Unknown city"}`,
               type: "success",
               duration: 3000,
             });
           } else {
+            console.warn("⚠️ No address data returned from API");
             toaster.create({
               title: "Warning",
-              description: "Could not get address details from location",
+              description: "Could not get address details. Please enter manually.",
               type: "warning",
               duration: 3000,
             });
           }
-        } catch {
+        } catch (error) {
+          console.error("❌ Reverse Geocoding Error:", error);
           toaster.create({
             title: "Error",
-            description: "Failed to get address from location",
+            description: "Failed to get address from location. Coordinates saved.",
             type: "error",
             duration: 3000,
           });
@@ -161,6 +177,7 @@ export default function AddressTab() {
         }
       },
       (error) => {
+        console.error("❌ Geolocation Error:", error);
         setIsGettingLocation(false);
         let errorMessage = "Failed to get your location";
         
@@ -184,6 +201,11 @@ export default function AddressTab() {
           type: "error",
           duration: 3000,
         });
+      },
+      {
+        enableHighAccuracy: true,
+        timeout: 10000,
+        maximumAge: 0,
       }
     );
   };
@@ -227,21 +249,25 @@ export default function AddressTab() {
     }
 
     try {
+      const addressData = {
+        id: editingAddressId,
+        label: newAddressLabel,
+        city: city.trim(),
+        area: area.trim(),
+        street: street.trim(),
+        buildingNumber: buildingNumber.trim(),
+        floor: floor.trim(),
+        apartment: apartment.trim(),
+        latitude: latitude,
+        longitude: longitude,
+        isPrimary: isPrimary,
+      };
+
+      console.log("💾 Saving Address Data:", addressData);
+
       if (editingAddressId) {
         // Update existing address
-        await updateAddress({
-          id: editingAddressId,
-          label: newAddressLabel,
-          city: city.trim(),
-          area: area.trim(),
-          street: street.trim(),
-          buildingNumber: buildingNumber.trim(),
-          floor: floor.trim(),
-          apartment: apartment.trim(),
-          latitude: latitude,
-          longitude: longitude,
-          isPrimary: isPrimary,
-        }).unwrap();
+        await updateAddress(addressData).unwrap();
 
         toaster.create({
           title: "Success",
@@ -251,18 +277,7 @@ export default function AddressTab() {
         });
       } else {
         // Add new address
-        await addAddress({
-          label: newAddressLabel,
-          city: city.trim(),
-          area: area.trim(),
-          street: street.trim(),
-          buildingNumber: buildingNumber.trim(),
-          floor: floor.trim(),
-          apartment: apartment.trim(),
-          latitude: latitude,
-          longitude: longitude,
-          isPrimary: isPrimary || addresses.length === 0,
-        }).unwrap();
+        await addAddress(addressData).unwrap();
 
         toaster.create({
           title: "Success",
@@ -1269,7 +1284,9 @@ export default function AddressTab() {
                             : colors.dark.textSub
                         }
                       >
-                        {latitude && longitude ? "✓ Location detected" : "Auto-fill address fields"}
+                        {latitude && longitude 
+                          ? `✓ Location detected (${latitude.toFixed(6)}, ${longitude.toFixed(6)})` 
+                          : "Auto-fill address fields"}
                       </Text>
                     </VStack>
                   </HStack>
