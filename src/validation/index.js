@@ -123,6 +123,10 @@ export const registerSchemaKitchenChef = yup
           return value > StartTime;
         }
       ),
+    specialty : yup
+      .string()
+      .required("specialty  is required")
+      .trim(),
     password: yup
       .string()
       .required("Password is required")

@@ -29,7 +29,10 @@ import { useColorMode } from "../../theme/color-mode";
 import colors from "../../theme/color";
 import imgChef from "../../assets/image 17.png";
 import { useNavigate, useParams } from "react-router-dom";
-import { useGetOrderDetailsQuery, useCancelOrderMutation } from "../../app/features/Customer/Orders/ordersApiCustomerSlice";
+import {
+  useGetOrderDetailsQuery,
+  useCancelOrderMutation,
+} from "../../app/features/Customer/Orders/ordersApiCustomerSlice";
 
 function OrderDetails() {
   /* ------------variable------------------------ */
@@ -40,13 +43,16 @@ function OrderDetails() {
   const navigate = useNavigate();
 
   /* ----------------------DATA FETCHING------------------ */
-  const { data: orderDetails, isLoading, error } = useGetOrderDetailsQuery(orderId, {
+  const {
+    data: orderDetails,
+    isLoading,
+    error,
+  } = useGetOrderDetailsQuery(orderId, {
     skip: !orderId,
   });
-  const [cancelOrderMutation, { isLoading: isCancelling }] = useCancelOrderMutation();
+  const [cancelOrderMutation, { isLoading: isCancelling }] =
+    useCancelOrderMutation();
   console.log(orderDetails);
-
-
 
   useEffect(() => {
     if (orderDetails?.status) {
@@ -65,7 +71,10 @@ function OrderDetails() {
 
   /* -----------------cancel order------------------------ */
   const shouldShowCancelButton = () => {
-    if (orderDetails?.status === "confirmed" || orderDetails?.status === "created") {
+    if (
+      orderDetails?.status === "confirmed" ||
+      orderDetails?.status === "created"
+    ) {
       return "block";
     } else {
       return "none";
@@ -128,7 +137,12 @@ function OrderDetails() {
                   <Skeleton height="100px" borderRadius="lg" />
                   <Skeleton height="100px" borderRadius="lg" />
                   <Skeleton height="100px" borderRadius="lg" />
-                  <Skeleton height="50px" width="150px" mx="auto" borderRadius="lg" />
+                  <Skeleton
+                    height="50px"
+                    width="150px"
+                    mx="auto"
+                    borderRadius="lg"
+                  />
                 </VStack>
               </GridItem>
 
@@ -201,9 +215,7 @@ function OrderDetails() {
     );
   }
 
-
   const subtotal = orderDetails?.subtotal;
-
 
   const deliveryFee = orderDetails?.delivery_fee || 0;
   const total = orderDetails?.total;
@@ -262,7 +274,12 @@ function OrderDetails() {
             fontSize={{ base: "xs", md: "sm" }}
             mb={{ base: 4, md: 8 }}
           >
-            {new Date(orderDetails.created_at).toLocaleDateString("en-GB")} | {new Date(orderDetails.created_at).toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" })} | #{orderDetails.id.slice(0, 8)}
+            {new Date(orderDetails.created_at).toLocaleDateString("en-GB")} |{" "}
+            {new Date(orderDetails.created_at).toLocaleTimeString("en-GB", {
+              hour: "2-digit",
+              minute: "2-digit",
+            })}{" "}
+            | #{orderDetails.id.slice(0, 8)}
           </Text>
 
           {/* Status Tracker */}
@@ -331,11 +348,10 @@ function OrderDetails() {
           <Grid
             templateColumns={{ base: "1fr", lg: "repeat(2, 1fr)" }}
             gap={{ base: 4, md: 6 }}
-
           >
             {/* Left Column - Order Items */}
             <GridItem
-              mt={6}
+              mt={14}
               rounded={"lg"}
               bg={
                 colorMode === "light"
@@ -395,7 +411,13 @@ function OrderDetails() {
                             color="gray.400"
                             fontSize={{ base: "xs", md: "sm" }}
                           >
-                            Price: {(item.price_at_order || item.menu_items?.price || 0).toFixed(2)} LE
+                            Price:{" "}
+                            {(
+                              item.price_at_order ||
+                              item.menu_items?.price ||
+                              0
+                            ).toFixed(2)}{" "}
+                            LE
                           </Text>
                         </Box>
                         <Text
@@ -444,12 +466,13 @@ function OrderDetails() {
                     borderRadius="xl"
                     fontWeight="bold"
                     fontSize={{ base: "md", md: "lg" }}
-                    _hover={{ 
-                      bg: colorMode === "light" 
-                        ? colors.light.mainFixed10a 
-                        : colors.dark.mainFixed10a,
+                    _hover={{
+                      bg:
+                        colorMode === "light"
+                          ? colors.light.mainFixed10a
+                          : colors.dark.mainFixed10a,
                       transform: "translateY(-2px)",
-                      boxShadow: "lg"
+                      boxShadow: "lg",
                     }}
                     transition="all 0.3s ease"
                     display={shouldShowCancelButton()}
@@ -461,7 +484,7 @@ function OrderDetails() {
             </GridItem>
 
             {/* Right Column - Bill & Info */}
-            <GridItem mt={6}>
+            <GridItem mt={14}>
               <VStack gap={{ base: 3, md: 4 }} align="stretch">
                 {/* Bill Details */}
                 <Box
@@ -691,7 +714,9 @@ function OrderDetails() {
                         fontSize={{ base: "2xl", md: "3xl" }}
                       >
                         <Image
-                          src={orderDetails?.cooker?.users?.avatar_url || imgChef}
+                          src={
+                            orderDetails?.cooker?.users?.avatar_url || imgChef
+                          }
                           alt={orderDetails?.cooker?.kitchen_name || "Chef"}
                           w="full"
                           h="full"
@@ -706,7 +731,9 @@ function OrderDetails() {
                         mb={{ base: 1, md: 2 }}
                         noOfLines={1}
                       >
-                        {orderDetails?.cooker?.kitchen_name || orderDetails?.cooker?.users?.name || "N/A"}
+                        {orderDetails?.cooker?.kitchen_name ||
+                          orderDetails?.cooker?.users?.name ||
+                          "N/A"}
                       </Heading>
                       <HStack
                         gap={{ base: 1, md: 2 }}
@@ -718,7 +745,8 @@ function OrderDetails() {
                           color="orange.400"
                         />
                         <Text fontWeight="bold" color="orange.400">
-                          {orderDetails?.cooker?.avg_rating?.toFixed(1) || "N/A"}
+                          {orderDetails?.cooker?.avg_rating?.toFixed(1) ||
+                            "N/A"}
                         </Text>
                         <Text
                           color={
