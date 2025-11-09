@@ -46,7 +46,18 @@ const MenuItemCard = ({ item, isAvailable = true }) => {
     e.preventDefault();
     e.stopPropagation();
     if (isRestaurantClosed || isMaxQuantity) return;
-    dispatch(updateQuantity({ id: item.id, quantity: (cartItem?.quantity || 0) + 1 }));
+    
+    if (cartItem) {
+      // Item already in cart, just update quantity
+      dispatch(updateQuantity({ id: item.id, quantity: cartItem.quantity + 1 }));
+    } else {
+      // Item not in cart, add it first
+      if (cartItems.length === 0 || cookerId === item.cooker_id) {
+        dispatch(addToCart(item));
+      } else {
+        dialog.setOpen(true);
+      }
+    }
   };
   return (
     <>
