@@ -17,10 +17,9 @@ import { useState, useEffect } from "react";
 import { useColorMode } from "../../../theme/color-mode";
 import colors from "../../../theme/color";
 import imgMeal from "../../../assets/image31.png";
-import { useDispatch } from "react-redux";
-import { addToCart } from "../../../app/features/Customer/CartSlice";
+import { useDispatch, useSelector } from "react-redux";
+import { addToCart, updateQuantity } from "../../../app/features/Customer/CartSlice";
 import { Link } from "react-router-dom";
-import { useUpdateMealStockMutation } from "../../../app/features/Customer/Orders/OrdersApiCustomerSlice";
 
 const MealDetailsCard = ({ mealData, chefData }) => {
   console.log(mealData);
@@ -29,7 +28,7 @@ const MealDetailsCard = ({ mealData, chefData }) => {
 
   const { colorMode } = useColorMode();
   const dispatch = useDispatch();
-  const [updateMealStock] = useUpdateMealStockMutation();
+  const { cartItems } = useSelector((state) => state.cart);
 
   if (!mealData || !chefData) {
     return <div>No data available</div>;
@@ -37,20 +36,39 @@ const MealDetailsCard = ({ mealData, chefData }) => {
 
   const availableStock = mealData.stock || 0;
   
-  const [count, setCount] = useState(availableStock === 0 ? 0 : 1);
+  // Local state for count when item is not in cart
+  const [localCount, setLocalCount] = useState(availableStock === 0 ? 0 : 1);
+  
+  // Get current quantity from cart or use local state
+  const cartItem = cartItems.find((item) => item.id === mealData.id);
+  const count = cartItem ? cartItem.quantity : localCount;
 
   const remainingStock =
     availableStock - count < 0 ? 0 : availableStock - count;
 
   const handleIncrement = () => {
     if (count < availableStock) {
-      setCount(count + 1);
+      if (cartItem) {
+        // If item is in cart, update its quantity in Redux
+        dispatch(updateQuantity({ id: mealData.id, quantity: count + 1 }));
+      } else {
+        // If not in cart, update local state
+        setLocalCount(localCount + 1);
+      }
     }
   };
 
   const handleDecrement = () => {
     const minCount = availableStock === 0 ? 0 : 1;
-    if (count > minCount) setCount(count - 1);
+    if (count > minCount) {
+      if (cartItem) {
+        // If item is in cart, update its quantity in Redux
+        dispatch(updateQuantity({ id: mealData.id, quantity: count - 1 }));
+      } else {
+        // If not in cart, update local state
+        setLocalCount(localCount - 1);
+      }
+    }
   };
 
   const totalPrice = count === 0 
@@ -60,25 +78,27 @@ const MealDetailsCard = ({ mealData, chefData }) => {
   const isOutOfStock = availableStock === 0 || !mealData.available;
 
   useEffect(() => {
-    if (availableStock === 0 && count !== 0) {
-      setCount(0);
+    if (availableStock === 0) {
+      if (cartItem && count !== 0) {
+        dispatch(updateQuantity({ id: mealData.id, quantity: 0 }));
+      } else if (!cartItem && localCount !== 0) {
+        setLocalCount(0);
+      }
     }
-  }, [availableStock, count]);
+  }, [availableStock, count, cartItem, dispatch, mealData.id, localCount]);
 
-  const handleAddToCart = async () => {
+  const handleAddToCart = () => {
     if (isOutOfStock || count === 0) {
       console.warn("Cannot add to cart: Out of stock or count is 0");
       return;
     }
 
-    try {
-      // Update stock in Supabase using RTK Query mutation
-      const result = await updateMealStock({
-        mealId: mealData.id,
-        quantityToReduce: count,
-      }).unwrap();
-
-      const cartItem = {
+    // If item already in cart, just update quantity
+    if (cartItem) {
+      dispatch(updateQuantity({ id: mealData.id, quantity: count }));
+    } else {
+      // New item, add to cart
+      const newCartItem = {
         id: mealData.id,
         cooker_id: mealData.cooker_id,
         title: mealData.title,
@@ -90,12 +110,10 @@ const MealDetailsCard = ({ mealData, chefData }) => {
         category: mealData.category,
         menu_img: mealData.menu_img,
         quantity: count,
-        stock: result.newStock, 
+        stock: mealData.stock,
       };
-      console.log(cartItem);
-      dispatch(addToCart(cartItem));
-    } catch (error) {
-      console.error("Failed to update stock:", error);
+      console.log(newCartItem);
+      dispatch(addToCart(newCartItem));
     }
   };
 
