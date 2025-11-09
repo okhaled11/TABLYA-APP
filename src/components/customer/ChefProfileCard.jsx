@@ -262,7 +262,7 @@ const ChefProfileCard = ({
                 >
                   {avg_rating || 0}({total_reviews || "0"} Reviews)
                 </Text>
-                <Icon
+                {/* <Icon
                   as={FaPhoneAlt}
                   color={
                     colorMode == "light"
@@ -280,11 +280,11 @@ const ChefProfileCard = ({
                   }
                 >
                   {users?.phone || "no number"}
-                </Text>
+                </Text> */}
               </Flex>
 
               <Flex align="center" gap={2}>
-                <Icon
+                {/* <Icon
                   as={MdAlternateEmail}
                   color={
                     colorMode == "light"
@@ -302,7 +302,7 @@ const ChefProfileCard = ({
                   }
                 >
                   {users?.email || "no email"}
-                </Text>
+                </Text> */}
                 <Icon
                   as={FaClock}
                   color={
@@ -354,7 +354,7 @@ const ChefProfileCard = ({
                 </Text>
               </Flex>
               <Flex align="center" gap={2}>
-                <Icon
+                {/* <Icon
                   as={MdAlternateEmail}
                   fontWeight="light"
                   color={
@@ -372,10 +372,10 @@ const ChefProfileCard = ({
                   }
                 >
                   {users?.email || "no email"}
-                </Text>
+                </Text> */}
               </Flex>
               <Flex align="center" gap={2}>
-                <Icon
+                {/* <Icon
                   as={FaPhoneAlt}
                   fontWeight="light"
                   color={
@@ -393,7 +393,7 @@ const ChefProfileCard = ({
                   }
                 >
                   {users?.phone || "no number"}
-                </Text>
+                </Text> */}
               </Flex>
               <Flex align="center" gap={2}>
                 <Icon

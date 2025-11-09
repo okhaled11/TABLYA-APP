@@ -24,7 +24,7 @@ export default function CartPage() {
     navigate("/home");
   };
 
-  const handleCheckout = async (notes = "") => {
+  const validateBeforeCheckout = () => {
     const address = user?.address?.trim?.() || "";
     if (!address) {
       toaster.create({
@@ -36,19 +36,29 @@ export default function CartPage() {
         position: "top",
       });
       navigate("/personal-info/address");
-      return;
+      return false;
     }
+    return true;
+  };
+
+  const handleCheckout = async (opts = {}) => {
+    const { notes = "", payment_method = "cash", payment_status = "pending" } =
+      typeof opts === "string" ? { notes: opts } : opts || {};
+    if (!validateBeforeCheckout()) return;
     try {
       const delivery_fee = 0;
-      const tax = 0;
-      const total = subtotal + delivery_fee + tax;
+      const discount = 0;
+      const total = subtotal + delivery_fee - discount;
       const resp = await createOrder({
         cooker_id: cookerId,
         subtotal,
         delivery_fee,
-        tax,
-        total,
+        discount,
+        address: user?.address || "",
         notes,
+        payment_method,
+        payment_status,
+        items: cartItems,
       }).unwrap();
       toaster.create({
         title: "Order created",
@@ -89,6 +99,7 @@ export default function CartPage() {
             subtotal={subtotal}
             onContinueShopping={handleContinueShopping}
             onCheckout={handleCheckout}
+            onValidate={validateBeforeCheckout}
           />
         </Box>
       </SimpleGrid>
