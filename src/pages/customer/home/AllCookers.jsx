@@ -76,7 +76,7 @@ const AllCookers = () => {
           ) : error ? (
             <Text>Error loading cookers.</Text>
           ) : (
-            cookers?.map((cooker) => <ChefCard key={cooker.id} {...cooker} />)
+            cookers?.map((cooker) => <ChefCard key={cooker.user_id} {...cooker} />)
           )}
         </Grid>
       </Container>

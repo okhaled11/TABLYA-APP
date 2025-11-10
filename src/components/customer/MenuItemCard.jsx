@@ -20,7 +20,8 @@ const MenuItemCard = ({ item, isAvailable = true }) => {
   const currentQuantity = cartItem ? cartItem.quantity : 0;
   const isOutOfStock = item.stock <= 0;
   const isMaxQuantity = currentQuantity >= item.stock;
-  const isRestaurantClosed = isAvailable === false;
+  // Use availability from DB (menu_items.available) instead of parent flag
+  const isRestaurantClosed = item?.available === false;
 
   const handleAddToCart = (e) => {
     e.preventDefault();
@@ -59,14 +60,16 @@ const MenuItemCard = ({ item, isAvailable = true }) => {
       }
     }
   };
+  const isDetailsDisabled = isOutOfStock; // only block when stock is 0 as requested
+
   return (
     <>
       <Card.Root
-        as={Link}
-        to={`/home/cookers/${item.cooker_id}/meals/${item.id}`}
+        as={isDetailsDisabled ? Box : Link}
+        to={isDetailsDisabled ? undefined : `/home/cookers/${item.cooker_id}/meals/${item.id}`}
         direction="row"
         overflow="hidden"
-        cursor="pointer"
+        cursor={isDetailsDisabled ? "not-allowed" : "pointer"}
         maxW="100%"
         w="100%"
         border="none"
@@ -78,6 +81,12 @@ const MenuItemCard = ({ item, isAvailable = true }) => {
         bg={
           colorMode === "light" ? colors.light.bgFourth : colors.dark.bgFourth
         }
+        onClick={(e) => {
+          if (isDetailsDisabled) {
+            e.preventDefault();
+            e.stopPropagation();
+          }
+        }}
       >
         <Flex flex="1" direction="row">
           <Image
@@ -224,7 +233,7 @@ const MenuItemCard = ({ item, isAvailable = true }) => {
                   onClick={handleAddToCart}
                   aria-label={
                     isRestaurantClosed
-                      ? "Restaurant is closed right now"
+                      ? "Out of stock"
                       : isOutOfStock
                       ? "Out of stock"
                       : isMaxQuantity
@@ -268,7 +277,7 @@ const MenuItemCard = ({ item, isAvailable = true }) => {
                   isDisabled={isOutOfStock || isMaxQuantity || isRestaurantClosed}
                   title={
                     isRestaurantClosed
-                      ? "Restaurant is closed right now"
+                      ? "Out of stock"
                       : isOutOfStock
                       ? "Out of stock"
                       : isMaxQuantity
@@ -278,7 +287,7 @@ const MenuItemCard = ({ item, isAvailable = true }) => {
                 >
                   {isRestaurantClosed ? (
                     <Text fontSize={{ base: "2xs", md: "xs" }} px={2}>
-                      Closed
+                      Out of Stock
                     </Text>
                   ) : isOutOfStock ? (
                     <Text fontSize={{ base: "2xs", md: "xs" }}>Out of Stock</Text>

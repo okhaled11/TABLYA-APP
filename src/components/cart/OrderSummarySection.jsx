@@ -8,6 +8,7 @@ import colors from "../../theme/color";
 export default function OrderSummarySection({
   subtotal = 0,
   onCheckout = () => {},
+  onValidate = () => true,
 }) {
   const { colorMode } = useColorMode();
   const deliveryFee = subtotal > 0 ? 0 : 0; // Free
@@ -120,7 +121,7 @@ export default function OrderSummarySection({
         mb={5}
       />
 
-      <PaymentMethodSelect onCheckout={onCheckout} />
+      <PaymentMethodSelect onCheckout={onCheckout} total={total} onValidate={onValidate} />
     </Box>
   );
 }
