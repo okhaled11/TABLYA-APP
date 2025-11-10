@@ -1,25 +1,26 @@
 import React from 'react'
 import { Chart, useChart } from "@chakra-ui/charts"
-import { Bar, BarChart, CartesianGrid, XAxis, YAxis } from "recharts"
-import {
-    Box,
-    Card,
-    CardBody,
-    CardHeader,
-    Heading,
-} from "@chakra-ui/react";
+import { Bar, BarChart, CartesianGrid, XAxis, YAxis, Tooltip } from "recharts"
+import { Box, Card, CardBody, CardHeader, Heading, } from "@chakra-ui/react";
 
 import { useColorMode } from "../../../theme/color-mode";
+import { useGetWeeklyOrderActivityQuery } from '../../../app/features/Admin/dashboardApi';
 
 export default function OrderActivity() {
+
+    const { data: weeklyActivity = [] } = useGetWeeklyOrderActivityQuery();
+    console.log(weeklyActivity);
+
+    const formattedData = weeklyActivity.map((item) => (
+        {
+            day: item.day,
+            orders: item.orders
+
+        }
+    ))
     const chart = useChart({
-        data: [
-            { allocation: 60, type: "Stock" },
-            { allocation: 45, type: "Crypto" },
-            { allocation: 12, type: "ETF" },
-            { allocation: 4, type: "Cash" },
-        ],
-        series: [{ name: "allocation", color: "teal.solid" }],
+        data: formattedData,
+        series: [{ name: "orders", color: "teal.solid" }],
     })
 
 
@@ -48,13 +49,14 @@ export default function OrderActivity() {
                     <Chart.Root maxH="sm" chart={chart}>
                         <BarChart data={chart.data}>
                             <CartesianGrid stroke={chart.color("border.muted")} vertical={false} />
-                            <XAxis axisLine={false} tickLine={false} dataKey={chart.key("type")} />
+                            <XAxis axisLine={false} tickLine={false} dataKey={chart.key("day")} />
                             <YAxis
                                 axisLine={false}
                                 tickLine={false}
                                 domain={[0, 100]}
                                 tickFormatter={(value) => `${value}%`}
                             />
+                            <Tooltip />
                             {chart.series.map((item) => (
                                 <Bar
                                     key={item.name}

@@ -7,8 +7,10 @@ import authReducer from "./features/Auth/loginSlice";
 import registerReducer from "./features/Auth/registerCustomerSlice";
 import { registerChef } from "./features/Auth/registerChefSlice";
 import { authApi } from "./features/Auth/authSlice";
+import { cookersApprovalsApi } from "./features/Admin/cookerApprovalsApi";
 
 import { cookersApi } from "./features/Customer/CookersApi";
+import { dashboardApi } from "./features/Admin/dashboardApi";
 import { cookersApi as aminCookersApi } from "./features/Admin/cookerSlice";
 import { cookerApprovalsApi } from "./features/Admin/cookerApprovals";
 import { ordersApi as adminOrdersApi } from "./features/Admin/ordersApi";
@@ -21,10 +23,12 @@ import { addressApi } from "./features/Customer/addressSlice";
 import { OrdersHistoryCustomerSlice } from "./features/Customer/Orders/OrdersHistoryCustomerSlice";
 import { OrdersApiCustomerSlice } from "./features/Customer/Orders/ordersApiCustomerSlice";
 import { reviewsApi } from "./features/Customer/reviewsApi";
+import { UserSlice } from "./features/UserSlice";
 
 import CartSlice from "./features/Customer/CartSlice";
 import favoriteCookersReducer from "./features/Customer/favoriteCookersSlice";
 import { favoritesApi } from "./features/Customer/favoritesApi";
+import { adminAuthApi } from "./features/Admin/adminData";
 
 const persistCartConfig = {
   key: "cart",
@@ -39,27 +43,32 @@ export const store = configureStore({
     register: registerReducer,
     PersonalRegisterChef: PersonalRegisterChefReducer,
 
-    cart: persistedCart,
-    favoriteCookers: favoriteCookersReducer,
-
-    // APIs
-    [authApi.reducerPath]: authApi.reducer,
-    [registerChef.reducerPath]: registerChef.reducer,
-
+    // Customer APIs
     [cookersApi.reducerPath]: cookersApi.reducer,
-    [aminCookersApi.reducerPath]: aminCookersApi.reducer,
-    [cookerApprovalsApi.reducerPath]: cookerApprovalsApi.reducer,
-    [adminOrdersApi.reducerPath]: adminOrdersApi.reducer,
+    [OrdersApiCustomerSlice.reducerPath]: OrdersApiCustomerSlice.reducer,
+    [OrdersHistoryCustomerSlice.reducerPath]: OrdersHistoryCustomerSlice.reducer,
     [customerOrdersApi.reducerPath]: customerOrdersApi.reducer,
-    [reportsApi.reducerPath]: reportsApi.reducer,
+    [reviewsApi.reducerPath]: reviewsApi.reducer,
+    [favoritesApi.reducerPath]: favoritesApi.reducer,
     [passwordApi.reducerPath]: passwordApi.reducer,
     [personalInfoApi.reducerPath]: personalInfoApi.reducer,
     [addressApi.reducerPath]: addressApi.reducer,
-    [OrdersApiCustomerSlice.reducerPath]: OrdersApiCustomerSlice.reducer,
-    [OrdersHistoryCustomerSlice.reducerPath]:
-      OrdersHistoryCustomerSlice.reducer,
-    [reviewsApi.reducerPath]: reviewsApi.reducer,
-    [favoritesApi.reducerPath]: favoritesApi.reducer,
+    cart: persistedCart,
+    favoriteCookers: favoriteCookersReducer,
+
+    // Admin APIs
+    [cookersApprovalsApi.reducerPath]: cookersApprovalsApi.reducer,
+    [aminCookersApi.reducerPath]: aminCookersApi.reducer,
+    [dashboardApi.reducerPath]: dashboardApi.reducer,
+    [cookerApprovalsApi.reducerPath]: cookerApprovalsApi.reducer,
+    [ordersApi.reducerPath]: adminOrdersApi.reducer,
+    [reportsApi.reducerPath]: reportsApi.reducer,
+    [adminAuthApi.reducerPath]: adminAuthApi.reducer,
+
+    // Auth & User
+    [authApi.reducerPath]: authApi.reducer,
+    [registerChef.reducerPath]: registerChef.reducer,
+    [UserSlice.reducerPath]: UserSlice.reducer,
   },
 
   middleware: (getDefaultMiddleware) =>
@@ -74,6 +83,7 @@ export const store = configureStore({
       cookersApi.middleware,
       aminCookersApi.middleware,
       cookerApprovalsApi.middleware,
+      dashboardApi.middleware,
       adminOrdersApi.middleware,
       customerOrdersApi.middleware,
       reportsApi.middleware,
@@ -82,6 +92,9 @@ export const store = configureStore({
       addressApi.middleware,
       OrdersApiCustomerSlice.middleware,
       OrdersHistoryCustomerSlice.middleware,
+      cookersApprovalsApi.middleware,
+      UserSlice.middleware,
+      adminAuthApi.middleware,
       reviewsApi.middleware,
       favoritesApi.middleware
     ),

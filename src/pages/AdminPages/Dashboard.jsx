@@ -1,10 +1,11 @@
 import React from 'react'
-import { Box, Heading, HStack, Text } from '@chakra-ui/react'
+import { Box, Heading, HStack, Text , Flex } from '@chakra-ui/react'
 
 import Kpis from '../../components/Admin/Dashboard_page/kpis';
 import RevenueChart from '../../components/Admin/Dashboard_page/RevenueChart';
 import CuisinesChart from '../../components/Admin/Dashboard_page/CuisinesChart';
 import OrderActivity from '../../components/Admin/Dashboard_page/OrderActivity';
+import ExportKPIs from '../../components/Admin/Analytics_page/ExportKPIs';
 
 export default function Dashboard() {
 
@@ -13,6 +14,8 @@ export default function Dashboard() {
 
   return (
     <Box>
+      <Flex justifyContent={"space-between"}>
+      <Box>
 
       {/* Dashboard heading */}
       <Heading as="h1" fontWeight={"semibold"} fontSize={"28px"} my="3">DashBoard Overview </Heading>
@@ -20,6 +23,16 @@ export default function Dashboard() {
         Track your platform's performance and metrics
 
       </Text>
+
+
+      </Box>
+      <Box mr={"40px"} mt={"30px"}>
+
+      <ExportKPIs/>
+
+      </Box>
+
+      </Flex>
 
       {/* KPIS  */}
 
