@@ -61,7 +61,7 @@ export const store = configureStore({
     [aminCookersApi.reducerPath]: aminCookersApi.reducer,
     [dashboardApi.reducerPath]: dashboardApi.reducer,
     [cookerApprovalsApi.reducerPath]: cookerApprovalsApi.reducer,
-    [ordersApi.reducerPath]: adminOrdersApi.reducer,
+    [adminOrdersApi.reducerPath]: adminOrdersApi.reducer,
     [reportsApi.reducerPath]: reportsApi.reducer,
     [adminAuthApi.reducerPath]: adminAuthApi.reducer,
 
