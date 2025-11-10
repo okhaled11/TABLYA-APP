@@ -1,26 +1,36 @@
-import {
-  Box,
-  Flex,
-  Text,
-  Image,
-  Button,
-  VStack,
-  HStack,
-  Card,
-  Badge,
-  IconButton,
-} from "@chakra-ui/react";
+import { Box, Flex, Text, Image, Card, IconButton } from "@chakra-ui/react";
 import { FaShoppingCart } from "react-icons/fa";
 import { useColorMode } from "../../theme/color-mode";
 import colors from "../../theme/color";
-import { useDispatch } from "react-redux";
-import { addToCart } from "../../app/features/Customer/CartSlice";
+import { useDispatch, useSelector } from "react-redux";
+import { addToCart, clearCart } from "../../app/features/Customer/CartSlice";
 import { Link } from "react-router-dom";
-const MenuItemCard = ({ item }) => {
+import { useDialog } from "@chakra-ui/react";
+import CustomAlertDialog from "../../shared/CustomAlertDailog";
+import { toaster } from "../../components/ui/toaster";
+
+const MenuItemCard = ({ item, isAvailable = true }) => {
   const { colorMode } = useColorMode();
   const dispatch = useDispatch();
-  const handleAddToCart = () => {
-    dispatch(addToCart(item));
+  const { cartItems, cookerId } = useSelector((state) => state.cart);
+  const dialog = useDialog();
+  console.log("cartItems", item);
+  // Find the current item in the cart
+  const cartItem = cartItems.find((cartItem) => cartItem.id === item.id);
+  const currentQuantity = cartItem ? cartItem.quantity : 0;
+  const isOutOfStock = item.stock <= 0;
+  const isMaxQuantity = currentQuantity >= item.stock;
+  const isRestaurantClosed = isAvailable === false;
+
+  const handleAddToCart = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (isOutOfStock || isMaxQuantity || isRestaurantClosed) return;
+    if (cartItems.length === 0 || cookerId === item.cooker_id) {
+      dispatch(addToCart(item));
+      return;
+    }
+    dialog.setOpen(true);
   };
   return (
     <>
@@ -31,9 +41,10 @@ const MenuItemCard = ({ item }) => {
         overflow="hidden"
         cursor="pointer"
         maxW="100%"
+        w="100%"
         border="none"
         borderRadius="20px"
-        p={3}
+        p={{ base: 2, md: 3 }}
         // _hover={{ shadow: "md", transform: "scale(1.02)" }}
         // transition="0.2s ease"
         justifyContent="center"
@@ -45,14 +56,14 @@ const MenuItemCard = ({ item }) => {
           <Image
             src={item.menu_img}
             alt="Caffe Latte"
-            boxSize="90px"
+            boxSize={{ base: "70px", md: "90px", lg: "110px" }}
             objectFit="cover"
             borderRadius="12px"
           />
           <Flex ml={4} flex="1" direction="column">
             <Text
               fontWeight="medium"
-              fontSize="lg"
+              fontSize={{ base: "md", md: "lg", lg: "xl" }}
               mb={1}
               color={
                 colorMode === "light"
@@ -63,7 +74,7 @@ const MenuItemCard = ({ item }) => {
               {item.title || "No Title"}
             </Text>
             <Text
-              fontSize="sm"
+              fontSize={{ base: "xs", md: "sm" }}
               fontWeight="light"
               color={
                 colorMode === "light"
@@ -77,7 +88,7 @@ const MenuItemCard = ({ item }) => {
             <Flex justify="space-between" align="center" mt="auto">
               <Text
                 fontWeight="semibold"
-                fontSize="md"
+                fontSize={{ base: "sm", md: "md", lg: "lg" }}
                 color={
                   colorMode === "light"
                     ? colors.light.mainFixed
@@ -88,26 +99,104 @@ const MenuItemCard = ({ item }) => {
               </Text>
               <IconButton
                 onClick={handleAddToCart}
-                aria-label="Add to cart"
+                aria-label={
+                  isRestaurantClosed
+                    ? "Restaurant is closed right now"
+                    : isOutOfStock
+                    ? "Out of stock"
+                    : isMaxQuantity
+                    ? "Maximum quantity reached"
+                    : "Add to cart"
+                }
                 colorScheme="teal"
                 variant="outline"
-                size="sm"
+                size={{ base: "xs", md: "sm" }}
                 rounded="full"
-                _hover={{ scale: 1.05 }}
+                _hover={
+                  !isOutOfStock && !isMaxQuantity && !isRestaurantClosed
+                    ? { transform: "scale(1.05)" }
+                    : {}
+                }
                 transition="0.2s ease"
                 bg={
-                  colorMode === "light"
+                  isOutOfStock || isMaxQuantity || isRestaurantClosed
+                    ? colorMode === "light"
+                      ? colors.light.bgDisabled
+                      : colors.dark.bgDisabled
+                    : colorMode === "light"
                     ? colors.light.mainFixed
                     : colors.dark.mainFixed
                 }
-                color="white"
+                color={
+                  isOutOfStock || isMaxQuantity || isRestaurantClosed
+                    ? colorMode === "light"
+                      ? colors.light.textDisabled
+                      : colors.dark.textDisabled
+                    : "white"
+                }
+                cursor={
+                  isOutOfStock || isMaxQuantity || isRestaurantClosed
+                    ? "not-allowed"
+                    : "pointer"
+                }
+                opacity={
+                  isOutOfStock || isMaxQuantity || isRestaurantClosed ? 0.7 : 1
+                }
+                isDisabled={isOutOfStock || isMaxQuantity || isRestaurantClosed}
+                title={
+                  isRestaurantClosed
+                    ? "Restaurant is closed right now"
+                    : isOutOfStock
+                    ? "Out of stock"
+                    : isMaxQuantity
+                    ? "Maximum quantity reached"
+                    : "Add to cart"
+                }
               >
-                <FaShoppingCart />
+                {isRestaurantClosed ? (
+                  <Text fontSize={{ base: "2xs", md: "xs" }} px={2}>
+                    Closed
+                  </Text>
+                ) : isOutOfStock ? (
+                  <Text fontSize={{ base: "2xs", md: "xs" }}>Out of Stock</Text>
+                ) : isMaxQuantity ? (
+                  <Box
+                    fontSize={{ base: "2xs", md: "xs" }}
+                    p={{ base: 3, md: 5 }}
+                    bg="transarent"
+                  >
+                    Out of Stock
+                  </Box>
+                ) : (
+                  <FaShoppingCart />
+                )}
               </IconButton>
             </Flex>
           </Flex>
         </Flex>
       </Card.Root>
+      <CustomAlertDialog
+        dialog={dialog}
+        title={"Replace cart with new restaurant?"}
+        description={
+          "You already have items from another restaurant in your cart. Adding this item will remove your current cart. Do you want to continue?"
+        }
+        cancelTxt={"Cancel"}
+        okTxt={"Yes, Replace"}
+        onOkHandler={async () => {
+          await dispatch(clearCart());
+          await dispatch(addToCart(item));
+          toaster.create({
+            title: "Cart has been replaced",
+            description:
+              "Cart has been replaced with the new restaurant’s item",
+            type: "success",
+            duration: 3000,
+            isClosable: true,
+            position: "top",
+          });
+        }}
+      />
     </>
   );
 };

@@ -1,14 +1,7 @@
 import React, { useMemo } from "react";
 import { Chart, useChart } from "@chakra-ui/charts";
 import { Bar, BarChart, CartesianGrid, XAxis, YAxis, Tooltip, ResponsiveContainer } from "recharts";
-import {
-  Box,
-  Card,
-  CardBody,
-  CardHeader,
-  Heading,
-  Spinner,
-  Center,
+import { Box, Card, CardBody, CardHeader, Heading, Spinner, Center,
 } from "@chakra-ui/react";
 
 import { useColorMode } from "../../../theme/color-mode";
@@ -18,7 +11,7 @@ export default function SalesChart() {
   const { data: salesTrend = [], isLoading } = useGetSalesTrendQuery();
   const { colorMode } = useColorMode();
 
-  // معالجة البيانات
+  //for managing data 
   const chartData = useMemo(() => {
     if (!salesTrend.length) return [];
     return salesTrend.map((item) => ({
@@ -27,7 +20,7 @@ export default function SalesChart() {
     }));
   }, [salesTrend]);
 
-  // إنشاء الشارت
+  //create chart 
   const chart = useChart({
     data: chartData,
     series: [{ name: "revenue", color: "teal.solid" }],
@@ -73,7 +66,7 @@ export default function SalesChart() {
                   axisLine={false}
                   tickLine={false}
                   tickMargin={10}
-                  domain={[0, 3000]} // المدى لحد 3000 زي ما طلبتِ قبل كده
+                  domain={[0, 3000]}
                   tickFormatter={(value) => `${value}`}
                   label={{ value: "Revenue", angle: -90, position: "insideLeft", dy: 30 }}
                 />

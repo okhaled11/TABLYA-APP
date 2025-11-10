@@ -5,3 +5,5 @@ export const sliceText = (text, n) => {
         return text;
     }
 };
+
+export { convertImageToWebP } from './imageToWebp';

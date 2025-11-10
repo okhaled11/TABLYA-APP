@@ -1,33 +1,25 @@
 import React from 'react'
 import { Chart, useChart } from "@chakra-ui/charts"
-import { Bar, BarChart, CartesianGrid, XAxis, YAxis } from "recharts"
-import {
-    Box,
-    Card,
-    CardBody,
-    CardHeader,
-    Heading,
-} from "@chakra-ui/react";
+import { Bar, BarChart, CartesianGrid, XAxis, YAxis, Tooltip } from "recharts"
+import { Box, Card, CardBody, CardHeader, Heading, } from "@chakra-ui/react";
 
 import { useColorMode } from "../../../theme/color-mode";
 import { useGetWeeklyOrderActivityQuery } from '../../../app/features/Admin/dashboardApi';
 
 export default function OrderActivity() {
 
-    const {data: weeklyActivity= []} = useGetWeeklyOrderActivityQuery();
+    const { data: weeklyActivity = [] } = useGetWeeklyOrderActivityQuery();
     console.log(weeklyActivity);
 
-    const formattedData = weeklyActivity.map((item)=>(
-   {
-     day: item.day,
-     orders :item.orders
+    const formattedData = weeklyActivity.map((item) => (
+        {
+            day: item.day,
+            orders: item.orders
 
-   }
-    
-
+        }
     ))
     const chart = useChart({
-        data:formattedData,
+        data: formattedData,
         series: [{ name: "orders", color: "teal.solid" }],
     })
 
@@ -64,6 +56,7 @@ export default function OrderActivity() {
                                 domain={[0, 100]}
                                 tickFormatter={(value) => `${value}%`}
                             />
+                            <Tooltip />
                             {chart.series.map((item) => (
                                 <Bar
                                     key={item.name}

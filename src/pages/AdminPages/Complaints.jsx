@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useMemo } from "react";
 import {
   Stack,
   Table,
@@ -10,21 +10,19 @@ import {
   Badge,
   Flex,
   Box,
-  Grid,
   SimpleGrid,
+  Input,
+  InputGroup,
+  NativeSelect,
 } from "@chakra-ui/react";
-
-
-import { FiFileText } from "react-icons/fi";
-import { FiAlertTriangle } from "react-icons/fi";
-
-import { Pagination } from "@chakra-ui/react";
-import { LuChevronLeft, LuChevronRight } from "react-icons/lu";
-
-import { FaRegCheckCircle } from "react-icons/fa";
-import { FaEye } from "react-icons/fa";
-import { FaEdit } from "react-icons/fa";
+import { CiSearch } from "react-icons/ci";
+import { FiFileText, FiAlertTriangle } from "react-icons/fi";
+import { FaRegCheckCircle, FaEye, FaEdit } from "react-icons/fa";
 import { FaUserXmark } from "react-icons/fa6";
+import { LuChevronLeft, LuChevronRight } from "react-icons/lu";
+import StatCard from "../../components/Admin/StatCard";
+import { useColorMode } from "../../theme/color-mode";
+import { useGetReportsQuery } from "../../app/features/Admin/reportsApi";
 
 const mockReports = [
   {
@@ -39,8 +37,6 @@ const mockReports = [
     reason: "Order was 45 minutes late",
     dateSubmitted: "2024-01-15",
     status: "pending",
-    details:
-      "The order was supposed to arrive at 7:00 PM but arrived at 7:45 PM. Food was cold.",
   },
   {
     id: "RPT-002",
@@ -54,8 +50,6 @@ const mockReports = [
     reason: "Rude behavior during delivery",
     dateSubmitted: "2024-01-14",
     status: "reviewed",
-    details:
-      "Customer was verbally abusive to delivery person and refused to pay tip.",
   },
   {
     id: "RPT-003",
@@ -69,7 +63,6 @@ const mockReports = [
     reason: "Food was spoiled",
     dateSubmitted: "2024-01-13",
     status: "resolved",
-    details: "The food arrived with a bad smell and appeared to be expired.",
   },
   {
     id: "RPT-004",
@@ -83,8 +76,6 @@ const mockReports = [
     reason: "Customer disputed valid charge",
     dateSubmitted: "2024-01-12",
     status: "pending",
-    details:
-      "Customer received order but filed chargeback claiming non-delivery.",
   },
   {
     id: "RPT-005",
@@ -98,7 +89,6 @@ const mockReports = [
     reason: "Received completely different items",
     dateSubmitted: "2024-01-11",
     status: "reviewed",
-    details: "Ordered vegetarian meal but received meat-based dishes.",
   },
 ];
 
@@ -117,310 +107,242 @@ const getStatusColor = (status) => {
 };
 
 export default function Complaints() {
+  const { data: reports, isLoading } = useGetReportsQuery();
+  console.log(reports);
   const [page, setPage] = useState(1);
-  const pageSize = 3; 
-  const totalPages = Math.ceil(mockReports.length / pageSize);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [selectedRole, setSelectedRole] = useState("");
+  const { colorMode } = useColorMode();
 
+  const pageSize = 3;
+
+  const handleSearch = (e) => setSearchTerm(e.target.value.toLowerCase());
+  // const handleRoleChange = (e) => setSelectedRole(e.target.value);
+
+  // Filtered data
+  const filteredReports = useMemo(() => {
+    return mockReports.filter((r) => {
+      const matchesSearch =
+        r.reporterName.toLowerCase().includes(searchTerm) ||
+        r.reportedName.toLowerCase().includes(searchTerm) ||
+        r.category.toLowerCase().includes(searchTerm);
+      const matchesRole = selectedRole
+        ? r.reporterRole === selectedRole || r.reportedRole === selectedRole
+        : true;
+      return matchesSearch && matchesRole;
+    });
+  }, [searchTerm, selectedRole]);
+
+  const totalPages = Math.ceil(filteredReports.length / pageSize);
   const startIndex = (page - 1) * pageSize;
   const endIndex = startIndex + pageSize;
-  const paginatedReports = mockReports.slice(startIndex, endIndex);
+  const paginatedReports = filteredReports.slice(startIndex, endIndex);
 
   return (
     <>
-      <Box textStyle="3xl">Reports & Complaints</Box>
-      <Box textStyle="md" color="gray.500" margin={5}>
+      <Box textStyle="3xl" color={colorMode === "light" ? "black" : "white"}>
+        Reports & Complaints
+      </Box>
+      <Box textStyle="md" color="gray.500" marginBlock={5}>
         Manage user reports and complaints
       </Box>
+
       {/* Cards */}
-      <SimpleGrid
-        columns={[2, null, 2]}
-        height="1/6"
-        gap="6px"
-        marginBlockEnd={5}
-      >
-        <Stack
-          flex={1}
-          direction="row"
-          borderWidth="1px"
-          borderRadius={10}
-          padding={5}
-        >
-          <Flex>
-            <Box
-              height="fit-content"
-              // background="#fdf8e9"
-              padding={2}
-              borderRadius={10}
-              marginInlineEnd="5"
-              alignContent="center"
-            >
-              <FiFileText color="blue" size={50} />
-            </Box>
-          </Flex>
-          <Flex>
-            <Box textStyle="sm" color="gray.500">
-              Total Reports
-              <Box
-                textStyle="3xl"
-                fontWeight="bold"
-                marginBlockStart={3}
-                color="blue"
-                textAlign="start"
-              >
-                {2}
-              </Box>
-            </Box>
-          </Flex>
-        </Stack>
-        <Stack
-          flex={1}
-          direction="row"
-          borderWidth="1px"
-          borderRadius={10}
-          padding={5}
-        >
-          <Flex>
-            <Box
-              height="fit-content"
-              // background="#e8f5fc"
-              padding={2}
-              borderRadius={10}
-              marginInlineEnd="5"
-              alignContent="center"
-            >
-              <FiAlertTriangle color="#19a2e6" size={50} />
-            </Box>
-          </Flex>
-          <Flex>
-            <Box textStyle="sm" color="gray.500">
-              Pending
-              <Box
-                textStyle="3xl"
-                fontWeight="bold"
-                marginBlockStart={3}
-                color="#19a2e6"
-                textAlign="start"
-              >
-                {2}
-              </Box>
-            </Box>
-          </Flex>
-        </Stack>
-        <Stack
-          flex={1}
-          direction="row"
-          borderWidth="1px"
-          borderRadius={10}
-          padding={5}
-        >
-          <Flex>
-            <Box
-              height="fit-content"
-              // background="#e7f5ec"
-              padding={2}
-              borderRadius={10}
-              marginInlineEnd="5"
-              alignContent="center"
-            >
-              <FaEye color="#d3df2bff" size={50} />
-            </Box>
-          </Flex>
-          <Flex>
-            <Box textStyle="sm" color="gray.500">
-              Reviewed
-              <Box
-                textStyle="3xl"
-                fontWeight="bold"
-                marginBlockStart={3}
-                color="#d3df2bff"
-                textAlign="start"
-              >
-                {2}
-              </Box>
-            </Box>
-          </Flex>
-        </Stack>
-        <Stack
-          flex={1}
-          direction="row"
-          borderWidth="1px"
-          borderRadius={10}
-          padding={5}
-        >
-          <Flex>
-            <Box
-              height="fit-content"
-              // background="#e7f5ec"
-              padding={2}
-              borderRadius={10}
-              marginInlineEnd="5"
-              alignContent="center"
-            >
-              <FaRegCheckCircle color="#24a855" size={50} />
-            </Box>
-          </Flex>
-          <Flex>
-            <Box textStyle="sm" color="gray.500">
-              Resolved
-              <Box
-                textStyle="3xl"
-                fontWeight="bold"
-                marginBlockStart={3}
-                color="#24a855"
-                textAlign="start"
-              >
-                {2}
-              </Box>
-            </Box>
-          </Flex>
-        </Stack>
+      <SimpleGrid columns={[2, null, 2]} gap="10px" mb={5} >
+        <StatCard
+          icon={FiFileText}
+          backgroundColor={colorMode === "light" ? "white" : "#261c17"}
+          iconBg="transparent"
+          iconColor="blue"
+          label="Total Reports"
+          value={mockReports.length}
+          valueColor="blue"
+        />
+        <StatCard
+          icon={FiAlertTriangle}
+          backgroundColor={colorMode === "light" ? "white" : "#261c17"}
+          iconBg="transparent"
+          iconColor="#19a2e6"
+          label="Pending"
+          value={mockReports.filter((r) => r.status === "pending").length}
+          valueColor="#19a2e6"
+        />
+        <StatCard
+          icon={FaEye}
+          backgroundColor={colorMode === "light" ? "white" : "#261c17"}
+          iconBg="transparent"
+          iconColor="#d3df2b"
+          label="Reviewed"
+          value={mockReports.filter((r) => r.status === "reviewed").length}
+          valueColor="#d3df2b"
+        />
+        <StatCard
+          icon={FaRegCheckCircle}
+          backgroundColor={colorMode === "light" ? "white" : "#261c17"}
+          iconBg="transparent"
+          iconColor="#24a855"
+          label="Resolved"
+          value={mockReports.filter((r) => r.status === "resolved").length}
+          valueColor="#24a855"
+        />
       </SimpleGrid>
-      <Stack width="full" gap="5">
-        <Table.Root size="sm" bg="inherit" color="inherit">
-          <Table.Header>
-            <Table.Row _hover={{ background: "gray.200" }}>
-              <Table.ColumnHeader>Report ID</Table.ColumnHeader>
-              <Table.ColumnHeader>Reporter</Table.ColumnHeader>
-              <Table.ColumnHeader>Reported User</Table.ColumnHeader>
-              <Table.ColumnHeader>Category</Table.ColumnHeader>
-              <Table.ColumnHeader>Reason</Table.ColumnHeader>
-              <Table.ColumnHeader>Status</Table.ColumnHeader>
-              <Table.ColumnHeader>Date Submitted</Table.ColumnHeader>
-              <Table.ColumnHeader>Actions</Table.ColumnHeader>
-            </Table.Row>
-          </Table.Header>
+      <Stack
+        borderWidth="1px"
+        borderRadius={10}
+        padding={5}
+        borderColor={colorMode === "light" ? "gray.100" : "gray.900"}
+        background={colorMode === "light" ? "white" : "#261c17"}
+      >
+        {/* Search + Filter */}
+        <Box mb={5}>
+          <Flex alignItems="center" gap={4}>
+            <Flex flex={2}>
+              <InputGroup startElement={<CiSearch />}>
+                <Input
+                  placeholder="Search"
+                  value={searchTerm}
+                  onChange={handleSearch}
+                />
+              </InputGroup>
+            </Flex>
 
-          <Table.Body border="none">
-            {paginatedReports.map((report) => (
-              <Table.Row key={report.id} _hover={{ background: "gray.100" }}>
-                <Table.Cell>{report.id}</Table.Cell>
-                <Table.Cell>
-                  {report.reporterName}{" "}
-                  <Badge
-                    colorPalette="blue"
-                    borderRadius="20px"
-                    ml="2"
-                    px="2"
-                    py="1"
-                    textTransform="capitalize"
-                  >
-                    {report.reporterRole}
-                  </Badge>
-                </Table.Cell>
-                <Table.Cell>
-                  {report.reportedName}{" "}
-                  <Badge
-                    colorPalette="purple"
-                    borderRadius="20px"
-                    ml="2"
-                    px="2"
-                    py="1"
-                    textTransform="capitalize"
-                  >
-                    {report.reportedRole}
-                  </Badge>
-                </Table.Cell>
-                <Table.Cell>{report.category}</Table.Cell>
-                <Table.Cell>{report.reason}</Table.Cell>
-                <Table.Cell>
-                  <Badge
-                    colorPalette={getStatusColor(report.status)}
-                    borderRadius="20px"
-                    borderWidth="1px"
-                    px="3"
-                    py="1"
-                    textTransform="capitalize"
-                  >
-                    {report.status}
-                  </Badge>
-                </Table.Cell>
-                <Table.Cell>
-                  {new Intl.DateTimeFormat("en-US", {
-                    year: "numeric",
-                    month: "short",
-                    day: "2-digit",
-                  }).format(new Date(report.dateSubmitted))}
-                </Table.Cell>
-                <Table.Cell textAlign="end">
-                  <Flex gap={2}>
-                    <Button
-                      size="sm"
-                      variant="ghost"
-                      borderWidth="1px"
-                      borderColor="gray.200"
-                      borderRadius="10px"
-                      _hover={{ backgroundColor: "#16a249", color: "white" }}
-                    >
-                      <FaEye />
-                    </Button>
-                    <Button
-                      size="sm"
-                      variant="ghost"
-                      borderWidth="1px"
-                      borderColor="gray.200"
-                      borderRadius="10px"
-                      _hover={{ backgroundColor: "#16a249", color: "white" }}
-                    >
-                      <FaEdit />
-                    </Button>
-                    <Button
-                      size="sm"
-                      variant="ghost"
-                      colorScheme="red"
-                      borderWidth="1px"
-                      borderColor="red.500"
-                      borderRadius="10px"
-                      _hover={{ backgroundColor: "#f9e7e6" }}
-                    >
-                      <FaUserXmark color="red" />
-                    </Button>
-                  </Flex>
-                </Table.Cell>
-              </Table.Row>
-            ))}
-          </Table.Body>
-        </Table.Root>
-
-        {/* Pagination */}
-        <Pagination.Root
-          count={mockReports.length}
-          pageSize={pageSize}
-          page={page}
-          onPageChange={(e) => setPage(e.page)}
-        >
-          <ButtonGroup
-            variant="ghost"
-            size="sm"
-            wrap="wrap"
-            justifyContent="center"
-          >
-            <Pagination.PrevTrigger asChild>
-              <IconButton isDisabled={page === 1}>
-                <LuChevronLeft />
-              </IconButton>
-            </Pagination.PrevTrigger>
-
-            <Pagination.Items
-              render={(pageItem) => (
-                <IconButton
-                  key={pageItem.value}
-                  variant={pageItem.value === page ? "solid" : "ghost"}
-                  background={pageItem.value === page ? "gray.800" : "white"}
-                  color={pageItem.value === page ? "white" : "gray.500"}
-                  onClick={() => setPage(pageItem.value)}
+            {/* <Flex flex={1}>
+              <NativeSelect.Root size="sm" width="240px">
+                <NativeSelect.Field
+                  value={selectedRole}
+                  onChange={handleRoleChange}
                 >
-                  {pageItem.value}
-                </IconButton>
-              )}
-            />
+                  <option value="">All Roles</option>
+                  <option value="customer">Customer</option>
+                  <option value="chef">Chef</option>
+                </NativeSelect.Field>
+                <NativeSelect.Indicator />
+              </NativeSelect.Root>
+            </Flex> */}
+          </Flex>
+        </Box>
 
-            <Pagination.NextTrigger asChild>
-              <IconButton isDisabled={page === totalPages}>
-                <LuChevronRight />
-              </IconButton>
-            </Pagination.NextTrigger>
-          </ButtonGroup>
-        </Pagination.Root>
+        {/* Table */}
+        <Stack width="full" gap="5">
+          <Table.Root size="sm">
+            <Table.Header
+              background={colorMode === "light" ? "white" : "#261c17"}
+            >
+              <Table.Row
+                _hover={{
+                  bg: colorMode === "light" ? "gray.100" : "#140f0cff",
+                }}
+                background={colorMode === "light" ? "white" : "#261c17"}
+              >
+                <Table.ColumnHeader>Report ID</Table.ColumnHeader>
+                <Table.ColumnHeader>Reporter</Table.ColumnHeader>
+                <Table.ColumnHeader>Reported User</Table.ColumnHeader>
+                <Table.ColumnHeader>Category</Table.ColumnHeader>
+                <Table.ColumnHeader>Reason</Table.ColumnHeader>
+                <Table.ColumnHeader>Status</Table.ColumnHeader>
+                <Table.ColumnHeader>Date</Table.ColumnHeader>
+                {/* <Table.ColumnHeader>Actions</Table.ColumnHeader> */}
+              </Table.Row>
+            </Table.Header>
+
+            <Table.Body>
+              {paginatedReports.map((r) => (
+                <Table.Row
+                  key={r.id}
+                  _hover={{
+                    bg: colorMode === "light" ? "gray.100" : "#140f0cff",
+                  }}
+                  
+                  background={colorMode === "light" ? "white" : "#261c17"}
+                >
+                  <Table.Cell>{r.id}</Table.Cell>
+                  <Table.Cell>
+                    {r.reporterName}
+                    <Badge
+                      ml="2"
+                      colorPalette="blue"
+                      textTransform="capitalize"
+                    >
+                      {r.reporterRole}
+                    </Badge>
+                  </Table.Cell>
+                  <Table.Cell>
+                    {r.reportedName}
+                    <Badge
+                      ml="2"
+                      colorPalette="purple"
+                      textTransform="capitalize"
+                    >
+                      {r.reportedRole}
+                    </Badge>
+                  </Table.Cell>
+                  <Table.Cell>{r.category}</Table.Cell>
+                  <Table.Cell>{r.reason}</Table.Cell>
+                  <Table.Cell>
+                    <Badge
+                      colorPalette={getStatusColor(r.status)}
+                      textTransform="capitalize"
+                    >
+                      {r.status}
+                    </Badge>
+                  </Table.Cell>
+                  <Table.Cell>
+                    {new Intl.DateTimeFormat("en-US", {
+                      year: "numeric",
+                      month: "short",
+                      day: "2-digit",
+                    }).format(new Date(r.dateSubmitted))}
+                  </Table.Cell>
+                  {/* <Table.Cell>
+                    <Flex gap={2}>
+                      <Button size="sm" variant="ghost">
+                        <FaEye />
+                      </Button>
+                      <Button size="sm" variant="ghost">
+                        <FaEdit />
+                      </Button>
+                      <Button size="sm" variant="ghost" colorScheme="red">
+                        <FaUserXmark />
+                      </Button>
+                    </Flex>
+                  </Table.Cell> */}
+                </Table.Row>
+              ))}
+            </Table.Body>
+          </Table.Root>
+
+          {/* Pagination */}
+          <Flex justify="center" align="center" gap={3}>
+            <IconButton
+              size="sm"
+              onClick={() => setPage((p) => Math.max(p - 1, 1))}
+              isDisabled={page === 1}
+            >
+              <LuChevronLeft />
+            </IconButton>
+
+            <ButtonGroup size="sm" variant="ghost">
+              {Array.from({ length: totalPages }, (_, i) => (
+                <Button
+                  key={i}
+                  onClick={() => setPage(i + 1)}
+                  bg={page === i + 1 ? "gray.800" : "white"}
+                  color={page === i + 1 ? "white" : "gray.600"}
+                >
+                  {i + 1}
+                </Button>
+              ))}
+            </ButtonGroup>
+
+            <IconButton
+              size="sm"
+              onClick={() => setPage((p) => Math.min(p + 1, totalPages))}
+              isDisabled={page === totalPages}
+            >
+              <LuChevronRight />
+            </IconButton>
+          </Flex>
+        </Stack>
       </Stack>
     </>
   );

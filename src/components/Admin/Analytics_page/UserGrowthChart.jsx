@@ -6,12 +6,15 @@ import {
 } from "@chakra-ui/react";
 
 
-import {useGetUserGrowthByTypeQuery } from '../../../app/features/Admin/dashboardApi';
+import { useGetUserGrowthByTypeQuery } from '../../../app/features/Admin/dashboardApi';
+import { useColorMode } from '../../../theme/color-mode';
+import colors from '../../../theme/color';
 
 export default function UserGrowthChart() {
-     const {data: userGrowth} = useGetUserGrowthByTypeQuery(); 
-console.log (userGrowth);
-     
+    const {colorMode}= useColorMode();
+    const { data: userGrowth } = useGetUserGrowthByTypeQuery();
+    console.log(userGrowth);
+
     const chart = useChart({
         data: userGrowth,
         series: [{ name: "cooker", color: "teal.solid" }, { name: "customer", color: "yellow.solid" }, { name: "delivery", color: "orange.solid" }],
@@ -20,14 +23,13 @@ console.log (userGrowth);
 
     return (
         <Card.Root
-           my={"20px"}
+            my={"20px"}
             borderRadius="xl"
             shadow="sm"
             border="none"
-
-
             h="auto"
             w={"100%"}
+            bg={colorMode === "light" ? "white" : colors.dark.bgMain}
         >
             <CardHeader>
                 <Heading fontSize="18px" fontWeight="semibold">
@@ -43,8 +45,13 @@ console.log (userGrowth);
                             <CartesianGrid stroke={chart.color("border")} vertical={false} />
                             <XAxis
                                 axisLine={false}
-                                dataKey={chart.key("month")}
-                                tickFormatter={(value) => value.slice(0, 3)}
+                                dataKey={chart.key("day")}
+                                // tickFormatter={(value) => value.slice(0, 3)} // if i turned to usergrowth monthly instead of daily to slice month name
+                                tickFormatter={(value) => {
+                                    const date = new Date(value);
+                                    return `${date.getMonth() + 1}/${date.getDate()}`; 
+                                }}
+
                                 stroke={chart.color("border")}
                             />
                             <YAxis

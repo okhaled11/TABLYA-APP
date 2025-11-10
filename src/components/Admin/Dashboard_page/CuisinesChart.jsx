@@ -2,11 +2,7 @@ import React from 'react'
 import { Chart, useChart } from "@chakra-ui/charts"
 import { Cell, LabelList, Pie, PieChart, Tooltip } from "recharts"
 import {
-    Box,
-    Card,
-    CardBody,
-    CardHeader,
-    Heading,
+    Box, Card, CardBody, CardHeader, Heading,
 } from "@chakra-ui/react";
 import { useMemo } from 'react';
 
@@ -19,7 +15,7 @@ export default function CuisinesChart() {
     const { data: topCuisine = [], isLoading } = useGetTopPerformingCuisinesQuery();
     const chartData = useMemo(() => {
         if (!topCuisine.length) return [];
-        const colors = ["#14b8a6", "#f59e0b", "#ef4444", "#3b82f6", "#8b5cf6"];
+        const colors = [ "rgb(231, 114, 64)","rgb(25, 162, 230)", "#ef4444", "rgb(244, 192, 37)", "rgb(177, 82, 224)"];
         return topCuisine.map((item, index) => ({
             name: item.title || "Unknown",
             value: item.count || 0,
@@ -28,7 +24,7 @@ export default function CuisinesChart() {
     }, [topCuisine]);
     console.log(chartData);
 
-   const chart = useChart({ data: chartData });
+    const chart = useChart({ data: chartData });
 
 
 
@@ -53,7 +49,7 @@ export default function CuisinesChart() {
 
             <CardBody>
                 <Box w="100%" h="300px">
-                    <Chart.Root boxSize="320px" mx="auto" chart= {chart} >
+                    <Chart.Root boxSize="320px" mx="auto" chart={chart} >
                         <PieChart width={300} height={300}>
                             <Tooltip
                                 cursor={false}
@@ -67,7 +63,7 @@ export default function CuisinesChart() {
                             >
                                 <LabelList position="inside" fill="white" stroke="none" />
                                 {chartData.map((item) => (
-                                    <Cell key={item.name} fill={item.color}/>
+                                    <Cell key={item.name} fill={item.color} />
                                 ))}
                             </Pie>
                         </PieChart>

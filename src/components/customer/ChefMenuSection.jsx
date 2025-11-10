@@ -3,7 +3,6 @@ import {
   Select,
   Portal,
   createListCollection,
-  ScrollArea,
 } from "@chakra-ui/react";
 import MenuItemCard from "./MenuItemCard";
 import { FiFilter } from "react-icons/fi";
@@ -15,13 +14,13 @@ import MenuItemCardSkeleton from "../ui/MenuItemCardSkeleton ";
 import { useState } from "react";
 import ScrollAreaComponent from "../ui/ScrollAreaComponent";
 
-const ChefMenuSection = () => {
+const ChefMenuSection = ({ isAvailable }) => {
   const { colorMode } = useColorMode();
   const { id } = useParams();
   const { data: menuItems, isLoading: menuLoading } =
     useGetMenuItemsByCookerIdQuery(id);
   const [selectedCategory, setSelectedCategory] = useState("all");
-  //   console.log("menu", menuItems);
+    console.log("menu", menuItems);
   // handle Filtter -----------------
   const normalizedCategories = Array.isArray(selectedCategory)
     ? selectedCategory.map((item) => item.value || item)
@@ -154,7 +153,7 @@ const ChefMenuSection = () => {
           ))
         ) : filteredMenuItems && filteredMenuItems.length > 0 ? (
           filteredMenuItems.map((item) => (
-            <MenuItemCard key={item.id} item={item} />
+            <MenuItemCard key={item.id} item={item} isAvailable={isAvailable} />
           ))
         ) : (
           <Text mt={8} textAlign="center">

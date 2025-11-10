@@ -13,9 +13,9 @@ export const ordersApi = createApi({
           .select(
             `
             *,
-            customer:customers(user_id, users(name, email)),
-            cooker:cookers(user_id, users(name, email)),
-            delivery:deliveries(user_id, users(name, email))
+            customer:customers(user_id, users(name, email,avatar_url)),
+            cooker:cookers(user_id, users(name, email,avatar_url)),
+            delivery:deliveries(user_id, users(name, email,avatar_url))
           `
           )
           .order("created_at", { ascending: false });

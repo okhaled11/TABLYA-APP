@@ -92,7 +92,7 @@ export const cookersApprovalsApi = createApi({
       invalidatesTags: ['CookerApprovals', 'Cookers'],
     }),
 
-    //  Delete cooker approval (and cooker if موجود)
+    //  Delete cooker approval (and if cooker existed already )
     deleteCookerApproval: builder.mutation({
       async queryFn(id) {
         try {
@@ -105,14 +105,14 @@ export const cookersApprovalsApi = createApi({
 
           const cookerId = approval.cooker_id;
 
-          // حذف approval
+         //delete approval
           const { data: deletedApproval, error: deleteApprovalError } = await supabase
             .from('cooker_approvals')
             .delete()
             .eq('id', id);
           if (deleteApprovalError) return { error: deleteApprovalError };
 
-          // حذف cooker لو موجود
+          //delete cooker if existed 
           const { data: existingCooker } = await supabase
             .from('cookers')
             .select('*')

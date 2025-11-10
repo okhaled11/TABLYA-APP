@@ -14,12 +14,12 @@ export default function Kpis() {
     const { colorMode } = useColorMode();
 
     const { data: users = [], isLoading } = useGetUsersQuery();
-    //  const { data: totalRevenue } = useGetTotalRevenueQuery();
+   
     const { data: avgOrder } = useGetAverageOrderValueQuery();
-    // const { data: profit } = useGetPlatformProfitQuery();
+    
     const { data: growth } = useGetGrowthRateQuery();
     const { data: totalOrders } = useGetTotalOrdersQuery();
-    // const { data: salesTrend } = useGetSalesTrendQuery();
+   
     return (
         <Container my={"30px"} mx="0px">
 
@@ -53,7 +53,7 @@ export default function Kpis() {
                             </Flex>
 
                             {/* Sub text */}
-                            <Text color="rgb(69, 178, 137)" fontSize="14px">+12.5% from last month</Text>
+                            {/* <Text color="rgb(69, 178, 137)" fontSize="14px">+12.5% from last month</Text> */}
 
                         </VStack>
                     </CardBody>
@@ -91,7 +91,7 @@ export default function Kpis() {
                             </Flex>
 
                             {/* Sub text */}
-                            <Text color="rgb(69, 178, 137)" fontSize="14px">+4.2% from last month</Text>
+                            {/* <Text color="rgb(69, 178, 137)" fontSize="14px">+4.2% from last month</Text> */}
 
                         </VStack>
                     </CardBody>
@@ -115,7 +115,7 @@ export default function Kpis() {
                         <VStack align="start" spacing={2}>
 
                             {/* Title */}
-                            <Text color="gray.500" fontSize="15px">New Users</Text>
+                            <Text color="gray.500" fontSize="15px">Total Users</Text>
 
                             {/* Value + Icon */}
                             <Flex justifyContent="space-between" w="100%" align="center">
@@ -128,7 +128,7 @@ export default function Kpis() {
                             </Flex>
 
                             {/* Sub text */}
-                            <Text color="rgb(69, 178, 137)" fontSize="14px">+12.5% from last month</Text>
+                            {/* <Text color="rgb(69, 178, 137)" fontSize="14px">+12.5% from last month</Text> */}
 
                         </VStack>
 
@@ -169,7 +169,7 @@ export default function Kpis() {
                             </Flex>
 
                             {/* Sub text */}
-                            <Text color="rgb(69, 178, 137)" fontSize="14px">+12.5% from last month</Text>
+                            {/* <Text color="rgb(69, 178, 137)" fontSize="14px">+12.5% from last month</Text> */}
 
                         </VStack>
 

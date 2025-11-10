@@ -4,7 +4,7 @@ import { supabase } from "../../../../services/supabaseClient";
 export const OrdersApiCustomerSlice = createApi({
     reducerPath: "OrdersApiCustomerSlice",
     baseQuery: fakeBaseQuery(),
-    tagTypes: ["Orders", "OrderHistory", "OrderDetails"],
+    tagTypes: ["Orders", "OrderHistory", "OrderDetails", "MealDetails"],
     endpoints: (builder) => ({
 
         getCustomerOrders: builder.query({
@@ -28,7 +28,6 @@ export const OrdersApiCustomerSlice = createApi({
         getOrderDetails: builder.query({
             async queryFn(orderId) {
                 try {
-                    // جلب بيانات الـ order الأساسية
                     const { data: orderData, error: orderError } = await supabase
                         .from("orders")
                         .select("*")
@@ -37,7 +36,6 @@ export const OrdersApiCustomerSlice = createApi({
 
                     if (orderError) return { error: orderError.message };
 
-                    // جلب order_items مع تفاصيل menu_items
                     const { data: orderItems, error: itemsError } = await supabase
                         .from("order_items")
                         .select(`
@@ -55,16 +53,13 @@ export const OrdersApiCustomerSlice = createApi({
 
                     if (itemsError) return { error: itemsError.message };
 
-                    // جلب order_delivery
                     const { data: orderDelivery, error: deliveryError } = await supabase
                         .from("order_delivery")
                         .select("*")
                         .eq("order_id", orderId)
                         .single();
 
-                    // delivery قد لا يكون موجود، لذلك لا نرجع error
                     
-                    // دمج البيانات
                     const fullOrderData = {
                         ...orderData,
                         order_items: orderItems || [],
@@ -79,10 +74,44 @@ export const OrdersApiCustomerSlice = createApi({
             providesTags: ["OrderDetails"],
         }),
 
+        getMealAndChefDetails: builder.query({
+            async queryFn({ mealId, chefId }) {
+                try {
+                    const { data: mealData, error: mealError } = await supabase
+                        .from("menu_items")
+                        .select("*")
+                        .eq("id", mealId)
+                        .single();
+
+                    if (mealError) return { error: mealError.message };
+
+                    // جلب بيانات الطاهي مع بيانات المستخدم
+                    const { data: chefData, error: chefError } = await supabase
+                        .from("cookers")
+                        .select("*, users(name, avatar_url, email, phone)")
+                        .eq("user_id", chefId)
+                        .single();
+
+                    if (chefError) return { error: chefError.message };
+
+                    const fullData = {
+                        meal: mealData,
+                        chef: chefData,
+                    };
+
+                    return { data: fullData };
+                } catch (err) {
+                    return { error: err.message };
+                }
+            },
+            providesTags: ["MealDetails"],
+        }),
+
     }),
 });
 
 export const {
     useGetCustomerOrdersQuery,
     useGetOrderDetailsQuery,
+    useGetMealAndChefDetailsQuery,
 } = OrdersApiCustomerSlice;

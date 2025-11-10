@@ -57,7 +57,7 @@ const ChefMenuProfile = () => {
       ) : (
         <ChefProfileCard {...cooker} />
       )}
-      <ChefMenuSection />
+      <ChefMenuSection isAvailable={cooker?.is_available} />
       <CustomerReviewSection />
     </>
   );

@@ -9,6 +9,8 @@ import { Toaster } from "./components/ui/toaster";
 import Landing from "./pages/Landing";
 import PendingApprovalPage from "./pages/PendingApprovalPage";
 import CustomerPage from "./pages/CustomerPage";
+import PersonalInfo from "./pages/customer/PersonalInfo";
+import ResetPasswordPage from "./pages/ResetPasswordPage";
 import SidebarLayout from "./components/Admin/SidebarLayout";
 import ChefVerification from "./pages/AdminPages/ChefVerification";
 import Analytics from "./pages/AdminPages/Analytics";
@@ -23,6 +25,7 @@ import OrderPage from "./pages/customer/OrderPage";
 import OrderDetails from "./pages/customer/OrderDetails";
 import CustomerFavourite from "./pages/customer/CustomerFavourite";
 import MealDetails from "./pages/customer/home/MealDetails";
+import CartPage from "./pages/customer/CartPage";
 
 
 function App() {
@@ -46,6 +49,9 @@ function App() {
         />
         <Route path="/pending-approval" element={<PendingApprovalPage />} />
         {/* customer Routes */}
+        <Route path="/home" element={<CustomerPage />} />
+        <Route path="/personal-info" element={<PersonalInfo />} />
+        <Route path="/reset-password" element={<ResetPasswordPage />} />
         <Route path="/home" element={<CustomerPage />}>
           {<Route index element={<CustomerHome />} />}
           <Route path="cookers" element={<AllCookers />} />
@@ -54,6 +60,7 @@ function App() {
           <Route path="order" element={<OrderPage />} />
           <Route path="details/:orderId" element={<OrderDetails />} />
           <Route path="favourities" element={<CustomerFavourite />} />
+          <Route path="cart" element={<CartPage />} />
         </Route>
         {/* Admin Routes */}
         <Route path="/admin" element={<SidebarLayout />}>
