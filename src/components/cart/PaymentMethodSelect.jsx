@@ -7,16 +7,24 @@ import {
   Box,
   Textarea,
 } from "@chakra-ui/react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useColorMode } from "../../theme/color-mode";
 import colors from "../../theme/color";
 import { Portal } from "@chakra-ui/react";
 import { FaCcVisa, FaMoneyBillWave } from "react-icons/fa";
-export default function PaymentMethodSelect({ onCheckout = () => {} }) {
+import PayPalCheckout from "./PayPalCheckout";
+export default function PaymentMethodSelect({ onCheckout = () => {}, total = 0, onValidate = () => true }) {
   const { colorMode } = useColorMode();
 
-  const [selectedCategory, setSelectedCategory] = useState("all");
+  const [selectedCategory, setSelectedCategory] = useState("visa");
   const [notes, setNotes] = useState("");
+  const [paypalReady, setPaypalReady] = useState(false);
+
+  useEffect(() => {
+    if (selectedCategory !== "visa") {
+      setPaypalReady(false);
+    }
+  }, [selectedCategory]);
 
   const paymentMethods = createListCollection({
     items: [
@@ -39,8 +47,8 @@ export default function PaymentMethodSelect({ onCheckout = () => {} }) {
         <Select.Root
           collection={paymentMethods}
           size="sm"
-          value={selectedCategory}
-          onValueChange={(e) => setSelectedCategory(e.value)}
+          value={selectedCategory ? [selectedCategory] : []}
+          onValueChange={(e) => setSelectedCategory(e?.value?.[0] || "visa")}
         >
           <Select.HiddenSelect />
 
@@ -61,12 +69,11 @@ export default function PaymentMethodSelect({ onCheckout = () => {} }) {
               w="100%"
             >
               {/* Left Icon */}
-              {paymentMethods.items[0].icon}
+              {paymentMethods.items.find((i) => i.value === selectedCategory)?.icon}
 
               {/* Selected Text */}
               <Select.ValueText
                 placeholder="Credit/Debit Card"
-                defaultValue={paymentMethods.items[0].value}
                 flex="1"
                 textAlign="left"
               />
@@ -117,19 +124,61 @@ export default function PaymentMethodSelect({ onCheckout = () => {} }) {
           minH="80px"
         />
       </VStack>
-      <Button
-        bg={
-          colorMode == "light" ? colors.light.mainFixed : colors.dark.mainFixed
-        }
-        size="lg"
-        mt={4}
-        color="white"
-        borderRadius="12px"
-        w="full"
-        onClick={() => onCheckout(notes)}
-      >
-        Checkout
-      </Button>
+      {selectedCategory === "cash" ? (
+        <Button
+          bg={
+            colorMode == "light" ? colors.light.mainFixed : colors.dark.mainFixed
+          }
+          size="lg"
+          mt={4}
+          color="white"
+          borderRadius="12px"
+          w="full"
+          onClick={() =>
+            onCheckout({
+              notes,
+              payment_method: "cash",
+              payment_status: "pending",
+            })
+          }
+        >
+          checkout
+        </Button>
+      ) : (
+        <Box mt={2}>
+          {!paypalReady ? (
+            <Button
+              bg={
+                colorMode == "light"
+                  ? colors.light.mainFixed
+                  : colors.dark.mainFixed
+              }
+              size="lg"
+              color="white"
+              borderRadius="12px"
+              w="full"
+              onClick={() => {
+                if (onValidate()) {
+                  setPaypalReady(true);
+                }
+              }}
+            >
+              Proceed to PayPal
+            </Button>
+          ) : (
+            <PayPalCheckout
+              amount={Number(total || 0).toFixed(2)}
+              onSuccess={() =>
+                onCheckout({
+                  notes,
+                  payment_method: "paypal",
+                  payment_status: "paid",
+                })
+              }
+            />
+          )}
+        </Box>
+      )}
     </VStack>
   );
 }
