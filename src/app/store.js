@@ -40,7 +40,7 @@ export const store = configureStore({
     PersonalRegisterChef: PersonalRegisterChefReducer,
     // [supabaseApi.reducerPath]: supabaseApi.reducer,
     [cookersApi.reducerPath]: cookersApi.reducer,
-    [cookersApprovalsApi.reducerPath]: cookersApprovalsApi.reducer,
+    [cookersApprovalsApi.reducerPath]: cookersApprovalsApi.reducer,    ///mariam api 
     [dashboardApi.reducerPath]: dashboardApi.reducer,
     [OrdersApiCustomerSlice.reducerPath]: OrdersApiCustomerSlice.reducer,
     [OrdersHistoryCustomerSlice.reducerPath]: OrdersHistoryCustomerSlice.reducer,
@@ -55,7 +55,7 @@ export const store = configureStore({
     [UserSlice.reducerPath]:UserSlice.reducer,
     [cookersApi.reducerPath]: cookersApi.reducer,
     [aminCookersApi.reducerPath]: aminCookersApi.reducer,
-    [cookerApprovalsApi.reducerPath]: cookerApprovalsApi.reducer,
+    [cookerApprovalsApi.reducerPath]: cookerApprovalsApi.reducer,     //mariam api 
     [ordersApi.reducerPath]: ordersApi.reducer,
     [reportsApi.reducerPath]: reportsApi.reducer,
     [passwordApi.reducerPath]: passwordApi.reducer,
@@ -79,7 +79,7 @@ export const store = configureStore({
 
       cookersApi.middleware,
       aminCookersApi.middleware,
-      cookerApprovalsApi.middleware,
+      cookerApprovalsApi.middleware,    //mariam api
       dashboardApi.middleware,
       ordersApi.middleware,
       reportsApi.middleware,
