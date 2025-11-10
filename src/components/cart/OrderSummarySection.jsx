@@ -9,6 +9,7 @@ export default function OrderSummarySection({
   subtotal = 0,
   onCheckout = () => {},
   onValidate = () => true,
+  onCreateOrderForPayPal = null,
 }) {
   const { colorMode } = useColorMode();
   const deliveryFee = subtotal > 0 ? 0 : 0; // Free
@@ -121,7 +122,7 @@ export default function OrderSummarySection({
         mb={5}
       />
 
-      <PaymentMethodSelect onCheckout={onCheckout} total={total} onValidate={onValidate} />
+      <PaymentMethodSelect onCheckout={onCheckout} total={total} onValidate={onValidate} onCreateOrderForPayPal={onCreateOrderForPayPal} />
     </Box>
   );
 }

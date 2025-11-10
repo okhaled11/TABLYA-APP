@@ -28,6 +28,7 @@ import CustomerFavourite from "./pages/customer/CustomerFavourite";
 import MealDetails from "./pages/customer/home/MealDetails";
 import CartPage from "./pages/customer/CartPage";
 import ProtectedRoute from "./routes/ProtectedRoute";
+import PageNotFound from "./pages/PageNotFound";
 
 function App() {
   const token = CookieService.get("access_token");
@@ -80,6 +81,7 @@ function App() {
             <Route path="complaints" element={<Complaints />} />
           </Route>
         </Route>
+        <Route path="*" element={<PageNotFound />} />
       </Routes>
 
       <Toaster />

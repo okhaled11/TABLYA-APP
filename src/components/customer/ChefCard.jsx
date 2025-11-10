@@ -15,7 +15,7 @@ import colors from "../../theme/color";
 import { Link } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { supabase } from "../../services/supabaseClient";
-import {toaster} from "../../components/ui/toaster";
+import { toaster } from "../../components/ui/toaster";
 import {
   useAddFavoriteCookerMutation,
   useGetFavoriteCookersByCustomerQuery,
@@ -32,6 +32,7 @@ const ChefCard = ({
   user_id,
   users,
   total_reviews,
+  kitchen_name,
 }) => {
   const { colorMode } = useColorMode();
 
@@ -51,7 +52,10 @@ const ChefCard = ({
   const customerId = customerIdFromRedux || customerIdFromSupabase;
 
   // fetch favorite cooker ids for this customer
-  const { data: favoriteIds = [] } = useGetFavoriteCookersByCustomerQuery(customerId, { skip: !customerId });
+  const { data: favoriteIds = [] } = useGetFavoriteCookersByCustomerQuery(
+    customerId,
+    { skip: !customerId }
+  );
 
   useEffect(() => {
     if (favoriteIds?.length >= 0) dispatch(setFavoriteCookers(favoriteIds));
@@ -68,8 +72,9 @@ const ChefCard = ({
     setFav(isFavGlobal);
   }, [isFavGlobal]);
 
-  const [addFav, { isLoading: adding } ] = useAddFavoriteCookerMutation();
-  const [removeFav, { isLoading: removing } ] = useRemoveFavoriteCookerMutation();
+  const [addFav, { isLoading: adding }] = useAddFavoriteCookerMutation();
+  const [removeFav, { isLoading: removing }] =
+    useRemoveFavoriteCookerMutation();
 
   const toggling = useMemo(() => adding || removing, [adding, removing]);
 
@@ -96,16 +101,30 @@ const ChefCard = ({
     try {
       if (optimisticNext) {
         dispatch(addFavoriteCooker(user_id));
-        const res = await addFav({ customerId: activeCustomerId, cookerId: user_id });
+        const res = await addFav({
+          customerId: activeCustomerId,
+          cookerId: user_id,
+        });
         if (res.error) throw res.error;
-        toaster.create({ title: "Added to favorites ❤️", type: "success", duration: 1500 });
+        toaster.create({
+          title: "Added to favorites ❤️",
+          type: "success",
+          duration: 1500,
+        });
       } else {
         dispatch(removeFavoriteCooker(user_id));
-        const res = await removeFav({ customerId: activeCustomerId, cookerId: user_id });
+        const res = await removeFav({
+          customerId: activeCustomerId,
+          cookerId: user_id,
+        });
         if (res.error) throw res.error;
-        toaster.create({ title: "Removed from favorites 💔", type: "success", duration: 1500 });
+        toaster.create({
+          title: "Removed from favorites 💔",
+          type: "success",
+          duration: 1500,
+        });
       }
-    } catch (e) {
+    } catch (err) {
       // revert optimistic change on error
       setFav(!optimisticNext);
       if (optimisticNext) {
@@ -171,7 +190,7 @@ const ChefCard = ({
         src={users?.avatar_url || "/default-avatar.png"}
         alt="Chef Avatar"
         borderRadius="full"
-        boxSize={{ base: "100px", md: "150px" }}
+        boxSize={{ base: "70px", md: "150px" }}
         objectFit="cover"
         mr={{ base: 4, md: 0 }}
         mb={{ base: 0, md: 3 }}
@@ -187,7 +206,7 @@ const ChefCard = ({
             colorMode == "light" ? colors.light.textMain : colors.dark.textMain
           }
         >
-          {users?.name || "Chef Name"}
+          {kitchen_name || users?.name}
         </Text>
         <Flex
           alignItems="center"

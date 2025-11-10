@@ -2,9 +2,9 @@ import { createApi, fakeBaseQuery } from "@reduxjs/toolkit/query/react";
 import { supabase } from "../../../services/supabaseClient";
 
 export const ordersApi = createApi({
-  reducerPath: "ordersApi",
+  reducerPath: "customerOrdersApi",
   baseQuery: fakeBaseQuery(),
-  tagTypes: ["Orders"],
+  tagTypes: ["orders"],
   endpoints: (builder) => ({
     createOrder: builder.mutation({
       async queryFn({
@@ -111,7 +111,32 @@ export const ordersApi = createApi({
         arg?.cooker_id ? { type: "Cooker", id: arg.cooker_id } : undefined,
       ].filter(Boolean),
     }),
+    
+    updateOrderPaymentStatus: builder.mutation({
+      async queryFn({ orderId, payment_status = "paid", payment_details = null }) {
+        try {
+          // Simple update - only payment_status
+          const { data: order, error } = await supabase
+            .from("orders")
+            .update({ payment_status })
+            .eq("id", orderId)
+            .select()
+            .single();
+
+          if (error) {
+            console.error("Supabase update error:", error);
+            return { error: { message: error.message } };
+          }
+
+          return { data: order };
+        } catch (error) {
+          console.error("Update payment status error:", error);
+          return { error: { message: error.message || "Failed to update payment status" } };
+        }
+      },
+      invalidatesTags: ["orders"],
+    }),
   }),
 });
 
-export const { useCreateOrderMutation } = ordersApi;
+export const { useCreateOrderMutation, useUpdateOrderPaymentStatusMutation } = ordersApi;
