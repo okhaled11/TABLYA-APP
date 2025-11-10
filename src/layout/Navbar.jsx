@@ -44,6 +44,7 @@ import { authApi } from "../app/features/Auth/authSlice";
 import { useDispatch, useSelector } from "react-redux";
 import { useState } from "react";
 import { FiShoppingCart } from "react-icons/fi";
+import { clearCart } from "../app/features/Customer/CartSlice";
 
 export default function Navbar() {
   const { t, i18n } = useTranslation();
@@ -78,6 +79,7 @@ export default function Navbar() {
   const onOkHandler = () => {
     CookieService.remove("access_token", { path: "/" });
     dispatch(authApi.util.resetApiState());
+    dispatch(clearCart());
     navigate("/login");
     window.location.reload();
   };
@@ -111,27 +113,7 @@ export default function Navbar() {
           >
             {/* Logo */}
             <Image src={Navlogo} alt={t("navbar.logo_alt")} w={"150px"} />
-            {/* {user && (
-              <Flex
-                flex="1"
-                maxW={"400px"}
-                // mx="auto"
-                justifyContent="center"
-                display={{ base: "none", md: "flex" }}
-              >
-                <InputGroup startElement={<FiSearch color="#FFF7F04D" />}>
-                  <Input
-                    placeholder="Search"
-                    bg={"#FFF7F01A"}
-                    borderRadius="12px"
-                    size="md"
-                    _placeholder={{ color: "#FFF7F04D" }}
-                    color="white"
-                    border="none"
-                  />
-                </InputGroup>
-              </Flex>
-            )} */}
+            
             <Flex alignItems="center">
               <Stack direction="row" spacing={5} align="center">
                 {/* mode and cart stack */}
