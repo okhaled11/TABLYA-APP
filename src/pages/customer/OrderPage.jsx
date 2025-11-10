@@ -37,7 +37,7 @@ const OrderPage = () => {
     useGetCustomerOrderHistoryQuery(userId, {
       skip: !userId,
     });
-
+console.log(orderHistory);
   // Skeleton Loading Component
   const OrderSkeleton = () => (
     <Box
@@ -146,7 +146,7 @@ const OrderPage = () => {
       !hiddenOrderIds.includes(order.id)
   );
   /* -----------------RENDER---------------------------- */
-  
+
   const activeOrderHandler = activeOrders?.map(
     ({ id, status, created_at, total }) => {
       return (
@@ -211,7 +211,12 @@ const OrderPage = () => {
               direction={{ base: "column", md: "row" }}
             >
               <Box>
-                <Text mt={6} color={colors.light.textSub} textAlign={"center"} my={3}>
+                <Text
+                  mt={6}
+                  color={colors.light.textSub}
+                  textAlign={"center"}
+                  my={3}
+                >
                   {new Date(created_at).toLocaleString("en-GB", {
                     day: "2-digit",
                     month: "short",
@@ -258,9 +263,9 @@ const OrderPage = () => {
 
   const orderHistoryHandler = orderHistory?.map(({ status, at, orders }) => {
     const orderDetails = orders;
+    
     return (
       <>
-        
         <Box
           key={at}
           bg={
@@ -367,7 +372,6 @@ const OrderPage = () => {
       </>
     );
   });
-
 
   return (
     <>

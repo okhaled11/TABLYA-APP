@@ -216,9 +216,9 @@ function OrderDetails() {
   }
 
   const subtotal = orderDetails?.subtotal;
-
   const deliveryFee = orderDetails?.delivery_fee || 0;
   const total = orderDetails?.total;
+  const discount = orderDetails?.discount;
 
   const steps = [
     { key: "placed", title: "confirmed", icon: "📋" },
@@ -529,6 +529,7 @@ function OrderDetails() {
                         {subtotal.toFixed(2)} LE
                       </Text>
                     </Flex>
+
                     <Flex justify="space-between" color="gray.300">
                       <Text
                         color={
@@ -549,6 +550,27 @@ function OrderDetails() {
                         {deliveryFee.toFixed(2)} LE
                       </Text>
                     </Flex>
+                    <Flex justify="space-between" color="gray.300">
+                      <Text
+                        color={
+                          colorMode === "light"
+                            ? colors.light.textSub
+                            : colors.dark.textSub
+                        }
+                      >
+                        discount
+                      </Text>
+                      <Text
+                        color={
+                          colorMode === "light"
+                            ? colors.light.textMain
+                            : colors.dark.textMain
+                        }
+                      >
+                        {discount.toFixed(2)} LE
+                      </Text>
+                    </Flex>
+
                     <Box borderTop="1px" borderColor="red.800" my={3} />
                     <Flex
                       justify="space-between"
