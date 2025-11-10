@@ -2,26 +2,30 @@ import React from 'react'
 import { Chart, useChart } from "@chakra-ui/charts"
 import { Cell, LabelList, Pie, PieChart, Tooltip } from "recharts"
 import {
-    Box,
-    Card,
-    CardBody,
-    CardHeader,
-    Heading,
+    Box, Card, CardBody, CardHeader, Heading,
 } from "@chakra-ui/react";
+import { useMemo } from 'react';
 
 import { useColorMode } from "../../../theme/color-mode";
+import { useGetTopPerformingCuisinesQuery } from '../../../app/features/Admin/dashboardApi';
 
 
 export default function CuisinesChart() {
 
-    const chart = useChart({
-        data: [
-            { name: "windows", value: 400, color: "blue.solid" },
-            { name: "mac", value: 300, color: "orange.solid" },
-            { name: "linux", value: 300, color: "pink.solid" },
-            { name: "other", value: 200, color: "green.solid" },
-        ],
-    })
+    const { data: topCuisine = [], isLoading } = useGetTopPerformingCuisinesQuery();
+    const chartData = useMemo(() => {
+        if (!topCuisine.length) return [];
+        const colors = [ "rgb(231, 114, 64)","rgb(13, 148, 136)", "#ef4444", "rgb(244, 192, 37)", "rgb(177, 82, 224)"];
+        return topCuisine.map((item, index) => ({
+            name: item.title || "Unknown",
+            value: item.count || 0,
+            color: colors[index % colors.length],
+        }));
+    }, [topCuisine]);
+    console.log(chartData);
+
+    const chart = useChart({ data: chartData });
+
 
 
     const { colorMode } = useColorMode();
@@ -45,8 +49,8 @@ export default function CuisinesChart() {
 
             <CardBody>
                 <Box w="100%" h="300px">
-                    <Chart.Root boxSize="320px" mx="auto" chart={chart}>
-                        <PieChart>
+                    <Chart.Root boxSize="320px" mx="auto" chart={chart} >
+                        <PieChart width={300} height={300}>
                             <Tooltip
                                 cursor={false}
                                 animationDuration={100}
@@ -54,12 +58,12 @@ export default function CuisinesChart() {
                             />
                             <Pie
                                 isAnimationActive={false}
-                                data={chart.data}
-                                dataKey={chart.key("value")}
+                                data={chartData}
+                                dataKey="value"
                             >
                                 <LabelList position="inside" fill="white" stroke="none" />
-                                {chart.data.map((item) => (
-                                    <Cell key={item.name} fill={chart.color(item.color)} />
+                                {chartData.map((item) => (
+                                    <Cell key={item.name} fill={item.color} />
                                 ))}
                             </Pie>
                         </PieChart>
