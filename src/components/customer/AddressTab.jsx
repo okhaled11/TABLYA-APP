@@ -130,12 +130,57 @@ export default function AddressTab() {
             const cityName = address.city || address.town || address.village || address.county || "";
             setCity(cityName);
 
-            // Set area (suburb, neighbourhood, or district)
-            const areaName = address.suburb || address.neighbourhood || address.district || address.hamlet || "";
+            // Set area with smart logic for neighbourhood and residential
+            let areaName = "";
+            const hasNeighbourhood = address.neighbourhood || false;
+            const hasResidential = address.residential || false;
+            
+            // If both neighbourhood and residential exist, use the standard area (suburb/district)
+            if (hasNeighbourhood && hasResidential) {
+              areaName = address.suburb || address.district || address.hamlet || "";
+              console.log("🏘️ Both neighbourhood & residential found, using standard area:", areaName);
+            } 
+            // If only one exists, use it
+            else if (hasNeighbourhood || hasResidential) {
+              areaName = hasNeighbourhood ? address.neighbourhood : address.residential;
+              console.log("🏘️ Using specific area:", areaName, hasNeighbourhood ? "(neighbourhood)" : "(residential)");
+            }
+            // Otherwise, use standard area fields
+            else {
+              areaName = address.suburb || address.district || address.hamlet || "";
+              console.log("🏘️ Using standard area:", areaName);
+            }
             setArea(areaName);
 
-            // Set street
-            const streetName = address.road || address.street || address.pedestrian || "";
+            // Set street with comprehensive fallback logic
+            let streetName = address.road || address.street || address.pedestrian || "";
+            
+            // If no direct street found, try alternative paths and ways
+            if (!streetName) {
+              streetName = address.footway || address.cycleway || address.path || 
+                          address.track || address.alley || "";
+              if (streetName) {
+                console.log("🛣️ Using alternative path:", streetName);
+              }
+            }
+            
+            // If still no street, try using nearby landmarks or amenities
+            if (!streetName) {
+              streetName = address.amenity || address.shop || address.building || 
+                          address.tourism || address.leisure || "";
+              if (streetName) {
+                console.log("🏢 Using nearby landmark:", streetName);
+              }
+            }
+            
+            // If still nothing, try using highway or place names
+            if (!streetName) {
+              streetName = address.highway || address.place || "";
+              if (streetName) {
+                console.log("🗺️ Using place/highway name:", streetName);
+              }
+            }
+            
             setStreet(streetName);
 
             // Set building number if available
@@ -147,6 +192,8 @@ export default function AddressTab() {
               area: areaName,
               street: streetName,
               building: houseNumber,
+              hasNeighbourhood,
+              hasResidential,
             });
 
             toaster.create({
