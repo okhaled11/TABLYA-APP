@@ -15,7 +15,7 @@ export default function CuisinesChart() {
     const { data: topCuisine = [], isLoading } = useGetTopPerformingCuisinesQuery();
     const chartData = useMemo(() => {
         if (!topCuisine.length) return [];
-        const colors = [ "rgb(231, 114, 64)","rgb(25, 162, 230)", "#ef4444", "rgb(244, 192, 37)", "rgb(177, 82, 224)"];
+        const colors = [ "rgb(231, 114, 64)","rgb(13, 148, 136)", "#ef4444", "rgb(244, 192, 37)", "rgb(177, 82, 224)"];
         return topCuisine.map((item, index) => ({
             name: item.title || "Unknown",
             value: item.count || 0,

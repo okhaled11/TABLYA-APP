@@ -7,7 +7,24 @@ export const addItemToShoppingCart = (
   const existingCartItem = shoppingCartItems.find(
     (item) => item.id === cartItem.id
   );
+  
   if (existingCartItem) {
+    // Check if we can add more (don't exceed stock)
+    const maxStock = cartItem.stock || existingCartItem.stock || 0;
+    const newQuantity = existingCartItem.quantity + 1;
+    
+    if (newQuantity > maxStock) {
+      toaster.create({
+        title: "Cannot add more",
+        description: `Maximum stock reached for this item.`,
+        type: "warning",
+        duration: 3000,
+        isClosable: true,
+        position: "top",
+      });
+      return shoppingCartItems;
+    }
+    
     toaster.create({
       title: "Added to your cart",
       description: `This item is already exists, the quantity will be increased.`,
@@ -17,9 +34,10 @@ export const addItemToShoppingCart = (
       position: "top",
     });
     return shoppingCartItems.map((item) =>
-      item.id === cartItem.id ? { ...item, quantity: item.quantity + 1 } : item
+      item.id === cartItem.id ? { ...item, quantity: newQuantity } : item
     );
   }
+  
   toaster.create({
     title: "Added to your cart",
     type: "success",
@@ -27,7 +45,8 @@ export const addItemToShoppingCart = (
     isClosable: true,
     position: "top",
   });
-  return [...shoppingCartItems, { ...cartItem, quantity: 1 }];
+  // Use the quantity from cartItem, or default to 1 if not provided
+  return [...shoppingCartItems, { ...cartItem, quantity: cartItem.quantity || 1 }];
 };
 
 // to split review date

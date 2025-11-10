@@ -1,20 +1,32 @@
-import { Breadcrumb, Flex, Icon, IconButton, Skeleton, SkeletonText, Box, Container, VStack, HStack } from "@chakra-ui/react";
+import {
+  Breadcrumb,
+  Flex,
+  Icon,
+  IconButton,
+  Skeleton,
+  SkeletonText,
+  Box,
+  Container,
+  VStack,
+  HStack,
+} from "@chakra-ui/react";
 import { FiArrowLeft } from "react-icons/fi";
 import { LuChefHat, LuHouse, LuShirt } from "react-icons/lu";
 import { Link, useNavigate } from "react-router-dom";
 import { useParams } from "react-router-dom";
 import MealDetailsCard from "../../../components/customer/Order/MealDetailsCard";
-import { useGetMealAndChefDetailsQuery } from "../../../app/features/Customer/Orders/OrdersApiCustomerSlice";
+import { useGetMealAndChefDetailsQuery } from "../../../app/features/Customer/Orders/ordersApiCustomerSlice";
 
 const MealDetails = () => {
   /* ---------------------hooks-------------------- */
   const { chefId, mealId } = useParams();
   const navigate = useNavigate();
-  
+
   const { data, isLoading, error } = useGetMealAndChefDetailsQuery(
     { mealId, chefId },
     { skip: !mealId || !chefId }
   );
+  console.log(mealId);
 
   return (
     <>
@@ -43,7 +55,7 @@ const MealDetails = () => {
               <Breadcrumb.CurrentLink>
                 <Flex align="center" gap={1}>
                   <LuChefHat />
-                 MealDetails
+                  MealDetails
                 </Flex>
               </Breadcrumb.CurrentLink>
             </Breadcrumb.Item>

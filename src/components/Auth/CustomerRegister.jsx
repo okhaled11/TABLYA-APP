@@ -37,7 +37,6 @@ const CustomerRegister = () => {
     lastName: "",
     email: "",
     phone: "",
-    address: "",
     password: "",
     confirmPassword: "",
   });
@@ -245,43 +244,7 @@ const CustomerRegister = () => {
               </Field.HelperText>
             )}
           </Field.Root>
-
-          {/* Address */}
-          <Field.Root invalid={!!errors.address}>
-            <Field.Label me={"auto"} dir={isRTL ? "rtl" : "ltr"}>
-              {t("customerRegister.address")}{" "}
-              <Field.RequiredIndicator></Field.RequiredIndicator>
-            </Field.Label>
-            <InputGroup
-              {...(isRTL
-                ? { endElement: <FaMapMarkerAlt /> }
-                : { startElement: <FaMapMarkerAlt /> })}
-            >
-              <Input
-                placeholder={t("customerRegister.addressPlaceholder")}
-                textAlign={isRTL ? "right" : "left"}
-                name="address"
-                {...register("address")}
-                value={user.address}
-                onChange={(e) => {
-                  handleChange(e);
-                  clearErrors("address");
-                }}
-                bg={
-                  colorMode == "light"
-                    ? colors.light.bgInput
-                    : colors.dark.bgInput
-                }
-                borderRadius="10px"
-              />
-            </InputGroup>
-            {errors?.address && (
-              <Field.HelperText color={"crimson"}>
-                {errors?.address?.message}
-              </Field.HelperText>
-            )}
-          </Field.Root>
-
+          
           {/* Password & Confirm Password */}
           <Flex gap={4} direction={{ base: "column", md: "row" }}>
             <Field.Root flex={1} invalid={!!errors.password}>

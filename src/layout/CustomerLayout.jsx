@@ -2,9 +2,10 @@ import { Box, Flex, VStack, Text, HStack, Icon } from "@chakra-ui/react";
 import { useColorMode } from "../theme/color-mode";
 import colors from "../theme/color";
 import Navbar from "./Navbar";
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { User, CreditCard, MapPin, Lock, ArrowLeft } from "@phosphor-icons/react";
 import Footer from "../shared/Footer";
+import { useLocation, useNavigate } from "react-router-dom";
 
 export default function CustomerLayout({ tabs }) {
   const { colorMode } = useColorMode();
@@ -13,7 +14,8 @@ export default function CustomerLayout({ tabs }) {
   const [isDragging, setIsDragging] = useState(false);
   const [startX, setStartX] = useState(0);
   const [scrollLeft, setScrollLeft] = useState(0);
-
+  const navigate = useNavigate();
+  const location = useLocation();
   const handleMouseDown = (e) => {
     setIsDragging(true);
     setStartX(e.pageX - sliderRef.current.offsetLeft);
@@ -55,6 +57,26 @@ export default function CustomerLayout({ tabs }) {
     },
   ];
 
+  // Map URL segment to tab index and vice versa
+  const segments = ["", "address", "security", "payment"]; // '' => personal-info root
+
+  // Sync active tab when URL changes
+  useEffect(() => {
+    // Expecting path like /personal-info or /personal-info/<segment>
+    const parts = location.pathname.split("/").filter(Boolean);
+    const idx = parts.indexOf("personal-info");
+    const seg = idx >= 0 ? parts[idx + 1] || "" : "";
+    const newIndex = Math.max(0, segments.indexOf(seg));
+    if (newIndex !== activeTab) setActiveTab(newIndex);
+  }, [location.pathname]);
+
+  const goToTab = (index) => {
+    setActiveTab(index);
+    const seg = segments[index];
+    const to = seg ? `/personal-info/${seg}` : "/personal-info";
+    navigate(to);
+  };
+
   return (
     <>
       <Navbar />
@@ -71,7 +93,7 @@ export default function CustomerLayout({ tabs }) {
                 : colors.dark.textMain
             }
             cursor="pointer"
-            onClick={() => window.location.href = "/home"}
+            onClick={() =>navigate("/home")}
             _hover={{
               color: colorMode === "light"
                 ? colors.light.mainFixed
@@ -136,7 +158,7 @@ export default function CustomerLayout({ tabs }) {
                       : colors.dark.bgThird
                   }
                   cursor="pointer"
-                  onClick={() => setActiveTab(index)}
+                  onClick={() => goToTab(index)}
                   transition="all 0.2s"
                   _hover={{
                     bg: isActive 
@@ -227,7 +249,7 @@ export default function CustomerLayout({ tabs }) {
                       cursor: "pointer",
                     }}
                     transition="all 0.2s"
-                    onClick={() => setActiveTab(index)}
+                    onClick={() => goToTab(index)}
                   >
                     <HStack spacing={3}>
                       <Icon

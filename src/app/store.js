@@ -25,6 +25,9 @@ import { reviewsApi } from "./features/Customer/reviewsApi";
 import { UserSlice } from "./features/UserSlice";
 
 import CartSlice from "./features/Customer/CartSlice";
+import favoriteCookersReducer from "./features/Customer/favoriteCookersSlice";
+import { favoritesApi } from "./features/Customer/favoritesApi";
+import { adminAuthApi } from "./features/Admin/adminData";
 
 const persistCartConfig = {
   key: "cart",
@@ -48,6 +51,7 @@ export const store = configureStore({
     [ordersApi.reducerPath]: ordersApi.reducer,
 
     cart: persistedCart,
+    favoriteCookers: favoriteCookersReducer,
 
     // APIs
     [authApi.reducerPath]: authApi.reducer,
@@ -65,6 +69,8 @@ export const store = configureStore({
     [OrdersHistoryCustomerSlice.reducerPath]:
       OrdersHistoryCustomerSlice.reducer,
     [reviewsApi.reducerPath]: reviewsApi.reducer,
+    [favoritesApi.reducerPath]: favoritesApi.reducer,
+    [adminAuthApi.reducerPath]:adminAuthApi.reducer,
   },
 
   middleware: (getDefaultMiddleware) =>
@@ -76,7 +82,6 @@ export const store = configureStore({
     }).concat(
       authApi.middleware,
       registerChef.middleware,
-
       cookersApi.middleware,
       aminCookersApi.middleware,
       cookerApprovalsApi.middleware,    //mariam api
@@ -90,9 +95,9 @@ export const store = configureStore({
       OrdersHistoryCustomerSlice.middleware,
       cookersApprovalsApi.middleware,
       UserSlice.middleware,
-    
-      
-      reviewsApi.middleware
+      adminAuthApi.middleware,
+      reviewsApi.middleware,
+      favoritesApi.middleware
     ),
 });
 

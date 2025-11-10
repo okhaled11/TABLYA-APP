@@ -9,6 +9,7 @@ import { useState } from "react";
 import { Textarea } from "@chakra-ui/react";
 import { HStack, VStack } from "@chakra-ui/react";
 import { Text } from "@chakra-ui/react";
+import { ButtonGroup } from "@chakra-ui/react"
 
 const MariamCustomModal = ({
   isOpen,
@@ -19,7 +20,8 @@ const MariamCustomModal = ({
   onReject,
   onDelete,
   notes,
-  setNotes
+  setNotes,
+  isApproving
 }) => {
   if (!isOpen || !cooker || !type) return null;
 
@@ -28,7 +30,11 @@ const MariamCustomModal = ({
   const isDetails = type === "details";
   const isDelete = type === "delete";
   const [previewImage, setPreviewImage] = useState(null);
+
+
   return (
+
+
     <Dialog.Root open={isOpen} onOpenChange={onClose}>
       <Portal>
         <Dialog.Backdrop />
@@ -47,6 +53,7 @@ const MariamCustomModal = ({
             </Dialog.Header>
 
             <Dialog.Body>
+              {/* appoval */}
               {isApprove && (
                 <>
 
@@ -56,7 +63,7 @@ const MariamCustomModal = ({
 
                 </>
               )}
-
+              {/* rejection */}
               {isReject && (
                 <>
                   <VStack align="stretch" spacing={4} mt={4}>
@@ -76,7 +83,7 @@ const MariamCustomModal = ({
                   </VStack>
                 </>
               )}
-
+              {/* Delete */}
               {isDelete && (
                 <>
 
@@ -247,10 +254,21 @@ const MariamCustomModal = ({
                 Cancel / Close
               </Button>
 
-              {isApprove && (
-                <Button onClick={onApprove} background={colors.light.success}>
+              {isApprove && (<>
+
+                {isApproving ? (<ButtonGroup colorPalette="teal">
+                  <Button loading loadingText="Loading" spinnerPlacement="start" background={colors.light.success}>
+                    Approving
+                  </Button>
+                  
+                </ButtonGroup>) 
+                : (<Button onClick={onApprove} background={colors.light.success} >
                   Approve
-                </Button>
+                </Button>)}
+
+
+              </>
+
               )}
 
               {isReject && (

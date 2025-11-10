@@ -12,11 +12,24 @@ import {
 } from "@chakra-ui/react";
 import { FaStar, FaPhoneAlt, FaClock } from "react-icons/fa";
 import { MdAlternateEmail } from "react-icons/md";
-import { FiHeart } from "react-icons/fi";
+import { FaHeart, FaRegHeart } from "react-icons/fa";
 import { RxCross2 } from "react-icons/rx";
 import colors from "../../theme/color";
 import { useColorMode } from "../../theme/color-mode";
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { supabase } from "../../services/supabaseClient";
+import {toaster} from "../../components/ui/toaster";
+import {
+  useAddFavoriteCookerMutation,
+  useGetFavoriteCookersByCustomerQuery,
+  useRemoveFavoriteCookerMutation,
+} from "../../app/features/Customer/favoritesApi";
+import {
+  addFavoriteCooker,
+  removeFavoriteCooker,
+  setFavoriteCookers,
+} from "../../app/features/Customer/favoriteCookersSlice";
 
 const ChefProfileCard = ({
   users,
@@ -27,10 +40,86 @@ const ChefProfileCard = ({
   is_available,
   kitchen_name,
   total_reviews,
+  user_id, // optional explicit cooker user_id if provided by parent
 }) => {
   const { colorMode } = useColorMode();
-  const [fav, setFav] = useState(false);
+  const dispatch = useDispatch();
   const isSmallScreen = useBreakpointValue({ base: true, md: false });
+
+  // resolve cooker id
+  const cookerId = user_id ?? users?.user_id ?? users?.id;
+
+  // logged-in customer id with fallback to Supabase
+  const customerIdFromRedux = useSelector((s) => s.auth?.userData?.user?.id);
+  const [customerIdFromSupabase, setCustomerIdFromSupabase] = useState(null);
+  useEffect(() => {
+    if (!customerIdFromRedux) {
+      supabase.auth.getUser().then(({ data }) => {
+        const id = data?.user?.id || null;
+        if (id) setCustomerIdFromSupabase(id);
+      });
+    }
+  }, [customerIdFromRedux]);
+  const customerId = customerIdFromRedux || customerIdFromSupabase;
+
+  // fetch favourite ids for this customer
+  const { data: favoriteIds = [] } = useGetFavoriteCookersByCustomerQuery(customerId, { skip: !customerId });
+  useEffect(() => {
+    if (favoriteIds?.length >= 0) dispatch(setFavoriteCookers(favoriteIds));
+  }, [dispatch, favoriteIds]);
+
+  const isFavGlobal = useSelector((s) =>
+    Array.isArray(s.favoriteCookers?.ids)
+      ? s.favoriteCookers.ids.includes(cookerId)
+      : false
+  );
+  const [fav, setFav] = useState(false);
+  useEffect(() => {
+    setFav(isFavGlobal);
+  }, [isFavGlobal]);
+
+  const [addFav, { isLoading: adding } ] = useAddFavoriteCookerMutation();
+  const [removeFav, { isLoading: removing } ] = useRemoveFavoriteCookerMutation();
+  const toggling = useMemo(() => adding || removing, [adding, removing]);
+
+  const onToggleFavorite = async () => {
+    if (!cookerId) return;
+    let activeCustomerId = customerId;
+    if (!activeCustomerId) {
+      const { data } = await supabase.auth.getUser();
+      const fetchedId = data?.user?.id;
+      if (fetchedId) {
+        setCustomerIdFromSupabase(fetchedId);
+        activeCustomerId = fetchedId;
+      } else {
+        toaster.create({ title: "Please login to favorite chefs", type: "warning", duration: 2000, isClosable: true });
+        return;
+      }
+    }
+    const optimisticNext = !fav;
+    setFav(optimisticNext);
+    try {
+      if (optimisticNext) {
+        dispatch(addFavoriteCooker(cookerId));
+        const res = await addFav({ customerId: activeCustomerId, cookerId });
+        if (res.error) throw res.error;
+        toaster.create({ title: "Added to favorites ❤️", type: "success", duration: 1500 });
+      } else {
+        dispatch(removeFavoriteCooker(cookerId));
+        const res = await removeFav({ customerId: activeCustomerId, cookerId });
+        if (res.error) throw res.error;
+        toaster.create({ title: "Removed from favorites 💔", type: "success", duration: 1500 });
+      }
+    } catch (e) {
+      setFav(!optimisticNext);
+      if (optimisticNext) {
+        dispatch(removeFavoriteCooker(cookerId));
+      } else {
+        dispatch(addFavoriteCooker(cookerId));
+      }
+      toaster.create({ title: "Action failed", type: "error", duration: 1800 });
+    }
+  };
 
   return (
     <Box
@@ -43,7 +132,7 @@ const ChefProfileCard = ({
     >
       {/* Favorite Icon */}
       <IconButton
-        onClick={() => setFav(!fav)}
+        onClick={onToggleFavorite}
         variant="ghost"
         aria-label="Add to favorites"
         position="absolute"
@@ -53,6 +142,7 @@ const ChefProfileCard = ({
           fav ? "red.400" : colorMode === "dark" ? "whiteAlpha.800" : "gray.700"
         }
         _hover={{ color: "red.400" }}
+        isLoading={toggling}
         bg={
           fav
             ? colorMode === "dark"
@@ -65,7 +155,7 @@ const ChefProfileCard = ({
         borderRadius={"16px"}
         border={`1px solid ${colors.light.textSub}`}
       >
-        <FiHeart fill={fav ? "#FA2C23" : "none"} />
+        {fav ? <FaHeart color="#FA2C23" /> : <FaRegHeart />}
       </IconButton>
 
       <Flex
@@ -172,7 +262,7 @@ const ChefProfileCard = ({
                 >
                   {avg_rating || 0}({total_reviews || "0"} Reviews)
                 </Text>
-                <Icon
+                {/* <Icon
                   as={FaPhoneAlt}
                   color={
                     colorMode == "light"
@@ -190,11 +280,11 @@ const ChefProfileCard = ({
                   }
                 >
                   {users?.phone || "no number"}
-                </Text>
+                </Text> */}
               </Flex>
 
               <Flex align="center" gap={2}>
-                <Icon
+                {/* <Icon
                   as={MdAlternateEmail}
                   color={
                     colorMode == "light"
@@ -212,7 +302,7 @@ const ChefProfileCard = ({
                   }
                 >
                   {users?.email || "no email"}
-                </Text>
+                </Text> */}
                 <Icon
                   as={FaClock}
                   color={
@@ -264,7 +354,7 @@ const ChefProfileCard = ({
                 </Text>
               </Flex>
               <Flex align="center" gap={2}>
-                <Icon
+                {/* <Icon
                   as={MdAlternateEmail}
                   fontWeight="light"
                   color={
@@ -282,10 +372,10 @@ const ChefProfileCard = ({
                   }
                 >
                   {users?.email || "no email"}
-                </Text>
+                </Text> */}
               </Flex>
               <Flex align="center" gap={2}>
-                <Icon
+                {/* <Icon
                   as={FaPhoneAlt}
                   fontWeight="light"
                   color={
@@ -303,7 +393,7 @@ const ChefProfileCard = ({
                   }
                 >
                   {users?.phone || "no number"}
-                </Text>
+                </Text> */}
               </Flex>
               <Flex align="center" gap={2}>
                 <Icon

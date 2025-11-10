@@ -1,4 +1,4 @@
-
+//mariam's Api 
 import { createApi, fakeBaseQuery } from '@reduxjs/toolkit/query/react';
 import { supabase } from "../../../services/supabaseClient";
 
@@ -46,7 +46,7 @@ export const cookersApprovalsApi = createApi({
     approveCooker: builder.mutation({
       async queryFn({ id, approved_by }) {
         try {
-          // جلب approval
+          // get approval
           const { data: approval, error: fetchError } = await supabase
             .from('cooker_approvals')
             .select('*')
@@ -54,14 +54,15 @@ export const cookersApprovalsApi = createApi({
             .single();
           if (fetchError) return { error: fetchError };
 
-          // تحديث approval إلى approved
+          //update to aproved
           const { data: updatedApproval, error: updateError } = await supabase
             .from('cooker_approvals')
-            .update({ status: 'approved', approved_at: new Date().toISOString(), approved_by: null })
+            .update({ status: 'approved', approved_at: new Date().toISOString(), approved_by: null})
             .eq('id', id);
+            
           if (updateError) return { error: updateError };
 
-          // إضافة cooker للجدول لو مش موجود
+          //add cooker to table if not existed
           const { data: existingCooker } = await supabase
             .from('cookers')
             .select('*')

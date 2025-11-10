@@ -19,23 +19,31 @@ import { Box } from '@chakra-ui/react';
 import { Text } from '@chakra-ui/react';
 import { Select } from '@chakra-ui/react';
 import { NativeSelect } from "@chakra-ui/react"
+import { Spinner, VStack } from "@chakra-ui/react"
 
 import colors from '../../../theme/color';
+// import { useGetAdminIdQuery } from '../../../app/features/Admin/adminData';
 
 
 export default function ChefTable() {
+
+
     const { colorMode } = useColorMode();
-    const { data: cooker_approvals = [], refetch } = useGetAllCookerApprovalsQuery();
+    const { data: cooker_approvals = [], refetch, isLoading } = useGetAllCookerApprovalsQuery();
+
     const [approveCooker] = useApproveCookerMutation();
     const [deleteCookerApproval, { isLoading: isDeleting }] = useDeleteCookerApprovalMutation();
     const [rejectCookerApproval] = useRejectCookerApprovalMutation();
+
+    // const {data :adminEmail ,isLoading: adminLoading }= useGetAdminIdQuery();
+    // console.log (adminEmail);
 
 
     const [selectedCooker, setSelectedCooker] = useState(null);
     const [dialogType, setDialogType] = useState(""); // approve , reject ,details
 
     const [notes, setNotes] = useState("");
-
+    const [isApproving, setIsApproving] = useState(false);
 
     const openDialog = (cooker, type) => {
         setSelectedCooker(cooker);
@@ -48,11 +56,13 @@ export default function ChefTable() {
     };
 
     ///***************************************************************************************** */
-
+    //handling approve cooker
     const handleApproved = async () => {
+
         try {
-            const dummyAdminId = "test-admin-id";
-            await approveCooker({ id: selectedCooker.id, approved_by: dummyAdminId }).unwrap();
+
+            setIsApproving(true);
+            await approveCooker({ id: selectedCooker.id }).unwrap();  //if there's an admin we have to write approve_by : adminEmail 
 
             await refetch();
             toaster.create({
@@ -67,9 +77,11 @@ export default function ChefTable() {
                 type: "error",
             });
         } finally {
+            setIsApproving(false);
             closeDialog();
         }
     };
+
 
     /// handle delete btn (create toast )
     const handleDelete = async (id) => {
@@ -90,7 +102,7 @@ export default function ChefTable() {
         }
     };
 
-
+    //handle rejection 
 
     const handleReject = async () => {
         if (!notes) {
@@ -150,23 +162,23 @@ export default function ChefTable() {
                 <HStack spacing={4} mb={4} justifyContent="flex-end"  >
                     <Text>Filter by Status:</Text>
 
-                <NativeSelect.Root size="sm" width="240px"   >
-                    <NativeSelect.Field value={statusFilter}
-                        onChange={(e) => setStatusFilter(e.target.value)}>
-                        <option value="all">All</option>
-                        <option value="pending">Pending</option>
-                        <option value="approved">Approved</option>
-                        <option value="rejected">Rejected</option>
-                    </NativeSelect.Field>
-                    <NativeSelect.Indicator />
-                </NativeSelect.Root>
+                    <NativeSelect.Root size="sm" width="240px"   >
+                        <NativeSelect.Field value={statusFilter}
+                            onChange={(e) => setStatusFilter(e.target.value)}>
+                            <option value="all">All</option>
+                            <option value="pending">Pending</option>
+                            <option value="approved">Approved</option>
+                            <option value="rejected">Rejected</option>
+                        </NativeSelect.Field>
+                        <NativeSelect.Indicator />
+                    </NativeSelect.Root>
 
                 </HStack>
 
 
                 <Table.Root size="lg" interactive >
                     <Table.Header stickyHeader>
-                        <Table.Row bg={colorMode === "light" ? "white" : colors.dark.bgSecond}>
+                        <Table.Row bg={colorMode === "light" ? "rgb(227, 240, 230)" : colors.dark.bgSecond}>
                             <Table.ColumnHeader>Avatar</Table.ColumnHeader>
                             <Table.ColumnHeader>Seller Name</Table.ColumnHeader>
                             <Table.ColumnHeader>Cuisine Type</Table.ColumnHeader>
@@ -177,123 +189,144 @@ export default function ChefTable() {
                         </Table.Row>
                     </Table.Header>
                     <Table.Body>
-                        {currentItems.map((cooker) => (
-                            <Table.Row key={cooker.id} bg={colorMode === "dark" ? colors.dark.bgMain : ""}>
-                                <Table.Cell>
-                                    <img
-                                        src={cooker.user?.avatar_url || "https://via.placeholder.com/80"}
-                                        alt={cooker.user?.name}
-                                        style={{ width: "80px", height: "80px", borderRadius: "50%", objectFit: "cover", marginBottom: "15px" }}
-                                    />
-                                </Table.Cell>
-                                <Table.Cell>{cooker.user?.name}</Table.Cell>
-                                <Table.Cell>{cooker.cooker?.specialty || "—"}</Table.Cell>
-                                <Table.Cell>{cooker.cooker?.kitchen_name || "—"}</Table.Cell>
-                                <Table.Cell>{new Intl.DateTimeFormat("en-US", {
-                                    year: "numeric",
-                                    month: "short",
-                                    day: "2-digit",
-                                    hour: "2-digit",
-                                    minute: "2-digit",
-
-                                    hour12: true,
-                                }).format(new Date(cooker.applied_at))}</Table.Cell>
-                                <Table.Cell>
-                                    <Badge
-                                        size={"lg"}
-                                        px={"10px"}
-                                        py={"8px"}
-                                        borderRadius={"30px"}
-                                        color={cooker.status === "pending" ? "rgb(245, 198, 58)" : cooker.status === "approved" ? "rgb(23, 163, 74)" : "rgb(239, 67, 67)"}
-                                        background={cooker.status === "pending" ? "rgb(249, 243, 227)" : cooker.status === "approved" ? "rgb(227, 240, 230)" : "rgb(249, 231, 230)"}
-                                    >
-                                        {cooker.status}
-                                    </Badge>
-                                </Table.Cell>
-                                <Table.Cell>
-                                    <HStack>
-                                        {cooker.status === "pending" && (
-                                            <>
-                                                {/* approve badge */}
-
-                                                <Button
-                                                    size="sm"
-                                                    variant="ghost"
-                                                    colorScheme="red"
-                                                    borderWidth={"1px"}
-                                                    borderColor={
-                                                        colorMode === "light" ? "rgb(23, 163, 74)" : "green"
-                                                    }
-                                                    borderRadius={"10px"}
-                                                    _hover={{ backgroundColor: "rgb(227, 240, 230)" }}
-                                                    onClick={() => openDialog(cooker, "approve")}
-                                                >
-                                                    <FaRegCheckCircle color="rgb(23, 163, 74)" />
-                                                </Button>
-
-                                                {/* reject badge */}
 
 
-                                                <Button
-                                                    size="sm"
-                                                    variant="ghost"
-                                                    colorScheme="red"
-                                                    borderWidth={"1px"}
-                                                    borderColor={
-                                                        colorMode === "light" ? "rgb(239, 67, 67)" : "red"
-                                                    }
-                                                    borderRadius={"10px"}
-                                                    _hover={{ backgroundColor: "rgb(249, 231, 230)" }}
-                                                    onClick={() => openDialog(cooker, "reject")}
-                                                >
-                                                    <VscError color='rgb(239, 67, 67)' />
-                                                </Button>
+                        {isLoading ? (
 
 
-
-                                            </>
-
-
-
-                                        )}
-
-
-                                        <Button
-                                            size="sm"
-                                            variant="ghost"
-                                            colorScheme="red"
-                                            borderWidth={"1px"}
-                                            borderColor={
-                                                colorMode === "light" ? "green" : "green"
-                                            }
-                                            borderRadius={"10px"}
-                                            _hover={{ backgroundColor: "green" }}
-                                            onClick={() => openDialog(cooker, "details")}
-                                        >
-                                            <MdErrorOutline />
-                                        </Button>
-
-
-
-                                        {/* delete cooker btn */}
-                                        <Button
-                                            size="sm"
-                                            variant="ghost"
-                                            colorScheme="red"
-                                            borderWidth={"1px"}
-                                            borderColor={
-                                                colorMode === "light" ? "red.200" : "red.800"
-                                            }
-                                            borderRadius={"10px"}
-                                            _hover={{ backgroundColor: "#f9e7e6" }}
-                                            onClick={() => openDialog(cooker, "delete")}
-                                        >
-                                            <FaUserXmark color="red" />
-                                        </Button>
-                                    </HStack>
+                            <Table.Row bg={colorMode === "dark" ? colors.dark.bgMain : ""} >
+                                <Table.Cell colSpan={7} textAlign="center">
+                                    <VStack colorPalette="teal">
+                                        <Spinner color="colorPalette.600" />
+                                        <Text color="colorPalette.600">Loading Cookers...</Text>
+                                    </VStack>
                                 </Table.Cell>
                             </Table.Row>
-                        ))}
+
+                        ) : (
+
+
+                            currentItems.map((cooker) => (
+                                <Table.Row key={cooker.id} bg={colorMode === "dark" ? colors.dark.bgMain : ""}>
+                                    <Table.Cell>
+                                        <img
+                                            src={cooker.user?.avatar_url || "https://via.placeholder.com/80"}
+                                            alt={cooker.user?.name}
+                                            style={{ width: "80px", height: "80px", borderRadius: "50%", objectFit: "cover", marginBottom: "15px" }}
+                                        />
+                                    </Table.Cell>
+                                    <Table.Cell>{cooker.user?.name}</Table.Cell>
+                                    <Table.Cell>{cooker.cooker?.specialty || "—"}</Table.Cell>
+                                    <Table.Cell>{cooker.cooker?.kitchen_name || "—"}</Table.Cell>
+                                    <Table.Cell>{new Intl.DateTimeFormat("en-US", {
+                                        year: "numeric",
+                                        month: "short",
+                                        day: "2-digit",
+                                        hour: "2-digit",
+                                        minute: "2-digit",
+
+                                        hour12: true,
+                                    }).format(new Date(cooker.applied_at))}</Table.Cell>
+                                    <Table.Cell>
+                                        <Badge
+                                            size={"lg"}
+                                            px={"10px"}
+                                            py={"8px"}
+                                            borderRadius={"30px"}
+                                            color={cooker.status === "pending" ? "rgb(245, 198, 58)" : cooker.status === "approved" ? "rgb(23, 163, 74)" : "rgb(239, 67, 67)"}
+                                            background={cooker.status === "pending" ? "rgb(249, 243, 227)" : cooker.status === "approved" ? "rgb(227, 240, 230)" : "rgb(249, 231, 230)"}
+                                        >
+                                            {cooker.status}
+                                        </Badge>
+                                    </Table.Cell>
+                                    <Table.Cell>
+                                        <HStack>
+                                            {cooker.status === "pending" && (
+                                                <>
+                                                    {/* approve badge */}
+
+                                                    <Button
+                                                        size="sm"
+                                                        variant="ghost"
+                                                        colorScheme="red"
+                                                        borderWidth={"1px"}
+                                                        borderColor={
+                                                            colorMode === "light" ? "rgb(23, 163, 74)" : "green"
+                                                        }
+                                                        borderRadius={"10px"}
+                                                        _hover={{ backgroundColor: "rgb(227, 240, 230)" }}
+                                                        onClick={() => openDialog(cooker, "approve")}
+                                                    >
+                                                        <FaRegCheckCircle color="rgb(23, 163, 74)" />
+                                                    </Button>
+
+                                                    {/* reject badge */}
+
+
+                                                    <Button
+                                                        size="sm"
+                                                        variant="ghost"
+                                                        colorScheme="red"
+                                                        borderWidth={"1px"}
+                                                        borderColor={
+                                                            colorMode === "light" ? "rgb(239, 67, 67)" : "red"
+                                                        }
+                                                        borderRadius={"10px"}
+                                                        _hover={{ backgroundColor: "rgb(249, 231, 230)" }}
+                                                        onClick={() => openDialog(cooker, "reject")}
+                                                    >
+                                                        <VscError color='rgb(239, 67, 67)' />
+                                                    </Button>
+
+
+
+                                                </>
+
+
+
+                                            )}
+
+
+                                            <Button
+                                                size="sm"
+                                                variant="ghost"
+                                                colorScheme="red"
+                                                borderWidth={"1px"}
+                                                borderColor={
+                                                    colorMode === "light" ? "green" : "green"
+                                                }
+                                                borderRadius={"10px"}
+                                                _hover={{ backgroundColor: "green" }}
+                                                onClick={() => openDialog(cooker, "details")}
+                                            >
+                                                <MdErrorOutline />
+                                            </Button>
+
+
+
+                                            {/* delete cooker btn */}
+                                            <Button
+                                                size="sm"
+                                                variant="ghost"
+                                                colorScheme="red"
+                                                borderWidth={"1px"}
+                                                borderColor={
+                                                    colorMode === "light" ? "red.200" : "red.800"
+                                                }
+                                                borderRadius={"10px"}
+                                                _hover={{ backgroundColor: "#f9e7e6" }}
+                                                onClick={() => openDialog(cooker, "delete")}
+                                            >
+                                                <FaUserXmark color="red" />
+                                            </Button>
+                                        </HStack>
+                                    </Table.Cell>
+                                </Table.Row>
+                            ))
+
+
+                        )}
+
                     </Table.Body>
                 </Table.Root>
 
@@ -342,6 +375,7 @@ export default function ChefTable() {
                     onDelete={handleDelete}
                     notes={notes}
                     setNotes={setNotes}
+                    isApproving={isApproving} //for loading btn
                 />
 
 

@@ -41,11 +41,6 @@ export const registerSchema = yup
         /^01[0-9]{9}$/,
         "Phone number must be a valid Egyptian number (e.g., 01012345678)"
       ),
-    address: yup
-      .string()
-      .trim()
-      .required("Address is required")
-      .min(5, "Address should be at least 5 characters."),
     password: yup
       .string()
       .trim()
@@ -128,6 +123,10 @@ export const registerSchemaKitchenChef = yup
           return value > StartTime;
         }
       ),
+    specialty : yup
+      .string()
+      .required("specialty  is required")
+      .trim(),
     password: yup
       .string()
       .required("Password is required")

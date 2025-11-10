@@ -1,15 +1,37 @@
 import { Box, VStack, HStack, Text, Icon, Skeleton } from "@chakra-ui/react";
 import { FiMapPin, FiClock, FiPhone, FiUser } from "react-icons/fi";
 import { useGetUserDataQuery } from "../../app/features/Auth/authSlice";
+import { useGetAddressesQuery } from "../../app/features/Customer/addressSlice";
 import { useColorMode } from "../../theme/color-mode";
 import colors from "../../theme/color";
 export default function DeliveryInfoCard() {
   const { colorMode } = useColorMode();
-  const { data: user, isLoading, isError } = useGetUserDataQuery();
+  const { data: user, isLoading, isError } = useGetUserDataQuery(undefined, {
+    refetchOnFocus: true,
+    refetchOnReconnect: true,
+  });
+  const { data: addresses = [] } = useGetAddressesQuery(undefined, {
+    refetchOnFocus: true,
+    refetchOnReconnect: true,
+  });
+  console.log ("from deleviery",user)
 
   // Default values in case user data is not available
   const deliveryInfo = {
-    address: user?.address || "No address provided",
+    // Prefer primary address from addresses slice
+    address: (() => {
+      const primary = addresses.find((a) => a.is_default);
+      if (!primary) return "";
+      const parts = [
+        primary.building_no,
+        primary.street,
+        primary.area,
+        primary.city,
+        primary.floor ? `Floor ${primary.floor}` : "",
+        primary.apartment ? `Apt ${primary.apartment}` : "",
+      ].filter(Boolean);
+      return parts.join(", ");
+    })(),
     phone: user?.phone || "No phone number provided",
     name: user?.name || "Guest User",
   };
@@ -101,17 +123,27 @@ export default function DeliveryInfoCard() {
                 : colors.dark.mainFixed
             }
           />
-          <Text
-            fontSize="sm"
-            fontWeight="light"
-            color={
-              colorMode == "light"
-                ? colors.light.textMain
-                : colors.dark.textMain
-            }
-          >
-            {deliveryInfo?.address}
-          </Text>
+          {deliveryInfo.address ? (
+            <Text
+              fontSize="sm"
+              fontWeight="light"
+              color={
+                colorMode == "light"
+                  ? colors.light.textMain
+                  : colors.dark.textMain
+              }
+            >
+              {deliveryInfo.address}
+            </Text>
+          ) : (
+            <Text
+              fontSize="sm"
+              fontWeight="medium"
+              color={colorMode == "light" ? colors.light.error : colors.dark.error}
+            >
+              No address added
+            </Text>
+          )}
         </HStack>
         <HStack>
           <Icon

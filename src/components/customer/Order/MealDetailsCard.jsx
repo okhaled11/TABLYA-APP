@@ -13,71 +13,110 @@ import {
 } from "@chakra-ui/react";
 import { FiMinus, FiPlus } from "react-icons/fi";
 import { IoStar } from "react-icons/io5";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useColorMode } from "../../../theme/color-mode";
 import colors from "../../../theme/color";
 import imgMeal from "../../../assets/image31.png";
-import { useDispatch } from "react-redux";
-import { addToCart } from "../../../app/features/Customer/CartSlice";
+import { useDispatch, useSelector } from "react-redux";
+import { addToCart, updateQuantity } from "../../../app/features/Customer/CartSlice";
 import { Link } from "react-router-dom";
 
 const MealDetailsCard = ({ mealData, chefData }) => {
   console.log(mealData);
   console.log(chefData);
   console.log(chefData.users.name);
-  
-  
+
   const { colorMode } = useColorMode();
   const dispatch = useDispatch();
-  const [count, setCount] = useState(1);
-
+  const { cartItems } = useSelector((state) => state.cart);
 
   if (!mealData || !chefData) {
     return <div>No data available</div>;
   }
 
-  // المخزون المتاح (إذا لم يكن موجوداً في الداتابيس، نستخدم 10 كقيمة افتراضية)
-  const availableStock = mealData.stock || 10;
+  const availableStock = mealData.stock || 0;
   
-  // المخزون المتبقي بعد الشراء
-  const remainingStock = availableStock - count;
+  // Local state for count when item is not in cart
+  const [localCount, setLocalCount] = useState(availableStock === 0 ? 0 : 1);
+  
+  // Get current quantity from cart or use local state
+  const cartItem = cartItems.find((item) => item.id === mealData.id);
+  const count = cartItem ? cartItem.quantity : localCount;
+
+  const remainingStock =
+    availableStock - count < 0 ? 0 : availableStock - count;
 
   const handleIncrement = () => {
     if (count < availableStock) {
-      setCount(count + 1);
+      if (cartItem) {
+        // If item is in cart, update its quantity in Redux
+        dispatch(updateQuantity({ id: mealData.id, quantity: count + 1 }));
+      } else {
+        // If not in cart, update local state
+        setLocalCount(localCount + 1);
+      }
     }
   };
-  
+
   const handleDecrement = () => {
-    if (count > 1) setCount(count - 1);
+    const minCount = availableStock === 0 ? 0 : 1;
+    if (count > minCount) {
+      if (cartItem) {
+        // If item is in cart, update its quantity in Redux
+        dispatch(updateQuantity({ id: mealData.id, quantity: count - 1 }));
+      } else {
+        // If not in cart, update local state
+        setLocalCount(localCount - 1);
+      }
+    }
   };
 
-  const totalPrice = (mealData.price * count).toFixed(2);
-  
-  // تحقق من وجود مخزون
+  const totalPrice = count === 0 
+    ? mealData.price.toFixed(2) 
+    : (mealData.price * count).toFixed(2);
+
   const isOutOfStock = availableStock === 0 || !mealData.available;
 
+  useEffect(() => {
+    if (availableStock === 0) {
+      if (cartItem && count !== 0) {
+        dispatch(updateQuantity({ id: mealData.id, quantity: 0 }));
+      } else if (!cartItem && localCount !== 0) {
+        setLocalCount(0);
+      }
+    }
+  }, [availableStock, count, cartItem, dispatch, mealData.id, localCount]);
 
   const handleAddToCart = () => {
-    const cartItem = {
-      id: mealData.id,
-      cooker_id: mealData.cooker_id,
-      title: mealData.title,
-      description: mealData.description,
-      price: mealData.price,
-      available: mealData.available,
-      prep_time_minutes: mealData.prep_time_minutes,
-      created_at: mealData.created_at,
-      category: mealData.category,
-      menu_img: mealData.menu_img,
-      quantity: count,
-      stock: remainingStock, // المخزون المتبقي بعد الطلب
-    };
-    console.log(cartItem);
-    dispatch(addToCart(cartItem));
+    if (isOutOfStock || count === 0) {
+      console.warn("Cannot add to cart: Out of stock or count is 0");
+      return;
+    }
+
+    // If item already in cart, just update quantity
+    if (cartItem) {
+      dispatch(updateQuantity({ id: mealData.id, quantity: count }));
+    } else {
+      // New item, add to cart
+      const newCartItem = {
+        id: mealData.id,
+        cooker_id: mealData.cooker_id,
+        title: mealData.title,
+        description: mealData.description,
+        price: mealData.price,
+        available: mealData.available,
+        prep_time_minutes: mealData.prep_time_minutes,
+        created_at: mealData.created_at,
+        category: mealData.category,
+        menu_img: mealData.menu_img,
+        quantity: count,
+        stock: mealData.stock,
+      };
+      console.log(newCartItem);
+      dispatch(addToCart(newCartItem));
+    }
   };
 
- 
   console.log(chefData);
   return (
     <Container maxW="container.xl" py={{ base: 4, md: 6 }}>
@@ -85,7 +124,6 @@ const MealDetailsCard = ({ mealData, chefData }) => {
         direction={{ base: "column", lg: "row" }}
         gap={{ base: 4, lg: 6 }}
         alignItems="stretch"
-      
       >
         {/* Left Side - Image */}
         <Box
@@ -94,7 +132,7 @@ const MealDetailsCard = ({ mealData, chefData }) => {
           position="relative"
           display="flex"
           flexDirection="column"
-            maxH={{base:"400px",lg:"570px"}}
+          maxH={{ base: "400px", lg: "570px" }}
         >
           <Box
             borderRadius="3xl"
@@ -122,7 +160,7 @@ const MealDetailsCard = ({ mealData, chefData }) => {
         <Box
           flex="1"
           border="2px solid"
-           maxH={{base:"550px",md:"570px"}}
+          maxH={{ base: "550px", md: "570px" }}
           borderColor={
             colorMode === "light"
               ? colors.light.mainFixed
@@ -213,7 +251,7 @@ const MealDetailsCard = ({ mealData, chefData }) => {
                 <HStack gap={3}>
                   <IconButton
                     onClick={handleDecrement}
-                    isDisabled={count === 1 || isOutOfStock}
+                    isDisabled={count <= 0 || count === 1 || isOutOfStock}
                     size={{ base: "sm", md: "md" }}
                     borderRadius="md"
                     variant="outline"
@@ -379,7 +417,10 @@ const MealDetailsCard = ({ mealData, chefData }) => {
                           : colors.dark.textSub
                       }
                     >
-                      {chefData.avg_rating ? chefData.avg_rating.toFixed(1) : "N/A"} ({chefData.total_reviews || 0} Reviews)
+                      {chefData.avg_rating
+                        ? chefData.avg_rating.toFixed(1)
+                        : "N/A"}{" "}
+                      ({chefData.total_reviews || 0} Reviews)
                     </Text>
                   </HStack>
                 </Box>
@@ -419,13 +460,13 @@ const MealDetailsCard = ({ mealData, chefData }) => {
               </Button>
 
               <Button
-              as={Link}
-              to={"/home/order"}
+                as={!isOutOfStock && count > 0 ? Link : undefined}
+                to={!isOutOfStock && count > 0 ? "/home/cart" : undefined}
                 flex="1"
                 size={{ base: "md", md: "lg" }}
                 variant="outline"
                 onClick={handleAddToCart}
-                isDisabled={isOutOfStock}
+                isDisabled={isOutOfStock || count === 0}
                 borderColor={
                   colorMode === "light"
                     ? colors.light.mainFixed

@@ -1,22 +1,10 @@
 
 import React, { useMemo } from "react";
 import { Chart, useChart } from "@chakra-ui/charts";
-import {
-    Box,
-    Card,
-    CardBody,
-    CardHeader,
-    Heading
+import {Box,Card,CardBody,CardHeader,Heading
 } from "@chakra-ui/react";
-
-import {
-    LineChart,
-    Line,
-    XAxis,
-    YAxis,
-    CartesianGrid,
-    Tooltip,
-    ResponsiveContainer
+import { Spinner, Text, VStack } from "@chakra-ui/react"
+import {LineChart,Line,XAxis,YAxis,CartesianGrid,Tooltip,ResponsiveContainer
 } from "recharts";
 
 import { useColorMode } from "../../../theme/color-mode";
@@ -52,9 +40,10 @@ export default function RevenueChart() {
             <CardBody>
                 <Box w="100%" h="300px">
                     {isLoading ? (
-                        <Heading fontSize="16px" color="gray.400" textAlign="center">
-                            Loading...
-                        </Heading>
+                        <VStack colorPalette="teal">
+                            <Spinner color="colorPalette.600" />
+                            <Text color="colorPalette.600">Loading...</Text>
+                        </VStack>
                     ) : (
                         <ResponsiveContainer width="100%" height="100%">
                             <Chart.Root maxH="sm" chart={chart}>

@@ -5,10 +5,11 @@ import UserGrowthChart from '../../components/Admin/Analytics_page/UserGrowthCha
 import SalesChart from '../../components/Admin/Analytics_page/SalesChart'
 import { useState } from 'react'
 import Filterdropdown from '../../components/Admin/Analytics_page/Filterdropdown'
-import ExportPDF from '../../components/Admin/Analytics_page/Exportpdf'
+import ExportKPIs from '../../components/Admin/Analytics_page/ExportKPIs'
 import { useColorMode } from '../../theme/color-mode'
 
-import colors from '../../theme/color'
+
+
 
 export default function Analytics() {
   const {colorMode}= useColorMode();
@@ -32,8 +33,7 @@ export default function Analytics() {
           <Box mt= {"20px"}  display="flex" alignItems="center" gap="10px" mx={"20px"}>
          <Filterdropdown period= {period} setPeriod= {setPeriod} />
 
-         <ExportPDF targetRef={kpiRef} fileName="kpi-report.pdf" />
-
+         <ExportKPIs/>
           </Box>
 
 

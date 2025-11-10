@@ -1,7 +1,8 @@
 import { createApi, fakeBaseQuery } from "@reduxjs/toolkit/query/react";
 import { supabase } from "../../../services/supabaseClient";
 
-const PLATFORM_PROFIT_RATE = 0.1;
+//Mariam's APIs 
+const PLATFORM_PROFIT_RATE = 0.1;  //10%
 
 export const dashboardApi = createApi({
   reducerPath: "dashboardApi",
