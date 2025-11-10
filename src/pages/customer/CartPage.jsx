@@ -5,7 +5,7 @@ import CartSection from "../../components/cart/CartSection";
 import OrderSummarySection from "../../components/cart/OrderSummarySection";
 import { useGetUserDataQuery } from "../../app/features/Auth/authSlice";
 import { toaster } from "../../components/ui/toaster";
-import { useCreateOrderMutation } from "../../app/features/Customer/ordersSlice";
+import { useCreateOrderMutation, useUpdateOrderPaymentStatusMutation } from "../../app/features/Customer/ordersSlice";
 import { clearCart } from "../../app/features/Customer/CartSlice";
 
 export default function CartPage() {
@@ -14,6 +14,7 @@ export default function CartPage() {
   const { cartItems, cookerId } = useSelector((state) => state.cart);
   const { data: user } = useGetUserDataQuery();
   const [createOrder] = useCreateOrderMutation();
+  const [updateOrderPaymentStatus] = useUpdateOrderPaymentStatusMutation();
 
   // Calculate subtotal from cart items
   const subtotal = cartItems.reduce((total, item) => {
@@ -42,8 +43,45 @@ export default function CartPage() {
   };
 
   const handleCheckout = async (opts = {}) => {
-    const { notes = "", payment_method = "cash", payment_status = "pending" } =
+    const { notes = "", payment_method = "cash", payment_status = "pending", orderId = null, paymentDetails = null } =
       typeof opts === "string" ? { notes: opts } : opts || {};
+    
+    // If orderId exists, this is a PayPal payment completion - just update status
+    if (orderId) {
+      try {
+        console.log("Updating order payment status:", orderId);
+        const result = await updateOrderPaymentStatus({
+          orderId,
+          payment_status: "paid",
+        }).unwrap();
+        
+        console.log("Payment status updated successfully:", result);
+        
+        toaster.create({
+          title: "Payment successful",
+          description: `Order #${orderId} paid successfully via PayPal`,
+          type: "success",
+          duration: 3000,
+          isClosable: true,
+          position: "top",
+        });
+        dispatch(clearCart());
+        navigate("/home");
+      } catch (e) {
+        console.error("Failed to update payment:", e);
+        toaster.create({
+          title: "Failed to update payment",
+          description: e?.message || "Please contact support",
+          type: "error",
+          duration: 3000,
+          isClosable: true,
+          position: "top",
+        });
+      }
+      return;
+    }
+    
+    // Otherwise, create new order (for cash payment)
     if (!validateBeforeCheckout()) return;
     try {
       const delivery_fee = 0;
@@ -81,6 +119,40 @@ export default function CartPage() {
       });
     }
   };
+  
+  // Create order for PayPal (before payment)
+  const handleCreateOrderForPayPal = async (opts = {}) => {
+    const { notes = "", payment_method = "credit_card", payment_status = "pending" } = opts || {};
+    if (!validateBeforeCheckout()) return null;
+    
+    try {
+      const delivery_fee = 0;
+      const discount = 0;
+      const resp = await createOrder({
+        cooker_id: cookerId,
+        subtotal,
+        delivery_fee,
+        discount,
+        address: user?.address || "",
+        notes,
+        payment_method,
+        payment_status,
+        items: cartItems,
+      }).unwrap();
+      
+      return resp?.id || null;
+    } catch (e) {
+      toaster.create({
+        title: "Failed to create order",
+        description: e?.message || "Please try again",
+        type: "error",
+        duration: 3000,
+        isClosable: true,
+        position: "top",
+      });
+      return null;
+    }
+  };
 
   return (
     <Container maxW="container.xl" py={8} px={[4, 6, 8]}>
@@ -100,6 +172,7 @@ export default function CartPage() {
             onContinueShopping={handleContinueShopping}
             onCheckout={handleCheckout}
             onValidate={validateBeforeCheckout}
+            onCreateOrderForPayPal={handleCreateOrderForPayPal}
           />
         </Box>
       </SimpleGrid>

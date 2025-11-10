@@ -22,6 +22,7 @@ import { useDispatch } from "react-redux";
 import { getDataRegisterChef } from "../../app/features/PersonalRegisterChefSlice";
 import { toaster } from "../ui/toaster";
 import { uploadImageToImgBB } from "../../services/uploadImageToImageBB";
+import { convertImageToWebP } from "../../services/imageToWebp";
 import { useTranslation } from "react-i18next";
 import { Link as LinkRoute } from "react-router-dom";
 import { CloseButton } from "@chakra-ui/react";
@@ -193,6 +194,7 @@ export const PersonalRegisterChef = ({ nextStepHandler }) => {
           maxWidth="100%"
           bg={bgInput}
           rounded={"md"}
+          accept="image/*"
           style={{
             display: "flex",
             justifyContent: isRTL ? "flex-end" : "flex-ebd",
@@ -200,13 +202,42 @@ export const PersonalRegisterChef = ({ nextStepHandler }) => {
           onFileAccept={async (details) => {
             const file = details.files?.[0];
             if (!file) return;
-            const imageUrl = await uploadImageToImgBB(file);
-            setValue("id_card_front_url", imageUrl, {
-              shouldValidate: true,
-            });
+            
+            // Validate file type
+            if (!file.type.startsWith('image/')) {
+              toaster.create({
+                title: "Invalid File Type",
+                description: "Please upload an image file only (JPG, PNG, GIF, etc.)",
+                type: "error",
+                duration: 3500,
+              });
+              return;
+            }
+            
+            try {
+              // Convert image to WebP format
+              const webpFile = await convertImageToWebP(file, {
+                quality: 0.85,
+                maxWidth: 1920,
+                maxHeight: 1920,
+              });
+              
+              const imageUrl = await uploadImageToImgBB(webpFile);
+              setValue("id_card_front_url", imageUrl, {
+                shouldValidate: true,
+              });
+            } catch (error) {
+              toaster.create({
+                title: "Conversion Error",
+                description: "Failed to process image. Please try another file.",
+                type: "error",
+                duration: 3500,
+              });
+              console.error('Image conversion error:', error);
+            }
           }}
         >
-          <FileUpload.HiddenInput />
+          <FileUpload.HiddenInput accept="image/*" />
           <InputGroup
             {...(isRTL
               ? {
@@ -267,6 +298,7 @@ export const PersonalRegisterChef = ({ nextStepHandler }) => {
           maxWidth="100%"
           bg={bgInput}
           rounded={"md"}
+          accept="image/*"
           style={{
             display: "flex",
             justifyContent: isRTL ? "flex-end" : "flex-ebd",
@@ -274,13 +306,42 @@ export const PersonalRegisterChef = ({ nextStepHandler }) => {
           onFileAccept={async (details) => {
             const file = details.files?.[0];
             if (!file) return;
-            const imageUrl = await uploadImageToImgBB(file);
-            setValue("id_card_back_url", imageUrl, {
-              shouldValidate: true,
-            });
+            
+            // Validate file type
+            if (!file.type.startsWith('image/')) {
+              toaster.create({
+                title: "Invalid File Type",
+                description: "Please upload an image file only (JPG, PNG, GIF, etc.)",
+                type: "error",
+                duration: 3500,
+              });
+              return;
+            }
+            
+            try {
+              // Convert image to WebP format
+              const webpFile = await convertImageToWebP(file, {
+                quality: 0.85,
+                maxWidth: 1920,
+                maxHeight: 1920,
+              });
+              
+              const imageUrl = await uploadImageToImgBB(webpFile);
+              setValue("id_card_back_url", imageUrl, {
+                shouldValidate: true,
+              });
+            } catch (error) {
+              toaster.create({
+                title: "Conversion Error",
+                description: "Failed to process image. Please try another file.",
+                type: "error",
+                duration: 3500,
+              });
+              console.error('Image conversion error:', error);
+            }
           }}
         >
-          <FileUpload.HiddenInput />
+          <FileUpload.HiddenInput accept="image/*" />
           <InputGroup
             {...(isRTL
               ? {
@@ -341,6 +402,7 @@ export const PersonalRegisterChef = ({ nextStepHandler }) => {
           maxWidth="100%"
           bg={bgInput}
           rounded={"md"}
+          accept="image/*"
           style={{
             display: "flex",
             justifyContent: isRTL ? "flex-end" : "flex-ebd",
@@ -348,13 +410,42 @@ export const PersonalRegisterChef = ({ nextStepHandler }) => {
           onFileAccept={async (details) => {
             const file = details.files?.[0];
             if (!file) return;
-            const imageUrl = await uploadImageToImgBB(file);
-            setValue("selfie_with_id_url", imageUrl, {
-              shouldValidate: true,
-            });
+            
+            // Validate file type
+            if (!file.type.startsWith('image/')) {
+              toaster.create({
+                title: "Invalid File Type",
+                description: "Please upload an image file only (JPG, PNG, GIF, etc.)",
+                type: "error",
+                duration: 3500,
+              });
+              return;
+            }
+            
+            try {
+              // Convert image to WebP format
+              const webpFile = await convertImageToWebP(file, {
+                quality: 0.85,
+                maxWidth: 1920,
+                maxHeight: 1920,
+              });
+              
+              const imageUrl = await uploadImageToImgBB(webpFile);
+              setValue("selfie_with_id_url", imageUrl, {
+                shouldValidate: true,
+              });
+            } catch (error) {
+              toaster.create({
+                title: "Conversion Error",
+                description: "Failed to process image. Please try another file.",
+                type: "error",
+                duration: 3500,
+              });
+              console.error('Image conversion error:', error);
+            }
           }}
         >
-          <FileUpload.HiddenInput />
+          <FileUpload.HiddenInput accept="image/*" />
           <InputGroup
             {...(isRTL
               ? {

@@ -7,13 +7,14 @@ import authReducer from "./features/Auth/loginSlice";
 import registerReducer from "./features/Auth/registerCustomerSlice";
 import { registerChef } from "./features/Auth/registerChefSlice";
 import { authApi } from "./features/Auth/authSlice";
-import {cookersApprovalsApi} from "./features/Admin/cookerApprovalsApi";
+import { cookersApprovalsApi } from "./features/Admin/cookerApprovalsApi";
 
 import { cookersApi } from "./features/Customer/CookersApi";
 import { dashboardApi } from "./features/Admin/dashboardApi";
 import { cookersApi as aminCookersApi } from "./features/Admin/cookerSlice";
 import { cookerApprovalsApi } from "./features/Admin/cookerApprovals";
-import { ordersApi } from "./features/Admin/ordersApi";
+import { ordersApi as adminOrdersApi } from "./features/Admin/ordersApi";
+import { ordersApi as customerOrdersApi } from "./features/Customer/ordersSlice";
 import { reportsApi } from "./features/Admin/reportsApi";
 
 import { passwordApi } from "./features/Customer/passwordSlice";
@@ -41,36 +42,33 @@ export const store = configureStore({
     auth: authReducer,
     register: registerReducer,
     PersonalRegisterChef: PersonalRegisterChefReducer,
-    // [supabaseApi.reducerPath]: supabaseApi.reducer,
+
+    // Customer APIs
     [cookersApi.reducerPath]: cookersApi.reducer,
-    [cookersApprovalsApi.reducerPath]: cookersApprovalsApi.reducer,    ///mariam api 
-    [dashboardApi.reducerPath]: dashboardApi.reducer,
     [OrdersApiCustomerSlice.reducerPath]: OrdersApiCustomerSlice.reducer,
     [OrdersHistoryCustomerSlice.reducerPath]: OrdersHistoryCustomerSlice.reducer,
-    [cookerApprovalsApi.reducerPath]: cookerApprovalsApi.reducer,
-    [ordersApi.reducerPath]: ordersApi.reducer,
-
-    cart: persistedCart,
-    favoriteCookers: favoriteCookersReducer,
-
-    // APIs
-    [authApi.reducerPath]: authApi.reducer,
-    [registerChef.reducerPath]: registerChef.reducer,
-    [UserSlice.reducerPath]:UserSlice.reducer,
-    [cookersApi.reducerPath]: cookersApi.reducer,
-    [aminCookersApi.reducerPath]: aminCookersApi.reducer,
-    [cookerApprovalsApi.reducerPath]: cookerApprovalsApi.reducer,     //mariam api 
-    [ordersApi.reducerPath]: ordersApi.reducer,
-    [reportsApi.reducerPath]: reportsApi.reducer,
+    [customerOrdersApi.reducerPath]: customerOrdersApi.reducer,
+    [reviewsApi.reducerPath]: reviewsApi.reducer,
+    [favoritesApi.reducerPath]: favoritesApi.reducer,
     [passwordApi.reducerPath]: passwordApi.reducer,
     [personalInfoApi.reducerPath]: personalInfoApi.reducer,
     [addressApi.reducerPath]: addressApi.reducer,
-    [OrdersApiCustomerSlice.reducerPath]: OrdersApiCustomerSlice.reducer,
-    [OrdersHistoryCustomerSlice.reducerPath]:
-      OrdersHistoryCustomerSlice.reducer,
-    [reviewsApi.reducerPath]: reviewsApi.reducer,
-    [favoritesApi.reducerPath]: favoritesApi.reducer,
-    [adminAuthApi.reducerPath]:adminAuthApi.reducer,
+    cart: persistedCart,
+    favoriteCookers: favoriteCookersReducer,
+
+    // Admin APIs
+    [cookersApprovalsApi.reducerPath]: cookersApprovalsApi.reducer,
+    [aminCookersApi.reducerPath]: aminCookersApi.reducer,
+    [dashboardApi.reducerPath]: dashboardApi.reducer,
+    [cookerApprovalsApi.reducerPath]: cookerApprovalsApi.reducer,
+    [ordersApi.reducerPath]: adminOrdersApi.reducer,
+    [reportsApi.reducerPath]: reportsApi.reducer,
+    [adminAuthApi.reducerPath]: adminAuthApi.reducer,
+
+    // Auth & User
+    [authApi.reducerPath]: authApi.reducer,
+    [registerChef.reducerPath]: registerChef.reducer,
+    [UserSlice.reducerPath]: UserSlice.reducer,
   },
 
   middleware: (getDefaultMiddleware) =>
@@ -84,9 +82,10 @@ export const store = configureStore({
       registerChef.middleware,
       cookersApi.middleware,
       aminCookersApi.middleware,
-      cookerApprovalsApi.middleware,    //mariam api
+      cookerApprovalsApi.middleware,
       dashboardApi.middleware,
-      ordersApi.middleware,
+      adminOrdersApi.middleware,
+      customerOrdersApi.middleware,
       reportsApi.middleware,
       passwordApi.middleware,
       personalInfoApi.middleware,

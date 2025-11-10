@@ -23,6 +23,57 @@ export const OrdersApiCustomerSlice = createApi({
                 }
             },
             providesTags: ["Orders"],
+            async onCacheEntryAdded(
+                userId,
+                { updateCachedData, cacheDataLoaded, cacheEntryRemoved }
+            ) {
+                let channel;
+                try {
+                    await cacheDataLoaded;
+
+                    // Subscribe to realtime changes for orders
+                    channel = supabase
+                        .channel(`orders-${userId}`)
+                        .on(
+                            'postgres_changes',
+                            {
+                                event: '*',
+                                schema: 'public',
+                                table: 'orders',
+                                filter: `customer_id=eq.${userId}`
+                            },
+                            (payload) => {
+                                updateCachedData((draft) => {
+                                    if (payload.eventType === 'INSERT') {
+                                        // Add new order at the beginning
+                                        draft.unshift(payload.new);
+                                    } else if (payload.eventType === 'UPDATE') {
+                                        // Update existing order
+                                        const index = draft.findIndex(order => order.id === payload.new.id);
+                                        if (index !== -1) {
+                                            draft[index] = payload.new;
+                                        }
+                                    } else if (payload.eventType === 'DELETE') {
+                                        // Remove deleted order
+                                        const index = draft.findIndex(order => order.id === payload.old.id);
+                                        if (index !== -1) {
+                                            draft.splice(index, 1);
+                                        }
+                                    }
+                                });
+                            }
+                        )
+                        .subscribe();
+                } catch (err) {
+                    console.error('Realtime subscription error:', err);
+                }
+
+                // Cleanup subscription when cache entry is removed
+                await cacheEntryRemoved;
+                if (channel) {
+                    supabase.removeChannel(channel);
+                }
+            },
         }),
 
         getOrderDetails: builder.query({
@@ -111,6 +162,45 @@ export const OrdersApiCustomerSlice = createApi({
                 }
             },
             providesTags: ["OrderDetails"],
+            async onCacheEntryAdded(
+                orderId,
+                { updateCachedData, cacheDataLoaded, cacheEntryRemoved }
+            ) {
+                let channel;
+                try {
+                    await cacheDataLoaded;
+
+                    // Subscribe to realtime changes for this specific order
+                    channel = supabase
+                        .channel(`order-${orderId}`)
+                        .on(
+                            'postgres_changes',
+                            {
+                                event: 'UPDATE',
+                                schema: 'public',
+                                table: 'orders',
+                                filter: `id=eq.${orderId}`
+                            },
+                            (payload) => {
+                                // Update the cached data when status changes
+                                updateCachedData((draft) => {
+                                    if (payload.new) {
+                                        Object.assign(draft, payload.new);
+                                    }
+                                });
+                            }
+                        )
+                        .subscribe();
+                } catch (err) {
+                    console.error('Realtime subscription error:', err);
+                }
+
+                // Cleanup subscription when cache entry is removed
+                await cacheEntryRemoved;
+                if (channel) {
+                    supabase.removeChannel(channel);
+                }
+            },
         }),
 
         getMealAndChefDetails: builder.query({

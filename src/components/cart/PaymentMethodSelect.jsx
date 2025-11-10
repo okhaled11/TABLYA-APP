@@ -12,17 +12,18 @@ import { useColorMode } from "../../theme/color-mode";
 import colors from "../../theme/color";
 import { Portal } from "@chakra-ui/react";
 import { FaCcVisa, FaMoneyBillWave } from "react-icons/fa";
-import PayPalCheckout from "./PayPalCheckout";
-export default function PaymentMethodSelect({ onCheckout = () => {}, total = 0, onValidate = () => true }) {
+import StripeCheckout from "./PayPalCheckout";
+export default function PaymentMethodSelect({ onCheckout = () => {}, total = 0, onValidate = () => true, onCreateOrderForPayPal = null }) {
   const { colorMode } = useColorMode();
 
   const [selectedCategory, setSelectedCategory] = useState("visa");
   const [notes, setNotes] = useState("");
-  const [paypalReady, setPaypalReady] = useState(false);
+  const [stripeReady, setStripeReady] = useState(false);
+  const [pendingOrderId, setPendingOrderId] = useState(null);
 
   useEffect(() => {
     if (selectedCategory !== "visa") {
-      setPaypalReady(false);
+      setStripeReady(false);
     }
   }, [selectedCategory]);
 
@@ -146,7 +147,7 @@ export default function PaymentMethodSelect({ onCheckout = () => {}, total = 0, 
         </Button>
       ) : (
         <Box mt={2}>
-          {!paypalReady ? (
+          {!stripeReady ? (
             <Button
               bg={
                 colorMode == "light"
@@ -157,22 +158,38 @@ export default function PaymentMethodSelect({ onCheckout = () => {}, total = 0, 
               color="white"
               borderRadius="12px"
               w="full"
-              onClick={() => {
+              onClick={async () => {
                 if (onValidate()) {
-                  setPaypalReady(true);
+                  // Create order first with pending payment status
+                  if (onCreateOrderForPayPal) {
+                    const orderId = await onCreateOrderForPayPal({
+                      notes,
+                      payment_method: "credit_card",
+                      payment_status: "pending",
+                    });
+                    if (orderId) {
+                      setPendingOrderId(orderId);
+                      setStripeReady(true);
+                    }
+                  } else {
+                    setStripeReady(true);
+                  }
                 }
               }}
             >
-              Proceed to PayPal
+              Proceed to Payment
             </Button>
           ) : (
-            <PayPalCheckout
+            <StripeCheckout
               amount={Number(total || 0).toFixed(2)}
-              onSuccess={() =>
+              orderId={pendingOrderId}
+              onSuccess={(paymentDetails) =>
                 onCheckout({
                   notes,
-                  payment_method: "paypal",
+                  payment_method: "credit_card",
                   payment_status: "paid",
+                  orderId: pendingOrderId,
+                  paymentDetails,
                 })
               }
             />

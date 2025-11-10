@@ -37,7 +37,7 @@ const OrderPage = () => {
     useGetCustomerOrderHistoryQuery(userId, {
       skip: !userId,
     });
-
+console.log(orderHistory);
   // Skeleton Loading Component
   const OrderSkeleton = () => (
     <Box
@@ -92,7 +92,6 @@ const OrderPage = () => {
     const timers = [];
 
     orders.forEach((order) => {
-      // تجاهل الطلبات المخفية أو created أو delivered
       if (
         hiddenOrderIds.includes(order.id) ||
         order.status === "delivered" ||
@@ -100,34 +99,28 @@ const OrderPage = () => {
       )
         return;
 
-      // فقط راقب الطلبات التي status بتاعها في القائمة
       if (!statusesToTrack.includes(order.status)) return;
 
       const previousStatus = orderStatusTracker[order.id];
 
-      // إذا الطلب جديد أو status اتغير
       if (previousStatus === undefined || previousStatus !== order.status) {
-        // تحديث الـ tracker بالـ status الجديد
         setOrderStatusTracker((prev) => ({
           ...prev,
           [order.id]: order.status,
         }));
 
-        // بدء timer جديد لمدة 10 ثواني
         const timer = setTimeout(() => {
-          // بعد 10 ثواني، تحقق إذا الـ status لسه زي ما هو
           setOrderStatusTracker((currentTracker) => {
             const currentOrder = orders.find((o) => o.id === order.id);
             if (
               currentOrder &&
               currentOrder.status === currentTracker[order.id]
             ) {
-              // الـ status ماتغيرش، إخفي الطلب
               setHiddenOrderIds((prev) => [...prev, order.id]);
             }
             return currentTracker;
           });
-        }, 10000); // 10 ثواني
+        }, 10000); 
 
         timers.push(timer);
       }
@@ -146,7 +139,7 @@ const OrderPage = () => {
       !hiddenOrderIds.includes(order.id)
   );
   /* -----------------RENDER---------------------------- */
-  
+
   const activeOrderHandler = activeOrders?.map(
     ({ id, status, created_at, total }) => {
       return (
@@ -211,7 +204,12 @@ const OrderPage = () => {
               direction={{ base: "column", md: "row" }}
             >
               <Box>
-                <Text mt={6} color={colors.light.textSub} textAlign={"center"} my={3}>
+                <Text
+                  mt={6}
+                  color={colors.light.textSub}
+                  textAlign={"center"}
+                  my={3}
+                >
                   {new Date(created_at).toLocaleString("en-GB", {
                     day: "2-digit",
                     month: "short",
@@ -258,9 +256,9 @@ const OrderPage = () => {
 
   const orderHistoryHandler = orderHistory?.map(({ status, at, orders }) => {
     const orderDetails = orders;
+    
     return (
       <>
-        
         <Box
           key={at}
           bg={
@@ -328,10 +326,6 @@ const OrderPage = () => {
               <Text fontWeight={500}>{orderDetails?.subtotal || 0} LE</Text>
             </Flex>
             <Flex justify="space-between">
-              <Text color={colors.light.textSub}>Tax:</Text>
-              <Text fontWeight={500}>{orderDetails?.tax || 0} LE</Text>
-            </Flex>
-            <Flex justify="space-between">
               <Text color={colors.light.textSub}>Delivery Fee:</Text>
               <Text fontWeight={500}>{orderDetails?.delivery_fee || 0} LE</Text>
             </Flex>
@@ -367,7 +361,6 @@ const OrderPage = () => {
       </>
     );
   });
-
 
   return (
     <>
