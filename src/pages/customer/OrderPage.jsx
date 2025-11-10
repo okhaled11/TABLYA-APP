@@ -92,7 +92,6 @@ console.log(orderHistory);
     const timers = [];
 
     orders.forEach((order) => {
-      // تجاهل الطلبات المخفية أو created أو delivered
       if (
         hiddenOrderIds.includes(order.id) ||
         order.status === "delivered" ||
@@ -100,34 +99,28 @@ console.log(orderHistory);
       )
         return;
 
-      // فقط راقب الطلبات التي status بتاعها في القائمة
       if (!statusesToTrack.includes(order.status)) return;
 
       const previousStatus = orderStatusTracker[order.id];
 
-      // إذا الطلب جديد أو status اتغير
       if (previousStatus === undefined || previousStatus !== order.status) {
-        // تحديث الـ tracker بالـ status الجديد
         setOrderStatusTracker((prev) => ({
           ...prev,
           [order.id]: order.status,
         }));
 
-        // بدء timer جديد لمدة 10 ثواني
         const timer = setTimeout(() => {
-          // بعد 10 ثواني، تحقق إذا الـ status لسه زي ما هو
           setOrderStatusTracker((currentTracker) => {
             const currentOrder = orders.find((o) => o.id === order.id);
             if (
               currentOrder &&
               currentOrder.status === currentTracker[order.id]
             ) {
-              // الـ status ماتغيرش، إخفي الطلب
               setHiddenOrderIds((prev) => [...prev, order.id]);
             }
             return currentTracker;
           });
-        }, 10000); // 10 ثواني
+        }, 10000); 
 
         timers.push(timer);
       }
@@ -331,10 +324,6 @@ console.log(orderHistory);
             <Flex justify="space-between">
               <Text color={colors.light.textSub}>Subtotal:</Text>
               <Text fontWeight={500}>{orderDetails?.subtotal || 0} LE</Text>
-            </Flex>
-            <Flex justify="space-between">
-              <Text color={colors.light.textSub}>Tax:</Text>
-              <Text fontWeight={500}>{orderDetails?.tax || 0} LE</Text>
             </Flex>
             <Flex justify="space-between">
               <Text color={colors.light.textSub}>Delivery Fee:</Text>
