@@ -91,7 +91,7 @@ const MenuItemCard = ({ item, isAvailable = true }) => {
         <Flex flex="1" direction="row">
           <Image
             src={item.menu_img}
-            alt="Caffe Latte"
+            alt="item-img"
             boxSize={{ base: "70px", md: "90px", lg: "110px" }}
             objectFit="cover"
             borderRadius="12px"

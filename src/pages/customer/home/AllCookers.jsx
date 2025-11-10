@@ -7,11 +7,14 @@ import {
   Box,
   Icon,
   IconButton,
+  InputGroup,
+  Input,
 } from "@chakra-ui/react";
 import { useColorMode } from "../../../theme/color-mode.jsx";
 import colors from "../../../theme/color.js";
 import { useNavigate } from "react-router-dom";
-import { FiArrowLeft } from "react-icons/fi";
+import { useState } from "react";
+import { FiArrowLeft, FiSearch } from "react-icons/fi";
 import { useGetAllCookersQuery } from "../../../app/features/Customer/CookersApi.js";
 import ChefCardSkelaton from "../../../components/ui/ChefCardSkelaton.jsx";
 
@@ -20,6 +23,7 @@ const AllCookers = () => {
   const navigate = useNavigate();
 
   const { data: cookers, isLoading, error } = useGetAllCookersQuery();
+  const [query, setQuery] = useState("");
   // console.log("Cookers Data:", cookers);
 
   const handleBackBtn = () => {
@@ -49,6 +53,44 @@ const AllCookers = () => {
             <Icon as={FiArrowLeft} boxSize={6} />
           </IconButton>
 
+          {/* search */}
+          <Flex
+            flex="1"
+            maxW={"400px"}
+            ml="140px"
+            mr="10px"
+            justifyContent="center"
+            display={{ base: "none", md: "flex" }}
+          >
+            <InputGroup
+              startElement={
+                <FiSearch
+                  fill={
+                    colorMode == "light"
+                      ? colors.light.white10a
+                      : colors.dark.white10a
+                  }
+                />
+              }
+            >
+              <Input
+                placeholder="Search"
+                bg={
+                  colorMode == "light"
+                    ? colors.light.white10a
+                    : colors.dark.white10a
+                }
+                borderRadius="12px"
+                size="md"
+                _placeholder={{ color: "#fffff" }}
+                // color="white"
+                border="2px solid #fffff"
+                value={query}
+                onChange={(e) => setQuery(e.target.value)}
+              />
+            </InputGroup>
+          </Flex>
+
           <Text
             fontSize={{ base: "2xl", md: "4xl" }}
             fontWeight="bold"
@@ -61,7 +103,7 @@ const AllCookers = () => {
             All Cookers
           </Text>
 
-          <Box w={{ base: "0", md: "70px" }} />
+          {/* <Box w={{ base: "0", md: "70px" }} /> */}
         </Flex>
 
         <Grid
@@ -76,7 +118,26 @@ const AllCookers = () => {
           ) : error ? (
             <Text>Error loading cookers.</Text>
           ) : (
-            cookers?.map((cooker) => <ChefCard key={cooker.user_id} {...cooker} />)
+            (() => {
+              const q = query.trim().toLowerCase();
+              const list = Array.isArray(cookers)
+                ? cookers.filter((c) => {
+                    const kitchen = (c.kitchen_name || "").toLowerCase();
+                    const owner = (c.users?.name || "").toLowerCase();
+                    return kitchen.includes(q) || owner.includes(q);
+                  })
+                : [];
+              if (list.length === 0) {
+                return (
+                  <Text gridColumn={{ base: "1 / -1" }} textAlign="center">
+                    No results found
+                  </Text>
+                );
+              }
+              return list.map((cooker) => (
+                <ChefCard key={cooker.user_id} {...cooker} />
+              ));
+            })()
           )}
         </Grid>
       </Container>
