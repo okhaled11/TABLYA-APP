@@ -86,7 +86,7 @@ const CheckoutForm = ({ amount, orderId, onSuccess }) => {
       <h2 style={{ textAlign: "center", marginBottom: "20px" }}>Pay with Stripe</h2>
 
       {/* Testing instructions */}
-      <div
+      {/* <div
         style={{
           backgroundColor: "#e3f2fd",
           border: "1px solid #2196f3",
@@ -103,7 +103,7 @@ const CheckoutForm = ({ amount, orderId, onSuccess }) => {
           <li>Any future expiry date (MM/YY)</li>
           <li>Any 3-digit CVC</li>
         </ul>
-      </div>
+      </div> */}
 
       {/* Card Element */}
       <div
