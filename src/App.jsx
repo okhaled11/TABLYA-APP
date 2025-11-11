@@ -19,6 +19,7 @@ import Dashboard from "./pages/AdminPages/Dashboard";
 import Deliveries from "./pages/AdminPages/Deliveries";
 import Complaints from "./pages/AdminPages/Complaints";
 import UserManagement from "./pages/AdminPages/UserManagement";
+import Settings from "./pages/AdminPages/Settings";
 import AllCookers from "./pages/customer/home/AllCookers";
 import ChefMenuProfile from "./pages/customer/home/ChefMenuProfile";
 import CustomerHome from "./pages/customer/home/CustomerHome";
@@ -95,6 +96,7 @@ function App() {
               <Route path="user-management" element={<UserManagement />} />
               <Route path="deliveries" element={<Deliveries />} />
               <Route path="complaints" element={<Complaints />} />
+              <Route path="settings" element={<Settings />} />
             </Route>
           </Route>
 
