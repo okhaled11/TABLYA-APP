@@ -5,15 +5,12 @@ import {
   CloseButton,
   DataList,
   Dialog,
-  HStack,
   Portal,
-  Textarea,
-  VStack,
-  Text,
 } from "@chakra-ui/react";
 import React from "react";
 
-const UserModal = ({ user, isOpen, onClose, mode }) => {
+const UserInfoModal = ({ user, isOpen, onClose }) => {
+  console.log(user);
   if (!user) return null;
 
   return (
@@ -23,11 +20,7 @@ const UserModal = ({ user, isOpen, onClose, mode }) => {
         <Dialog.Positioner>
           <Dialog.Content borderRadius="lg" shadow="lg" maxW="lg">
             <Dialog.Header>
-              <Dialog.Title>
-                {mode === "edit"
-                  ? `Edit User: ${user.name}`
-                  : `User Details: ${user.name}`}
-              </Dialog.Title>
+              <Dialog.Title>User Details: {user.name}</Dialog.Title>
             </Dialog.Header>
 
             <Dialog.Body pb="6">
@@ -70,6 +63,11 @@ const UserModal = ({ user, isOpen, onClose, mode }) => {
                 </DataList.Item>
 
                 <DataList.Item>
+                  <DataList.ItemLabel>Phone</DataList.ItemLabel>
+                  <DataList.ItemValue>{user.phone}</DataList.ItemValue>
+                </DataList.Item>
+
+                <DataList.Item>
                   <DataList.ItemLabel>Registered</DataList.ItemLabel>
                   <DataList.ItemValue>
                     {new Intl.DateTimeFormat("en-US", {
@@ -80,24 +78,10 @@ const UserModal = ({ user, isOpen, onClose, mode }) => {
                   </DataList.ItemValue>
                 </DataList.Item>
               </DataList.Root>
-
-              {mode === "edit" && (
-                <Textarea
-                  placeholder="Add a note or edit information"
-                  mt="8"
-                  minH="100px"
-                />
-              )}
             </Dialog.Body>
 
             <Dialog.Footer>
-              {mode === "edit" ? (
-                <Button colorScheme="green" mr="3">
-                  Save Changes
-                </Button>
-              ) : (
-                <Button onClick={onClose}>Close</Button>
-              )}
+              <Button onClick={onClose}>Close</Button>
             </Dialog.Footer>
 
             <Dialog.CloseTrigger asChild>
@@ -110,4 +94,4 @@ const UserModal = ({ user, isOpen, onClose, mode }) => {
   );
 };
 
-export default UserModal;
+export default UserInfoModal;
