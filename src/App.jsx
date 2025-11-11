@@ -28,7 +28,14 @@ import CustomerFavourite from "./pages/customer/CustomerFavourite";
 import MealDetails from "./pages/customer/home/MealDetails";
 import CartPage from "./pages/customer/CartPage";
 import ProtectedRoute from "./routes/ProtectedRoute";
+import RoleProtectedRoute from "./routes/RoleProtectedRoute";
+import RoleBasedRedirect from "./routes/RoleBasedRedirect";
 import PageNotFound from "./pages/PageNotFound";
+import CookerPage from "./pages/cooker/CookerPage";
+import CookerHome from "./pages/cooker/home/CookerHome";
+import CookerMenu from "./pages/cooker/CookerMenu";
+import CookerOrders from "./pages/cooker/CookerOrders";
+import CookerReviews from "./pages/cooker/CookerReviews";
 
 function App() {
   const token = CookieService.get("access_token");
@@ -42,7 +49,12 @@ function App() {
   return (
     <>
       <Routes>
-        <Route path="/" element={<Landing />} />
+        <Route path="/" element={
+          <>
+            <RoleBasedRedirect />
+            <Landing />
+          </>
+        } />
         <Route path="/login" element={<Login isAuthenticated={token} />} />
         <Route
           path="/register"
@@ -54,31 +66,47 @@ function App() {
 
         {/* Protected Routes */}
         <Route element={<ProtectedRoute />}>
-          {/* Customer Routes */}
-          <Route path="/home" element={<CustomerPage />}>
-            <Route index element={<CustomerHome />} />
-            <Route path="cookers" element={<AllCookers />} />
-            <Route path="cookers/:id" element={<ChefMenuProfile />} />
-            <Route
-              path="cookers/:chefId/meals/:mealId"
-              element={<MealDetails />}
-            />
-            <Route path="order" element={<OrderPage />} />
-            <Route path="details/:orderId" element={<OrderDetails />} />
-            <Route path="favourities" element={<CustomerFavourite />} />
-            <Route path="cart" element={<CartPage />} />
+          {/* Customer Routes - Only for customers */}
+          <Route element={<RoleProtectedRoute allowedRoles={["customer"]} />}>
+            <Route path="/home" element={<CustomerPage />}>
+              <Route index element={<CustomerHome />} />
+              <Route path="cookers" element={<AllCookers />} />
+              <Route path="cookers/:id" element={<ChefMenuProfile />} />
+              <Route
+                path="cookers/:chefId/meals/:mealId"
+                element={<MealDetails />}
+              />
+              <Route path="order" element={<OrderPage />} />
+              <Route path="details/:orderId" element={<OrderDetails />} />
+              <Route path="favourities" element={<CustomerFavourite />} />
+              <Route path="cart" element={<CartPage />} />
+            </Route>
           </Route>
 
+          {/* Personal Info - Available for all authenticated users */}
           <Route path="/personal-info/*" element={<PersonalInfo />} />
 
-          {/* Admin Routes */}
-          <Route path="/admin" element={<SidebarLayout />}>
-            <Route index element={<Dashboard />} />
-            <Route path="analytics" element={<Analytics />} />
-            <Route path="chef-verification" element={<ChefVerification />} />
-            <Route path="user-management" element={<UserManagement />} />
-            <Route path="deliveries" element={<Deliveries />} />
-            <Route path="complaints" element={<Complaints />} />
+          {/* Admin Routes - Only for admins */}
+          <Route element={<RoleProtectedRoute allowedRoles={["admin"]} />}>
+            <Route path="/admin" element={<SidebarLayout />}>
+              <Route index element={<Dashboard />} />
+              <Route path="analytics" element={<Analytics />} />
+              <Route path="chef-verification" element={<ChefVerification />} />
+              <Route path="user-management" element={<UserManagement />} />
+              <Route path="deliveries" element={<Deliveries />} />
+              <Route path="complaints" element={<Complaints />} />
+            </Route>
+          </Route>
+
+          {/* Cooker Routes - Only for cookers */}
+          <Route element={<RoleProtectedRoute allowedRoles={["cooker"]} />}>
+            <Route path="/cooker" element={<CookerPage />}>
+              <Route index element={<Navigate to="/cooker/home" replace />} />
+              <Route path="home" element={<CookerHome />} />
+              <Route path="menu" element={<CookerMenu />} />
+              <Route path="orders" element={<CookerOrders />} />
+              <Route path="reviews" element={<CookerReviews />} />
+            </Route>
           </Route>
         </Route>
         <Route path="*" element={<PageNotFound />} />

@@ -20,6 +20,7 @@ import {
   Badge,
   Input,
   InputGroup,
+  Status,
 } from "@chakra-ui/react";
 import {
   User,
@@ -42,9 +43,11 @@ import { useGetUserDataQuery } from "../app/features/Auth/authSlice";
 import { Link, useNavigate } from "react-router-dom";
 import { authApi } from "../app/features/Auth/authSlice";
 import { useDispatch, useSelector } from "react-redux";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { FiShoppingCart } from "react-icons/fi";
 import { clearCart } from "../app/features/Customer/CartSlice";
+import { supabase } from "../services/supabaseClient";
+import { toaster } from "../components/ui/toaster";
 
 export default function Navbar() {
   const { t, i18n } = useTranslation();
@@ -54,6 +57,7 @@ export default function Navbar() {
   const dispatch = useDispatch();
   const { colorMode, toggleColorMode } = useColorMode();
   const [checked, setChecked] = useState(colorMode === "dark");
+  const [isAvailable, setIsAvailable] = useState(false);
   const dialog = useDialog();
   const navigate = useNavigate();
 
@@ -62,10 +66,82 @@ export default function Navbar() {
     skip: !token,
   });
 
+  // Fetch cooker availability status
+  useEffect(() => {
+    const fetchAvailability = async () => {
+      if (user?.role === "cooker" && user?.id) {
+        console.log("Fetching availability for user_id:", user.id);
+        const { data, error } = await supabase
+          .from("cookers")
+          .select("is_available")
+          .eq("user_id", user.id)
+          .single();
+
+        if (error) {
+          console.error("Error fetching availability:", error);
+        } else if (data) {
+          console.log("Availability data:", data);
+          setIsAvailable(data.is_available || false);
+        }
+      }
+    };
+
+    fetchAvailability();
+  }, [user]);
+
   // handler for color mode switch
   const handleChange = (e) => {
     setChecked(e.checked);
     toggleColorMode();
+  };
+
+  // handler for availability switch (cooker only)
+  const handleAvailabilityChange = async (e) => {
+    const newAvailability = e.checked;
+    
+    // Debug: Check user object
+    console.log("Full user object:", user);
+    console.log("User ID:", user?.id);
+    
+    // Validate user ID before updating
+    if (!user?.id) {
+      console.error("User ID is undefined!");
+      toaster.create({
+        title: "Failed to update availability",
+        description: "User information not available. Please refresh the page.",
+        type: "error",
+      });
+      return;
+    }
+    
+    setIsAvailable(newAvailability);
+
+    console.log("Updating availability for user_id:", user.id, "to:", newAvailability);
+
+    // Update in database
+    const { data, error } = await supabase
+      .from("cookers")
+      .update({ is_available: newAvailability })
+      .eq("user_id", user.id)
+      .select();
+
+    if (error) {
+      console.error("Error updating availability:", error);
+      // Revert on error
+      setIsAvailable(!newAvailability);
+      toaster.create({
+        title: "Failed to update availability",
+        description: error.message,
+        type: "error",
+      });
+    } else {
+      console.log("Successfully updated availability:", data);
+      toaster.create({
+        title: newAvailability ? "You are now available" : "You are now unavailable",
+        type: "success",
+        duration: 2000,
+      });
+    }
   };
   //  handler for language switch
   const handleLanguageChange = (e) => {
@@ -133,35 +209,95 @@ export default function Navbar() {
                   </Button>
                 ) : (
                   <HStack spacing={{ base: "0", md: "6" }}>
-                    <Flex gap={3} alignItems={"center"} position="relative">
-                      <IconButton
-                        as={Link}
-                        to="/home/cart"
-                        aria-label="Cart"
-                        variant="outline"
-                        border={"none"}
-                        color={"white"}
-                        size="2xl"
-                        _hover={{ bg: "transparent" }}
-                      >
-                        <Icon as={ShoppingCartSimple} boxSize={8} />
-                        <Badge
-                          position="absolute"
-                          top="3"
-                          right="2"
-                          bg="red.500"
-                          borderRadius="full"
-                          width="20px"
-                          height="20px"
-                          display="flex"
-                          alignItems="center"
-                          justifyContent="center"
-                          color="white"
+                    {/* Show Cart only for customers, not for cookers */}
+                    {user?.role !== "cooker" && (
+                      <Flex gap={3} alignItems={"center"} position="relative">
+                        <IconButton
+                          as={Link}
+                          to="/home/cart"
+                          aria-label="Cart"
+                          variant="outline"
+                          border={"none"}
+                          color={"white"}
+                          size="2xl"
+                          _hover={{ bg: "transparent" }}
                         >
-                          {cartItems.length || "0"}
+                          <Icon as={ShoppingCartSimple} boxSize={8} />
+                          <Badge
+                            position="absolute"
+                            top="3"
+                            right="2"
+                            bg="red.500"
+                            borderRadius="full"
+                            width="20px"
+                            height="20px"
+                            display="flex"
+                            alignItems="center"
+                            justifyContent="center"
+                            color="white"
+                          >
+                            {cartItems.length || "0"}
+                          </Badge>
+                        </IconButton>
+                      </Flex>
+                    )}
+                      {/* Availability Badge with Switch for Cooker */}
+                      {user?.role === "cooker" && (
+                        <Badge
+                          bg={
+                            isAvailable
+                              ? colorMode === "light"
+                                ? colors.light.success20a
+                                : colors.dark.success20a
+                              : colorMode === "light"
+                              ? "#FFE5E5"
+                              : "#4A2626"
+                          }
+                          borderRadius="8px"
+                          fontSize={{ base: "xs", md: "sm" }}
+                          px={3}
+                          py={1}
+                          transition="all 0.3s ease"
+                        >
+                          <Flex gap={2} alignItems="center">
+                            <Status.Root
+                              colorPalette={isAvailable ? "green" : "red"}
+                              color={
+                                isAvailable
+                                  ? colorMode === "light"
+                                    ? colors.light.success
+                                    : colors.dark.success
+                                  : colorMode === "light"
+                                  ? "#DC2626"
+                                  : "#EF4444"
+                              }
+                            >
+                              <Status.Indicator
+                                bg={isAvailable ? "green.400" : "red.400"}
+                                boxShadow={
+                                  isAvailable
+                                    ? "0 0 12px 2px #2EB200"
+                                    : "0 0 12px 2px #DC2626"
+                                }
+                                filter="blur(0.5px)"
+                              />
+                              {isAvailable ? "Available" : "Unavailable"}
+                            </Status.Root>
+                            
+                            <Switch.Root
+                              checked={isAvailable}
+                              onCheckedChange={handleAvailabilityChange}
+                              colorPalette={isAvailable ? "green" : "red"}
+                              size="sm"
+                            >
+                              <Switch.HiddenInput />
+                              <Switch.Control>
+                                <Switch.Thumb />
+                              </Switch.Control>
+                            </Switch.Root>
+                          </Flex>
                         </Badge>
-                      </IconButton>
-                    </Flex>
+                    )}
                     <Flex alignItems={"center"}>
                       <Menu.Root
                         positioning={{ placement: "bottom" }}
@@ -191,14 +327,14 @@ export default function Navbar() {
                                   : colors.dark.bgFixed
                               }
                             >
-                              <Menu.Item value="Personal-Info" asChild>
+                              {/* <Menu.Item value="Personal-Info" asChild>
                                 <Link to="/personal-info">
                                   <HStack spacing={3}>
                                     <Icon as={User} boxSize={4} />
                                     <Text>Personal Info</Text>
                                   </HStack>
                                 </Link>
-                              </Menu.Item>
+                              </Menu.Item> */}
                               <Menu.Item value="Payment-method">
                                 <Link to="/personal-info/payment">
                                 <HStack spacing={3}>
@@ -274,6 +410,9 @@ export default function Navbar() {
                         </Portal>
                       </Menu.Root>
                     </Flex>
+
+                  
+
                     <Flex
                       alignItems={"flex-start"}
                       direction={"column"}

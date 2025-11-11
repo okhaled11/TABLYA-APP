@@ -13,7 +13,14 @@ export const authApi = createApi({
         if (error) {
           return { error: error.message };
         }
-        return { data: data.user.user_metadata };
+        // Return full user object with id and user_metadata merged
+        return { 
+          data: {
+            id: data.user.id,
+            email: data.user.email,
+            ...data.user.user_metadata
+          }
+        };
       },
       providesTags: ["User"],
     }),
