@@ -15,16 +15,36 @@ import colors from "../../../theme/color.js";
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
 import { FiArrowLeft, FiSearch } from "react-icons/fi";
-import { useGetAllCookersQuery } from "../../../app/features/Customer/CookersApi.js";
+import { useGetAllCookersQuery, useGetCustomerCityQuery } from "../../../app/features/Customer/CookersApi.js";
 import ChefCardSkelaton from "../../../components/ui/ChefCardSkelaton.jsx";
 
 const AllCookers = () => {
   const { colorMode } = useColorMode();
   const navigate = useNavigate();
 
-  const { data: cookers, isLoading, error } = useGetAllCookersQuery();
+  const { data: cookers, isLoading, error, isError } = useGetAllCookersQuery();
+  const { data: customerCity, error: cityError } = useGetCustomerCityQuery();
   const [query, setQuery] = useState("");
-  // console.log("Cookers Data:", cookers);
+
+  // Check city field in each cooker
+  if (cookers && Array.isArray(cookers)) {
+    cookers.forEach((c, index) => {
+      const cityTrimmed = (c.city || "").trim();
+    });
+    
+    // Show filtered cookers
+    const filtered = cookers.filter((c) => {
+      if (customerCity) {
+        const cookerCity = (c.city || "").trim();
+        const normalizedCustomerCity = customerCity.trim();
+        if (cookerCity === "null" || cookerCity === "" || 
+            cookerCity.toLowerCase() !== normalizedCustomerCity.toLowerCase()) {
+          return false;
+        }
+      }
+      return true;
+    });
+  }
 
   const handleBackBtn = () => {
     navigate(-1);
@@ -122,15 +142,35 @@ const AllCookers = () => {
               const q = query.trim().toLowerCase();
               const list = Array.isArray(cookers)
                 ? cookers.filter((c) => {
-                    const kitchen = (c.kitchen_name || "").toLowerCase();
-                    const owner = (c.users?.name || "").toLowerCase();
-                    return kitchen.includes(q) || owner.includes(q);
+                    // First: Filter by city (must match if customerCity exists)
+                    if (customerCity) {
+                      const cookerCity = (c.city || "").trim(); // Remove spaces
+                      const normalizedCustomerCity = customerCity.trim();
+                      
+                      // Skip if city is "null" string or doesn't match
+                      if (cookerCity === "null" || cookerCity === "" || 
+                          cookerCity.toLowerCase() !== normalizedCustomerCity.toLowerCase()) {
+                        return false;
+                      }
+                    }
+                    
+                    // Second: Filter by search query (only if query exists)
+                    if (q) {
+                      const kitchen = (c.kitchen_name || "").toLowerCase();
+                      const owner = (c.users?.name || "").toLowerCase();
+                      return kitchen.includes(q) || owner.includes(q);
+                    }
+                    
+                    // If no query, show all cookers from the same city
+                    return true;
                   })
                 : [];
               if (list.length === 0) {
                 return (
                   <Text gridColumn={{ base: "1 / -1" }} textAlign="center">
-                    No results found
+                    {customerCity 
+                      ? `No cookers found in ${customerCity}` 
+                      : "No results found"}
                   </Text>
                 );
               }

@@ -84,6 +84,31 @@ export const cookersApi = createApi({
       },
       providesTags: ["Cookers"],
     }),
+
+    // Get customer's city from customers table
+    getCustomerCity: builder.query({
+      async queryFn() {
+        try {
+          const { data: { user }, error: userError } = await supabase.auth.getUser();
+          
+          if (userError || !user) {
+            return { error: { message: "User not authenticated" } };
+          }
+
+          const { data, error } = await supabase
+            .from("customers")
+            .select("city")
+            .eq("user_id", user.id)
+            .single();
+
+          if (error) return { error };
+          return { data: data?.city || null };
+        } catch (error) {
+          return { error: { message: error.message } };
+        }
+      },
+      providesTags: ["Cookers"],
+    }),
   }),
 });
 
@@ -93,4 +118,5 @@ export const {
   useGetCookerByIdQuery,
   useGetMenuItemsByCookerIdQuery,
   useGetCookersByIdsQuery,
+  useGetCustomerCityQuery,
 } = cookersApi;

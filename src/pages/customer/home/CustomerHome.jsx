@@ -3,12 +3,37 @@ import { Container, Grid, Flex, Text } from "@chakra-ui/react";
 import { useColorMode } from "../../../theme/color-mode.jsx";
 import colors from "../../../theme/color.js";
 import { Link, Outlet } from "react-router-dom";
-import { useGetTopCookersQuery } from "../../../app/features/Customer/CookersApi.js";
+import { useGetTopCookersQuery, useGetCustomerCityQuery } from "../../../app/features/Customer/CookersApi.js";
 import ChefCardSkelaton from "../../../components/ui/ChefCardSkelaton.jsx";
+import { useMemo } from "react";
+
 const CustomerHome = () => {
   const { colorMode } = useColorMode();
-  const { data: cookers, isLoading, error } = useGetTopCookersQuery();
-  // console.log(cookers);
+  const { data: cookers, isLoading, error, isError } = useGetTopCookersQuery();
+  const { data: customerCity, error: cityError } = useGetCustomerCityQuery();
+
+  // Filter cookers by customer's city
+  const filteredCookers = useMemo(() => {
+    if (!cookers || !Array.isArray(cookers)) return [];
+    
+    // If customer has a city, filter by it
+    if (customerCity) {
+      return cookers.filter((cooker) => {
+        const cookerCity = (cooker.city || "").trim(); // Remove spaces
+        const normalizedCustomerCity = customerCity.trim();
+        
+        // Skip if city is "null" string or empty or doesn't match
+        if (cookerCity === "null" || cookerCity === "") {
+          return false;
+        }
+        
+        return cookerCity.toLowerCase() === normalizedCustomerCity.toLowerCase();
+      });
+    }
+    
+    // If no customer city, show all cookers
+    return cookers;
+  }, [cookers, customerCity]);
 
   return (
     <>
@@ -53,8 +78,14 @@ const CustomerHome = () => {
             ))
           ) : error ? (
             <Text>Error loading cookers.</Text>
+          ) : filteredCookers.length === 0 ? (
+            <Text gridColumn={{ base: "1 / -1" }} textAlign="center">
+              {customerCity 
+                ? `No cookers found in ${customerCity}` 
+                : "No cookers available"}
+            </Text>
           ) : (
-            cookers?.map((cooker) => (
+            filteredCookers.map((cooker) => (
               <ChefCard key={cooker.user_id} {...cooker} />
             ))
           )}
