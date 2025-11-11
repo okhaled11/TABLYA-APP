@@ -38,6 +38,7 @@ import CookieService from "../services/cookies";
 import { useTranslation } from "react-i18next";
 import CustomAlertDialog from "../shared/CustomAlertDailog";
 import Navlogo from "../assets/Navlogo.png";
+import Logo from "../assets/logo.png";
 import colors from "../theme/color";
 import { useGetUserDataQuery } from "../app/features/Auth/authSlice";
 import { Link, useNavigate } from "react-router-dom";
@@ -188,7 +189,18 @@ export default function Navbar() {
             mx="auto"
           >
             {/* Logo */}
-            <Image src={Navlogo} alt={t("navbar.logo_alt")} w={"150px"} />
+            <Image 
+              src={Navlogo} 
+              alt={t("navbar.logo_alt")} 
+              w={"150px"}
+              display={{ base: "none", md: "block" }}
+            />
+            <Image 
+              src={Logo} 
+              alt={t("navbar.logo_alt")} 
+              w={{ base: "40px", sm: "60px" }}
+              display={{ base: "block", md: "none" }}
+            />
             
             <Flex alignItems="center">
               <Stack direction="row" spacing={5} align="center">
@@ -229,12 +241,13 @@ export default function Navbar() {
                             right="2"
                             bg="red.500"
                             borderRadius="full"
-                            width="20px"
-                            height="20px"
+                            width={{ base: "16px", md: "20px" }}
+                            height={{ base: "16px", md: "20px" }}
                             display="flex"
                             alignItems="center"
                             justifyContent="center"
                             color="white"
+                            fontSize={{ base: "10px", md: "12px" }}
                           >
                             {cartItems.length || "0"}
                           </Badge>
@@ -254,9 +267,9 @@ export default function Navbar() {
                               : "#4A2626"
                           }
                           borderRadius="8px"
-                          fontSize={{ base: "xs", md: "sm" }}
-                          px={3}
-                          py={1}
+                          fontSize={{ base: "10px", md: "sm" }}
+                          px={{ base: 2, md: 3 }}
+                          py={{ base: 0.5, md: 1 }}
                           transition="all 0.3s ease"
                         >
                           <Flex gap={2} alignItems="center">
@@ -327,22 +340,22 @@ export default function Navbar() {
                                   : colors.dark.bgFixed
                               }
                             >
-                              {/* <Menu.Item value="Personal-Info" asChild>
+                              <Menu.Item value="Personal-Info" asChild>
                                 <Link to="/personal-info">
                                   <HStack spacing={3}>
                                     <Icon as={User} boxSize={4} />
                                     <Text>Personal Info</Text>
                                   </HStack>
                                 </Link>
-                              </Menu.Item> */}
-                              <Menu.Item value="Payment-method">
+                              </Menu.Item>
+                              {/* <Menu.Item value="Payment-method">
                                 <Link to="/personal-info/payment">
                                 <HStack spacing={3}>
                                   <Icon as={CreditCard} boxSize={4} />
                                   <Text fontSize={"sm"}>Payment Method</Text>
                                 </HStack>
                                 </Link>
-                              </Menu.Item>
+                              </Menu.Item> */}
                               <Separator />
                               {/* Dark Mode with Switch */}
                               <Menu.Item value="color-mode">

@@ -29,6 +29,60 @@ export const reviewsApi = createApi({
         if (error) return { error };
         return { data };
       },
+      async onCacheEntryAdded(
+        cookerId,
+        { updateCachedData, cacheDataLoaded, cacheEntryRemoved }
+      ) {
+        let subscription;
+        try {
+          // Wait for the initial query to resolve before proceeding
+          await cacheDataLoaded;
+
+          // Subscribe to realtime changes
+          subscription = supabase
+            .channel(`reviews:${cookerId}`)
+            .on(
+              "postgres_changes",
+              {
+                event: "*",
+                schema: "public",
+                table: "reviews",
+                filter: `cooker_id=eq.${cookerId}`,
+              },
+              async (payload) => {
+                // Refetch the data when changes occur
+                const { data: newData } = await supabase
+                  .from("reviews")
+                  .select(
+                    `
+                    *,
+                    customers (
+                      user:users (
+                        name,
+                        avatar_url
+                      )
+                    )
+                  `
+                  )
+                  .eq("cooker_id", cookerId)
+                  .order("created_at", { ascending: false });
+
+                if (newData) {
+                  updateCachedData(() => newData);
+                }
+              }
+            )
+            .subscribe();
+        } catch (error) {
+          console.error("Error in realtime subscription:", error);
+        }
+
+        // Cleanup subscription when cache entry is removed
+        await cacheEntryRemoved;
+        if (subscription) {
+          supabase.removeChannel(subscription);
+        }
+      },
       providesTags: (result) =>
         result
           ? [

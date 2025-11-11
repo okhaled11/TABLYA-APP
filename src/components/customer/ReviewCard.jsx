@@ -1,11 +1,15 @@
-import { Card, Flex, Text, Box, Avatar } from "@chakra-ui/react";
+import { Card, Flex, Text, Box, Avatar, Button } from "@chakra-ui/react";
 import { FaStar, FaRegStar } from "react-icons/fa";
 import { useColorMode } from "../../theme/color-mode";
 import colors from "../../theme/color";
 import { formatDate } from "../../utils";
+import { useState } from "react";
 
 const ReviewCard = ({ rating = 0, comment, created_at, customers }) => {
   const { colorMode } = useColorMode();
+  const [isExpanded, setIsExpanded] = useState(false);
+  const MAX_LENGTH = 75; // Maximum characters before showing "Read More"
+  const shouldTruncate = comment?.length > MAX_LENGTH;
 
   //to make stars
   const renderStars = () => {
@@ -17,6 +21,12 @@ const ReviewCard = ({ rating = 0, comment, created_at, customers }) => {
     return stars;
   };
   const { day, month, year } = formatDate(created_at);
+
+  const displayComment = () => {
+    if (!shouldTruncate) return comment;
+    if (isExpanded) return comment;
+    return comment.substring(0, MAX_LENGTH) + "...";
+  };
   return (
     <Card.Root
       direction="column"
@@ -26,18 +36,35 @@ const ReviewCard = ({ rating = 0, comment, created_at, customers }) => {
       border="none"
       borderRadius="20px"
       p={4}
+      minH="140px"
       bg={colorMode === "light" ? colors.light.bgFourth : colors.dark.bgFourth}
     >
-      <Text
-        fontSize="md"
-        fontWeight="light"
-        mb={3}
-        color={
-          colorMode === "light" ? colors.light.textMain : colors.dark.textMain
-        }
-      >
-        {comment}
-      </Text>
+      <Box mb={3}>
+        <Text
+          fontSize="md"
+          fontWeight="light"
+          color={
+            colorMode === "light" ? colors.light.textMain : colors.dark.textMain
+          }
+        >
+          {displayComment()}
+        </Text>
+        {shouldTruncate && (
+          <Button
+            variant="plain"
+            size="xs"
+            mt={1}
+            onClick={() => setIsExpanded(!isExpanded)}
+            color={"#FF861F"}
+            fontWeight="medium"
+            p={0}
+            h="auto"
+            _hover={{ textDecoration: "underline" }}
+          >
+            {isExpanded ? "Read Less" : "Read More"}
+          </Button>
+        )}
+      </Box>
 
       <Box
         h="1px"
