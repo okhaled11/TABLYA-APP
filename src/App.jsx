@@ -35,7 +35,7 @@ import CookerPage from "./pages/cooker/CookerPage";
 import CookerHome from "./pages/cooker/home/CookerHome";
 import CookerMenu from "./pages/cooker/CookerMenu";
 import CookerOrders from "./pages/cooker/CookerOrders";
-import CookerReviews from "./pages/cooker/CookerReviews";
+import CookerReviews from "./pages/cooker/review/CookerReviews";
 
 function App() {
   const token = CookieService.get("access_token");
