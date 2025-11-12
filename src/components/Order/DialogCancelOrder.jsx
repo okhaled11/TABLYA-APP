@@ -11,6 +11,7 @@ import {
   DialogCloseTrigger,
   DialogTrigger,
   DialogActionTrigger,
+  DialogBackdrop,
 } from "@chakra-ui/react";
 import { useColorMode } from "../../theme/color-mode";
 import colors from "../../theme/color";
@@ -20,8 +21,7 @@ function DialogCancelOrder({
   onOpenChange, 
   onConfirm, 
   isLoading, 
-  children,
-  display = "block"
+  children
 }) {
   const { colorMode } = useColorMode();
 
@@ -31,16 +31,29 @@ function DialogCancelOrder({
       onOpenChange={onOpenChange}
       placement="center"
       motionPreset="slide-in-bottom"
+      closeOnInteractOutside={false}
+      scrollBehavior="outside"
+      blockScrollOnMount={false}
     >
       <DialogTrigger asChild>{children}</DialogTrigger>
+
+      {/* Backdrop with light blur */}
+  
 
       <DialogContent
         maxW={{ base: "90%", md: "500px" }}
         w="full"
         bg={colorMode === "light" ? "white" : colors.dark.bgThird}
         rounded="xl"
-        shadow="xl"
+        shadow="2xl"
         p={5}
+        maxH="90vh"
+        overflowY="auto"
+        position="absolute"
+        top="20%"
+        left="50%"
+        transform="translate(-50%, -50%)"
+        zIndex={1500}
       >
         <DialogHeader>
           <DialogTitle fontSize={{ base: "lg", md: "xl" }} fontWeight="bold">
@@ -62,9 +75,16 @@ function DialogCancelOrder({
           </Text>
         </DialogBody>
 
-        <DialogFooter>
+        <DialogFooter 
+          flexDirection={{ base: "column", md: "row" }}
+          gap={{ base: 3, md: 0 }}
+        >
           <DialogActionTrigger asChild>
-            <Button variant="outline" mr={3}>
+            <Button 
+              variant="outline" 
+              mr={{ base: 0, md: 3 }}
+              w={{ base: "full", md: "auto" }}
+            >
               No, Keep Order
             </Button>
           </DialogActionTrigger>
@@ -79,6 +99,7 @@ function DialogCancelOrder({
             isLoading={isLoading}
             loadingText="Cancelling..."
             _hover={{ opacity: 0.8 }}
+            w={{ base: "full", md: "auto" }}
           >
             Yes, Cancel Order
           </Button>

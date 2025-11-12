@@ -6,7 +6,44 @@ export const personalInfoApi = createApi({
   baseQuery: fakeBaseQuery(),
   tagTypes: ["PersonalInfo", "User"],
   endpoints: (builder) => ({
-    // Update user profile (name, email, phone)
+    // Get user profile from auth.users
+    getUserProfile: builder.query({
+      async queryFn() {
+        try {
+          // Get current user from auth
+          const {
+            data: { user },
+            error: userError,
+          } = await supabase.auth.getUser();
+
+          if (userError || !user) {
+            return { error: { message: userError?.message || "User not found" } };
+          }
+
+          // Extract user data from auth.users
+          const userData = {
+            id: user.id,
+            email: user.email,
+            name: user.user_metadata?.name || user.user_metadata?.full_name || "",
+            firstName: user.user_metadata?.first_name || "",
+            lastName: user.user_metadata?.last_name || "",
+            phone: user.user_metadata?.phone || user.phone || "",
+            avatar_url: user.user_metadata?.avatar_url || "",
+            created_at: user.created_at,
+            updated_at: user.updated_at,
+          };
+
+          return { data: userData };
+        } catch (error) {
+          return {
+            error: { message: error.message || "Failed to fetch user profile" },
+          };
+        }
+      },
+      providesTags: ["PersonalInfo", "User"],
+    }),
+
+    // Update user profile (name, email, phone) - Updates auth.users table
     updateUserProfile: builder.mutation({
       async queryFn({ firstName, lastName, email, phone }) {
         try {
@@ -20,42 +57,51 @@ export const personalInfoApi = createApi({
             return { error: { message: userError?.message || "User not found" } };
           }
 
-          // Update user in database (users table)
+          const fullName = `${firstName} ${lastName}`;
+
+          // Primary update: Update auth.users table via supabase.auth.updateUser
+          const { data: authData, error: authError } = await supabase.auth.updateUser({
+            email: email, // This updates email in auth.users and sends confirmation if changed
+            data: {
+              name: fullName,
+              full_name: fullName, // Some systems use full_name
+              first_name: firstName,
+              last_name: lastName,
+              phone: phone,
+            },
+          });
+
+          if (authError) {
+            console.error("Auth update error:", authError);
+            return { error: { message: authError.message || "Failed to update auth profile" } };
+          }
+
+          // Secondary update: Also update custom users table for consistency (if exists)
           const { error: dbError } = await supabase
             .from("users")
             .update({
-              name: `${firstName} ${lastName}`,
+              name: fullName,
               email: email,
               phone: phone,
             })
             .eq("id", user.id);
 
           if (dbError) {
-            return { error: { message: dbError.message } };
-          }
-
-          // Also update user metadata in Supabase Auth for consistency
-          const { error: authError } = await supabase.auth.updateUser({
-            data: {
-              name: `${firstName} ${lastName}`,
-              phone: phone,
-            },
-            email: email, // This will send a confirmation email if email changed
-          });
-
-          if (authError) {
-            console.error("Auth update error:", authError);
-            // Don't fail if auth update fails, database is the source of truth
+            console.warn("Custom users table update failed:", dbError);
+            // Don't fail the operation if custom table update fails
           }
 
           return {
             data: {
-              message: "Profile updated successfully",
+              message: "Profile updated successfully in auth.users",
               user: {
-                name: `${firstName} ${lastName}`,
+                name: fullName,
                 email,
                 phone,
+                firstName,
+                lastName,
               },
+              authData,
             },
           };
         } catch (error) {
@@ -225,6 +271,7 @@ export const personalInfoApi = createApi({
 });
 
 export const {
+  useGetUserProfileQuery,
   useUpdateUserProfileMutation,
   useUploadAvatarMutation,
   useDeleteAvatarMutation,

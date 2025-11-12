@@ -67,39 +67,8 @@ export const ordersApi = createApi({
             }
           }
 
-          // Decrement stock for each menu item (best-effort, clamp at 0)
-          try {
-            await Promise.all(
-              (items || []).map(async (it) => {
-                const qty = it.quantity || 1;
-                if (!it?.id || qty <= 0) return;
-
-                // If stock present on item, compute new value locally
-                if (typeof it.stock === "number") {
-                  const newStock = Math.max(it.stock - qty, 0);
-                  await supabase
-                    .from("menu_items")
-                    .update({ stock: newStock })
-                    .eq("id", it.id);
-                } else {
-                  // Fetch current stock then update
-                  const { data: mi } = await supabase
-                    .from("menu_items")
-                    .select("stock")
-                    .eq("id", it.id)
-                    .single();
-                  const current = typeof mi?.stock === "number" ? mi.stock : 0;
-                  const newStock = Math.max(current - qty, 0);
-                  await supabase
-                    .from("menu_items")
-                    .update({ stock: newStock })
-                    .eq("id", it.id);
-                }
-              })
-            );
-          } catch (e) {
-            // ignore stock update errors for order creation success path
-          }
+          // Stock will be decremented when chef confirms the order
+          // No stock reduction at checkout time
 
           return { data: order };
         } catch (error) {

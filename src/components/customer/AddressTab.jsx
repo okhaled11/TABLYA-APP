@@ -22,7 +22,7 @@ import {
 } from "@chakra-ui/react";
 import { useColorMode } from "../../theme/color-mode";
 import colors from "../../theme/color";
-import { MapPin, Trash, Plus, Pen, MapTrifold } from "@phosphor-icons/react";
+import { MapPin, Trash, Plus, Pen, MapTrifold, House } from "@phosphor-icons/react";
 import { useState, useEffect } from "react";
 import { toaster } from "../ui/toaster";
 import { supabase } from "../../services/supabaseClient";
@@ -436,7 +436,8 @@ export default function AddressTab() {
           ) : (
             <>
               {/* Address List */}
-              {addresses.map((addr) => (
+              {addresses.length > 0 ? (
+                addresses.map((addr) => (
             <HStack key={addr.id} spacing={3} align="start">
               {/* Radio Button for Primary Selection - Outside the box */}
               <Box
@@ -613,11 +614,31 @@ export default function AddressTab() {
                 </HStack>
               </Box>
             </HStack>
-          ))}
+                ))
+              ) : (
+                /* Empty State */
+                <VStack spacing={4} py={8}>
+                  <Box
+                    p={4}
+                    rounded="full"
+                    bg={colorMode === "light" ? colors.light.mainFixed : colors.dark.mainFixed}
+                    color="white"
+                  >
+                    <House size={40} weight="fill" />
+                  </Box>
+                  <Text
+                    fontSize={{ base: "16px", md: "20px" }}
+                    color={colorMode === "light" ? colors.light.textSub : colors.dark.textSub}
+                    textAlign="center"
+                  >
+                    You currently have no saved addresses
+                  </Text>
+                </VStack>
+              )}
 
               {/* Add New Address Button */}
               <Button
-                width={"30%"}
+                width={"40%"}
                 alignSelf="center"
                 variant="outline"
                 borderColor={
