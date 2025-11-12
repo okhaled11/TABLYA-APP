@@ -103,7 +103,7 @@ export const store = configureStore({
       adminAuthApi.middleware,
       reviewsApi.middleware,
       favoritesApi.middleware,
-      AdminUserSlice.middleware
+      AdminUserSlice.middleware,
       CookerAcceptOrder.middleware
     ),
 });
