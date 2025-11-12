@@ -20,35 +20,49 @@ const CookerReviews = () => {
     skip: !cookerId,
   });
 
-    return (
+  return (
     <>
       <Box py={6}>
-        <Heading 
-          fontSize={{base:"2xl",md:"3xl"}} 
-          fontWeight="bold" 
-          mb={6} 
-          color={colorMode === "light" ? colors.light.textMain : colors.dark.textMain}
+        <Heading
+          fontSize={{ base: "2xl", md: "3xl" }}
+          fontWeight="bold"
+          my={6}
+          color={
+            colorMode === "light" ? colors.light.textMain : colors.dark.textMain
+          }
         >
           Customer Reviews
         </Heading>
-        
+
         {isLoading ? (
-          <Grid templateColumns={{base:"1fr",md:"1fr 1fr"}} gap={4} alignItems="start">
+          <Grid
+            templateColumns={{ base: "1fr", md: "1fr 1fr" }}
+            gap={4}
+            alignItems="start"
+          >
             {Array.from({ length: 4 }).map((_, index) => (
               <ReviewCardSkeleton key={index} />
             ))}
           </Grid>
         ) : reviews && reviews.length > 0 ? (
-          <Grid templateColumns={{base:"1fr",md:"1fr 1fr"}} gap={4} alignItems="start">
+          <Grid
+            templateColumns={{ base: "1fr", md: "1fr 1fr" }}
+            gap={4}
+            alignItems="start"
+          >
             {reviews.map((review) => (
               <ReviewCard key={review.id} {...review} />
             ))}
           </Grid>
         ) : (
-          <Box 
-            textAlign="center" 
+          <Box
+            textAlign="center"
             py={10}
-            bg={colorMode === "light" ? colors.light.bgFourth : colors.dark.bgFourth}
+            bg={
+              colorMode === "light"
+                ? colors.light.bgFourth
+                : colors.dark.bgFourth
+            }
             borderRadius="20px"
           >
             <Flex justify="center" gap={2} mb={4}>
@@ -56,17 +70,25 @@ const CookerReviews = () => {
                 <FaRegStar key={star} size={32} color="#FF861F" />
               ))}
             </Flex>
-            <Text 
-              fontSize="lg" 
+            <Text
+              fontSize="lg"
               fontWeight="medium"
               mb={2}
-              color={colorMode === "light" ? colors.light.textMain : colors.dark.textMain}
+              color={
+                colorMode === "light"
+                  ? colors.light.textMain
+                  : colors.dark.textMain
+              }
             >
               No Reviews Yet
             </Text>
-            <Text 
-              fontSize="md" 
-              color={colorMode === "light" ? colors.light.textSub : colors.dark.textSub}
+            <Text
+              fontSize="md"
+              color={
+                colorMode === "light"
+                  ? colors.light.textSub
+                  : colors.dark.textSub
+              }
             >
               Keep up the great work to get your first review!
             </Text>
@@ -74,7 +96,7 @@ const CookerReviews = () => {
         )}
       </Box>
     </>
-  );  
+  );
 };
 
 export default CookerReviews;

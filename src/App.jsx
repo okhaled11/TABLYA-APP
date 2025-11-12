@@ -34,7 +34,7 @@ import RoleBasedRedirect from "./routes/RoleBasedRedirect";
 import PageNotFound from "./pages/PageNotFound";
 import CookerPage from "./pages/cooker/CookerPage";
 import CookerHome from "./pages/cooker/home/CookerHome";
-import CookerMenu from "./pages/cooker/CookerMenu";
+import CookerMenu from "./pages/cooker/menu/CookerMenu";
 import CookerOrders from "./pages/cooker/CookerOrders";
 import CookerReviews from "./pages/cooker/review/CookerReviews";
 
@@ -50,12 +50,15 @@ function App() {
   return (
     <>
       <Routes>
-        <Route path="/" element={
-          <>
-            <RoleBasedRedirect />
-            <Landing />
-          </>
-        } />
+        <Route
+          path="/"
+          element={
+            <>
+              <RoleBasedRedirect />
+              <Landing />
+            </>
+          }
+        />
         <Route path="/login" element={<Login isAuthenticated={token} />} />
         <Route
           path="/register"
