@@ -31,7 +31,7 @@ export const OrdersHistoryCustomerSlice = createApi({
                     // Get unique order IDs
                     const orderIds = [...new Set(historyData.map(h => h.order_id).filter(Boolean))];
 
-                    // Fetch all related orders in one query
+                    // Fetch all related orders
                     const { data: ordersData, error: ordersError } = await supabase
                         .from("orders")
                         .select(`
@@ -51,13 +51,38 @@ export const OrdersHistoryCustomerSlice = createApi({
                         `)
                         .in("id", orderIds);
 
+                    // Fetch order items with menu items for all orders
+                    const ordersWithItems = await Promise.all(
+                        (ordersData || []).map(async (order) => {
+                            const { data: items } = await supabase
+                                .from("order_items")
+                                .select(`
+                                    id,
+                                    title,
+                                    quantity,
+                                    price_at_order,
+                                    menu_item_id,
+                                    menu_items (
+                                        id,
+                                        title,
+                                        menu_img,
+                                        price
+                                    )
+                                `)
+                                .eq("order_id", order.id);
+
+                            return {
+                                ...order,
+                                order_items: items || []
+                            };
+                        })
+                    );
+
                     // Create a map of orders by ID for quick lookup
                     const ordersMap = {};
-                    if (ordersData) {
-                        ordersData.forEach(order => {
-                            ordersMap[order.id] = order;
-                        });
-                    }
+                    ordersWithItems.forEach(order => {
+                        ordersMap[order.id] = order;
+                    });
 
                     // Combine history data with order data
                     const combinedData = historyData.map(history => ({

@@ -16,7 +16,6 @@ import {
   SkeletonCircle,
   SkeletonText,
 } from "@chakra-ui/react";
-import DialogCancelOrder from "../../components/Order/DialogCancelOrder.jsx";
 import {
   IoArrowBack,
   IoLocationSharp,
@@ -37,7 +36,6 @@ import imgChef from "../../assets/image 17.png";
 import { useNavigate, useParams } from "react-router-dom";
 import {
   useGetOrderDetailsQuery,
-  useCancelOrderMutation,
 } from "../../app/features/Customer/Orders/ordersApiCustomerSlice";
 
 function OrderDetails() {
@@ -45,7 +43,6 @@ function OrderDetails() {
   const { orderId } = useParams();
   const { colorMode } = useColorMode();
   const [currentStep, setCurrentStep] = useState(1);
-  const [isDialogOpen, setIsDialogOpen] = useState(false);
   const navigate = useNavigate();
 
 
@@ -57,8 +54,6 @@ function OrderDetails() {
   } = useGetOrderDetailsQuery(orderId, {
     skip: !orderId,
   });
-  const [cancelOrderMutation, { isLoading: isCancelling }] =
-    useCancelOrderMutation();
   console.log(orderDetails);
 
   useEffect(() => {
@@ -75,30 +70,6 @@ function OrderDetails() {
       }
     }
   }, [orderDetails?.status]);
-
-  /* -----------------cancel order------------------------ */
-  const shouldShowCancelButton = () => {
-    if (
-      orderDetails?.status === "confirmed" ||
-      orderDetails?.status === "created"
-    ) {
-      return "block";
-    } else {
-      return "none";
-    }
-  };
-
-  const handleCancelOrder = async () => {
-    try {
-      await cancelOrderMutation(orderId).unwrap();
-      setIsDialogOpen(false);
-      // Navigate to orders page after successful cancellation
-      navigate("/home/order");
-    } catch (error) {
-      console.error("Failed to cancel order:", error);
-      setIsDialogOpen(false);
-    }
-  };
 
   // Loading state
   if (isLoading) {
@@ -232,25 +203,21 @@ function OrderDetails() {
      key: "placed",
      title: "Confirmed",
      icon: IoCheckmarkCircle,
-     color: "green.400",
    },
    {
      key: "cooking",
      title: "Preparing",
      icon: IoRestaurant,
-     color: "orange.400",
    },
    {
      key: "out_for_delivery",
      title: "Out for Delivery",
      icon: IoBicycle,
-     color: "blue.400",
    },
    {
      key: "delivered",
      title: "Delivered",
      icon: IoHome,
-     color: "purple.400",
    },
  ];
   return (
@@ -306,296 +273,127 @@ function OrderDetails() {
               hour: "2-digit",
               minute: "2-digit",
             })}{" "}
-            | #{orderDetails.id.slice(0, 8)}
+            | #ORD-{orderDetails.id.slice(0, 8).toUpperCase()}
           </Text>
 
-          {/* Status Tracker - Premium Design */}
+          {/* Status Tracker - Always Horizontal */}
           <Box 
-            mb={{ base: 6, md: 12 }} 
-            px={{ base: 2, sm: 4, md: 6 }} 
-            py={{ base: 4, sm: 6, md: 8 }}
+            mb={{ base: 6, md: 10 }} 
+            px={{ base: 2, md: 6 }} 
+            py={{ base: 4, md: 8 }}
             bg={colorMode === "light" 
-              ? "linear-gradient(135deg, rgba(255,255,255,0.1), rgba(255,255,255,0.05))"
-              : "linear-gradient(135deg, rgba(0,0,0,0.2), rgba(0,0,0,0.1))"
+              ? "whiteAlpha.50"
+              : "blackAlpha.300"
             }
-            borderRadius={{ base: "xl", md: "2xl" }}
-            backdropFilter="blur(10px)"
+            borderRadius="xl"
           >
             <Flex 
               justify="space-between" 
-              align="flex-start" 
+              align="center" 
               position="relative"
-              flexWrap="wrap"
-              gap={{ base: 2, sm: 4, md: 0 }}
-              rowGap={{ base: 6, sm: 10, md: 0 }}
             >
               {/* Progress Line Background */}
               <Box
                 position="absolute"
-                top={{ base: "28px", sm: "40px", md: "50%" }}
-                left={{ base: "15%", sm: "10%", md: "8%" }}
-                right={{ base: "15%", sm: "10%", md: "8%" }}
-                h={{ base: "2px", md: "4px" }}
-                bg={colorMode === "light" 
-                  ? "linear-gradient(to right, rgba(0,0,0,0.05), rgba(0,0,0,0.1), rgba(0,0,0,0.05))"
-                  : "linear-gradient(to right, rgba(255,255,255,0.05), rgba(255,255,255,0.1), rgba(255,255,255,0.05))"
-                }
-                transform={{ base: "none", md: "translateY(-50%)" }}
+                top={{ base: "22px", md: "35px" }}
+                left={{ base: "8%", md: "12%" }}
+                right={{ base: "8%", md: "12%" }}
+                h={{ base: "2px", md: "3px" }}
+                bg={colorMode === "light" ? "gray.200" : "gray.700"}
                 borderRadius="full"
                 zIndex={0}
-                boxShadow="inset 0 2px 4px rgba(0,0,0,0.1)"
               />
               
-              {/* Animated Progress Line with Gradient */}
+              {/* Animated Progress Line */}
               <Box
                 as={motion.div}
                 position="absolute"
-                top={{ base: "28px", sm: "40px", md: "50%" }}
-                left={{ base: "15%", sm: "10%", md: "8%" }}
-                h={{ base: "2px", md: "4px" }}
-                bgGradient={`linear(to-r, ${steps[0].color}, ${steps[Math.min(currentStep - 1, steps.length - 1)].color})`}
-                transform={{ base: "none", md: "translateY(-50%)" }}
+                top={{ base: "22px", md: "35px" }}
+                left={{ base: "8%", md: "12%" }}
+                h={{ base: "2px", md: "3px" }}
+                bg="green.500"
                 borderRadius="full"
                 zIndex={1}
-                boxShadow={`0 0 15px ${steps[Math.min(currentStep - 1, steps.length - 1)].color}80`}
+                boxShadow="0 0 10px rgba(72, 187, 120, 0.5)"
                 initial={{ width: "0%" }}
                 animate={{ 
-                  width: `${((currentStep - 1) / (steps.length - 1)) * 70}%`
+                  width: `${((currentStep - 1) / (steps.length - 1)) * 84}%`
                 }}
-                transition={{ duration: "0.8s", ease: "easeInOut" }}
-              />
-              
-              {/* Animated Glow Effect on Progress Line */}
-              <Box
-                as={motion.div}
-                position="absolute"
-                top={{ base: "28px", sm: "40px", md: "50%" }}
-                left={{ base: "15%", sm: "10%", md: "8%" }}
-                h={{ base: "4px", md: "8px" }}
-                w={{ base: "12px", md: "20px" }}
-                bgGradient={`linear(to-r, transparent, ${steps[Math.min(currentStep - 1, steps.length - 1)].color}, transparent)`}
-                transform={{ base: "none", md: "translateY(-50%)" }}
-                borderRadius="full"
-                zIndex={2}
-                filter="blur(3px)"
-                opacity={0.8}
-                animate={{
-                  left: `${15 + ((currentStep - 1) / (steps.length - 1)) * 70}%`
-                }}
-                transition={{ duration: "0.8s", ease: "easeInOut" }}
+                transition={{ duration: 0.8, ease: "easeInOut" }}
               />
 
               {steps.map((step, index) => {
                 const isCompleted = index < currentStep;
                 const isCurrent = index === currentStep - 1;
+                const isDelivered = step.key === "delivered" && (isCompleted || isCurrent);
                 const StepIcon = step.icon;
+                const stepColor = isDelivered ? "red.500" : "green.500";
                 
                 return (
                   <Flex
                     key={step.key}
                     direction="column"
                     align="center"
-                    flex={{ base: "0 0 47%", sm: "0 0 48%", md: 1 }}
+                    flex={1}
                     position="relative"
                     zIndex={2}
-                    maxW={{ base: "120px", sm: "auto" }}
                   >
-                    {/* Icon Circle with Enhanced Animation */}
+                    {/* Icon Circle */}
                     <Box
                       as={motion.div}
-                      initial={{ scale: 0.5, opacity: 0, y: -20 }}
+                      initial={{ scale: 0, opacity: 0 }}
                       animate={{ 
-                        scale: isCurrent ? [1, 1.12, 1] : 1,
-                        opacity: 1,
-                        y: 0
+                        scale: 1,
+                        opacity: 1
                       }}
                       transition={{
-                        scale: {
-                          repeat: isCurrent ? Infinity : 0,
-                          duration: 2.5,
-                          ease: "easeInOut"
-                        },
-                        opacity: { duration: 0.6 },
-                        y: { duration: 0.5, delay: index * 0.1 }
+                        duration: 0.5,
+                        delay: index * 0.15
                       }}
+                      position="relative"
                     >
                       <Flex
-                        w={{ base: "50px", sm: "70px", md: "90px" }}
-                        h={{ base: "50px", sm: "70px", md: "90px" }}
+                        w={{ base: "45px", md: "70px" }}
+                        h={{ base: "45px", md: "70px" }}
                         borderRadius="full"
                         align="center"
                         justify="center"
-                        bgGradient={isCompleted 
-                          ? `linear(135deg, ${step.color}, ${step.color.replace('.400', '.600')})`
-                          : "none"
-                        }
-                        bg={!isCompleted 
-                          ? (colorMode === "light" 
-                              ? "linear-gradient(135deg, #f0f0f0, #e0e0e0)" 
-                              : "linear-gradient(135deg, #2d3748, #1a202c)")
-                          : "transparent"
-                        }
-                        border={{ base: "3px solid", md: "5px solid" }}
-                        borderColor={isCompleted ? step.color : (colorMode === "light" ? "gray.300" : "gray.600")}
-                        boxShadow={isCompleted 
-                          ? {
-                              base: `0 0 15px ${step.color}50, 0 0 30px ${step.color}25`,
-                              md: `0 0 30px ${step.color}70, 0 0 60px ${step.color}40, inset 0 2px 10px rgba(255,255,255,0.3)`
-                            }
-                          : (colorMode === "light" 
-                              ? "0 2px 10px rgba(0,0,0,0.1), inset 0 1px 3px rgba(0,0,0,0.05)"
-                              : "0 2px 10px rgba(0,0,0,0.3), inset 0 1px 3px rgba(255,255,255,0.05)")
+                        bg={isCompleted || isCurrent
+                          ? stepColor
+                          : (colorMode === "light" ? "gray.200" : "gray.700")
                         }
                         position="relative"
-                        overflow="hidden"
-                        transition="all 0.4s cubic-bezier(0.4, 0, 0.2, 1)"
-                        css={isCompleted ? {
-                          '&::before': {
-                            content: '""',
-                            position: 'absolute',
-                            top: 0,
-                            left: 0,
-                            right: 0,
-                            bottom: 0,
-                            borderRadius: '50%',
-                            background: 'linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent)',
-                            animation: 'shimmer 3s infinite',
-                          },
-                          '@keyframes shimmer': {
-                            '0%': { transform: 'translateX(-100%)' },
-                            '100%': { transform: 'translateX(100%)' },
-                          }
-                        } : undefined}
+                        transition="all 0.3s ease"
+                        boxShadow={isCompleted || isCurrent
+                          ? "0 2px 8px rgba(72, 187, 120, 0.3)"
+                          : "none"
+                        }
                       >
-                        {/* Multi-layer Animated Background Pulse */}
-                        {isCurrent && (
-                          <>
-                            <Box
-                              as={motion.div}
-                              position="absolute"
-                              inset={0}
-                              borderRadius="full"
-                              bg={step.color}
-                              opacity={0.4}
-                              animate={{
-                                scale: [1, 1.8, 1],
-                                opacity: [0.4, 0, 0.4]
-                              }}
-                              transition={{
-                                duration: 2.5,
-                                repeat: Infinity,
-                                ease: "easeInOut"
-                              }}
-                            />
-                            <Box
-                              as={motion.div}
-                              position="absolute"
-                              inset={0}
-                              borderRadius="full"
-                              bg={step.color}
-                              opacity={0.3}
-                              animate={{
-                                scale: [1, 1.5, 1],
-                                opacity: [0.3, 0, 0.3]
-                              }}
-                              transition={{
-                                duration: 2,
-                                repeat: Infinity,
-                                ease: "easeInOut",
-                                delay: 0.5
-                              }}
-                            />
-                          </>
-                        )}
-                        
-                        {/* Icon with Rotation Animation */}
-                        <AnimatePresence mode="wait">
-                          <Box
-                            as={motion.div}
-                            key={`${step.key}-${isCompleted}`}
-                            initial={{ rotate: -180, scale: 0 }}
-                            animate={{ rotate: 0, scale: 1 }}
-                            exit={{ rotate: 180, scale: 0 }}
-                            transition={{ duration: 0.5, type: "spring" }}
-                          >
-                            <Icon
-                              as={StepIcon}
-                              boxSize={{ base: 5, sm: 7, md: 10 }}
-                              color={isCompleted ? "white" : (colorMode === "light" ? "gray.400" : "gray.500")}
-                              filter={isCompleted 
-                                ? "drop-shadow(0 2px 4px rgba(0,0,0,0.4))" 
-                                : "drop-shadow(0 1px 2px rgba(0,0,0,0.1))"
-                              }
-                              transition="all 0.3s ease"
-                            />
-                          </Box>
-                        </AnimatePresence>
+                        <Icon
+                          as={StepIcon}
+                          boxSize={{ base: 4, md: 7 }}
+                          color={isCompleted || isCurrent 
+                            ? "white" 
+                            : (colorMode === "light" ? "gray.400" : "gray.500")
+                          }
+                        />
                       </Flex>
                     </Box>
 
-                    {/* Step Title with Animation */}
-                    <Box
-                      as={motion.div}
-                      initial={{ y: 10, opacity: 0 }}
-                      animate={{ y: 0, opacity: 1 }}
-                      transition={{ delay: index * 0.1 + 0.3 }}
+                    {/* Step Title */}
+                    <Text
+                      mt={{ base: 2, md: 3 }}
+                      fontSize={{ base: "10px", md: "sm" }}
+                      fontWeight={isCurrent ? "600" : "500"}
+                      color={isCompleted || isCurrent
+                        ? (colorMode === "light" ? colors.light.textMain : colors.dark.textMain)
+                        : (colorMode === "light" ? "gray.400" : "gray.600")
+                      }
+                      textAlign="center"
+                      whiteSpace="nowrap"
                     >
-                      <Text
-                        mt={{ base: 1.5, sm: 3, md: 4 }}
-                        fontSize={{ base: "10px", sm: "xs", md: "md" }}
-                        fontWeight={isCompleted ? "bold" : "semibold"}
-                        color={isCompleted ? step.color : (colorMode === "light" ? "gray.500" : "gray.400")}
-                        textAlign="center"
-                        maxW={{ base: "65px", sm: "85px", md: "130px" }}
-                        lineHeight={{ base: "1.1", md: "1.3" }}
-                        textShadow={isCompleted 
-                          ? `0 0 10px ${step.color}40, 0 1px 3px rgba(0,0,0,0.2)` 
-                          : "0 1px 2px rgba(0,0,0,0.1)"
-                        }
-                        transition="all 0.4s ease"
-                        letterSpacing={{ base: "0.2px", md: "0.5px" }}
-                        noOfLines={2}
-                      >
-                        {step.title}
-                      </Text>
-                    </Box>
-
-                    {/* Enhanced Checkmark Badge */}
-                    {isCompleted && !isCurrent && (
-                      <Box
-                        as={motion.div}
-                        initial={{ scale: 0, rotate: -180, opacity: 0 }}
-                        animate={{ scale: 1, rotate: 0, opacity: 1 }}
-                        transition={{ 
-                          delay: 0.3 + index * 0.1, 
-                          type: "spring",
-                          stiffness: 200,
-                          damping: 15
-                        }}
-                        position="absolute"
-                        top={{ base: "-4px", md: "-8px" }}
-                        right={{ base: "-2px", sm: "2px", md: "15%" }}
-                      >
-                        <Flex
-                          w={{ base: "18px", sm: "24px", md: "28px" }}
-                          h={{ base: "18px", sm: "24px", md: "28px" }}
-                          borderRadius="full"
-                          bgGradient={`linear(135deg, ${step.color}, ${step.color.replace('.400', '.600')})`}
-                          align="center"
-                          justify="center"
-                          boxShadow={`0 0 15px ${step.color}90, 0 3px 8px rgba(0,0,0,0.3)`}
-                          border={{ base: "1.5px solid", md: "3px solid" }}
-                          borderColor={colorMode === "light" ? "white" : "gray.800"}
-                        >
-                          <Icon
-                            as={IoCheckmarkCircle}
-                            boxSize={{ base: 3, md: 5 }}
-                            color="white"
-                            filter="drop-shadow(0 1px 2px rgba(0,0,0,0.3))"
-                          />
-                        </Flex>
-                      </Box>
-                    )}
+                      {step.title}
+                    </Text>
                   </Flex>
                 );
               })}
@@ -695,49 +493,6 @@ function OrderDetails() {
                   </VStack>
                 </Box>
 
-                {/* Cancel Order Button with Dialog */}
-                <DialogCancelOrder
-                  isOpen={isDialogOpen}
-                  onOpenChange={(e) => setIsDialogOpen(e.open)}
-                  onConfirm={handleCancelOrder}
-                  isLoading={isCancelling}
-                  display={shouldShowCancelButton()}
-                >
-                  <Button
-                    w="full"
-                    maxW="300px"
-                    mx="auto"
-                    mb={{ base: 2, md: 4 }}
-                    h={{ base: "45px", md: "50px" }}
-                    border="2px solid"
-                    borderColor={
-                      colorMode === "light"
-                        ? colors.light.mainFixed
-                        : colors.dark.mainFixed
-                    }
-                    color={
-                      colorMode === "light"
-                        ? colors.light.mainFixed
-                        : colors.dark.mainFixed
-                    }
-                    bg="transparent"
-                    borderRadius="xl"
-                    fontWeight="bold"
-                    fontSize={{ base: "md", md: "lg" }}
-                    _hover={{
-                      bg:
-                        colorMode === "light"
-                          ? colors.light.mainFixed10a
-                          : colors.dark.mainFixed10a,
-                      transform: "translateY(-2px)",
-                      boxShadow: "lg",
-                    }}
-                    transition="all 0.3s ease"
-                    display={shouldShowCancelButton()}
-                  >
-                    Cancel Order
-                  </Button>
-                </DialogCancelOrder>
               </VStack>
             </GridItem>
 

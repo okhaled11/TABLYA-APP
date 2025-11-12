@@ -4,7 +4,6 @@ import CookieService from "../../services/cookies";
 import PersonalInfoTab from "../../components/customer/PersonalInfoTab";
 import SecurityTab from "../../components/customer/SecurityTab";
 import AddressTab from "../../components/customer/AddressTab";
-import PaymentMethodsTab from "../../components/customer/PaymentMethodsTab";
 
 export default function PersonalInfo() {
   const token = CookieService.get("access_token");
@@ -12,10 +11,9 @@ export default function PersonalInfo() {
     skip: !token,
   });
   const tabs = [
-    <PersonalInfoTab user={user} />,
+    <PersonalInfoTab />,
     <AddressTab />,
     <SecurityTab user={user} />,
-    <PaymentMethodsTab />,
   ];
 
   return <CustomerLayout tabs={tabs} />;

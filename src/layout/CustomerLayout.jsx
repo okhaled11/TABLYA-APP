@@ -3,7 +3,7 @@ import { useColorMode } from "../theme/color-mode";
 import colors from "../theme/color";
 import Navbar from "./Navbar";
 import { useState, useRef, useEffect } from "react";
-import { User, CreditCard, MapPin, Lock, ArrowLeft } from "@phosphor-icons/react";
+import { User, MapPin, Lock, ArrowLeft } from "@phosphor-icons/react";
 import Footer from "../shared/Footer";
 import { useLocation, useNavigate } from "react-router-dom";
 
@@ -51,14 +51,10 @@ export default function CustomerLayout({ tabs }) {
       title: "Security",
       icon: Lock,
     },
-    {
-      title: "Payment Methods",
-      icon: CreditCard,
-    },
   ];
 
   // Map URL segment to tab index and vice versa
-  const segments = ["", "address", "security", "payment"]; // '' => personal-info root
+  const segments = ["", "address", "security"]; // '' => personal-info root
 
   // Sync active tab when URL changes
   useEffect(() => {
