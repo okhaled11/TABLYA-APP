@@ -16,6 +16,7 @@ import { cookerApprovalsApi } from "./features/Admin/cookerApprovals";
 import { ordersApi as adminOrdersApi } from "./features/Admin/ordersApi";
 import { ordersApi as customerOrdersApi } from "./features/Customer/ordersSlice";
 import { reportsApi } from "./features/Admin/reportsApi";
+import { AdminUserSlice } from "./features/Admin/adminUserManagemnetSlice";
 
 import { passwordApi } from "./features/Customer/passwordSlice";
 import { personalInfoApi } from "./features/Customer/personalInfoSlice";
@@ -25,6 +26,7 @@ import { OrdersApiCustomerSlice } from "./features/Customer/Orders/ordersApiCust
 import { ReportsApiSlice } from "./features/Customer/Reports/reportsApiSlice";
 import { reviewsApi } from "./features/Customer/reviewsApi";
 import { UserSlice } from "./features/UserSlice";
+import { CookerAcceptOrder } from "./features/Cooker/CookerAcceptOrder";
 
 import CartSlice from "./features/Customer/CartSlice";
 import favoriteCookersReducer from "./features/Customer/favoriteCookersSlice";
@@ -47,7 +49,8 @@ export const store = configureStore({
     // Customer APIs
     [cookersApi.reducerPath]: cookersApi.reducer,
     [OrdersApiCustomerSlice.reducerPath]: OrdersApiCustomerSlice.reducer,
-    [OrdersHistoryCustomerSlice.reducerPath]: OrdersHistoryCustomerSlice.reducer,
+    [OrdersHistoryCustomerSlice.reducerPath]:
+      OrdersHistoryCustomerSlice.reducer,
     [ReportsApiSlice.reducerPath]: ReportsApiSlice.reducer,
     [customerOrdersApi.reducerPath]: customerOrdersApi.reducer,
     [reviewsApi.reducerPath]: reviewsApi.reducer,
@@ -66,11 +69,15 @@ export const store = configureStore({
     [adminOrdersApi.reducerPath]: adminOrdersApi.reducer,
     [reportsApi.reducerPath]: reportsApi.reducer,
     [adminAuthApi.reducerPath]: adminAuthApi.reducer,
+    [AdminUserSlice.reducerPath]: AdminUserSlice.reducer,
 
     // Auth & User
     [authApi.reducerPath]: authApi.reducer,
     [registerChef.reducerPath]: registerChef.reducer,
     [UserSlice.reducerPath]: UserSlice.reducer,
+
+    // Cooker APIs
+    [CookerAcceptOrder.reducerPath]: CookerAcceptOrder.reducer,
   },
 
   middleware: (getDefaultMiddleware) =>
@@ -100,6 +107,8 @@ export const store = configureStore({
       adminAuthApi.middleware,
       reviewsApi.middleware,
       favoritesApi.middleware,
+      AdminUserSlice.middleware,
+      CookerAcceptOrder.middleware
     ),
 });
 

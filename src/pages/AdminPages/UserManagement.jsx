@@ -16,33 +16,43 @@ import {
   Avatar,
   Button,
   SimpleGrid,
+  Wrap,
+  WrapItem,
 } from "@chakra-ui/react";
-import React, { useState } from "react";
-import { useGetUsersQuery } from "../../app/features/UserSlice";
+import React, { useEffect, useState } from "react";
+import { useGetUsersQuery } from "../../app/features/Admin/adminUserManagemnetSlice";
 import { LuChevronLeft, LuChevronRight } from "react-icons/lu";
 import { CiSearch } from "react-icons/ci";
 import { FaEye } from "react-icons/fa";
 import { FaEdit } from "react-icons/fa";
-import { FaUserXmark } from "react-icons/fa6";
+import { FcSupport } from "react-icons/fc";
+
+import { FaSuperpowers, FaUserShield, FaUserXmark } from "react-icons/fa6";
 import { FaUserFriends, FaUtensils, FaMotorcycle } from "react-icons/fa";
 import StatCard from "../../components/Admin/StatCard";
 import Demo from "../../components/Admin/UserModal";
 import { useColorMode } from "../../theme/color-mode";
 import UserModal from "../../components/Admin/UserModal";
+import UserInfoModal from "../../components/Admin/UserModal";
+import EditUserModal from "../../components/Admin/EditUserModal";
 export default function UserManagement() {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedRole, setSelectedRole] = useState("");
   const { data: users, error, isLoading } = useGetUsersQuery();
+  // const [updateUser] = useUpdateUserMutation();
   const [page, setPage] = useState(1);
   const [localUsers, setLocalUsers] = useState([]);
   const [selectedUser, setSelectedUser] = useState(null);
-  const [modalMode, setModalMode] = useState("view"); // 'view' or 'edit'
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isInfoOpen, setIsInfoOpen] = useState(false);
+  const [isEditOpen, setIsEditOpen] = useState(false);
+  const [startDate, setStartDate] = useState("");
+  const [endDate, setEndDate] = useState("");
+
   console.log(users);
 
   const { colorMode } = useColorMode();
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (users) setLocalUsers(users);
   }, [users]);
 
@@ -65,6 +75,8 @@ export default function UserManagement() {
   const chefCount = localUsers?.filter((u) => u.role === "cooker").length || 0;
   const deliveryCount =
     localUsers?.filter((u) => u.role === "delivery").length || 0;
+
+  // const adminCount = localUsers?.filter((u) => u.role === "admin").length || 0;
 
   const filteredUsers = localUsers.filter(
     (user) =>
@@ -90,17 +102,77 @@ export default function UserManagement() {
     setSelectedRole(e.target.value);
   };
 
+  const handleFilterByDate = () => {
+    if (!startDate && !endDate) {
+      setLocalUsers(users);
+      return;
+    }
+
+    const filtered = users.filter((user) => {
+      const createdAt = new Date(user.created_at);
+      const from = startDate ? new Date(startDate) : null;
+      const to = endDate ? new Date(endDate) : null;
+
+      if (from && createdAt < from) return false;
+      if (to && createdAt > to) return false;
+      return true;
+    });
+
+    setLocalUsers(filtered);
+  };
+
   const handleDelete = (userId) => {
     setLocalUsers((prev) => prev.filter((u) => u.id !== userId));
   };
 
   const handleOpenModal = (user, mode) => {
     setSelectedUser(user);
-    setModalMode(mode);
-    setIsModalOpen(true);
+
+    if (mode === "view") {
+      setIsInfoOpen(true);
+    } else if (mode === "edit") {
+      setIsEditOpen(true);
+    }
   };
 
   const handleCloseModal = () => setIsModalOpen(false);
+
+  const handleExportCSV = () => {
+    if (!filteredUsers || filteredUsers.length === 0) {
+      alert("No data to export.");
+      return;
+    }
+
+    // Define CSV headers
+    const headers = ["Name", "Email", "Role", "phone", "Registration Date"];
+
+    // Convert user data to CSV rows
+    const rows = filteredUsers.map((user) => [
+      `"${user.name}"`,
+      `"${user.email}"`,
+      `"${user.role}"`,
+      `"${user.phone}"`,
+      `"${new Intl.DateTimeFormat("en-US", {
+        year: "numeric",
+        month: "short",
+        day: "2-digit",
+      }).format(new Date(user.created_at))}"`,
+    ]);
+
+    const csvContent = [headers, ...rows]
+      .map((row) => row.join(","))
+      .join("\n");
+
+    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+
+    const link = document.createElement("a");
+    link.href = url;
+    link.setAttribute("download", "users.csv");
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
 
   const getBadgeColor = (role) => {
     if (role === "customer") return "orange";
@@ -119,7 +191,12 @@ export default function UserManagement() {
         Manage all platform users
       </Box>
       {/* Cards */}
-      <SimpleGrid height="1/6" gap="6" columns={3} marginBlockEnd={5}>
+      <SimpleGrid
+        columns={{ base: 1, md: 3 }}
+        gap={["12px", "30px"]}
+        justify={["center", "center"]}
+        marginBottom={8}
+      >
         <StatCard
           backgroundColor={colorMode === "light" ? "white" : "#261c17"}
           icon={FaUserFriends}
@@ -129,6 +206,7 @@ export default function UserManagement() {
           value={customerCount}
           valueColor="#e77240"
         />
+
         <StatCard
           backgroundColor={colorMode === "light" ? "white" : "#261c17"}
           icon={FaUtensils}
@@ -138,6 +216,7 @@ export default function UserManagement() {
           value={chefCount}
           valueColor="#16a249"
         />
+
         <StatCard
           backgroundColor={colorMode === "light" ? "white" : "#261c17"}
           icon={FaMotorcycle}
@@ -148,6 +227,7 @@ export default function UserManagement() {
           valueColor="#3ea2e6"
         />
       </SimpleGrid>
+
       {/* Table */}
       <Stack
         borderWidth="1px"
@@ -155,8 +235,9 @@ export default function UserManagement() {
         padding={5}
         borderColor={colorMode === "light" ? "gray.100" : "gray.900"}
         background={colorMode === "light" ? "white" : "#261c17"}
+        overflowX="auto"
       >
-        <Box height="1/6">
+        <Box height="1/6" alignItems={"center"}>
           <Flex alignItems={"center"}>
             <Flex flex={2} marginInlineEnd={5}>
               <InputGroup startElement={<CiSearch />}>
@@ -167,8 +248,8 @@ export default function UserManagement() {
                 />
               </InputGroup>
             </Flex>
-            <Flex flex={1}>
-              <NativeSelect.Root size="sm" width="240px">
+            <Flex flex={1} marginInlineEnd={5}>
+              <NativeSelect.Root size="md">
                 <NativeSelect.Field
                   value={selectedRole}
                   onChange={handleRoleChange}
@@ -181,11 +262,37 @@ export default function UserManagement() {
                 <NativeSelect.Indicator />
               </NativeSelect.Root>
             </Flex>
+            <Flex flex={2} marginInlineEnd={5} gap={2}>
+              <Input
+                type="date"
+                value={startDate}
+                onChange={(e) => setStartDate(e.target.value)}
+                placeholder="Start Date"
+              />
+              <Input
+                type="date"
+                value={endDate}
+                onChange={(e) => setEndDate(e.target.value)}
+                placeholder="End Date"
+              />
+              <Button colorScheme="blue" onClick={() => handleFilterByDate()}>
+                Filter
+              </Button>
+            </Flex>
+            <Flex flex={1}>
+              <Button
+                background="rgba(236, 110, 57, 1)"
+                color="white"
+                onClick={handleExportCSV}
+              >
+                Export to CSV
+              </Button>
+            </Flex>
           </Flex>
         </Box>
-        <Box height="5/6" overflow="auto">
+        <Box height="5/6">
           <Stack width="full" gap="5">
-            <Table.Root size="sm" overflowX="auto">
+            <Table.Root size="sm">
               <Table.Header
                 background={colorMode === "light" ? "white" : "#261c17"}
               >
@@ -354,11 +461,16 @@ export default function UserManagement() {
         </Box>
       </Stack>
       {/*  Modal */}
-      <UserModal
+      <UserInfoModal
         user={selectedUser}
-        isOpen={isModalOpen}
-        onClose={handleCloseModal}
-        mode={modalMode}
+        isOpen={isInfoOpen}
+        onClose={() => setIsInfoOpen(false)}
+      />
+      {/* Edit */}
+      <EditUserModal
+        user={selectedUser}
+        isOpen={isEditOpen}
+        onClose={() => setIsEditOpen(false)}
       />
     </>
   );

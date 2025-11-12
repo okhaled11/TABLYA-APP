@@ -1,13 +1,21 @@
 import { useState } from "react";
 import { loadStripe } from "@stripe/stripe-js";
-import { Elements, CardElement, useStripe, useElements } from "@stripe/react-stripe-js";
+import {
+  Elements,
+  CardElement,
+  useStripe,
+  useElements,
+} from "@stripe/react-stripe-js";
 import { toaster } from "../ui/toaster";
 
 // 🔹 المفتاح العام (Publishable key) من Stripe Dashboard
-const stripePromise = loadStripe("pk_test_51SRwXWFuoYhjngjb990Ud3vwROMKrzXlAP7xeP0xKWfzTCgbY1lHiTsOoa7OisIMHvx9bJztylXNaxydC3jxOqg700fB5OUq0F");
+const stripePromise = loadStripe(
+  "pk_test_51SRwXWFuoYhjngjb990Ud3vwROMKrzXlAP7xeP0xKWfzTCgbY1lHiTsOoa7OisIMHvx9bJztylXNaxydC3jxOqg700fB5OUq0F"
+);
 
 // 🔹 لينك Edge Function في Supabase
-const FN_URL = "https://hzqeraiapeyyerkvdiod.supabase.co/functions/v1/create_payment_intent";
+const FN_URL =
+  "https://hzqeraiapeyyerkvdiod.supabase.co/functions/v1/create_payment_intent";
 
 const CheckoutForm = ({ amount, orderId, onSuccess }) => {
   const stripe = useStripe();
@@ -34,12 +42,14 @@ const CheckoutForm = ({ amount, orderId, onSuccess }) => {
       });
 
       const { clientSecret, error } = await res.json();
-      if (!res.ok || error) throw new Error(error || "Failed to create payment intent");
+      if (!res.ok || error)
+        throw new Error(error || "Failed to create payment intent");
 
       // 2️⃣ نأكد الدفع باستخدام Stripe
-      const { error: confirmErr, paymentIntent } = await stripe.confirmCardPayment(clientSecret, {
-        payment_method: { card: elements.getElement(CardElement) },
-      });
+      const { error: confirmErr, paymentIntent } =
+        await stripe.confirmCardPayment(clientSecret, {
+          payment_method: { card: elements.getElement(CardElement) },
+        });
 
       if (confirmErr) {
         toaster.create({
@@ -101,10 +111,12 @@ const CheckoutForm = ({ amount, orderId, onSuccess }) => {
 
   return (
     <form onSubmit={handleSubmit} style={{ maxWidth: "400px", margin: "auto" }}>
-      <h2 style={{ textAlign: "center", marginBottom: "20px" }}>Pay with Stripe</h2>
+      <h2 style={{ textAlign: "center", marginBottom: "20px" }}>
+        Pay with Stripe
+      </h2>
 
-      {/* تعليمات الكروت التجريبية */}
-      <div
+      {/* Testing instructions */}
+      {/* <div
         style={{
           backgroundColor: "#e3f2fd",
           border: "1px solid #2196f3",
@@ -121,7 +133,7 @@ const CheckoutForm = ({ amount, orderId, onSuccess }) => {
           <li>Any future expiry date (MM/YY)</li>
           <li>Any 3-digit CVC</li>
         </ul>
-      </div>
+      </div> */}
 
       {/* Card Element */}
       <div
@@ -164,11 +176,22 @@ const CheckoutForm = ({ amount, orderId, onSuccess }) => {
           transition: "background-color 0.3s",
         }}
       >
-        {paid ? "✅ Payment Successful" : processing ? "Processing..." : `Pay ${amount} EUR`}
+        {paid
+          ? "✅ Payment Successful"
+          : processing
+          ? "Processing..."
+          : `Pay ${amount} EUR`}
       </button>
 
       {paid && (
-        <p style={{ color: "green", textAlign: "center", marginTop: "20px", fontWeight: "bold" }}>
+        <p
+          style={{
+            color: "green",
+            textAlign: "center",
+            marginTop: "20px",
+            fontWeight: "bold",
+          }}
+        >
           ✅ Payment completed successfully!
         </p>
       )}
