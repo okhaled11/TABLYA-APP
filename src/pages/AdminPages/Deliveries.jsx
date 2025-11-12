@@ -24,14 +24,18 @@ import { useColorMode } from "../../theme/color-mode";
 import { FaRegCheckCircle, FaClipboardCheck, FaEye } from "react-icons/fa";
 import { MdOutlineDeliveryDining, MdCancel } from "react-icons/md";
 import OrderModal from "../../components/Admin/OrderModal";
+
 function Deliveries() {
   const { data: orders, isLoading } = useGetOrdersQuery();
   console.log(orders);
   const { colorMode } = useColorMode();
+
   const [selectedOrder, setSelectedOrder] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("");
+  const [startDate, setStartDate] = useState("");
+  const [endDate, setEndDate] = useState("");
   const [page, setPage] = useState(1);
   const pageSize = 5;
 
@@ -47,6 +51,7 @@ const handleCloseModal = () => {
   setIsModalOpen(false);
   setSelectedOrder(null);
   };
+
   
 
   const ordersData = useMemo(() => {
@@ -63,14 +68,29 @@ const handleCloseModal = () => {
     }));
   }, [orders]);
 
-  const filteredOrders = ordersData.filter(
-    (order) =>
-      (statusFilter === "" || order.status === statusFilter) &&
-      (searchTerm === "" ||
+  const filteredOrders = useMemo(() => {
+    return ordersData.filter((order) => {
+      const matchesStatus =
+        statusFilter === "" || order.status === statusFilter;
+
+      const matchesSearch =
+        searchTerm === "" ||
         order.restaurant.toLowerCase().includes(searchTerm.toLowerCase()) ||
         order.customer.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        order.deliveryPartner.toLowerCase().includes(searchTerm.toLowerCase()))
-  );
+        order.deliveryPartner.toLowerCase().includes(searchTerm.toLowerCase());
+
+      const orderDate = new Date(order.orderDate);
+      const from = startDate ? new Date(startDate) : null;
+      const to = endDate ? new Date(endDate) : null;
+
+      const matchesDate =
+        (!from || orderDate >= from) && (!to || orderDate <= to);
+
+      return matchesStatus && matchesSearch && matchesDate;
+    });
+  }, [ordersData, statusFilter, searchTerm, startDate, endDate]);
+
+  
 
   // Pagination logic
   const totalPages = Math.ceil(filteredOrders.length / pageSize);
@@ -100,6 +120,52 @@ const handleCloseModal = () => {
     }
   };
 
+  const handleExportCSV = () => {
+    if (!filteredOrders || filteredOrders.length === 0) {
+      alert("No data to export.");
+      return;
+    }
+
+    // Define CSV headers
+    const headers = ["Order ID", "Restaurant", "Customer", "Delivery Partner", "Status", "Total", "Order Date"];
+
+    // Convert user data to CSV rows
+    const rows = filteredOrders.map((order) => [
+      [
+        `${order.id}`,
+        `${order.restaurant}`,
+        `${order.customer}`,
+        `${order.deliveryPartner}`,
+        `${order.status}`,
+        `${order.total}`,
+        `${new Intl.DateTimeFormat("en-US", {
+          year: "numeric",
+          month: "short",
+          day: "2-digit",
+        }).format(new Date(order.orderDate))}`,
+        `${new Intl.DateTimeFormat("en-US", {
+          hour: "numeric",
+          minute: "numeric",
+        }).format(new Date(order.orderTime))}`,
+      ]
+    ]);
+
+    const csvContent = [headers, ...rows]
+      .map((row) => row.join(","))
+      .join("\n");
+
+    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+
+    const link = document.createElement("a");
+    link.href = url;
+    link.setAttribute("download", "orders.csv");
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+  
+
   if (isLoading)
     return (
       <Flex justify="center" align="center" h="60vh">
@@ -119,7 +185,12 @@ const handleCloseModal = () => {
       </Box>
 
       {/* Stats */}
-      <SimpleGrid columns={[2, null, 3]} gap="10px" marginBottom={5}>
+      <SimpleGrid
+        columns={{ base: 1, md: 3 }}
+        gap={["5px", "30px"]}
+        justify={["center", "center"]}
+        marginBottom={5}
+      >
         {/* Confirmed Orders */}
         <StatCard
           icon={FaClipboardCheck}
@@ -198,9 +269,10 @@ const handleCloseModal = () => {
         p={5}
         borderColor={colorMode === "light" ? "gray.100" : "gray.900"}
         background={colorMode === "light" ? "white" : "#261c17"}
+        overflowX="auto"
       >
         {/* Search + Filter */}
-        <Flex mb={4} gap={4} alignItems="center">
+        <Flex mb={4} gap={3} alignItems="center" flexWrap="wrap">
           <InputGroup flex={2} startElement={<CiSearch />}>
             <Input
               placeholder="Search by restaurant, customer, or partner"
@@ -224,124 +296,163 @@ const handleCloseModal = () => {
             </NativeSelect.Field>
             <NativeSelect.Indicator />
           </NativeSelect.Root>
+
+          <Flex flex={3} gap={2}>
+            <Input
+              type="date"
+              value={startDate}
+              onChange={(e) => setStartDate(e.target.value)}
+            />
+            <Input
+              type="date"
+              value={endDate}
+              onChange={(e) => setEndDate(e.target.value)}
+            />
+            <Button
+              
+              onClick={() => {
+                setStartDate("");
+                setEndDate("");
+              }}
+            >
+              Clear
+            </Button>
+          </Flex>
+
+          <Button
+            size={"md"}
+            background="rgba(236, 110, 57, 1)"
+            color="white"
+            onClick={handleExportCSV}
+          >
+            Export to CSV
+          </Button>
         </Flex>
 
         {/* Table */}
-        <Table.Root size="sm">
-          <Table.Header
-            background={colorMode === "light" ? "white" : "#261c17"}
-          >
-            <Table.Row
-              _hover={{
-                bg: colorMode === "light" ? "gray.100" : "#140f0cff",
-              }}
+        {filteredOrders.length > 0 ? (
+          <Table.Root size="sm">
+            <Table.Header
               background={colorMode === "light" ? "white" : "#261c17"}
             >
-              <Table.ColumnHeader>Restaurant</Table.ColumnHeader>
-              <Table.ColumnHeader>Customer</Table.ColumnHeader>
-              <Table.ColumnHeader>Delivery Partner</Table.ColumnHeader>
-              <Table.ColumnHeader>Status</Table.ColumnHeader>
-              <Table.ColumnHeader>Total</Table.ColumnHeader>
-              <Table.ColumnHeader>Date</Table.ColumnHeader>
-              <Table.ColumnHeader>Time</Table.ColumnHeader>
-              <Table.ColumnHeader>Actions</Table.ColumnHeader>
-            </Table.Row>
-          </Table.Header>
-
-          <Table.Body>
-            {paginatedOrders.map((order) => (
               <Table.Row
-                key={order.id}
                 _hover={{
                   bg: colorMode === "light" ? "gray.100" : "#140f0cff",
                 }}
-                height="10px"
                 background={colorMode === "light" ? "white" : "#261c17"}
               >
-                <Table.Cell>{order.restaurant}</Table.Cell>
-                <Table.Cell>{order.customer}</Table.Cell>
-                <Table.Cell>{order.deliveryPartner}</Table.Cell>
-                <Table.Cell>
-                  <Badge
-                    colorPalette={getStatusColor(order.status)}
-                    borderRadius="full"
-                    px="3"
-                    py="1"
-                    textTransform="capitalize"
-                  >
-                    {order.status.replace(/_/g, " ")}
-                  </Badge>
-                </Table.Cell>
-                <Table.Cell fontWeight="bold">{order.total}</Table.Cell>
-                <Table.Cell>
-                  {new Intl.DateTimeFormat("en-US", {
-                    year: "numeric",
-                    month: "short",
-                    day: "2-digit",
-                  }).format(new Date(order.orderDate))}
-                </Table.Cell>
-                <Table.Cell>
-                  {new Intl.DateTimeFormat("en-US", {
-                    hour: "2-digit",
-                    minute: "2-digit",
-                  }).format(new Date(order.orderTime))}
-                </Table.Cell>
-                <Table.Cell>
-                  <Button
-                    key={order.id}
-                    size="sm"
-                    variant="outline"
-                    colorScheme="teal"
-                    onClick={() => {
-                      const fullOrder = orders?.find((o) => o.id === order.id);
-                      setSelectedOrder(fullOrder);
-                      setIsModalOpen(true);
-                    }}
-                  >
-                    <FaEye />
-                  </Button>
-                </Table.Cell>
+                <Table.ColumnHeader>Restaurant</Table.ColumnHeader>
+                <Table.ColumnHeader>Customer</Table.ColumnHeader>
+                <Table.ColumnHeader>Delivery Partner</Table.ColumnHeader>
+                <Table.ColumnHeader>Status</Table.ColumnHeader>
+                <Table.ColumnHeader>Total</Table.ColumnHeader>
+                <Table.ColumnHeader>Date</Table.ColumnHeader>
+                <Table.ColumnHeader>Time</Table.ColumnHeader>
+                <Table.ColumnHeader>Actions</Table.ColumnHeader>
               </Table.Row>
-            ))}
-          </Table.Body>
-        </Table.Root>
+            </Table.Header>
+
+            <Table.Body>
+              {paginatedOrders.map((order) => (
+                <Table.Row
+                  key={order.id}
+                  _hover={{
+                    bg: colorMode === "light" ? "gray.100" : "#140f0cff",
+                  }}
+                  height="10px"
+                  background={colorMode === "light" ? "white" : "#261c17"}
+                >
+                  <Table.Cell>{order.restaurant}</Table.Cell>
+                  <Table.Cell>{order.customer}</Table.Cell>
+                  <Table.Cell>{order.deliveryPartner}</Table.Cell>
+                  <Table.Cell>
+                    <Badge
+                      colorPalette={getStatusColor(order.status)}
+                      borderRadius="full"
+                      px="3"
+                      py="1"
+                      textTransform="capitalize"
+                    >
+                      {order.status.replace(/_/g, " ")}
+                    </Badge>
+                  </Table.Cell>
+                  <Table.Cell fontWeight="bold">{order.total}</Table.Cell>
+                  <Table.Cell>
+                    {new Intl.DateTimeFormat("en-US", {
+                      year: "numeric",
+                      month: "short",
+                      day: "2-digit",
+                    }).format(new Date(order.orderDate))}
+                  </Table.Cell>
+                  <Table.Cell>
+                    {new Intl.DateTimeFormat("en-US", {
+                      hour: "2-digit",
+                      minute: "2-digit",
+                    }).format(new Date(order.orderTime))}
+                  </Table.Cell>
+                  <Table.Cell>
+                    <Button
+                      key={order.id}
+                      size="sm"
+                      variant="outline"
+                      colorScheme="teal"
+                      onClick={() => {
+                        const fullOrder = orders?.find(
+                          (o) => o.id === order.id
+                        );
+                        setSelectedOrder(fullOrder);
+                        setIsModalOpen(true);
+                      }}
+                    >
+                      <FaEye />
+                    </Button>
+                  </Table.Cell>
+                </Table.Row>
+              ))}
+            </Table.Body>
+          </Table.Root>
+        ) : (
+          <Box textAlign={"center"}>There are no orders to display</Box>
+        )}
 
         {/* Pagination */}
-        <Pagination.Root
-          count={filteredOrders.length}
-          pageSize={pageSize}
-          alignSelf="center"
-          page={page}
-          onPageChange={(e) => setPage(e.page)}
-        >
-          <ButtonGroup variant="ghost" size="sm" wrap="wrap">
-            <Pagination.PrevTrigger asChild>
-              <IconButton isDisabled={page === 1}>
-                <LuChevronLeft />
-              </IconButton>
-            </Pagination.PrevTrigger>
-
-            <Pagination.Items
-              render={(pageItem) => (
-                <IconButton
-                  key={pageItem.value}
-                  variant={pageItem.value === page ? "solid" : "ghost"}
-                  background={pageItem.value === page ? "gray.800" : "white"}
-                  color={pageItem.value === page ? "white" : "gray.500"}
-                  onClick={() => setPage(pageItem.value)}
-                >
-                  {pageItem.value}
+        {filteredOrders.length > 0 && (
+          <Pagination.Root
+            count={filteredOrders.length}
+            pageSize={pageSize}
+            alignSelf="center"
+            page={page}
+            onPageChange={(e) => setPage(e.page)}
+          >
+            <ButtonGroup variant="ghost" size="sm" wrap="wrap">
+              <Pagination.PrevTrigger asChild>
+                <IconButton isDisabled={page === 1}>
+                  <LuChevronLeft />
                 </IconButton>
-              )}
-            />
+              </Pagination.PrevTrigger>
 
-            <Pagination.NextTrigger asChild>
-              <IconButton isDisabled={page === totalPages}>
-                <LuChevronRight />
-              </IconButton>
-            </Pagination.NextTrigger>
-          </ButtonGroup>
-        </Pagination.Root>
+              <Pagination.Items
+                render={(pageItem) => (
+                  <IconButton
+                    key={pageItem.value}
+                    variant={pageItem.value === page ? "solid" : "ghost"}
+                    background={pageItem.value === page ? "gray.800" : "white"}
+                    color={pageItem.value === page ? "white" : "gray.500"}
+                    onClick={() => setPage(pageItem.value)}
+                  >
+                    {pageItem.value}
+                  </IconButton>
+                )}
+              />
+
+              <Pagination.NextTrigger asChild>
+                <IconButton isDisabled={page === totalPages}>
+                  <LuChevronRight />
+                </IconButton>
+              </Pagination.NextTrigger>
+            </ButtonGroup>
+          </Pagination.Root>
+        )}
       </Stack>
 
       <OrderModal

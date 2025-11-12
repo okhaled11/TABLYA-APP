@@ -16,6 +16,7 @@ import { cookerApprovalsApi } from "./features/Admin/cookerApprovals";
 import { ordersApi as adminOrdersApi } from "./features/Admin/ordersApi";
 import { ordersApi as customerOrdersApi } from "./features/Customer/ordersSlice";
 import { reportsApi } from "./features/Admin/reportsApi";
+import { AdminUserSlice } from "./features/Admin/adminUserManagemnetSlice";
 
 import { passwordApi } from "./features/Customer/passwordSlice";
 import { personalInfoApi } from "./features/Customer/personalInfoSlice";
@@ -65,6 +66,7 @@ export const store = configureStore({
     [adminOrdersApi.reducerPath]: adminOrdersApi.reducer,
     [reportsApi.reducerPath]: reportsApi.reducer,
     [adminAuthApi.reducerPath]: adminAuthApi.reducer,
+    [AdminUserSlice.reducerPath]: AdminUserSlice.reducer,
 
     // Auth & User
     [authApi.reducerPath]: authApi.reducer,
@@ -101,6 +103,7 @@ export const store = configureStore({
       adminAuthApi.middleware,
       reviewsApi.middleware,
       favoritesApi.middleware,
+      AdminUserSlice.middleware
       CookerAcceptOrder.middleware
     ),
 });

@@ -22,10 +22,10 @@ const statusColors = {
   out_for_delivery: "cyan",
   delivered: "green",
   cancelled: "red",
+  created: "gray",
 };
 
 export default function OrderModal({ isOpen, onClose, order }) {
-    console.log(order);
   if (!order) return null;
 
   return (
@@ -137,6 +137,90 @@ export default function OrderModal({ isOpen, onClose, order }) {
 
                 <Separator />
 
+                {/* Address & Order Info */}
+                <Box>
+                  <Text fontWeight="semibold" mb={2}>
+                    Delivery Details
+                  </Text>
+                  <Grid templateColumns="repeat(2, 1fr)" gap={3}>
+                    <GridItem>
+                      <Text color="gray.500">Type</Text>
+                      <Text fontWeight="medium">{order.type}</Text>
+                    </GridItem>
+                    <GridItem>
+                      <Text color="gray.500">Delivery Type</Text>
+                      <Text fontWeight="medium">
+                        {order.delivery_type || "N/A"}
+                      </Text>
+                    </GridItem>
+                    <GridItem colSpan={2}>
+                      <Text color="gray.500">Address</Text>
+                      <Text fontWeight="medium">{order.address || "N/A"}</Text>
+                    </GridItem>
+                  </Grid>
+                </Box>
+
+                <Separator />
+
+                {/* Payment Details */}
+                <Box>
+                  <Text fontWeight="semibold" mb={2}>
+                    Payment
+                  </Text>
+                  <Grid templateColumns="repeat(2, 1fr)" gap={3}>
+                    <GridItem>
+                      <Text color="gray.500">Method</Text>
+                      <Text fontWeight="medium">
+                        {order.payment_method || "N/A"}
+                      </Text>
+                    </GridItem>
+                    <GridItem>
+                      <Text color="gray.500">Status</Text>
+                      <Text
+                        fontWeight="medium"
+                        color={
+                          order.payment_status === "paid"
+                            ? "green.500"
+                            : "orange.500"
+                        }
+                      >
+                        {order.payment_status || "N/A"}
+                      </Text>
+                    </GridItem>
+                  </Grid>
+                </Box>
+
+                <Separator />
+
+                {/* Financial Summary */}
+                <Box>
+                  <Text fontWeight="semibold" mb={2}>
+                    Summary
+                  </Text>
+                  <Grid templateColumns="repeat(2, 1fr)" gap={3}>
+                    <GridItem>
+                      <Text color="gray.500">Subtotal</Text>
+                      <Text fontWeight="bold">${order.subtotal ?? 0}</Text>
+                    </GridItem>
+                    <GridItem>
+                      <Text color="gray.500">Discount</Text>
+                      <Text fontWeight="bold">-${order.discount ?? 0}</Text>
+                    </GridItem>
+                    <GridItem>
+                      <Text color="gray.500">Delivery Fee</Text>
+                      <Text fontWeight="bold">${order.delivery_fee ?? 0}</Text>
+                    </GridItem>
+                    <GridItem colSpan={2}>
+                      <Text color="gray.500">Total</Text>
+                      <Text fontWeight="bold" fontSize="lg" color="teal.500">
+                        ${order.total ?? 0}
+                      </Text>
+                    </GridItem>
+                  </Grid>
+                </Box>
+
+                <Separator />
+
                 {/* Notes */}
                 {order.notes && (
                   <Box>
@@ -149,33 +233,19 @@ export default function OrderModal({ isOpen, onClose, order }) {
                   </Box>
                 )}
 
-                <Separator />
-
-                {/* Payment Details */}
-                <Grid templateColumns="repeat(2, 1fr)" gap={3}>
-                  <GridItem>
-                    <Text color="gray.500">Subtotal</Text>
-                    <Text fontWeight="bold">${order.subtotal ?? 0}</Text>
-                  </GridItem>
-                  <GridItem>
-                    <Text color="gray.500">Tax</Text>
-                    <Text fontWeight="bold">${order.tax ?? 0}</Text>
-                  </GridItem>
-                  <GridItem>
-                    <Text color="gray.500">Discount</Text>
-                    <Text fontWeight="bold">-${order.discount ?? 0}</Text>
-                  </GridItem>
-                  <GridItem colSpan={2}>
-                    <Text color="gray.500">Total</Text>
-                    <Text fontWeight="bold" fontSize="lg" color="teal.500">
-                      ${order.total ?? 0}
-                    </Text>
-                  </GridItem>
-                </Grid>
+                {/* Timestamps */}
+                <Box>
+                  <Text fontSize="sm" color="gray.500">
+                    Created: {new Date(order.created_at).toLocaleString()}
+                  </Text>
+                  <Text fontSize="sm" color="gray.500">
+                    Updated: {new Date(order.updated_at).toLocaleString()}
+                  </Text>
+                </Box>
               </VStack>
             </Dialog.Body>
 
-            <Dialog.Footer>  
+            <Dialog.Footer>
               <Button variant="outline" onClick={onClose}>
                 Close
               </Button>
