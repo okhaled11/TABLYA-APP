@@ -19,5 +19,8 @@ export function useColorStyles() {
     error10a: isLight ? colors.light.error10a : colors.dark.error10a,
     success: isLight ? colors.light.success : colors.dark.success,
     success20a: isLight ? colors.light.success20a : colors.dark.success20a,
+    bgFixed: isLight ? colors.light.bgFixed : colors.dark.bgFixed,
+    info10a: isLight ? colors.light.info10a : colors.dark.info10a,
+    info: isLight ? colors.light.info : colors.dark.info,
   };
 }
