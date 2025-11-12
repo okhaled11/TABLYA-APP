@@ -3,9 +3,11 @@ import { loadStripe } from "@stripe/stripe-js";
 import { Elements, CardElement, useStripe, useElements } from "@stripe/react-stripe-js";
 import { toaster } from "../ui/toaster";
 
-// TODO: Replace with your Stripe publishable key
-// Get from: https://dashboard.stripe.com/test/apikeys
+// 🔹 المفتاح العام (Publishable key) من Stripe Dashboard
 const stripePromise = loadStripe("pk_test_51SRwXWFuoYhjngjb990Ud3vwROMKrzXlAP7xeP0xKWfzTCgbY1lHiTsOoa7OisIMHvx9bJztylXNaxydC3jxOqg700fB5OUq0F");
+
+// 🔹 لينك Edge Function في Supabase
+const FN_URL = "https://hzqeraiapeyyerkvdiod.supabase.co/functions/v1/create_payment_intent";
 
 const CheckoutForm = ({ amount, orderId, onSuccess }) => {
   const stripe = useStripe();
@@ -15,26 +17,34 @@ const CheckoutForm = ({ amount, orderId, onSuccess }) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
-    if (!stripe || !elements) {
-      return;
-    }
+    if (!stripe || !elements) return;
 
     setProcessing(true);
 
     try {
-      // TODO: Create payment intent on your backend
-      // For now, using test mode
-      const { error, paymentMethod } = await stripe.createPaymentMethod({
-        type: "card",
-        card: elements.getElement(CardElement),
+      // 1️⃣ نجيب clientSecret من Supabase Edge Function
+      const res = await fetch(FN_URL, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          amount: parseFloat(amount), // المبلغ كرقم
+          currency: "eur",
+          metadata: orderId ? { orderId } : undefined,
+        }),
       });
 
-      if (error) {
-        console.error("Stripe error:", error);
+      const { clientSecret, error } = await res.json();
+      if (!res.ok || error) throw new Error(error || "Failed to create payment intent");
+
+      // 2️⃣ نأكد الدفع باستخدام Stripe
+      const { error: confirmErr, paymentIntent } = await stripe.confirmCardPayment(clientSecret, {
+        payment_method: { card: elements.getElement(CardElement) },
+      });
+
+      if (confirmErr) {
         toaster.create({
           title: "Payment failed",
-          description: error.message,
+          description: confirmErr.message,
           type: "error",
           duration: 5000,
           isClosable: true,
@@ -44,28 +54,36 @@ const CheckoutForm = ({ amount, orderId, onSuccess }) => {
         return;
       }
 
-      console.log("Payment method created:", paymentMethod);
-      setPaid(true);
+      // 3️⃣ لو الدفع نجح
+      if (paymentIntent?.status === "succeeded") {
+        setPaid(true);
 
-      // Pass payment details to parent
-      if (onSuccess) {
-        onSuccess({
-          stripe_payment_id: paymentMethod.id,
-          payment_method: paymentMethod.type,
-          status: "succeeded",
-          amount: amount,
-          currency: "eur",
+        onSuccess?.({
+          stripe_payment_id: paymentIntent.id,
+          status: paymentIntent.status,
+          amount: paymentIntent.amount / 100,
+          currency: paymentIntent.currency,
+          orderId,
+        });
+
+        toaster.create({
+          title: "Payment successful",
+          description: `Paid ${amount} EUR via Stripe`,
+          type: "success",
+          duration: 3000,
+          isClosable: true,
+          position: "top",
+        });
+      } else {
+        toaster.create({
+          title: "Payment status",
+          description: paymentIntent?.status || "unknown",
+          type: "warning",
+          duration: 5000,
+          isClosable: true,
+          position: "top",
         });
       }
-
-      toaster.create({
-        title: "Payment successful",
-        description: `Paid ${amount} EUR via Stripe`,
-        type: "success",
-        duration: 3000,
-        isClosable: true,
-        position: "top",
-      });
     } catch (err) {
       console.error("Payment error:", err);
       toaster.create({
@@ -85,7 +103,7 @@ const CheckoutForm = ({ amount, orderId, onSuccess }) => {
     <form onSubmit={handleSubmit} style={{ maxWidth: "400px", margin: "auto" }}>
       <h2 style={{ textAlign: "center", marginBottom: "20px" }}>Pay with Stripe</h2>
 
-      {/* Testing instructions */}
+      {/* تعليمات الكروت التجريبية */}
       <div
         style={{
           backgroundColor: "#e3f2fd",
@@ -121,13 +139,9 @@ const CheckoutForm = ({ amount, orderId, onSuccess }) => {
               base: {
                 fontSize: "16px",
                 color: "#424770",
-                "::placeholder": {
-                  color: "#aab7c4",
-                },
+                "::placeholder": { color: "#aab7c4" },
               },
-              invalid: {
-                color: "#9e2146",
-              },
+              invalid: { color: "#9e2146" },
             },
           }}
         />
@@ -162,12 +176,10 @@ const CheckoutForm = ({ amount, orderId, onSuccess }) => {
   );
 };
 
-const StripeCheckout = ({ amount = "10.00", orderId = null, onSuccess }) => {
-  return (
-    <Elements stripe={stripePromise}>
-      <CheckoutForm amount={amount} orderId={orderId} onSuccess={onSuccess} />
-    </Elements>
-  );
-};
+const PayPalCheckout = ({ amount = "10.00", orderId = null, onSuccess }) => (
+  <Elements stripe={stripePromise}>
+    <CheckoutForm amount={amount} orderId={orderId} onSuccess={onSuccess} />
+  </Elements>
+);
 
-export default StripeCheckout;
+export default PayPalCheckout;

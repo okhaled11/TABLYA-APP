@@ -58,7 +58,6 @@ export default function KitchenRegisterChef() {
       name: `${dataRegisterChef.firstName} ${dataRegisterChef.lastName}`,
       ...dataRegisterChef,
       ...data,
-
     };
     console.log(allDataRegisterChef);
     registerChef(allDataRegisterChef);
@@ -254,7 +253,7 @@ export default function KitchenRegisterChef() {
         </Box>
 
         {/* specialty  */}
-        <Field.Root invalid={!!errors.specialty }>
+        <Field.Root invalid={!!errors.specialty}>
           <Field.Label
             me={"auto"}
             color={
@@ -277,7 +276,7 @@ export default function KitchenRegisterChef() {
                 bg={bgInput}
                 border="1px solid"
                 borderColor={colorMode === "light" ? "gray.200" : "transparent"}
-                 color={
+                color={
                   colorMode === "light"
                     ? colors.light.textSub
                     : colors.dark.textSub
@@ -286,20 +285,25 @@ export default function KitchenRegisterChef() {
                 pr={isRTL ? "1rem" : "1rem"}
                 pl={isRTL ? "1rem" : "1rem"}
                 h="45px"
-                fontSize={{base:"sm",md:"md"}}
+                fontSize={{ base: "sm", md: "md" }}
                 cursor="pointer"
                 _hover={{
                   borderColor: colorMode === "light" ? "gray.300" : "gray.600",
                 }}
                 {...register("specialty")}
               >
-
-                <option value="" selected>Choose your specialty </option>
-                <option value="Traditional Egyptian">Traditional Egyptian</option>
+                <option value="" selected>
+                  Choose your specialty{" "}
+                </option>
+                <option value="Traditional Egyptian">
+                  Traditional Egyptian
+                </option>
                 <option value="Homemade Grills">Homemade Grills</option>
                 <option value="Seafood">Seafood</option>
                 <option value="Desserts & Sweets">Desserts & Sweets</option>
-                <option value="Healthy & Diet Meals">Healthy & Diet Meals</option>
+                <option value="Healthy & Diet Meals">
+                  Healthy & Diet Meals
+                </option>
                 <option value="Vegetarian Dishes">Vegetarian Dishes</option>
               </NativeSelectField>
             </NativeSelectRoot>
@@ -319,7 +323,7 @@ export default function KitchenRegisterChef() {
             </Box>
           </Box>
           <Field.ErrorText fontWeight="bold">
-            {errors.specialty ?.message}
+            {errors.specialty?.message}
           </Field.ErrorText>
         </Field.Root>
 
@@ -334,33 +338,33 @@ export default function KitchenRegisterChef() {
           <InputGroup
             {...(isRTL
               ? {
-                startElement: showPassword ? (
-                  <AiOutlineEyeInvisible
-                    size={18}
-                    onClick={() => setShowPassword((prev) => !prev)}
-                  />
-                ) : (
-                  <AiOutlineEye
-                    size={18}
-                    onClick={() => setShowPassword((prev) => !prev)}
-                  />
-                ),
-                endElement: <FaLock />,
-              }
+                  startElement: showPassword ? (
+                    <AiOutlineEyeInvisible
+                      size={18}
+                      onClick={() => setShowPassword((prev) => !prev)}
+                    />
+                  ) : (
+                    <AiOutlineEye
+                      size={18}
+                      onClick={() => setShowPassword((prev) => !prev)}
+                    />
+                  ),
+                  endElement: <FaLock />,
+                }
               : {
-                startElement: <FaLock />,
-                endElement: showPassword ? (
-                  <AiOutlineEyeInvisible
-                    size={18}
-                    onClick={() => setShowPassword((prev) => !prev)}
-                  />
-                ) : (
-                  <AiOutlineEye
-                    size={18}
-                    onClick={() => setShowPassword((prev) => !prev)}
-                  />
-                ),
-              })}
+                  startElement: <FaLock />,
+                  endElement: showPassword ? (
+                    <AiOutlineEyeInvisible
+                      size={18}
+                      onClick={() => setShowPassword((prev) => !prev)}
+                    />
+                  ) : (
+                    <AiOutlineEye
+                      size={18}
+                      onClick={() => setShowPassword((prev) => !prev)}
+                    />
+                  ),
+                })}
           >
             <Input
               placeholder={t("kitchenRegisterChef.passwordPlaceholder")}
@@ -388,33 +392,33 @@ export default function KitchenRegisterChef() {
           <InputGroup
             {...(isRTL
               ? {
-                startElement: showConfirmPassword ? (
-                  <AiOutlineEyeInvisible
-                    size={18}
-                    onClick={() => setShowConfirmPassword((prev) => !prev)}
-                  />
-                ) : (
-                  <AiOutlineEye
-                    size={18}
-                    onClick={() => setShowConfirmPassword((prev) => !prev)}
-                  />
-                ),
-                endElement: <FaLock />,
-              }
+                  startElement: showConfirmPassword ? (
+                    <AiOutlineEyeInvisible
+                      size={18}
+                      onClick={() => setShowConfirmPassword((prev) => !prev)}
+                    />
+                  ) : (
+                    <AiOutlineEye
+                      size={18}
+                      onClick={() => setShowConfirmPassword((prev) => !prev)}
+                    />
+                  ),
+                  endElement: <FaLock />,
+                }
               : {
-                startElement: <FaLock />,
-                endElement: showConfirmPassword ? (
-                  <AiOutlineEyeInvisible
-                    size={18}
-                    onClick={() => setShowConfirmPassword((prev) => !prev)}
-                  />
-                ) : (
-                  <AiOutlineEye
-                    size={18}
-                    onClick={() => setShowConfirmPassword((prev) => !prev)}
-                  />
-                ),
-              })}
+                  startElement: <FaLock />,
+                  endElement: showConfirmPassword ? (
+                    <AiOutlineEyeInvisible
+                      size={18}
+                      onClick={() => setShowConfirmPassword((prev) => !prev)}
+                    />
+                  ) : (
+                    <AiOutlineEye
+                      size={18}
+                      onClick={() => setShowConfirmPassword((prev) => !prev)}
+                    />
+                  ),
+                })}
           >
             <Input
               placeholder={t("kitchenRegisterChef.confirmPasswordPlaceholder")}
@@ -430,7 +434,6 @@ export default function KitchenRegisterChef() {
             {errors.confirmPassword?.message}
           </Field.ErrorText>
         </Field.Root>
-
 
         {/* Submit Button */}
         <Button
