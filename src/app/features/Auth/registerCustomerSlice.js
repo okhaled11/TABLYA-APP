@@ -5,6 +5,8 @@ const initialState = {
   userData: null,
   loading: false,
   error: null,
+  needsEmailConfirmation: false,
+  confirmationMessage: null,
 };
 
 export const registerCustomer = createAsyncThunk(
@@ -13,18 +15,27 @@ export const registerCustomer = createAsyncThunk(
     try {
       const { email, password, ...userMetaData } = userData;
 
-      // const name = `${firstName} ${lastName}`;
-
       const { data, error } = await supabase.auth.signUp({
         email,
         password,
         options: {
-          data: userMetaData
+          data: userMetaData,
+          // Add redirect URL for email confirmation
+          emailRedirectTo: `${window.location.origin}/auth/callback`
         },
       });
 
       if (error) {
         return rejectWithValue(error.message);
+      }
+
+      // Check if email confirmation is required
+      if (data.user && !data.user.email_confirmed_at) {
+        return {
+          ...data,
+          needsEmailConfirmation: true,
+          message: "Please check your email and click the confirmation link to complete registration."
+        };
       }
 
       return data;
@@ -47,6 +58,8 @@ const customerRegisterSlice = createSlice({
       .addCase(registerCustomer.fulfilled, (state, action) => {
         state.loading = false;
         state.userData = action.payload;
+        state.needsEmailConfirmation = action.payload.needsEmailConfirmation || false;
+        state.confirmationMessage = action.payload.message || null;
       })
       .addCase(registerCustomer.rejected, (state, action) => {
         state.loading = false;

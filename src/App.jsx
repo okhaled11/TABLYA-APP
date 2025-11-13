@@ -37,6 +37,7 @@ import CookerHome from "./pages/cooker/home/CookerHome";
 import CookerMenu from "./pages/cooker/CookerMenu";
 import CookerOrders from "./pages/cooker/CookerOrders";
 import CookerReviews from "./pages/cooker/review/CookerReviews";
+import AuthCallback from "./pages/auth/AuthCallback";
 
 function App() {
   const token = CookieService.get("access_token");
@@ -61,6 +62,7 @@ function App() {
           path="/register"
           element={<RegisterPage isAuthenticated={token} />}
         />
+        <Route path="/auth/callback" element={<AuthCallback />} />
         <Route path="/pending-approval" element={<PendingApprovalPage />} />
         <Route path="/forgot-password" element={<ForgotPasswordPage />} />
         <Route path="/reset-password" element={<ResetPasswordPage />} />
