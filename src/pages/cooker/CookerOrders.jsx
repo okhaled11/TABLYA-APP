@@ -1,5 +1,16 @@
-import { Box, Flex, Heading, Image, Text } from "@chakra-ui/react";
-import { Portal, Select, createListCollection } from "@chakra-ui/react";
+import {
+  Box,
+  Flex,
+  Heading,
+  Image,
+  Text,
+  Portal,
+  Select,
+  createListCollection,
+  Button,
+  Group,
+  useDialog,
+} from "@chakra-ui/react";
 import { useState, useEffect } from "react";
 import { useColorStyles } from "../../hooks/useColorStyles";
 import {
@@ -11,76 +22,74 @@ import { IoPerson } from "react-icons/io5";
 import { FaLocationDot } from "react-icons/fa6";
 import { FaPhone } from "react-icons/fa6";
 import { BsFillCreditCardFill } from "react-icons/bs";
-import { Button, Group } from "@chakra-ui/react";
 import { MdOutlineDoneOutline } from "react-icons/md";
 import { PiCookingPot } from "react-icons/pi";
 import { MdOutlineDeliveryDining } from "react-icons/md";
 import { MdOutlineCancel } from "react-icons/md";
 import srcLoadingImg from "../../assets/Transparent Version.gif";
+import CustomAlertDialog from "../../shared/CustomAlertDailog";
 
 const CookerOrders = () => {
   /* ---------------variable----------------- */
   const colors = useColorStyles();
   /* ---------------state----------------- */
   const [value, setValue] = useState([]);
-  const [allOrder, setAllOrder] = useState();
+  const [deleteId, setDeleteId] = useState([]);
+  const [allOrder, setAllOrder] = useState([]);
+  const dialog = useDialog();
 
   /* ---------------Redux Query----------------- */
   const { data: orders, isLoading, error } = useGetCookerOrdersQuery();
   const [updateOrderStatus, { isLoading: isUpdating }] =
     useUpdateOrderStatusMutation();
   const [deleteOrder, { isLoading: isDeleting }] = useDeleteOrderMutation();
-  console.log(orders);
+  const selectedStatus = Array.isArray(value)
+    ? value[value.length - 1] ?? "Default"
+    : value || "Default";
 
   /* ---------------useEffect----------------- */
   useEffect(() => {
-    if (orders) {
+    if (!orders) {
+      setAllOrder([]);
+      return;
+    }
+
+    if (selectedStatus === "Default") {
       setAllOrder(orders);
-      console.log("Cooker Orders Data:", orders);
+      return;
     }
-    if (error) {
-      console.error("Error fetching orders:", error);
-    }
-  }, [orders, error]);
+
+    const filteredOrders = orders.filter(
+      (order) => order.status?.toLowerCase() === selectedStatus.toLowerCase()
+    );
+
+    setAllOrder(filteredOrders);
+  }, [orders, selectedStatus]);
 
   /* ---------------HANDLER----------------- */
   const handleStatusUpdate = async (orderId, status) => {
     try {
       await updateOrderStatus({ orderId, status }).unwrap();
-      console.log(`Order ${orderId} status updated to ${status}`);
     } catch (err) {
       console.error("Failed to update order status:", err);
     }
   };
 
-  const sortHandler = (allOrder) => {
-    const result = allOrder?.sort((a, b) => {
-      return new Date(a.created_at) - new Date(b.created_at);
-    });
-
-    return result;
-  };
-  setTimeout(() => {
-    console.log(sortHandler());
-  }, 1000);
-
   const handleDeleteOrder = async (orderId) => {
-    if (window.confirm("Are you sure you want to cancel this order?")) {
-      try {
-        await deleteOrder(orderId).unwrap();
-        console.log(`Order ${orderId} deleted successfully`);
-      } catch (err) {
-        console.error("Failed to delete order:", err);
-      }
+    try {
+      await deleteOrder(orderId).unwrap();
+    } catch (err) {
+      console.error("Failed to delete order:", err);
     }
   };
   const frameworks = createListCollection({
     items: [
-      { label: "Status", value: "Status" },
-      { label: "Date", value: "Date" },
+      { label: "Default", value: "Default" },
+      { label: "confirmed", value: "confirmed" },
+      { label: "preparing", value: "preparing" },
+      { label: "out_for_delivery", value: "out_for_delivery" },
     ],
   });
-  console.log(value);
 
   return (
     <>
@@ -151,16 +160,18 @@ const CookerOrders = () => {
           </Text>
         )}
 
-        {!isLoading && !error && orders && orders.length === 0 && (
+        {!isLoading && !error && orders && allOrder.length === 0 && (
           <Text color={colors.textSub} textAlign="center" my={6}>
-            No orders found
+            {selectedStatus === "Default"
+              ? "No orders found"
+              : "No orders with the selected status"}
           </Text>
         )}
 
         {!isLoading &&
           !error &&
           orders &&
-          allOrder?.map((order) => {
+          allOrder.map((order) => {
             const orderDate = new Date(order.created_at);
             const formattedDate = orderDate.toLocaleDateString("en-GB");
             const formattedTime = orderDate.toLocaleTimeString("en-US", {
@@ -414,7 +425,10 @@ const CookerOrders = () => {
                     bg={colors.bgThird}
                     color={colors.mainFixed}
                     p={6}
-                    onClick={() => handleDeleteOrder(order.id)}
+                    onClick={() => {
+                      dialog.setOpen(true);
+                      setDeleteId(order.id);
+                    }}
                     isDisabled={isDeleting}
                     _hover={{ bg: colors.bgFourth }}
                   >
@@ -425,6 +439,17 @@ const CookerOrders = () => {
             );
           })}
       </Box>
+
+      <CustomAlertDialog
+        dialog={dialog}
+        title={"Are you sure you want to cancel this order?"}
+        description={
+          "This action cannot be undone. The order will be permanently cancelled."
+        }
+        cancelTxt={"No, go back"}
+        okTxt={"Yes, cancel it"}
+        onOkHandler={() => handleDeleteOrder(deleteId)}
+      />
     </>
   );
 };
