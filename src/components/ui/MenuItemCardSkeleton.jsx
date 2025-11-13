@@ -34,14 +34,7 @@ const MenuItemCardSkeleton = () => {
           {/* Price & Button */}
           <Flex justify="space-between" align="center" mt="auto" mb={1}>
             <Skeleton height="18px" width="50px" />
-
-            <IconButton
-              aria-label="Add to cart"
-              icon={<FaShoppingCart />}
-              size="sm"
-              rounded="full"
-              isDisabled
-            />
+            <Skeleton height="30px" width="30px" rounded="full" />
           </Flex>
         </Flex>
       </Flex>
