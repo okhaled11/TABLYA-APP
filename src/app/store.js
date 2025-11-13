@@ -27,6 +27,7 @@ import { ReportsApiSlice } from "./features/Customer/Reports/reportsApiSlice";
 import { reviewsApi } from "./features/Customer/reviewsApi";
 import { UserSlice } from "./features/UserSlice";
 import { CookerAcceptOrder } from "./features/Cooker/CookerAcceptOrder";
+import { CookerMenuApi } from "./features/cooker/CookerMenuApi";
 
 import CartSlice from "./features/Customer/CartSlice";
 import favoriteCookersReducer from "./features/Customer/favoriteCookersSlice";
@@ -47,10 +48,10 @@ export const store = configureStore({
     PersonalRegisterChef: PersonalRegisterChefReducer,
 
     // Customer APIs
+     OrdersHistoryCustomerSlice.reducer,
     [cookersApi.reducerPath]: cookersApi.reducer,
     [OrdersApiCustomerSlice.reducerPath]: OrdersApiCustomerSlice.reducer,
-    [OrdersHistoryCustomerSlice.reducerPath]:
-      OrdersHistoryCustomerSlice.reducer,
+    [OrdersHistoryCustomerSlice.reducerPath],
     [ReportsApiSlice.reducerPath]: ReportsApiSlice.reducer,
     [customerOrdersApi.reducerPath]: customerOrdersApi.reducer,
     [reviewsApi.reducerPath]: reviewsApi.reducer,
@@ -78,6 +79,7 @@ export const store = configureStore({
 
     // Cooker APIs
     [CookerAcceptOrder.reducerPath]: CookerAcceptOrder.reducer,
+    [CookerMenuApi.reducerPath]: CookerMenuApi.reducer,
   },
 
   middleware: (getDefaultMiddleware) =>
@@ -108,7 +110,8 @@ export const store = configureStore({
       reviewsApi.middleware,
       favoritesApi.middleware,
       AdminUserSlice.middleware,
-      CookerAcceptOrder.middleware
+      CookerAcceptOrder.middleware,
+      CookerMenuApi.middleware
     ),
 });
 

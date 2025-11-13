@@ -14,7 +14,7 @@ const CustomModal = ({
   const { colorMode } = useColorMode();
 
   return (
-    <Dialog.RootProvider value={dialog}>
+    <Dialog.RootProvider value={dialog} size={{ base: "sm", md: "lg" }}>
       <Portal>
         <Dialog.Backdrop />
         <Dialog.Positioner>
@@ -47,22 +47,36 @@ const CustomModal = ({
             <Box w="90%" m="1px auto" h="1px" bg={"gray.300"} mb={5} />
             <Dialog.Body>{children}</Dialog.Body>
             <Dialog.Footer>
-              <Dialog.ActionTrigger asChild>
+              <Dialog.ActionTrigger
+                asChild
+                flex="1"
+                borderColor="red"
+                color="red"
+                borderRadius="12px"
+              >
                 <Button variant="outline">{cancelTxt}</Button>
               </Dialog.ActionTrigger>
               <Button
                 colorPalette="red"
+                flex="1"
+                borderRadius="12px"
                 ml={3}
                 onClick={async () => {
-                  await onOkHandler();
-                  dialog.setOpen(false);
+                  try {
+                    const ok = await onOkHandler();
+                    if (ok === true) {
+                      dialog.setOpen(false);
+                    }
+                  } catch (_) {
+                    // keep modal open on errors
+                  }
                 }}
                 loading={isLoading}
               >
                 {okTxt}
               </Button>
             </Dialog.Footer>
-            <Dialog.CloseTrigger asChild >
+            <Dialog.CloseTrigger asChild>
               <CloseButton size="sm" />
             </Dialog.CloseTrigger>
           </Dialog.Content>
