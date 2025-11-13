@@ -93,7 +93,6 @@ export const registerSchemaPersonaChef = yup
       .string()
       .url()
       .required("Upload National ID (back Side)"),
-
   })
   .required();
 export const registerSchemaKitchenChef = yup
@@ -123,10 +122,7 @@ export const registerSchemaKitchenChef = yup
           return value > StartTime;
         }
       ),
-    specialty : yup
-      .string()
-      .required("specialty  is required")
-      .trim(),
+    specialty: yup.string().required("specialty  is required").trim(),
     password: yup
       .string()
       .required("Password is required")
@@ -137,7 +133,90 @@ export const registerSchemaKitchenChef = yup
       .required("Confirm Password is required")
       .oneOf([yup.ref("password")], "Passwords must match")
       .trim(),
+  })
+  .required();
 
-
+export const addMealSchema = yup
+  .object({
+    name: yup
+      .string()
+      .trim()
+      .required("Meal name is required")
+      .min(3, "Meal name should be at least 3 characters")
+      .max(50, "Meal name should not exceed 50 characters"),
+    price: yup
+      .number()
+      .typeError("Meal price is required")
+      .transform((value, originalValue) =>
+        originalValue === "" || originalValue === null ? undefined : value
+      )
+      .required("Meal price is required")
+      .positive("Price must be a positive number")
+      .min(1, "Price must be at least 1 LE")
+      .max(2000, "Price should not exceed 2,000 LE"),
+    description: yup
+      .string()
+      .trim()
+      .required("Meal description is required")
+      .min(10, "Description should be at least 10 characters")
+      .max(500, "Description should not exceed 500 characters"),
+    isEditing: yup.boolean().notRequired(),
+    image: yup
+      .mixed()
+      .test("requiredWhenCreate", "Meal image is required", function (value) {
+        const isEditing = this?.parent?.isEditing;
+        if (isEditing) return true; // optional in edit mode
+        return !!value; // required in create mode
+      })
+      .test(
+        "fileSize",
+        "File size is too large (max 5MB)",
+        (value) => !value || (value && value.size <= 5 * 1024 * 1024)
+      )
+      .test(
+        "fileType",
+        "Unsupported file format (only jpg, jpeg, png, webp allowed)",
+        (value) =>
+          !value ||
+          (value &&
+            ["image/jpeg", "image/jpg", "image/png", "image/webp"].includes(
+              value.type
+            ))
+      ),
+    category: yup
+      .string()
+      .transform((value, originalValue) => {
+        let v = originalValue;
+        if (Array.isArray(v)) v = v[0];
+        if (typeof v === "string") {
+          v = v.replace(/^\"|\"$/g, "");
+        }
+        return v === "" || v == null ? undefined : v;
+      })
+      .required("Category is required")
+      .oneOf(
+        ["main dishes", "drinks", "desserts"],
+        "Invalid category selected"
+      ),
+    stock: yup
+      .number()
+      .typeError("Stock quantity is required")
+      .transform((value, originalValue) =>
+        originalValue === "" || originalValue === null ? undefined : value
+      )
+      .required("Stock quantity is required")
+      .integer("Stock must be a whole number")
+      .min(0, "Stock cannot be negative")
+      .max(1000, "Stock should not exceed 1000 items"),
+    preparation_time: yup
+      .number()
+      .typeError("Preparation time is required")
+      .transform((value, originalValue) =>
+        originalValue === "" || originalValue === null ? undefined : value
+      )
+      .required("Preparation time is required")
+      .integer("Preparation time must be a whole number")
+      .min(1, "Preparation time must be at least 1 minute")
+      .max(300, "Preparation time should not exceed 300 minutes"),
   })
   .required();
