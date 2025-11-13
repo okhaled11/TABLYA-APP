@@ -15,6 +15,7 @@ import { User, Envelope, Phone, PencilSimple } from "@phosphor-icons/react";
 import { useState, useRef, useEffect } from "react";
 import { toaster } from "../ui/toaster";
 import {
+  useGetUserProfileQuery,
   useUpdateUserProfileMutation,
   useUploadAvatarMutation,
 } from "../../app/features/Customer/personalInfoSlice";
@@ -22,7 +23,7 @@ import { convertImageToWebP } from "../../services";
 import { useColorStyles } from "../../hooks/useColorStyles";
 import FormField from "../ui/FormField";
 
-export default function PersonalInfoTab({ user, isLoading }) {
+export default function PersonalInfoTab() {
   const styles = useColorStyles();
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
@@ -31,6 +32,8 @@ export default function PersonalInfoTab({ user, isLoading }) {
   const [isEditing, setIsEditing] = useState(false);
   const fileInputRef = useRef(null);
 
+  // Get user data from auth.users
+  const { data: user, isLoading, refetch } = useGetUserProfileQuery();
   const [updateUserProfile, { isLoading: isUpdating }] =
     useUpdateUserProfileMutation();
   const [uploadAvatar, { isLoading: isUploading }] = useUploadAvatarMutation();
@@ -87,6 +90,9 @@ export default function PersonalInfoTab({ user, isLoading }) {
         type: "success",
         duration: 3000,
       });
+      
+      // Refetch user data to show updated avatar
+      refetch();
     } catch (error) {
       toaster.create({
         title: "Error",
@@ -109,10 +115,13 @@ export default function PersonalInfoTab({ user, isLoading }) {
 
       toaster.create({
         title: "Success",
-        description: "Profile updated successfully",
+        description: "Profile updated successfully in auth.users",
         type: "success",
         duration: 3000,
       });
+      
+      // Refetch user data from auth.users to show updated info
+      refetch();
       setIsEditing(false);
     } catch (error) {
       toaster.create({
@@ -268,8 +277,13 @@ export default function PersonalInfoTab({ user, isLoading }) {
             size="lg"
             onClick={handleSaveChanges}
             isLoading={isUpdating}
+            loadingText="Saving..."
             isDisabled={!isEditing}
             _hover={{ bg: styles.mainFixed70a }}
+            _loading={{
+              bg: styles.mainFixed,
+              opacity: 0.7,
+            }}
           >
             Save Changes
           </Button>
@@ -281,7 +295,7 @@ export default function PersonalInfoTab({ user, isLoading }) {
             borderRadius="12px"
             size="lg"
             onClick={handleDiscardChanges}
-            isDisabled={!isEditing}
+            isDisabled={!isEditing || isUpdating}
             _hover={{ bg: styles.mainFixed10a }}
           >
             Discard Changes

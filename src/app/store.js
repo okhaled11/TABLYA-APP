@@ -23,6 +23,7 @@ import { personalInfoApi } from "./features/Customer/personalInfoSlice";
 import { addressApi } from "./features/Customer/addressSlice";
 import { OrdersHistoryCustomerSlice } from "./features/Customer/Orders/OrdersHistoryCustomerSlice";
 import { OrdersApiCustomerSlice } from "./features/Customer/Orders/ordersApiCustomerSlice";
+import { ReportsApiSlice } from "./features/Customer/Reports/reportsApiSlice";
 import { reviewsApi } from "./features/Customer/reviewsApi";
 import { UserSlice } from "./features/UserSlice";
 import { CookerAcceptOrder } from "./features/Cooker/CookerAcceptOrder";
@@ -47,10 +48,11 @@ export const store = configureStore({
     PersonalRegisterChef: PersonalRegisterChefReducer,
 
     // Customer APIs
+     OrdersHistoryCustomerSlice.reducer,
     [cookersApi.reducerPath]: cookersApi.reducer,
     [OrdersApiCustomerSlice.reducerPath]: OrdersApiCustomerSlice.reducer,
-    [OrdersHistoryCustomerSlice.reducerPath]:
-      OrdersHistoryCustomerSlice.reducer,
+    [OrdersHistoryCustomerSlice.reducerPath],
+    [ReportsApiSlice.reducerPath]: ReportsApiSlice.reducer,
     [customerOrdersApi.reducerPath]: customerOrdersApi.reducer,
     [reviewsApi.reducerPath]: reviewsApi.reducer,
     [favoritesApi.reducerPath]: favoritesApi.reducer,
@@ -101,6 +103,7 @@ export const store = configureStore({
       addressApi.middleware,
       OrdersApiCustomerSlice.middleware,
       OrdersHistoryCustomerSlice.middleware,
+      ReportsApiSlice.middleware,
       cookersApprovalsApi.middleware,
       UserSlice.middleware,
       adminAuthApi.middleware,
