@@ -71,7 +71,7 @@ export const ordersApi = createApi({
     }),
 
     // -------------------------------
-    // Update Order (e.g. status)
+    // Update Order
     // -------------------------------
     updateOrder: builder.mutation({
       async queryFn({ id, updates }) {
