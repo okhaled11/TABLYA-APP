@@ -21,6 +21,7 @@ export default function RevenueChart() {
         data: salesTrend,
         series: [{ name: "revenue", color: "teal.solid" }],
     });
+console.log(salesTrend);
 
     return (
         <Card.Root
@@ -65,9 +66,12 @@ export default function RevenueChart() {
                                         dataKey="revenue"
                                         axisLine={false}
                                         tickLine={false}
-                                        tickMargin={20}
+                                        tickMargin={2}
+                                        width={60} 
+                                        tickFormatter={(value) => `${(value / 1000).toFixed(1)}K`}
 
-                                        domain={[0, 3000]}
+                                       domain={[0, Math.max(...chart.data.map(d => d.revenue)) * 1.1]} //to depends on true values
+                                        // domain={[0, 3000]}
                                         stroke={chart.color("border")}
                                         label={{
                                             value: "Revenue (EGP)",

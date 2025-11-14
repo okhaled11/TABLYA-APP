@@ -36,6 +36,7 @@ import { useDispatch } from "react-redux";
 import { authApi } from "../../app/features/Auth/authSlice";
 import { useGetUserDataQuery } from "../../app/features/Auth/authSlice";
 
+
 export default function AdminNavBar() {
   const { colorMode, toggleColorMode } = useColorMode();
   const token = CookieService.get("access_token");
@@ -53,12 +54,13 @@ export default function AdminNavBar() {
 
   return (
     <Box
-      background={colorMode === "light" ? "white" : "#181310"}
+      background={colors.dark.bgThird}
       px={6}
       py={3}
       boxShadow="sm"
       position="sticky"
       top="0"
+      zIndex="1000" 
       
     >
       <Flex align="center" justify="flex-end" gap={4}>

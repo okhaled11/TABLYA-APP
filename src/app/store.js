@@ -34,6 +34,8 @@ import favoriteCookersReducer from "./features/Customer/favoriteCookersSlice";
 import { favoritesApi } from "./features/Customer/favoritesApi";
 import { adminAuthApi } from "./features/Admin/adminData";
 
+import {MariamSettingsApi} from  "./features/Admin/MariamSettings";
+
 const persistCartConfig = {
   key: "cart",
   storage,
@@ -71,6 +73,7 @@ export const store = configureStore({
     [reportsApi.reducerPath]: reportsApi.reducer,
     [adminAuthApi.reducerPath]: adminAuthApi.reducer,
     [AdminUserSlice.reducerPath]: AdminUserSlice.reducer,
+    [MariamSettingsApi.reducerPath]:MariamSettingsApi.reducer,
 
     // Auth & User
     [authApi.reducerPath]: authApi.reducer,
@@ -111,6 +114,7 @@ export const store = configureStore({
       favoritesApi.middleware,
       AdminUserSlice.middleware,
       CookerAcceptOrder.middleware,
+      MariamSettingsApi.middleware,
       CookerMenuApi.middleware
     ),
 });

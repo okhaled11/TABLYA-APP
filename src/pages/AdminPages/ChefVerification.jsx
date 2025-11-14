@@ -29,7 +29,7 @@ const {colorMode}=useColorMode();
 
 
 
-    <Box >
+    <Box  bg={colorMode ==="light" ? colors.light.bgMain : colors.dark.bgMain  } p={"30px"}>
 
       {/* Dashboard heading */}
       <Box>
@@ -59,7 +59,7 @@ const {colorMode}=useColorMode();
             key={kpi.title}
             transition="transform 0.3s ease"
             _hover={{ transform: "scale(1.03)" }}
-            bg={colorMode === "light" ? "white" : colors.dark.bgMain}
+            bg={colorMode === "light" ? "white" : colors.dark.bgThird}
           >
             <CardBody>
               <Flex align="center" gap={"30px"}>
