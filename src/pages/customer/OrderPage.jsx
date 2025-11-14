@@ -317,7 +317,9 @@ const OrderPage = () => {
 
   const activeOrders = orders?.filter(
     (order) =>
-      order.status !== "delivered" && !hiddenOrderIds.includes(order.id)
+      order.status !== "delivered" && 
+      order.status !== "cancelled" && 
+      !hiddenOrderIds.includes(order.id)
   );
 
   // Limit order history to last 3
@@ -340,8 +342,8 @@ const OrderPage = () => {
       console.log("🚀 Calling cancelOrder mutation with:", { orderId });
       await cancelOrder({ orderId }).unwrap();
       toaster.create({
-        title: "Order Deleted",
-        description: "Your order has been completely removed from the system.",
+        title: "Order Cancelled",
+        description: "Your order has been cancelled successfully.",
         status: "success",
         duration: 3000,
       });

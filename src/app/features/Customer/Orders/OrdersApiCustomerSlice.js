@@ -437,9 +437,9 @@ export const OrdersApiCustomerSlice = createApi({
 
     // Mutation to cancel an order (example) - sets status to 'cancelled' and invalidates caches
     cancelOrder: builder.mutation({
-      async queryFn({ orderId, reason }) {
+      async queryFn({ orderId }) {
         try {
-          console.log("🔥 cancelOrder called with:", { orderId, reason });
+          console.log("🔥 cancelOrder called with:", { orderId });
           
           if (!orderId) {
             console.error("❌ orderId is missing or undefined");
@@ -448,13 +448,26 @@ export const OrdersApiCustomerSlice = createApi({
 
           const { data, error } = await supabase
             .from("orders")
-            .update({ status: "cancelled", cancel_reason: reason || null })
+            .update({ status: "cancelled" })
             .eq("id", orderId)
             .select();
 
           console.log("📡 Supabase response:", { data, error });
 
           if (error) return { error: error.message };
+
+          // Add entry to order history for cancelled order
+          if (data && data.length > 0) {
+            const cancelledOrder = data[0];
+            await supabase
+              .from("order_history")
+              .insert({
+                customer_id: cancelledOrder.customer_id,
+                order_id: orderId,
+                status: "cancelled",
+                at: new Date().toISOString()
+              });
+          }
 
           return { data };
         } catch (err) {
@@ -465,6 +478,7 @@ export const OrdersApiCustomerSlice = createApi({
       invalidatesTags: (result, error, arg) => [
         { type: "Orders", id: arg.customerId || "LIST" },
         { type: "OrderDetails", id: arg.orderId },
+        { type: "OrderHistory", id: "LIST" },
       ],
     }),
   }),
