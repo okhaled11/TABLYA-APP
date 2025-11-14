@@ -14,6 +14,7 @@ export default function KpisAnalytics({ period }) {
     const { data: totalRevenue = [] } = useGetTotalRevenueQuery(period);
     const { data: totalOrders = [] } = useGetTotalOrdersQuery(period);
     const { data: platformProfit = [] } = useGetPlatformProfitQuery(period);
+    
 
 
 // console.log("data", period);
@@ -24,7 +25,7 @@ export default function KpisAnalytics({ period }) {
             {/* Total Revenue */}
             <Card.Root bg={colorMode === "light" ? "white" : "rgb(20, 4, 2)"}
                 borderRadius="xl"
-
+                py={"10px"}
                 h="100%"
                 border={"none"}
                 shadow="sm"
@@ -48,8 +49,8 @@ export default function KpisAnalytics({ period }) {
 
 
                             {/* Sub text */}
-                            <Text color="rgb(69, 178, 137)" fontSize="14px">90% chef </Text>
-                            <Text color="rgb(69, 178, 137)" fontSize="14px">10% platform </Text>
+                            {/* <Text color="rgb(69, 178, 137)" fontSize="14px">90% chef </Text>
+                            <Text color="rgb(69, 178, 137)" fontSize="14px">10% platform </Text> */}
 
                         </VStack>
                        
@@ -68,7 +69,7 @@ export default function KpisAnalytics({ period }) {
             {/* total orders */}
             <Card.Root bg={colorMode === "light" ? "white" : "rgb(20, 4, 2)"}
                 borderRadius="xl"
-
+                py={"10px"}
                 h="100%"
                 border={"none"}
                 shadow="sm"
@@ -115,7 +116,7 @@ export default function KpisAnalytics({ period }) {
 
                 bg={colorMode === "light" ? "white" : "rgb(20, 4, 2)"}
                 borderRadius="xl"
-
+                py={"10px"}
                 h="100%"
                 border={"none"}
                 shadow="sm"

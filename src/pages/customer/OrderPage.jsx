@@ -184,20 +184,25 @@ const OrderPage = () => {
     const channel = supabase
       .channel(`order-status-${userId}`)
       .on(
-        'postgres_changes',
+        "postgres_changes",
         {
-          event: 'UPDATE',
-          schema: 'public',
-          table: 'orders',
-          filter: `customer_id=eq.${userId}`
+          event: "UPDATE",
+          schema: "public",
+          table: "orders",
+          filter: `customer_id=eq.${userId}`,
         },
         async (payload) => {
           console.log("📡 Order status change detected:", payload);
-          
+
           // Check if status changed from created to confirmed
-          if (payload.old?.status === 'created' && payload.new?.status === 'confirmed') {
-            console.log("🔥 Order status changed from created to confirmed, reducing stock...");
-            
+          if (
+            payload.old?.status === "created" &&
+            payload.new?.status === "confirmed"
+          ) {
+            console.log(
+              "🔥 Order status changed from created to confirmed, reducing stock..."
+            );
+
             try {
               // Get order items and reduce stock
               const { data: orderItems, error: itemsError } = await supabase
@@ -214,12 +219,18 @@ const OrderPage = () => {
 
               // Reduce stock for each menu item
               if (orderItems && orderItems.length > 0) {
-                console.log("🔄 Auto stock reduction for", orderItems.length, "items");
-                
+                console.log(
+                  "🔄 Auto stock reduction for",
+                  orderItems.length,
+                  "items"
+                );
+
                 await Promise.all(
                   orderItems.map(async (item) => {
-                    console.log(`📊 Processing item: ${item.menu_item_id}, quantity: ${item.quantity}`);
-                    
+                    console.log(
+                      `📊 Processing item: ${item.menu_item_id}, quantity: ${item.quantity}`
+                    );
+
                     const { data: menuItem, error: fetchError } = await supabase
                       .from("menu_items")
                       .select("stock")
@@ -227,24 +238,40 @@ const OrderPage = () => {
                       .single();
 
                     if (fetchError) {
-                      console.error("❌ Error fetching menu item stock:", fetchError);
+                      console.error(
+                        "❌ Error fetching menu item stock:",
+                        fetchError
+                      );
                       return;
                     }
 
-                    console.log(`📈 Current stock for item ${item.menu_item_id}:`, menuItem.stock);
-                    const newStock = Math.max((menuItem.stock || 0) - item.quantity, 0);
-                    console.log(`📉 New stock for item ${item.menu_item_id}:`, newStock);
-                    
-                    const { data: updateResult, error: updateError } = await supabase
-                      .from("menu_items")
-                      .update({ stock: newStock })
-                      .eq("id", item.menu_item_id)
-                      .select();
+                    console.log(
+                      `📈 Current stock for item ${item.menu_item_id}:`,
+                      menuItem.stock
+                    );
+                    const newStock = Math.max(
+                      (menuItem.stock || 0) - item.quantity,
+                      0
+                    );
+                    console.log(
+                      `📉 New stock for item ${item.menu_item_id}:`,
+                      newStock
+                    );
+
+                    const { data: updateResult, error: updateError } =
+                      await supabase
+                        .from("menu_items")
+                        .update({ stock: newStock })
+                        .eq("id", item.menu_item_id)
+                        .select();
 
                     if (updateError) {
                       console.error("❌ Error updating stock:", updateError);
                     } else {
-                      console.log("✅ Stock updated successfully:", updateResult);
+                      console.log(
+                        "✅ Stock updated successfully:",
+                        updateResult
+                      );
                     }
                   })
                 );
@@ -252,7 +279,8 @@ const OrderPage = () => {
                 // Show success message
                 toaster.create({
                   title: "Stock Updated",
-                  description: "Order confirmed and stock has been reduced automatically!",
+                  description:
+                    "Order confirmed and stock has been reduced automatically!",
                   status: "success",
                   duration: 3000,
                 });
@@ -305,15 +333,16 @@ const OrderPage = () => {
     return userReports?.some((report) => report.target_id === orderId) || false;
   };
 
-
   // Handle cancel order
   const handleCancelOrder = async (orderId) => {
     try {
-      await cancelOrder(orderId).unwrap();
+      console.log("🚀 handleCancelOrder called with orderId:", orderId);
+      console.log("🚀 Calling cancelOrder mutation with:", { orderId });
+      await cancelOrder({ orderId }).unwrap();
       toaster.create({
-        title: "Order Cancelled",
-        description: "Your order has been cancelled and removed.",
-        status: "error",
+        title: "Order Deleted",
+        description: "Your order has been completely removed from the system.",
+        status: "success",
         duration: 3000,
       });
     } catch (error) {
@@ -711,7 +740,7 @@ const OrderPage = () => {
 
       <Box>
         <Text fontSize={{ base: "20px", md: "40px" }} fontWeight={"700"}>
-          History Order
+          Order History
         </Text>
         {orderHistoryLoading ? (
           <>

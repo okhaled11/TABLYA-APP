@@ -3,6 +3,7 @@ import  { useGetTotalRevenueQuery, useGetTotalOrdersQuery, useGetAverageOrderVal
 import { useGetUsersQuery } from "../../../app/features/UserSlice";
 import { MdOutlineFileDownload } from "react-icons/md";
 import { Flex, Button } from "@chakra-ui/react";
+import colors from "../../../theme/color";
 
 export default function ExportKPIs() {
   const { data: totalRevenue } = useGetTotalRevenueQuery("monthly");
@@ -43,12 +44,12 @@ export default function ExportKPIs() {
 <Flex justify="flex-start" my={4}>
       <Button
         onClick={handleExport}
-        bg="rgb(231, 114, 64)"
+        bg={colors.light.mainFixed}
         color="white"
         borderRadius="6px"
         px={4}
         py={5}
-        _hover={{ bg: "rgb(200, 90, 50)" }}
+        _hover={{ bg: colors.light.mainFixed }}
        
       >
         Export KPIs to CSV <MdOutlineFileDownload />
