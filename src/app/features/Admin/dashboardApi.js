@@ -15,15 +15,14 @@ export const dashboardApi = createApi({
     getTotalRevenue: builder.query({
       async queryFn(period = "monthly") {
         const now = new Date();
-        let fromDate;
-
+        let fromDate = new Date(now);
 
         if (period === "daily") {
-          fromDate = new Date(now.setDate(now.getDate() - 1));
+          fromDate.setDate(now.getDate() - 1);
         } else if (period === "weekly") {
-          fromDate = new Date(now.setDate(now.getDate() - 7));
+          fromDate.setDate(now.getDate() - 7);
         } else {
-          fromDate = new Date(now.setMonth(now.getMonth() - 1));
+          fromDate.setMonth(now.getMonth() - 1);
         }
 
         const { data, error } = await supabase
@@ -87,15 +86,16 @@ export const dashboardApi = createApi({
     getTotalOrders: builder.query({
       async queryFn(period = "monthly") {
         const now = new Date();
-        let fromDate;
+        let fromDate = new Date(now);
 
         if (period === "daily") {
-          fromDate = new Date(now.setDate(now.getDate() - 1));
+          fromDate.setDate(now.getDate() - 1);
         } else if (period === "weekly") {
-          fromDate = new Date(now.setDate(now.getDate() - 7));
+          fromDate.setDate(now.getDate() - 7);
         } else {
-          fromDate = new Date(now.setMonth(now.getMonth() - 1));
+          fromDate.setMonth(now.getMonth() - 1);
         }
+
 
         const { count, error } = await supabase
           .from("orders")
@@ -128,15 +128,25 @@ export const dashboardApi = createApi({
     getPlatformProfit: builder.query({
       async queryFn(period = "monthly") {
         const now = new Date();
-        let fromDate;
+        let fromDate = new Date(now);
 
         if (period === "daily") {
-          fromDate = new Date(now.setDate(now.getDate() - 1));
+          fromDate.setDate(now.getDate() - 1);
         } else if (period === "weekly") {
-          fromDate = new Date(now.setDate(now.getDate() - 7));
+          fromDate.setDate(now.getDate() - 7);
         } else {
-          fromDate = new Date(now.setMonth(now.getMonth() - 1));
+          fromDate.setMonth(now.getMonth() - 1);
         }
+
+
+
+
+        const { data: settings, error: settingserror } = await supabase
+          .from("platform_settings")
+          .select("*")
+          .eq("id", "b63fcd43-7207-4ddf-a735-24467a0293dc")
+
+        if (settingserror) return { error: settingserror };
 
         const { data, error } = await supabase
           .from("orders")
@@ -146,7 +156,9 @@ export const dashboardApi = createApi({
         if (error) return { error };
 
         const totalRevenue = data.reduce((acc, cur) => acc + Number(cur.total || 0), 0);
-        const profit = Number((totalRevenue * PLATFORM_PROFIT_RATE).toFixed(2));
+        const platformSetting = settings[0];
+        const profit = Number((totalRevenue * (platformSetting?.platform_commission_pct || 0) / 100).toFixed(2));
+
         return { data: profit };
       },
     }),
@@ -199,10 +211,10 @@ export const dashboardApi = createApi({
         const { data, error } = await supabase
           .from("orders")
           .select("total, created_at")
-          .gte("created_at", firstDayThisMonth);
+          .gte("created_at", firstDayThisMonth);      //get all orders in month 
         if (error) return { error };
 
-        const dailySales = {};
+        const dailySales = {};                        //to get all orders of the day we must get day first 
         data.forEach((order) => {
           const day = new Date(order.created_at).toLocaleDateString("en-CA");
           dailySales[day] = (dailySales[day] || 0) + Number(order.total || 0);

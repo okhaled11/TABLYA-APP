@@ -29,7 +29,7 @@ export default function UserGrowthChart() {
             border="none"
             h="auto"
             w={"100%"}
-            bg={colorMode === "light" ? "white" : colors.dark.bgMain}
+            bg={colorMode === "light" ? "white" : colors.dark.bgThird}
         >
             <CardHeader>
                 <Heading fontSize="18px" fontWeight="semibold">

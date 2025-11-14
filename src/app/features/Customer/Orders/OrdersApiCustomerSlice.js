@@ -439,12 +439,20 @@ export const OrdersApiCustomerSlice = createApi({
     cancelOrder: builder.mutation({
       async queryFn({ orderId, reason }) {
         try {
+          console.log("🔥 cancelOrder called with:", { orderId, reason });
+          
+          if (!orderId) {
+            console.error("❌ orderId is missing or undefined");
+            return { error: "Order ID is required" };
+          }
+
           const { data, error } = await supabase
             .from("orders")
             .update({ status: "cancelled", cancel_reason: reason || null })
             .eq("id", orderId)
-            .select()
-            .single();
+            .select();
+
+          console.log("📡 Supabase response:", { data, error });
 
           if (error) return { error: error.message };
 

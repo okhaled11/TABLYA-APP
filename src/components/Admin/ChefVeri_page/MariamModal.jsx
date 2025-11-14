@@ -21,7 +21,8 @@ const MariamCustomModal = ({
   onDelete,
   notes,
   setNotes,
-  isApproving
+  isApproving,
+  message
 }) => {
   if (!isOpen || !cooker || !type) return null;
 
@@ -57,8 +58,14 @@ const MariamCustomModal = ({
               {isApprove && (
                 <>
 
-                  <Text fontSize={"md"} >
-                    Are you sure you want to approve{" "} <b>{cooker.user?.name}</b> to be part of our community?
+                  <Text fontSize="md">
+                    {message ? (
+                      message
+                    ) : (
+                      <>
+                        Are you sure you want to approve <b>{cooker.user?.name}</b> to be part of our community?
+                      </>
+                    )}
                   </Text>
 
                 </>
@@ -67,7 +74,7 @@ const MariamCustomModal = ({
               {isReject && (
                 <>
                   <VStack align="stretch" spacing={4} mt={4}>
-                    <Text >
+                    <Text fontSize={"md"} >
                       Are you sure you want to reject <b>{cooker.user?.name}</b> from joining our community?
                     </Text>
 
@@ -260,11 +267,11 @@ const MariamCustomModal = ({
                   <Button loading loadingText="Loading" spinnerPlacement="start" background={colors.light.success}>
                     Approving
                   </Button>
-                  
-                </ButtonGroup>) 
-                : (<Button onClick={onApprove} background={colors.light.success} >
-                  Approve
-                </Button>)}
+
+                </ButtonGroup>)
+                  : (<Button onClick={onApprove} background={colors.light.success} >
+                    Approve
+                  </Button>)}
 
 
               </>

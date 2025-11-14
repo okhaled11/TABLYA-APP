@@ -7,6 +7,7 @@ import { useState } from 'react'
 import Filterdropdown from '../../components/Admin/Analytics_page/Filterdropdown'
 import ExportKPIs from '../../components/Admin/Analytics_page/ExportKPIs'
 import { useColorMode } from '../../theme/color-mode'
+import colors from '../../theme/color'
 
 
 
@@ -17,9 +18,9 @@ export default function Analytics() {
 
   const kpiRef = useRef();
   return (
-    <Box >
+    <Box  bg={colorMode ==="light" ? colors.light.bgMain : colors.dark.bgMain  }  p={"30px"}>
 
-      {/* Dashboard heading */}
+      {/* analytics heading */}
            <Flex justifyContent={"space-between"}>
             <Box>
             <Heading as="h1" fontWeight={"semibold"} fontSize={"28px"} my="3">Reports & Analytics</Heading>
@@ -41,7 +42,7 @@ export default function Analytics() {
 
                
             {/* Kpis Analytics */}
-            <Box  ref={kpiRef} bg="white" color="black" p={4} borderRadius="md" bg={colorMode === "light" ? "white" : "rgb(24, 19, 16)"}>
+            <Box  ref={kpiRef}  color="black" p={4} borderRadius="md" >
 
             <KpisAnalytics period = {period} setPeriod= {setPeriod} />
 
