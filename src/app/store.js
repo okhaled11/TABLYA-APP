@@ -28,6 +28,7 @@ import { reviewsApi } from "./features/Customer/reviewsApi";
 import { UserSlice } from "./features/UserSlice";
 import { CookerAcceptOrder } from "./features/Cooker/CookerAcceptOrder";
 import { CookerMenuApi } from "./features/cooker/CookerMenuApi";
+import { CookerAnalyticsApi } from "./features/Cooker/CookerAnalytics";
 
 import CartSlice from "./features/Customer/CartSlice";
 import favoriteCookersReducer from "./features/Customer/favoriteCookersSlice";
@@ -48,7 +49,7 @@ export const store = configureStore({
     PersonalRegisterChef: PersonalRegisterChefReducer,
 
     // Customer APIs
-     
+
     [cookersApi.reducerPath]: cookersApi.reducer,
     [OrdersApiCustomerSlice.reducerPath]: OrdersApiCustomerSlice.reducer,
     [OrdersHistoryCustomerSlice.reducerPath]: OrdersHistoryCustomerSlice.reducer,
@@ -80,6 +81,7 @@ export const store = configureStore({
     // Cooker APIs
     [CookerAcceptOrder.reducerPath]: CookerAcceptOrder.reducer,
     [CookerMenuApi.reducerPath]: CookerMenuApi.reducer,
+    [CookerAnalyticsApi.reducerPath]: CookerAnalyticsApi.reducer,
   },
 
   middleware: (getDefaultMiddleware) =>
@@ -111,7 +113,8 @@ export const store = configureStore({
       favoritesApi.middleware,
       AdminUserSlice.middleware,
       CookerAcceptOrder.middleware,
-      CookerMenuApi.middleware
+      CookerMenuApi.middleware,
+      CookerAnalyticsApi.middleware
     ),
 });
 
