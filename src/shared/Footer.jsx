@@ -47,12 +47,7 @@ const Footer = () => {
           mb={8}
           mx={{ base: "20px", md: "0px" }}
         >
-          <VStack align="flex-start" spacing={3}>
-            <Heading fontSize="lg">For Customers</Heading>
-            <Link color={"rgb(184, 174, 169)"}>Browse Sellers</Link>
-            <Link color={"rgb(184, 174, 169)"}>How It Works</Link>
-            <Link color={"rgb(184, 174, 169)"}>Customer Support</Link>
-          </VStack>
+          
 
 
           <VStack align="flex-start" spacing={3}>

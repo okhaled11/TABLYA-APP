@@ -6,14 +6,15 @@ import RevenueChart from '../../components/Admin/Dashboard_page/RevenueChart';
 import CuisinesChart from '../../components/Admin/Dashboard_page/CuisinesChart';
 import OrderActivity from '../../components/Admin/Dashboard_page/OrderActivity';
 import ExportKPIs from '../../components/Admin/Analytics_page/ExportKPIs';
-
+import { useColorMode } from '../../theme/color-mode';
+import colors from '../../theme/color';
 export default function Dashboard() {
-
+const {colorMode} = useColorMode();
 
 
 
   return (
-    <Box>
+    <Box bg={colorMode ==="light" ? colors.light.bgMain : colors.dark.bgMain  } p={"30px"}>
       <Flex justifyContent={"space-between"}>
       <Box>
 

@@ -197,7 +197,9 @@ import { GrCompliance } from "react-icons/gr";
 import { IoSettingsOutline } from "react-icons/io5";
 import { GiHamburgerMenu } from "react-icons/gi";
 import { useState } from "react";
-
+import colors from "../../theme/color";
+import logo from '../../assets/logotitle.png';
+import { Image } from "@chakra-ui/react";
 export default function SidebarLayout() {
   const links = [
     { to: "/admin", label: "Dashboard", icon: LuLayoutDashboard, exact: true },
@@ -221,17 +223,26 @@ export default function SidebarLayout() {
     <Box
       w={{ base: "full", md: "250px" }}
       h="full"
-      bg={colorMode === "light" ? "white" : "#181310"}
+      bg={colors.dark.bgThird}
       p="4"
     >
-      <Text
-        fontSize="xl"
-        mb="4"
-        fontWeight="bold"
-        color={colorMode === "light" ? "black" : "white"}
+
+    {/* LOGO */}
+      <Box
+        alignItems={"center"}
+        flex={1}
+        display={"flex"}
+        justifyContent={"flex-start"}
       >
-        Admin Dashboard
-      </Text>
+        <Image
+          src={logo}
+          alt={"."}
+          height={{ base: "25px", md: "40px" }}
+        />
+      </Box>
+
+
+
       <Separator marginBlock={5} />
       <Box as="nav">
         {links.map((link) => {
@@ -246,17 +257,17 @@ export default function SidebarLayout() {
                 marginBottom: "10px",
                 padding: "10px",
                 borderRadius: "5px",
-                backgroundColor: isActive ? "#e77240" : "transparent",
+                backgroundColor: isActive ? colors.light.mainFixed : "transparent",
                 textDecoration: "none",
               })}
-              onClick={() => setIsDrawerOpen(false)} 
+              onClick={() => setIsDrawerOpen(false)}
             >
               <HStack spacing={3}>
                 <Icon
                   size={18}
-                  color={colorMode === "light" ? "black" : "white"}
+                  color={"white"}
                 />
-                <Text color={colorMode === "light" ? "gray.700" : "white"}>
+                <Text color={"white"}>
                   {link.label}
                 </Text>
               </HStack>
@@ -312,7 +323,7 @@ export default function SidebarLayout() {
       {/* Main content */}
       <Box ml={{ base: 0, md: "250px" }} flex="1">
         <AdminNavBar />
-        <Box p="6" bg={colorMode === "light" ? "white" : "#181310"}>
+        <Box  bg={colorMode === "light" ? "white" : "#181310"}>
           <Outlet />
         </Box>
       </Box>
