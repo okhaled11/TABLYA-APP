@@ -23,9 +23,11 @@ import { personalInfoApi } from "./features/Customer/personalInfoSlice";
 import { addressApi } from "./features/Customer/addressSlice";
 import { OrdersHistoryCustomerSlice } from "./features/Customer/Orders/OrdersHistoryCustomerSlice";
 import { OrdersApiCustomerSlice } from "./features/Customer/Orders/ordersApiCustomerSlice";
+import { ReportsApiSlice } from "./features/Customer/Reports/reportsApiSlice";
 import { reviewsApi } from "./features/Customer/reviewsApi";
 import { UserSlice } from "./features/UserSlice";
 import { CookerAcceptOrder } from "./features/Cooker/CookerAcceptOrder";
+import { CookerMenuApi } from "./features/cooker/CookerMenuApi";
 
 import CartSlice from "./features/Customer/CartSlice";
 import favoriteCookersReducer from "./features/Customer/favoriteCookersSlice";
@@ -48,9 +50,11 @@ export const store = configureStore({
     PersonalRegisterChef: PersonalRegisterChefReducer,
 
     // Customer APIs
+     
     [cookersApi.reducerPath]: cookersApi.reducer,
     [OrdersApiCustomerSlice.reducerPath]: OrdersApiCustomerSlice.reducer,
     [OrdersHistoryCustomerSlice.reducerPath]: OrdersHistoryCustomerSlice.reducer,
+    [ReportsApiSlice.reducerPath]: ReportsApiSlice.reducer,
     [customerOrdersApi.reducerPath]: customerOrdersApi.reducer,
     [reviewsApi.reducerPath]: reviewsApi.reducer,
     [favoritesApi.reducerPath]: favoritesApi.reducer,
@@ -78,6 +82,7 @@ export const store = configureStore({
 
     // Cooker APIs
     [CookerAcceptOrder.reducerPath]: CookerAcceptOrder.reducer,
+    [CookerMenuApi.reducerPath]: CookerMenuApi.reducer,
   },
 
   middleware: (getDefaultMiddleware) =>
@@ -101,6 +106,7 @@ export const store = configureStore({
       addressApi.middleware,
       OrdersApiCustomerSlice.middleware,
       OrdersHistoryCustomerSlice.middleware,
+      ReportsApiSlice.middleware,
       cookersApprovalsApi.middleware,
       UserSlice.middleware,
       adminAuthApi.middleware,
@@ -108,7 +114,8 @@ export const store = configureStore({
       favoritesApi.middleware,
       AdminUserSlice.middleware,
       CookerAcceptOrder.middleware,
-      MariamSettingsApi.middleware
+      MariamSettingsApi.middleware,
+      CookerMenuApi.middleware
     ),
 });
 

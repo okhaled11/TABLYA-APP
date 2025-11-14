@@ -29,16 +29,27 @@ const LoginForm = () => {
     setLoading(true);
 
     try {
-      const { error } = await signIn(email, password);
+      const { data, error } = await signIn(email, password);
       
       if (error) {
-        toast({
-          title: 'Login Failed',
-          description: error.message,
-          status: 'error',
-          duration: 5000,
-          isClosable: true,
-        });
+        // Check if it's an email confirmation error
+        if (error.message.includes('email not confirmed') || error.message.includes('Email not confirmed')) {
+          toast({
+            title: 'Email Not Confirmed',
+            description: 'Please check your email and click the confirmation link before logging in.',
+            status: 'warning',
+            duration: 8000,
+            isClosable: true,
+          });
+        } else {
+          toast({
+            title: 'Login Failed',
+            description: error.message,
+            status: 'error',
+            duration: 5000,
+            isClosable: true,
+          });
+        }
         return;
       }
 

@@ -1,71 +1,96 @@
-import { Box, Flex, Heading, Text } from "@chakra-ui/react";
-import { Portal, Select, createListCollection } from "@chakra-ui/react";
+import {
+  Box,
+  Flex,
+  Heading,
+  Image,
+  Text,
+  Portal,
+  Select,
+  createListCollection,
+  Button,
+  Group,
+  useDialog,
+} from "@chakra-ui/react";
 import { useState, useEffect } from "react";
 import { useColorStyles } from "../../hooks/useColorStyles";
-import { 
+import {
   useGetCookerOrdersQuery,
   useUpdateOrderStatusMutation,
-  useDeleteOrderMutation 
+  useDeleteOrderMutation,
 } from "../../app/features/Cooker/CookerAcceptOrder";
 import { IoPerson } from "react-icons/io5";
 import { FaLocationDot } from "react-icons/fa6";
 import { FaPhone } from "react-icons/fa6";
 import { BsFillCreditCardFill } from "react-icons/bs";
-import { Button, Group } from "@chakra-ui/react";
 import { MdOutlineDoneOutline } from "react-icons/md";
 import { PiCookingPot } from "react-icons/pi";
 import { MdOutlineDeliveryDining } from "react-icons/md";
 import { MdOutlineCancel } from "react-icons/md";
+import srcLoadingImg from "../../assets/Transparent Version.gif";
+import CustomAlertDialog from "../../shared/CustomAlertDailog";
 
 const CookerOrders = () => {
   /* ---------------variable----------------- */
   const colors = useColorStyles();
+  /* ---------------state----------------- */
+  const [value, setValue] = useState([]);
+  const [deleteId, setDeleteId] = useState([]);
+  const [allOrder, setAllOrder] = useState([]);
+  const dialog = useDialog();
 
   /* ---------------Redux Query----------------- */
   const { data: orders, isLoading, error } = useGetCookerOrdersQuery();
-  const [updateOrderStatus, { isLoading: isUpdating }] = useUpdateOrderStatusMutation();
+  const [updateOrderStatus, { isLoading: isUpdating }] =
+    useUpdateOrderStatusMutation();
   const [deleteOrder, { isLoading: isDeleting }] = useDeleteOrderMutation();
-  console.log(orders);
-
-  /* ---------------state----------------- */
-  const [value, setValue] = useState([]);
+  const selectedStatus = Array.isArray(value)
+    ? value[value.length - 1] ?? "Default"
+    : value || "Default";
 
   /* ---------------useEffect----------------- */
   useEffect(() => {
-    if (orders) {
-      console.log("Cooker Orders Data:", orders);
+    if (!orders) {
+      setAllOrder([]);
+      return;
     }
-    if (error) {
-      console.error("Error fetching orders:", error);
+
+    if (selectedStatus === "Default") {
+      setAllOrder(orders);
+      return;
     }
-  }, [orders, error]);
+
+    const filteredOrders = orders.filter(
+      (order) => order.status?.toLowerCase() === selectedStatus.toLowerCase()
+    );
+
+    setAllOrder(filteredOrders);
+  }, [orders, selectedStatus]);
 
   /* ---------------HANDLER----------------- */
   const handleStatusUpdate = async (orderId, status) => {
     try {
       await updateOrderStatus({ orderId, status }).unwrap();
-      console.log(`Order ${orderId} status updated to ${status}`);
     } catch (err) {
       console.error("Failed to update order status:", err);
     }
   };
 
   const handleDeleteOrder = async (orderId) => {
-    if (window.confirm("Are you sure you want to cancel this order?")) {
-      try {
-        await deleteOrder(orderId).unwrap();
-        console.log(`Order ${orderId} deleted successfully`);
-      } catch (err) {
-        console.error("Failed to delete order:", err);
-      }
+    try {
+      await deleteOrder(orderId).unwrap();
+    } catch (err) {
+      console.error("Failed to delete order:", err);
     }
   };
   const frameworks = createListCollection({
     items: [
-      { label: "Status", value: "Status" },
-      { label: "Date", value: "Date" },
+      { label: "Default", value: "Default" },
+      { label: "confirmed", value: "confirmed" },
+      { label: "preparing", value: "preparing" },
+      { label: "out_for_delivery", value: "out_for_delivery" },
     ],
   });
+
   return (
     <>
       <Box py={6}>
@@ -120,9 +145,13 @@ const CookerOrders = () => {
 
         {/* content order */}
         {isLoading && (
-          <Text color={colors.textSub} textAlign="center" my={6}>
-            Loading orders...
-          </Text>
+          <Image
+            boxSize={40}
+            mx={"auto"}
+            rounded="md"
+            src={srcLoadingImg}
+            alt="John Doe"
+          />
         )}
 
         {error && (
@@ -131,16 +160,18 @@ const CookerOrders = () => {
           </Text>
         )}
 
-        {!isLoading && !error && orders && orders.length === 0 && (
+        {!isLoading && !error && orders && allOrder.length === 0 && (
           <Text color={colors.textSub} textAlign="center" my={6}>
-            No orders found
+            {selectedStatus === "Default"
+              ? "No orders found"
+              : "No orders with the selected status"}
           </Text>
         )}
 
         {!isLoading &&
           !error &&
           orders &&
-          orders.map((order) => {
+          allOrder.map((order) => {
             const orderDate = new Date(order.created_at);
             const formattedDate = orderDate.toLocaleDateString("en-GB");
             const formattedTime = orderDate.toLocaleTimeString("en-US", {
@@ -204,16 +235,29 @@ const CookerOrders = () => {
                       order.order_items.map((item, index) => (
                         <Text key={index} my={2} color={colors.textSub}>
                           {item.quantity}x {item.title}
-                          {item.notes && (
-                            <Text as="span" fontSize="sm" ml={2}>
-                              ({item.notes})
-                            </Text>
-                          )}
                         </Text>
                       ))
                     ) : (
                       <Text color={colors.textSub}>No items</Text>
                     )}
+                    {/* notes */}
+
+                    {order.notes ? (
+                      <Box>
+                        {" "}
+                        <Heading
+                          as={"h2"}
+                          fontSize={{ base: "25px", md: "28px" }}
+                          fontWeight={600}
+                          mb={2}
+                        >
+                          notes
+                        </Heading>
+                        <Text my={2} color={colors.textSub}>
+                          {order.notes}
+                        </Text>
+                      </Box>
+                    ) : null}
                   </Box>
                   {/* customer details   */}
                   <Box
@@ -234,20 +278,34 @@ const CookerOrders = () => {
 
                     {order.customer ? (
                       <>
-                        <Flex my={3} color={colors.textSub} alignItems={"center"} gap={3}>
+                        <Flex
+                          my={3}
+                          color={colors.textSub}
+                          alignItems={"center"}
+                          gap={3}
+                        >
                           <IoPerson size={20} color={colors.info} />
                           <Text fontSize={{ base: "16px", md: "18px" }}>
                             {order.customer.name || "No name"}
                           </Text>
                         </Flex>
-                        <Flex my={3} color={colors.textSub} alignItems={"center"} gap={3}>
-                          <FaLocationDot size={20} color={colors.info} />
+                        <Flex
+                          my={3}
+                          color={colors.textSub}
+                          alignItems={"center"}
+                          gap={3}
+                        >
+                          <FaLocationDot size={28} color={colors.info} />
                           <Text fontSize={{ base: "16px", md: "18px" }}>
                             {order.address || "No address"}
-                            {order.city && `, ${order.city}`}
                           </Text>
                         </Flex>
-                        <Flex my={3} color={colors.textSub} alignItems={"center"} gap={3}>
+                        <Flex
+                          my={3}
+                          color={colors.textSub}
+                          alignItems={"center"}
+                          gap={3}
+                        >
                           <FaPhone size={20} color={colors.info} />
                           <Text fontSize={{ base: "16px", md: "18px" }}>
                             {order.customer.phone || "No phone"}
@@ -255,7 +313,9 @@ const CookerOrders = () => {
                         </Flex>
                       </>
                     ) : (
-                      <Text color={colors.textSub}>No customer information</Text>
+                      <Text color={colors.textSub}>
+                        No customer information
+                      </Text>
                     )}
 
                     <Heading
@@ -272,7 +332,6 @@ const CookerOrders = () => {
                         {order.payment_method || "Not specified"}
                       </Text>
                     </Flex>
-
                   </Box>
                 </Flex>
                 {/* buttons */}
@@ -292,15 +351,16 @@ const CookerOrders = () => {
                           : colors.bgFourth
                       }
                       color={
-                        order.status === "confirmed"
-                          ? "white"
-                          : colors.textSub
+                        order.status === "confirmed" ? "white" : colors.textSub
                       }
                       p={6}
                       onClick={() => handleStatusUpdate(order.id, "confirmed")}
                       isDisabled={isUpdating || order.status === "confirmed"}
                       _hover={{
-                        bg: order.status === "confirmed" ? colors.mainFixed : colors.bgThird
+                        bg:
+                          order.status === "confirmed"
+                            ? colors.mainFixed
+                            : colors.bgThird,
                       }}
                     >
                       <MdOutlineDoneOutline /> Confirmed
@@ -314,15 +374,16 @@ const CookerOrders = () => {
                           : colors.bgFourth
                       }
                       color={
-                        order.status === "preparing"
-                          ? "white"
-                          : colors.textSub
+                        order.status === "preparing" ? "white" : colors.textSub
                       }
                       p={6}
                       onClick={() => handleStatusUpdate(order.id, "preparing")}
                       isDisabled={isUpdating || order.status === "preparing"}
                       _hover={{
-                        bg: order.status === "preparing" ? colors.mainFixed : colors.bgThird
+                        bg:
+                          order.status === "preparing"
+                            ? colors.mainFixed
+                            : colors.bgThird,
                       }}
                     >
                       <PiCookingPot />
@@ -342,10 +403,17 @@ const CookerOrders = () => {
                           : colors.textSub
                       }
                       p={6}
-                      onClick={() => handleStatusUpdate(order.id, "out_for_delivery")}
-                      isDisabled={isUpdating || order.status === "out_for_delivery"}
+                      onClick={() =>
+                        handleStatusUpdate(order.id, "out_for_delivery")
+                      }
+                      isDisabled={
+                        isUpdating || order.status === "out_for_delivery"
+                      }
                       _hover={{
-                        bg: order.status === "out_for_delivery" ? colors.mainFixed : colors.bgThird
+                        bg:
+                          order.status === "out_for_delivery"
+                            ? colors.mainFixed
+                            : colors.bgThird,
                       }}
                     >
                       <MdOutlineDeliveryDining /> Out for Delivery
@@ -357,7 +425,10 @@ const CookerOrders = () => {
                     bg={colors.bgThird}
                     color={colors.mainFixed}
                     p={6}
-                    onClick={() => handleDeleteOrder(order.id)}
+                    onClick={() => {
+                      dialog.setOpen(true);
+                      setDeleteId(order.id);
+                    }}
                     isDisabled={isDeleting}
                     _hover={{ bg: colors.bgFourth }}
                   >
@@ -368,6 +439,17 @@ const CookerOrders = () => {
             );
           })}
       </Box>
+
+      <CustomAlertDialog
+        dialog={dialog}
+        title={"Are you sure you want to cancel this order?"}
+        description={
+          "This action cannot be undone. The order will be permanently cancelled."
+        }
+        cancelTxt={"No, go back"}
+        okTxt={"Yes, cancel it"}
+        onOkHandler={() => handleDeleteOrder(deleteId)}
+      />
     </>
   );
 };

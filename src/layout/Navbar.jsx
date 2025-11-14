@@ -71,7 +71,6 @@ export default function Navbar() {
   useEffect(() => {
     const fetchAvailability = async () => {
       if (user?.role === "cooker" && user?.id) {
-        console.log("Fetching availability for user_id:", user.id);
         const { data, error } = await supabase
           .from("cookers")
           .select("is_available")
@@ -81,7 +80,6 @@ export default function Navbar() {
         if (error) {
           console.error("Error fetching availability:", error);
         } else if (data) {
-          console.log("Availability data:", data);
           setIsAvailable(data.is_available || false);
         }
       }
@@ -99,11 +97,11 @@ export default function Navbar() {
   // handler for availability switch (cooker only)
   const handleAvailabilityChange = async (e) => {
     const newAvailability = e.checked;
-    
+
     // Debug: Check user object
     console.log("Full user object:", user);
     console.log("User ID:", user?.id);
-    
+
     // Validate user ID before updating
     if (!user?.id) {
       console.error("User ID is undefined!");
@@ -114,10 +112,15 @@ export default function Navbar() {
       });
       return;
     }
-    
+
     setIsAvailable(newAvailability);
 
-    console.log("Updating availability for user_id:", user.id, "to:", newAvailability);
+    console.log(
+      "Updating availability for user_id:",
+      user.id,
+      "to:",
+      newAvailability
+    );
 
     // Update in database
     const { data, error } = await supabase
@@ -138,7 +141,9 @@ export default function Navbar() {
     } else {
       console.log("Successfully updated availability:", data);
       toaster.create({
-        title: newAvailability ? "You are now available" : "You are now unavailable",
+        title: newAvailability
+          ? "You are now available"
+          : "You are now unavailable",
         type: "success",
         duration: 2000,
       });
@@ -189,19 +194,19 @@ export default function Navbar() {
             mx="auto"
           >
             {/* Logo */}
-            <Image 
-              src={Navlogo} 
-              alt={t("navbar.logo_alt")} 
+            <Image
+              src={Navlogo}
+              alt={t("navbar.logo_alt")}
               w={"150px"}
               display={{ base: "none", md: "block" }}
             />
-            <Image 
-              src={Logo} 
-              alt={t("navbar.logo_alt")} 
+            <Image
+              src={Logo}
+              alt={t("navbar.logo_alt")}
               w={{ base: "40px", sm: "60px" }}
               display={{ base: "block", md: "none" }}
             />
-            
+
             <Flex alignItems="center">
               <Stack direction="row" spacing={5} align="center">
                 {/* mode and cart stack */}
@@ -254,62 +259,62 @@ export default function Navbar() {
                         </IconButton>
                       </Flex>
                     )}
-                      {/* Availability Badge with Switch for Cooker */}
-                      {user?.role === "cooker" && (
-                        <Badge
-                          bg={
-                            isAvailable
-                              ? colorMode === "light"
-                                ? colors.light.success20a
-                                : colors.dark.success20a
-                              : colorMode === "light"
-                              ? "#FFE5E5"
-                              : "#4A2626"
-                          }
-                          borderRadius="8px"
-                          fontSize={{ base: "10px", md: "sm" }}
-                          px={{ base: 2, md: 3 }}
-                          py={{ base: 0.5, md: 1 }}
-                          transition="all 0.3s ease"
-                        >
-                          <Flex gap={2} alignItems="center">
-                            <Status.Root
-                              colorPalette={isAvailable ? "green" : "red"}
-                              color={
+                    {/* Availability Badge with Switch for Cooker */}
+                    {user?.role === "cooker" && (
+                      <Badge
+                        bg={
+                          isAvailable
+                            ? colorMode === "light"
+                              ? colors.light.success20a
+                              : colors.dark.success20a
+                            : colorMode === "light"
+                            ? "#FFE5E5"
+                            : "#4A2626"
+                        }
+                        borderRadius="8px"
+                        fontSize={{ base: "10px", md: "sm" }}
+                        px={{ base: 2, md: 3 }}
+                        py={{ base: 0.5, md: 1 }}
+                        transition="all 0.3s ease"
+                      >
+                        <Flex gap={2} alignItems="center">
+                          <Status.Root
+                            colorPalette={isAvailable ? "green" : "red"}
+                            color={
+                              isAvailable
+                                ? colorMode === "light"
+                                  ? colors.light.success
+                                  : colors.dark.success
+                                : colorMode === "light"
+                                ? "#DC2626"
+                                : "#EF4444"
+                            }
+                          >
+                            <Status.Indicator
+                              bg={isAvailable ? "green.400" : "red.400"}
+                              boxShadow={
                                 isAvailable
-                                  ? colorMode === "light"
-                                    ? colors.light.success
-                                    : colors.dark.success
-                                  : colorMode === "light"
-                                  ? "#DC2626"
-                                  : "#EF4444"
+                                  ? "0 0 12px 2px #2EB200"
+                                  : "0 0 12px 2px #DC2626"
                               }
-                            >
-                              <Status.Indicator
-                                bg={isAvailable ? "green.400" : "red.400"}
-                                boxShadow={
-                                  isAvailable
-                                    ? "0 0 12px 2px #2EB200"
-                                    : "0 0 12px 2px #DC2626"
-                                }
-                                filter="blur(0.5px)"
-                              />
-                              {isAvailable ? "Available" : "Unavailable"}
-                            </Status.Root>
-                            
-                            <Switch.Root
-                              checked={isAvailable}
-                              onCheckedChange={handleAvailabilityChange}
-                              colorPalette={isAvailable ? "green" : "red"}
-                              size="sm"
-                            >
-                              <Switch.HiddenInput />
-                              <Switch.Control>
-                                <Switch.Thumb />
-                              </Switch.Control>
-                            </Switch.Root>
-                          </Flex>
-                        </Badge>
+                              filter="blur(0.5px)"
+                            />
+                            {isAvailable ? "Available" : "Unavailable"}
+                          </Status.Root>
+
+                          <Switch.Root
+                            checked={isAvailable}
+                            onCheckedChange={handleAvailabilityChange}
+                            colorPalette={isAvailable ? "green" : "red"}
+                            size="sm"
+                          >
+                            <Switch.HiddenInput />
+                            <Switch.Control>
+                              <Switch.Thumb />
+                            </Switch.Control>
+                          </Switch.Root>
+                        </Flex>
+                      </Badge>
                     )}
                     <Flex alignItems={"center"}>
                       <Menu.Root
@@ -322,12 +327,12 @@ export default function Navbar() {
                             borderWidth="3px"
                             size="sm"
                           >
-                            <Avatar.Fallback
-                              color="red"
-                              name={user?.name}
-                            />
+                            <Avatar.Fallback color="red" name={user?.name} />
                             <Avatar.Image
-                              src={user?.avatar_url || `https://ui-avatars.com/api/?name=${user?.name}`}
+                              src={
+                                user?.avatar_url ||
+                                `https://ui-avatars.com/api/?name=${user?.name}`
+                              }
                             />
                           </Avatar.Root>
                         </Menu.Trigger>
@@ -423,8 +428,6 @@ export default function Navbar() {
                         </Portal>
                       </Menu.Root>
                     </Flex>
-
-                  
 
                     <Flex
                       alignItems={"flex-start"}

@@ -27,6 +27,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { registerCustomer } from "../../app/features/Auth/registerCustomerSlice";
 import { toaster } from "../ui/toaster";
 import { useTranslation } from "react-i18next";
+import { resendConfirmation } from "../../services/authService";
 
 const CustomerRegister = () => {
   const { t, i18n } = useTranslation();
@@ -43,7 +44,10 @@ const CustomerRegister = () => {
 
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-  const { loading } = useSelector((state) => state.register);
+  const [resendLoading, setResendLoading] = useState(false);
+  const { loading, needsEmailConfirmation, confirmationMessage } = useSelector(
+    (state) => state.register
+  );
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
@@ -70,18 +74,31 @@ const CustomerRegister = () => {
       })
     );
     if (registerCustomer.fulfilled.match(result)) {
-      toaster.create({
-        title: t("customerRegister.successTitle"),
-        description: t("customerRegister.successDescription"),
-        type: "success",
-        duration: 3000,
-        isClosable: true,
-        position: "top",
-      });
-      // redirect depends on role
-      setTimeout(() => {
-        navigate("/login");
-      }, 500);
+      // Check if email confirmation is needed
+      if (result.payload.needsEmailConfirmation) {
+        toaster.create({
+          title: "Registration Successful!",
+          description:
+            result.payload.message ||
+            "Please check your email and click the confirmation link.",
+          status: "info",
+          duration: 8000,
+          isClosable: true,
+        });
+        // Don't redirect, show confirmation message instead
+      } else {
+        toaster.create({
+          title: t("customerRegister.successTitle"),
+          description: t("customerRegister.successDescription"),
+          status: "success",
+          duration: 3000,
+          isClosable: true,
+        });
+        // redirect to login
+        setTimeout(() => {
+          navigate("/login");
+        }, 500);
+      }
     } else if (registerCustomer.rejected.match(result)) {
       toaster.create({
         title: t("customerRegister.errorTitle"),
@@ -93,6 +110,104 @@ const CustomerRegister = () => {
       });
     }
   };
+
+  // Handle resend confirmation email
+  const handleResendConfirmation = async () => {
+    setResendLoading(true);
+    try {
+      await resendConfirmation(user.email);
+      toaster.create({
+        title: "Email Sent!",
+        description:
+          "We've sent you a new confirmation email. Please check your inbox.",
+        status: "success",
+        duration: 5000,
+      });
+    } catch (error) {
+      toaster.create({
+        title: "Failed to Send Email",
+        description: error.message || "Please try again later.",
+        status: "error",
+        duration: 5000,
+      });
+    } finally {
+      setResendLoading(false);
+    }
+  };
+
+  // Show email confirmation message if needed
+  if (needsEmailConfirmation) {
+    return (
+      <Flex flex={1} p={8} align="center" justifyContent="center">
+        <Box
+          w="full"
+          maxW="md"
+          p={8}
+          bg={
+            colorMode === "light"
+              ? colors.light.bgSecondary
+              : colors.dark.bgSecondary
+          }
+          borderRadius="xl"
+          boxShadow="lg"
+          textAlign="center"
+        >
+          <Flex direction="column" gap={4} align="center">
+            <Box
+              p={4}
+              borderRadius="full"
+              bg={colorMode === "light" ? colors.light.main : colors.dark.main}
+              color="white"
+            >
+              <FaEnvelope size={24} />
+            </Box>
+            <Text
+              fontSize="xl"
+              fontWeight="bold"
+              color={
+                colorMode === "light"
+                  ? colors.light.textMain
+                  : colors.dark.textMain
+              }
+            >
+              Check Your Email
+            </Text>
+            <Text
+              fontSize="md"
+              color={
+                colorMode === "light"
+                  ? colors.light.textSecondary
+                  : colors.dark.textSecondary
+              }
+              textAlign="center"
+            >
+              {confirmationMessage ||
+                "We've sent you a confirmation email. Please click the link in the email to complete your registration."}
+            </Text>
+            <Flex gap={3} mt={4} direction={{ base: "column", sm: "row" }}>
+              <Button
+                variant="outline"
+                onClick={() => navigate("/login")}
+                flex={1}
+              >
+                Back to Login
+              </Button>
+              <Button
+                onClick={handleResendConfirmation}
+                isLoading={resendLoading}
+                loadingText="Sending..."
+                colorScheme="blue"
+                flex={1}
+                bg={colors.light.error}
+              >
+                Resend Email
+              </Button>
+            </Flex>
+          </Flex>
+        </Box>
+      </Flex>
+    );
+  }
 
   return (
     <Flex flex={1} p={8} align="center" justifyContent="center">
@@ -244,7 +359,7 @@ const CustomerRegister = () => {
               </Field.HelperText>
             )}
           </Field.Root>
-          
+
           {/* Password & Confirm Password */}
           <Flex gap={4} direction={{ base: "column", md: "row" }}>
             <Field.Root flex={1} invalid={!!errors.password}>

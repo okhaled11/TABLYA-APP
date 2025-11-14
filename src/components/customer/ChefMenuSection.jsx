@@ -1,16 +1,12 @@
 import { Box, Flex, Text } from "@chakra-ui/react";
-import {
-  Select,
-  Portal,
-  createListCollection,
-} from "@chakra-ui/react";
+import { Select, Portal, createListCollection } from "@chakra-ui/react";
 import MenuItemCard from "./MenuItemCard";
 import { FiFilter } from "react-icons/fi";
 import colors from "../../theme/color";
 import { useColorMode } from "../../theme/color-mode";
 import { useParams } from "react-router-dom";
 import { useGetMenuItemsByCookerIdQuery } from "../../app/features/Customer/CookersApi";
-import MenuItemCardSkeleton from "../ui/MenuItemCardSkeleton ";
+import MenuItemCardSkeleton from "../ui/MenuItemCardSkeleton";
 import { useState } from "react";
 import ScrollAreaComponent from "../ui/ScrollAreaComponent";
 
@@ -20,7 +16,7 @@ const ChefMenuSection = ({ isAvailable }) => {
   const { data: menuItems, isLoading: menuLoading } =
     useGetMenuItemsByCookerIdQuery(id);
   const [selectedCategory, setSelectedCategory] = useState("all");
-    console.log("menu", menuItems);
+  console.log("menu", menuItems);
   // handle Filtter -----------------
   const normalizedCategories = Array.isArray(selectedCategory)
     ? selectedCategory.map((item) => item.value || item)
