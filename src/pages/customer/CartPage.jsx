@@ -154,27 +154,31 @@ export default function CartPage() {
     }
   };
 
+  const isCartEmpty = !cartItems || cartItems.length === 0;
+
   return (
     <Container maxW="container.xl" py={8} px={[4, 6, 8]}>
       <SimpleGrid
-        columns={{ base: 1, lg: 3 }}
+        columns={{ base: 1, lg: isCartEmpty ? 1 : 3 }}
         spacing={8}
         gap={4}
         alignItems="flex-start"
       >
-        <Box gridColumn={{ base: "1 / -1", lg: "1 / 3" }}>
+        <Box gridColumn={{ base: "1 / -1", lg: isCartEmpty ? "1 / -1" : "1 / 3" }}>
           <CartSection />
         </Box>
 
-        <Box>
-          <OrderSummarySection
-            subtotal={subtotal}
-            onContinueShopping={handleContinueShopping}
-            onCheckout={handleCheckout}
-            onValidate={validateBeforeCheckout}
-            onCreateOrderForPayPal={handleCreateOrderForPayPal}
-          />
-        </Box>
+        {!isCartEmpty && (
+          <Box>
+            <OrderSummarySection
+              subtotal={subtotal}
+              onContinueShopping={handleContinueShopping}
+              onCheckout={handleCheckout}
+              onValidate={validateBeforeCheckout}
+              onCreateOrderForPayPal={handleCreateOrderForPayPal}
+            />
+          </Box>
+        )}
       </SimpleGrid>
     </Container>
   );

@@ -318,7 +318,7 @@ const LoginPage = ({ isAuthenticated }) => {
           </Flex>
 
           {/* image */}
-          <Flex flex={1} display={{ base: "none", md: "block" }}>
+          <Flex flex={1} display={{ base: "none", lg: "block" }}>
             <Image
               alt={t("login.imageAlt")}
               objectFit="cover"

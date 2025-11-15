@@ -8,12 +8,12 @@ import {
 } from "@stripe/react-stripe-js";
 import { toaster } from "../ui/toaster";
 
-// 🔹 المفتاح العام (Publishable key) من Stripe Dashboard
+// Stripe Dashboard
 const stripePromise = loadStripe(
   "pk_test_51SRwXWFuoYhjngjb990Ud3vwROMKrzXlAP7xeP0xKWfzTCgbY1lHiTsOoa7OisIMHvx9bJztylXNaxydC3jxOqg700fB5OUq0F"
 );
 
-// 🔹 لينك Edge Function في Supabase
+
 const FN_URL =
   "https://hzqeraiapeyyerkvdiod.supabase.co/functions/v1/create_payment_intent";
 
@@ -30,12 +30,12 @@ const CheckoutForm = ({ amount, orderId, onSuccess }) => {
     setProcessing(true);
 
     try {
-      // 1️⃣ نجيب clientSecret من Supabase Edge Function
+
       const res = await fetch(FN_URL, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          amount: parseFloat(amount), // المبلغ كرقم
+          amount: parseFloat(amount), 
           currency: "eur",
           metadata: orderId ? { orderId } : undefined,
         }),
@@ -45,7 +45,7 @@ const CheckoutForm = ({ amount, orderId, onSuccess }) => {
       if (!res.ok || error)
         throw new Error(error || "Failed to create payment intent");
 
-      // 2️⃣ نأكد الدفع باستخدام Stripe
+      
       const { error: confirmErr, paymentIntent } =
         await stripe.confirmCardPayment(clientSecret, {
           payment_method: { card: elements.getElement(CardElement) },
@@ -64,7 +64,7 @@ const CheckoutForm = ({ amount, orderId, onSuccess }) => {
         return;
       }
 
-      // 3️⃣ لو الدفع نجح
+  
       if (paymentIntent?.status === "succeeded") {
         setPaid(true);
 
