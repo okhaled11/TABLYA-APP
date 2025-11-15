@@ -13,15 +13,32 @@ export const reportsApi = createApi({
           .from("reports")
           .select(
             `
-            *,
-            reporter:users!reports_reporter_user_id_fkey(name, email),
-            assigned_admin:admins!reports_assigned_to_admin_fkey(user_id, users(name, email)),
-            order:orders(
+            id,
+            reporter_user_id,
+            target_id,
+            target_type,
+            reason,
+            details,
+            status,
+            assigned_to_admin,
+            created_at,
+
+            reporter:users!reports_reporter_user_id_fkey (
               id,
-              status,
-              total,
-              customer:customers(user_id, users(name, email)),
-              cooker:cookers(user_id, users(name, email))
+              name,
+              email,
+              role,
+              avatar_url
+            ),
+
+            admin:admins!reports_assigned_to_admin_fkey (
+              user_id,
+              users (
+                id,
+                name,
+                email,
+                avatar_url
+              )
             )
           `
           )
@@ -32,7 +49,6 @@ export const reportsApi = createApi({
       },
       providesTags: ["Report"],
     }),
-
     getReportById: builder.query({
       async queryFn(id) {
         const { data, error } = await supabase
@@ -88,6 +104,7 @@ export const reportsApi = createApi({
       },
       invalidatesTags: (result, error, { id }) => [{ type: "Report", id }],
     }),
+   
   }),
 });
 
@@ -96,4 +113,5 @@ export const {
   useGetReportByIdQuery,
   useCreateReportMutation,
   useUpdateReportMutation,
+  
 } = reportsApi;
