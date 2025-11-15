@@ -46,6 +46,7 @@ const ChefMenuSection = ({ isAvailable }) => {
       overflow="hidden"
       border="none"
       mt={8}
+      maxH="60vh"
       background={
         colorMode == "light" ? colors.light.bgThird : colors.dark.bgThird
       }

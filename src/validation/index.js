@@ -153,7 +153,7 @@ export const addMealSchema = yup
       .required("Meal price is required")
       .positive("Price must be a positive number")
       .min(1, "Price must be at least 1 LE")
-      .max(2000, "Price should not exceed 2,000 LE"),
+      .max(3000, "Price should not exceed 3,000 LE"),
     description: yup
       .string()
       .trim()

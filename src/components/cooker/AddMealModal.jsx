@@ -11,10 +11,13 @@ import {
   CloseButton,
   FileUpload,
   InputGroup,
+  Dialog,
+  Button,
 } from "@chakra-ui/react";
 import { Select, Portal, createListCollection } from "@chakra-ui/react";
 import { FiFilter } from "react-icons/fi";
 import { LuFileImage, LuFileUp } from "react-icons/lu";
+import { IoWarningOutline } from "react-icons/io5";
 import CustomModal from "../../shared/Modal";
 import {
   useCreateMenuItemMutation,
@@ -33,6 +36,8 @@ import {
   MdOutlineProductionQuantityLimits,
 } from "react-icons/md";
 import { IoTimeOutline } from "react-icons/io5";
+import { GoogleGenerativeAI, SchemaType } from "@google/generative-ai";
+
 const AddMealModal = ({ dialog, item = null, mode = "create" }) => {
   const { colorMode } = useColorMode();
   const [createMenuItem, { isLoading: isCreating }] =
@@ -40,6 +45,9 @@ const AddMealModal = ({ dialog, item = null, mode = "create" }) => {
   const [updateMenuItem, { isLoading: isUpdating }] =
     useUpdateMenuItemMutation();
   const [imagePreview, setImagePreview] = useState(null);
+  const [imageCheckPending, setImageCheckPending] = useState(false);
+  const [warningOpen, setWarningOpen] = useState(false);
+  const [warningText, setWarningText] = useState("");
 
   const isEditing = mode === "edit" && !!item;
 
@@ -98,16 +106,120 @@ const AddMealModal = ({ dialog, item = null, mode = "create" }) => {
     const file =
       e.target.files && e.target.files[0] ? e.target.files[0] : undefined;
     setValue("image", file, { shouldValidate: false });
-    if (file) {
-      clearErrors("image");
-      const reader = new FileReader();
-      reader.onloadend = () => setImagePreview(reader.result);
-      reader.readAsDataURL(file);
-    } else {
-      clearErrors("image");
-      // keep existing preview in edit mode; clear in create mode
-      setImagePreview(isEditing ? item?.menu_img || null : null);
+
+    const proceedPreview = (f) => {
+      if (f) {
+        clearErrors("image");
+        const reader = new FileReader();
+        reader.onloadend = () => setImagePreview(reader.result);
+        reader.readAsDataURL(f);
+      } else {
+        clearErrors("image");
+        setImagePreview(isEditing ? item?.menu_img || null : null);
+      }
+    };
+
+    if (!file) {
+      proceedPreview(undefined);
+      return;
     }
+
+    (async () => {
+      try {
+        setImageCheckPending(true);
+        const ok = await validateImageWithGemini(file);
+        if (!ok) {
+          setValue("image", undefined, { shouldValidate: true });
+          setImagePreview(isEditing ? item?.menu_img || null : null);
+          setWarningText(
+            "The selected image is not allowed. Please upload a clear food image without any NSFW content."
+          );
+          setWarningOpen(true);
+        } else {
+          proceedPreview(file);
+        }
+      } catch (err) {
+        toaster.create({
+          title: "Image check failed",
+          description:
+            err?.message || "Could not verify image. Please try another image.",
+          type: "error",
+          duration: 3000,
+          isClosable: true,
+          position: "top",
+        });
+        setValue("image", undefined, { shouldValidate: true });
+        setImagePreview(isEditing ? item?.menu_img || null : null);
+      } finally {
+        setImageCheckPending(false);
+      }
+    })();
+  };
+
+  const readFileAsBase64 = (file) =>
+    new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => {
+        const result = reader.result;
+        const base64 = result.split(",")[1] || result;
+        resolve(base64);
+      };
+      reader.onerror = reject;
+      reader.readAsDataURL(file);
+    });
+
+  const validateImageWithGemini = async (file) => {
+    const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
+    if (!apiKey) {
+      throw new Error("Missing VITE_GEMINI_API_KEY in environment.");
+    }
+
+    const genAI = new GoogleGenerativeAI(apiKey);
+    const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
+
+    const schema = {
+      type: SchemaType.OBJECT,
+      properties: {
+        "is _food": { type: SchemaType.BOOLEAN },
+        Is_NSFW: { type: SchemaType.BOOLEAN },
+      },
+      required: ["is _food", "Is_NSFW"],
+    };
+
+    const base64 = await readFileAsBase64(file);
+
+    const prompt =
+      "You are an image safety and categorization assistant. Determine if the image is a food item and whether it contains any NSFW content. Respond ONLY with valid JSON that matches the provided schema.";
+
+    const result = await model.generateContent({
+      contents: [
+        {
+          role: "user",
+          parts: [
+            { text: prompt },
+            { inlineData: { data: base64, mimeType: file.type } },
+          ],
+        },
+      ],
+      generationConfig: {
+        responseMimeType: "application/json",
+        responseSchema: schema,
+        temperature: 0,
+      },
+    });
+
+    const text = await result.response.text();
+    let parsed;
+    try {
+      parsed = JSON.parse(text);
+    } catch (_) {
+      return false;
+    }
+
+    const isFood = parsed?.["is _food"] === true;
+    const isNSFW = parsed?.["Is_NSFW"] === true;
+
+    return isFood && !isNSFW;
   };
 
   const onSubmit = async (data) => {
@@ -186,20 +298,21 @@ const AddMealModal = ({ dialog, item = null, mode = "create" }) => {
   };
 
   return (
-    <CustomModal
-      dialog={dialog}
-      title={isEditing ? "Edit Meal" : "Add Meal"}
-      description={
-        isEditing
-          ? "Update the details of your meal."
-          : "Fill in the details to add a new meal to your menu."
-      }
-      okTxt={isEditing ? "Save Changes" : "Add Meal"}
-      cancelTxt="Cancel"
-      onOkHandler={handleOk}
-      isLoading={isCreating || isUpdating}
-    >
-      <Box p={4}>
+    <>
+      <CustomModal
+        dialog={dialog}
+        title={isEditing ? "Edit Meal" : "Add Meal"}
+        description={
+          isEditing
+            ? "Update the details of your meal."
+            : "Fill in the details to add a new meal to your menu."
+        }
+        okTxt={isEditing ? "Save Changes" : "Add Meal"}
+        cancelTxt="Cancel"
+        onOkHandler={handleOk}
+        isLoading={isCreating || isUpdating || imageCheckPending}
+      >
+        <Box p={4}>
         <Grid templateColumns={{ base: "1fr", md: "1fr 1fr" }} gap={4} mb={4}>
           <GridItem>
             <Field.Root>
@@ -517,8 +630,90 @@ const AddMealModal = ({ dialog, item = null, mode = "create" }) => {
             </Field.Root>
           </GridItem>
         </Grid>
-      </Box>
-    </CustomModal>
+        </Box>
+      </CustomModal>
+
+      <Dialog.Root
+        open={warningOpen}
+        onOpenChange={(e) => setWarningOpen(e.open)}
+        motionPreset="slide-in-bottom"
+      >
+        <Portal>
+          <Dialog.Backdrop />
+          <Dialog.Positioner>
+            <Dialog.Content
+              maxW="md"
+              borderRadius="16px"
+              bg={
+                colorMode === "light"
+                  ? colors.light.bgThird
+                  : colors.dark.bgThird
+              }
+              borderWidth="2px"
+              borderColor="red.500"
+            >
+              <Dialog.Header pb={2}>
+                <Flex align="center" gap={3}>
+                  <Box
+                    p={2}
+                    borderRadius="full"
+                    bg="red.100"
+                    color="red.600"
+                    display="flex"
+                    alignItems="center"
+                    justifyContent="center"
+                  >
+                    <IoWarningOutline size={28} />
+                  </Box>
+                  <Dialog.Title
+                    fontSize="xl"
+                    fontWeight="bold"
+                    color="red.600"
+                  >
+                    Image Not Permitted
+                  </Dialog.Title>
+                </Flex>
+              </Dialog.Header>
+
+              <Dialog.Body py={4}>
+                <Text
+                  fontSize="md"
+                  color={
+                    colorMode === "light"
+                      ? colors.light.textSub
+                      : colors.dark.textSub
+                  }
+                  lineHeight="1.6"
+                >
+                  {warningText}
+                </Text>
+              </Dialog.Body>
+
+              <Dialog.Footer pt={2}>
+                <Button
+                  onClick={() => setWarningOpen(false)}
+                  colorPalette="red"
+                  width="full"
+                  size="lg"
+                  borderRadius="12px"
+                >
+                  Got it
+                </Button>
+              </Dialog.Footer>
+
+              <Dialog.CloseTrigger asChild>
+                <CloseButton
+                  size="sm"
+                  position="absolute"
+                  top={3}
+                  right={3}
+                />
+              </Dialog.CloseTrigger>
+            </Dialog.Content>
+          </Dialog.Positioner>
+        </Portal>
+      </Dialog.Root>
+    </>
   );
 };
 
