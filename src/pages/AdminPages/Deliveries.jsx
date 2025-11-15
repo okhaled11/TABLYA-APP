@@ -24,6 +24,7 @@ import { useColorMode } from "../../theme/color-mode";
 import { FaRegCheckCircle, FaClipboardCheck, FaEye } from "react-icons/fa";
 import { MdOutlineDeliveryDining, MdCancel } from "react-icons/md";
 import OrderModal from "../../components/Admin/OrderModal";
+import colors from "../../theme/color";
 
 function Deliveries() {
   const { data: orders, isLoading } = useGetOrdersQuery();
@@ -175,7 +176,7 @@ const handleCloseModal = () => {
     console.log("OrderModal received order:", selectedOrder);
 
   return (
-    <>
+    <Box p={"30px"} bg={colorMode === "light" ? colors.light.bgMain : colors.dark.bgMain}>
       {/* Header */}
       <Box textStyle="3xl" color={colorMode === "light" ? "black" : "white"}>
         Orders & Deliveries
@@ -460,7 +461,7 @@ const handleCloseModal = () => {
         onClose={handleCloseModal}
         order={selectedOrder}
       />
-    </>
+    </Box>
   );
 }
 
