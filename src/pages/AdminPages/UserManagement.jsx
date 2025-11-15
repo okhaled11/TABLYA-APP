@@ -26,7 +26,8 @@ import { CiSearch } from "react-icons/ci";
 import { FaEye } from "react-icons/fa";
 import { FaEdit } from "react-icons/fa";
 import { FcSupport } from "react-icons/fc";
-
+import ConfirmDialog from "../../components/Admin/ConfirmDialog";
+import  colors from "../../theme/color";
 import { FaSuperpowers, FaUserShield, FaUserXmark } from "react-icons/fa6";
 import { FaUserFriends, FaUtensils, FaMotorcycle } from "react-icons/fa";
 import StatCard from "../../components/Admin/StatCard";
@@ -40,6 +41,9 @@ export default function UserManagement() {
   const [selectedRole, setSelectedRole] = useState("");
   const { data: users, error, isLoading } = useGetUsersQuery();
   // const [updateUser] = useUpdateUserMutation();
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [userToDelete, setUserToDelete] = useState(null);
+
   const [page, setPage] = useState(1);
   const [localUsers, setLocalUsers] = useState([]);
   const [selectedUser, setSelectedUser] = useState(null);
@@ -96,10 +100,12 @@ export default function UserManagement() {
 
   const handleSearch = (e) => {
     setSearchTerm(e.target.value);
+    setPage(1);
   };
 
   const handleRoleChange = (e) => {
     setSelectedRole(e.target.value);
+    setPage(1);
   };
 
   const handleFilterByDate = () => {
@@ -119,11 +125,12 @@ export default function UserManagement() {
     });
 
     setLocalUsers(filtered);
+    setPage(1);
   };
 
-  const handleDelete = (userId) => {
-    setLocalUsers((prev) => prev.filter((u) => u.id !== userId));
-  };
+  // const handleDelete = (userId) => {
+  //   setLocalUsers((prev) => prev.filter((u) => u.id !== userId));
+  // };
 
   const handleOpenModal = (user, mode) => {
     setSelectedUser(user);
@@ -182,7 +189,10 @@ export default function UserManagement() {
   };
 
   return (
-    <>
+    <Box
+      p={30}
+      bg={colorMode === "light" ? colors.light.bgMain : colors.dark.bgMain}
+    >
       {/* Header */}
       <Box textStyle="3xl" color={colorMode === "light" ? "black" : "white"}>
         User Management
@@ -234,7 +244,7 @@ export default function UserManagement() {
         borderRadius={10}
         padding={5}
         borderColor={colorMode === "light" ? "gray.100" : "gray.900"}
-        background={colorMode === "light" ? "white" : "#261c17"}
+        bg={colorMode === "light" ? "white" : "#261c17"}
         overflowX="auto"
       >
         <Box height="1/6" alignItems={"center"}>
@@ -294,12 +304,17 @@ export default function UserManagement() {
           <Stack width="full" gap="5">
             <Table.Root size="sm">
               <Table.Header
-                background={colorMode === "light" ? "white" : "#261c17"}
+                bg={
+                  colorMode === "light"
+                    ? colors.light.bgMain
+                    : colors.dark.bgMain
+                }
               >
                 <Table.Row
                   _hover={{
                     bg: colorMode === "light" ? "gray.100" : "#140f0cff",
                   }}
+                  
                   background={colorMode === "light" ? "white" : "#261c17"}
                 >
                   <Table.ColumnHeader></Table.ColumnHeader>
@@ -398,7 +413,10 @@ export default function UserManagement() {
                           }
                           borderRadius={"10px"}
                           _hover={{ backgroundColor: "#f9e7e6" }}
-                          onClick={() => handleDelete(user.id)}
+                          onClick={() => {
+                            setUserToDelete(user);
+                            setIsDeleteDialogOpen(true);
+                          }}
                         >
                           <FaUserXmark color="red" />
                         </Button>
@@ -472,6 +490,18 @@ export default function UserManagement() {
         isOpen={isEditOpen}
         onClose={() => setIsEditOpen(false)}
       />
-    </>
+      <ConfirmDialog
+        isOpen={isDeleteDialogOpen}
+        onClose={() => setIsDeleteDialogOpen(false)}
+        onConfirm={() => {
+          setLocalUsers((prev) => prev.filter((u) => u.id !== userToDelete.id));
+          setIsDeleteDialogOpen(false);
+        }}
+        title="Delete User"
+        message={`Are you sure you want to permanently delete ${userToDelete?.name}?`}
+        confirmLabel="Delete"
+        cancelLabel="Cancel"
+      />
+    </Box>
   );
 }
