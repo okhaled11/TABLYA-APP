@@ -1,5 +1,6 @@
 import { Box, Flex, Text, Image, Card, IconButton, HStack } from "@chakra-ui/react";
 import { FaShoppingCart } from "react-icons/fa";
+import { RxCross2 } from "react-icons/rx";
 import { useColorMode } from "../../theme/color-mode";
 import colors from "../../theme/color";
 import { useDispatch, useSelector } from "react-redux";
@@ -9,19 +10,19 @@ import { useDialog } from "@chakra-ui/react";
 import CustomAlertDialog from "../../shared/CustomAlertDailog";
 import { toaster } from "../../components/ui/toaster";
 
-const MenuItemCard = ({ item, isAvailable = true }) => {
+const MenuItemCard = ({ item, isAvailable }) => {
   const { colorMode } = useColorMode();
   const dispatch = useDispatch();
   const { cartItems, cookerId } = useSelector((state) => state.cart);
   const dialog = useDialog();
-  console.log("cartItems", item);
+  // console.log("cartItems", item);
   // Find the current item in the cart
   const cartItem = cartItems.find((cartItem) => cartItem.id === item.id);
   const currentQuantity = cartItem ? cartItem.quantity : 0;
   const isOutOfStock = item.stock <= 0;
   const isMaxQuantity = currentQuantity >= item.stock;
   // Use availability from DB (menu_items.available) instead of parent flag
-  const isRestaurantClosed = item?.available === false;
+  const isRestaurantClosed = item?.available === false || isAvailable === false;
 
   const handleAddToCart = (e) => {
     e.preventDefault();
@@ -60,7 +61,7 @@ const MenuItemCard = ({ item, isAvailable = true }) => {
       }
     }
   };
-  const isDetailsDisabled = isOutOfStock; // only block when stock is 0 as requested
+  const isDetailsDisabled = isOutOfStock || isRestaurantClosed; // block when stock is 0 or restaurant is closed
 
   return (
     <>
@@ -233,7 +234,7 @@ const MenuItemCard = ({ item, isAvailable = true }) => {
                   onClick={handleAddToCart}
                   aria-label={
                     isRestaurantClosed
-                      ? "Out of stock"
+                      ? "Closed"
                       : isOutOfStock
                       ? "Out of stock"
                       : isMaxQuantity
@@ -277,7 +278,7 @@ const MenuItemCard = ({ item, isAvailable = true }) => {
                   isDisabled={isOutOfStock || isMaxQuantity || isRestaurantClosed}
                   title={
                     isRestaurantClosed
-                      ? "Out of stock"
+                      ? "Closed"
                       : isOutOfStock
                       ? "Out of stock"
                       : isMaxQuantity
@@ -286,9 +287,10 @@ const MenuItemCard = ({ item, isAvailable = true }) => {
                   }
                 >
                   {isRestaurantClosed ? (
-                    <Text fontSize={{ base: "2xs", md: "xs" }} px={2}>
-                      Out of Stock
-                    </Text>
+                    <HStack spacing={1} align="center" px={2}>
+                      <RxCross2 />
+                      <Text fontSize={{ base: "2xs", md: "xs" }}>Closed</Text>
+                    </HStack>
                   ) : isOutOfStock ? (
                     <Text fontSize={{ base: "2xs", md: "xs" }}>Out of Stock</Text>
                   ) : isMaxQuantity ? (
