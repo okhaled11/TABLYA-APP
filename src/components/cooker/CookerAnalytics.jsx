@@ -9,6 +9,8 @@ import {
   CartesianGrid,
   Tooltip,
   ResponsiveContainer,
+  LineChart,
+  Line,
 } from "recharts";
 import {
   useGetCookerMonthlyOrdersQuery,
@@ -109,6 +111,25 @@ export const CookerAnalytics = () => {
     day: Number(selectedDay),
   });
 
+  const weeklyEarnings = useMemo(() => {
+    if (
+      !monthlyData?.weeklyEarnings ||
+      monthlyData.weeklyEarnings.length === 0
+    ) {
+      // Default data for demo
+      return [
+        { name: "Week 1", earning: 3700 },
+        { name: "Week 2", earning: 4600 },
+        { name: "Week 3", earning: 4300 },
+        { name: "Week 4", earning: 4800 },
+      ];
+    }
+    return monthlyData.weeklyEarnings.map((item) => ({
+      name: formatWeekLabel(item.week),
+      earning: item.earning,
+    }));
+  }, [monthlyData?.weeklyEarnings]);
+
   const weeklyOrders = useMemo(() => {
     if (!monthlyData?.weeklyOrders) return [];
     return monthlyData.weeklyOrders.map((item) => ({
@@ -118,10 +139,31 @@ export const CookerAnalytics = () => {
   }, [monthlyData?.weeklyOrders]);
 
   const dailyOrders = useMemo(() => {
-    if (!weeklyData?.dailyOrders) return [];
-    return weeklyData.dailyOrders.map((item) => ({
-      name: item.day.substring(0, 3), // Short day name
-      orders: item.orders,
+    if (!weeklyData?.dailyOrders) {
+      // Return all days with 0 orders if no data
+      return [
+        { name: "Sun", orders: 0 },
+        { name: "Mon", orders: 0 },
+        { name: "Tue", orders: 0 },
+        { name: "Wed", orders: 0 },
+        { name: "Thu", orders: 0 },
+        { name: "Fri", orders: 0 },
+        { name: "Sat", orders: 0 },
+      ];
+    }
+
+    // Create a map of existing data
+    const dataMap = new Map();
+    weeklyData.dailyOrders.forEach((item) => {
+      const shortName = item.day.substring(0, 3);
+      dataMap.set(shortName, item.orders);
+    });
+
+    // Ensure all 7 days are present
+    const allDays = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+    return allDays.map((day) => ({
+      name: day,
+      orders: dataMap.get(day) || 0,
     }));
   }, [weeklyData?.dailyOrders]);
 
@@ -135,7 +177,6 @@ export const CookerAnalytics = () => {
       }));
   }, [dailyData?.hourlyOrders]);
 
-  const totalOrdersMonthly = monthlyData?.totalOrders ?? 0;
   const totalOrdersWeekly = weeklyData?.totalOrders ?? 0;
   const totalOrdersDaily = dailyData?.totalOrders ?? 0;
 
@@ -191,6 +232,8 @@ export const CookerAnalytics = () => {
   const renderMonthly = () => {
     if (isLoadingMonthly || isFetchingMonthly) return renderLoading();
     if (isErrorMonthly) return renderError(errorMonthly, refetchMonthly);
+
+    // Show message if no orders data
     if (!weeklyOrders.length) {
       return (
         <Flex justify="center" align="center" py={8}>
@@ -210,6 +253,7 @@ export const CookerAnalytics = () => {
         templateColumns={{ base: "1fr", lg: "1fr 1fr" }}
         gap={{ base: 4, md: 6 }}
       >
+        {/* Weekly Orders Chart */}
         <Box
           bg={bgCard}
           rounded="2xl"
@@ -223,13 +267,13 @@ export const CookerAnalytics = () => {
             color={textColor}
             fontSize={{ base: "md", md: "lg" }}
           >
-            Weekly Orders
+            Monthly Orders
           </Text>
           <Box w="100%" h={{ base: "220px", sm: "250px", md: "280px" }}>
             <ResponsiveContainer width="100%" height="100%">
               <BarChart
                 data={weeklyOrders}
-                margin={{ top: 5, right: 5, left: -20, bottom: 5 }}
+                margin={{ top: 10, right: 10, left: 10, bottom: 5 }}
               >
                 <CartesianGrid strokeDasharray="3 3" stroke="#3a0000" />
                 <XAxis
@@ -242,6 +286,7 @@ export const CookerAnalytics = () => {
                   stroke={colors.textSub}
                   allowDecimals={false}
                   fontSize={{ base: 10, sm: 12 }}
+                  width={40}
                 />
                 <Tooltip
                   formatter={(value) => [`${value}`, "Orders"]}
@@ -258,28 +303,59 @@ export const CookerAnalytics = () => {
           </Box>
         </Box>
 
+        {/* Weekly Earning Chart */}
         <Box
           bg={bgCard}
           rounded="2xl"
           p={{ base: 4, md: 6 }}
           boxShadow="lg"
-          color={textColor}
-          display={"flex"}
-          justifyContent={"center"}
-          alignItems={"center"}
-          minH={{ base: "200px", md: "auto" }}
+          overflow="hidden"
         >
-          <Box w={"fit"} h={"fit"} textAlign={"center"}>
-            <Text fontSize={{ base: "md", md: "lg" }} mb={2}>
-              Total Orders This Month
-            </Text>
-            <Text
-              fontSize={{ base: "4xl", md: "5xl" }}
-              fontWeight="bold"
-              color={colors.mainFixed}
-            >
-              {totalOrdersMonthly}
-            </Text>
+          <Text
+            fontWeight="bold"
+            mb={3}
+            color={textColor}
+            fontSize={{ base: "md", md: "lg" }}
+          >
+            Monthly Earning
+          </Text>
+          <Box w="100%" h={{ base: "220px", sm: "250px", md: "280px" }}>
+            <ResponsiveContainer width="100%" height="100%">
+              <LineChart
+                data={weeklyEarnings}
+                margin={{ top: 10, right: 10, left: 10, bottom: 5 }}
+              >
+                <CartesianGrid strokeDasharray="3 3" stroke="#3a0000" />
+                <XAxis
+                  dataKey="name"
+                  stroke={colors.textSub}
+                  fontSize={{ base: 10, sm: 12 }}
+                  tickMargin={5}
+                />
+                <YAxis
+                  stroke={colors.textSub}
+                  fontSize={{ base: 10, sm: 12 }}
+                  width={60}
+                />
+                <Tooltip
+                  formatter={(value) => [`${value.toFixed(2)} LE`, "Earning"]}
+                  contentStyle={{
+                    backgroundColor: "#2b0000",
+                    color: "#fff",
+                    borderRadius: "10px",
+                    fontSize: "12px",
+                  }}
+                />
+                <Line
+                  type="monotone"
+                  dataKey="earning"
+                  stroke="#ff2e2e"
+                  strokeWidth={3}
+                  dot={{ fill: "#ff2e2e", r: 5 }}
+                  activeDot={{ r: 7 }}
+                />
+              </LineChart>
+            </ResponsiveContainer>
           </Box>
         </Box>
       </Grid>
@@ -289,19 +365,6 @@ export const CookerAnalytics = () => {
   const renderWeekly = () => {
     if (isLoadingWeekly || isFetchingWeekly) return renderLoading();
     if (isErrorWeekly) return renderError(errorWeekly, refetchWeekly);
-    if (!dailyOrders.length) {
-      return (
-        <Flex justify="center" align="center" py={8}>
-          <Text
-            color={textColor}
-            fontSize={{ base: "sm", md: "md" }}
-            textAlign="center"
-          >
-            No orders recorded for this week yet.
-          </Text>
-        </Flex>
-      );
-    }
 
     return (
       <Grid

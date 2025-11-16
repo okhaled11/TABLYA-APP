@@ -31,6 +31,7 @@ import {
   Sun,
   ShoppingBagIcon,
   ShoppingCartSimple,
+  Bell,
 } from "@phosphor-icons/react";
 import { FiSearch } from "react-icons/fi";
 import { useColorMode } from "../theme/color-mode";
@@ -59,6 +60,7 @@ export default function Navbar() {
   const { colorMode, toggleColorMode } = useColorMode();
   const [checked, setChecked] = useState(colorMode === "dark");
   const [isAvailable, setIsAvailable] = useState(false);
+  const [notificationCount, setNotificationCount] = useState(0);
   const dialog = useDialog();
   const navigate = useNavigate();
 
@@ -87,6 +89,119 @@ export default function Navbar() {
 
     fetchAvailability();
   }, [user]);
+
+  // Fetch and listen to new orders count for cooker
+  useEffect(() => {
+    if (user?.role !== "cooker" || !user?.id) {
+      setNotificationCount(0);
+      return;
+    }
+
+    const fetchNewOrdersCount = async () => {
+      // Get all pending orders (status = "created") for this cooker
+      const { data: pendingOrders, error } = await supabase
+        .from("orders")
+        .select("id, created_at")
+        .eq("cooker_id", user.id)
+        .eq("status", "created")
+        .order("created_at", { ascending: false });
+
+      if (error) {
+        console.error("❌ Error fetching pending orders count:", error);
+        setNotificationCount(0);
+        return;
+      }
+
+      if (!pendingOrders || pendingOrders.length === 0) {
+        console.log("📭 No pending orders found");
+        setNotificationCount(0);
+        return;
+      }
+
+      // Get the last seen timestamp from localStorage
+      const lastSeenKey = `lastSeenOrderTime_${user.id}`;
+      const lastSeenTime = localStorage.getItem(lastSeenKey);
+
+      let newOrdersCount = 0;
+
+      if (!lastSeenTime) {
+        // First time - count all pending orders
+        newOrdersCount = pendingOrders.length;
+      } else {
+        // Count orders created after last seen time
+        newOrdersCount = pendingOrders.filter(
+          (order) => new Date(order.created_at) > new Date(lastSeenTime)
+        ).length;
+      }
+
+      console.log("🔔 Notification count update:", {
+        totalPendingOrders: pendingOrders.length,
+        lastSeenTime,
+        newOrdersCount,
+      });
+
+      setNotificationCount(newOrdersCount);
+    };
+
+    // Initial fetch
+    fetchNewOrdersCount();
+
+    // Listen to real-time changes for new orders
+    const channel = supabase
+      .channel(`cooker-orders-${user.id}`)
+      .on(
+        "postgres_changes",
+        {
+          event: "INSERT",
+          schema: "public",
+          table: "orders",
+          filter: `cooker_id=eq.${user.id}`,
+        },
+        async (payload) => {
+          console.log("🆕 New order INSERTED:", payload.new);
+          // Only count if status is "created"
+          if (payload.new?.status === "created") {
+            console.log("✅ Order has status 'created', updating count...");
+            await fetchNewOrdersCount();
+          }
+        }
+      )
+      .on(
+        "postgres_changes",
+        {
+          event: "UPDATE",
+          schema: "public",
+          table: "orders",
+          filter: `cooker_id=eq.${user.id}`,
+        },
+        async (payload) => {
+          console.log("🔄 Order UPDATED:", payload.new);
+          // Update count when order status changes
+          await fetchNewOrdersCount();
+        }
+      )
+      .on(
+        "postgres_changes",
+        {
+          event: "DELETE",
+          schema: "public",
+          table: "orders",
+          filter: `cooker_id=eq.${user.id}`,
+        },
+        async (payload) => {
+          console.log("🗑️ Order DELETED:", payload.old);
+          await fetchNewOrdersCount();
+        }
+      )
+      .subscribe((status) => {
+        console.log("📡 Realtime subscription status:", status);
+      });
+
+    return () => {
+      console.log("🧹 Cleaning up realtime subscription");
+      supabase.removeChannel(channel);
+    };
+  }, [user?.id, user?.role]);
 
   // handler for color mode switch
   const handleChange = (e) => {
@@ -149,6 +264,7 @@ export default function Navbar() {
       });
     }
   };
+
   //  handler for language switch
   const handleLanguageChange = (e) => {
     setCheckedLang(e.checked);
@@ -157,6 +273,7 @@ export default function Navbar() {
     i18n.changeLanguage(newLang);
     document.dir = newLang === "ar" ? "rtl" : "ltr";
   };
+
   // logout handler
   const onOkHandler = () => {
     CookieService.remove("access_token", { path: "/" });
@@ -164,6 +281,22 @@ export default function Navbar() {
     dispatch(clearCart());
     navigate("/login");
     window.location.reload();
+  };
+
+  // Handle notification click - reset count and navigate to orders
+  const handleNotificationClick = async () => {
+    if (user?.role === "cooker" && user?.id) {
+      // Save current timestamp as last seen time
+      const currentTime = new Date().toISOString();
+      const lastSeenKey = `lastSeenOrderTime_${user.id}`;
+      localStorage.setItem(lastSeenKey, currentTime);
+
+      console.log("✅ Marked all orders as seen at:", currentTime);
+
+      // Reset notification count
+      setNotificationCount(0);
+    }
+    navigate("/cooker/orders");
   };
 
   return (
@@ -256,6 +389,44 @@ export default function Navbar() {
                           >
                             {cartItems.length || "0"}
                           </Badge>
+                        </IconButton>
+                      </Flex>
+                    )}
+                    {/* Show Notification for cookers */}
+                    {user?.role === "cooker" && (
+                      <Flex gap={3} alignItems={"center"} position="relative">
+                        <IconButton
+                          onClick={handleNotificationClick}
+                          aria-label="Notifications"
+                          variant="outline"
+                          border={"none"}
+                          color={"white"}
+                          size="2xl"
+                          _hover={{ bg: "transparent" }}
+                          cursor="pointer"
+                        >
+                          <Icon as={Bell} boxSize={8} />
+                          {notificationCount > 0 && (
+                            <Badge
+                              position="absolute"
+                              top="3"
+                              right="2"
+                              bg="red.500"
+                              borderRadius="full"
+                              width={{ base: "16px", md: "20px" }}
+                              height={{ base: "16px", md: "20px" }}
+                              display="flex"
+                              alignItems="center"
+                              justifyContent="center"
+                              color="white"
+                              fontSize={{ base: "10px", md: "12px" }}
+                              fontWeight="bold"
+                            >
+                              {notificationCount > 99
+                                ? "99+"
+                                : notificationCount}
+                            </Badge>
+                          )}
                         </IconButton>
                       </Flex>
                     )}
@@ -353,14 +524,6 @@ export default function Navbar() {
                                   </HStack>
                                 </Link>
                               </Menu.Item>
-                              {/* <Menu.Item value="Payment-method">
-                                <Link to="/personal-info/payment">
-                                <HStack spacing={3}>
-                                  <Icon as={CreditCard} boxSize={4} />
-                                  <Text fontSize={"sm"}>Payment Method</Text>
-                                </HStack>
-                                </Link>
-                              </Menu.Item> */}
                               <Separator />
                               {/* Dark Mode with Switch */}
                               <Menu.Item value="color-mode">
