@@ -19,23 +19,37 @@ const CookerStaticsCard = ({
       borderRadius="xl"
       h="100%"
       border={"none"}
-    //   shadow="sm"
+      //   shadow="sm"
       transition="transform 0.3s ease"
       _hover={{ transform: "scale(1.03)" }}
     >
       <CardBody>
         <Flex direction="column" justifyContent="space-between">
-          <Text color={colorMode === "light" ? "gray.600" : "gray.400"} fontSize="15px">
+          <Text
+            color={colorMode === "light" ? "gray.600" : "gray.400"}
+            fontSize="15px"
+          >
             {title}
           </Text>
-            <Box h="1px" w="100%"  bg={colorMode=="light"?colors.light.textMain10a:colors.dark.textMain10a}></Box>
-            <Flex direction>
-
-            </Flex>
+          <Box
+            h="1px"
+            w="100%"
+            bg={
+              colorMode == "light"
+                ? colors.light.textMain10a
+                : colors.dark.textMain10a
+            }
+          ></Box>
+          <Flex direction></Flex>
           <Flex justifyContent="space-between" w="100%" align="center" mt={2}>
-            <Text fontWeight="bold" fontSize="20px" 
-      color={colorMode === "light" ? colors.light.textMain : colors.dark.textMain}
-
+            <Text
+              fontWeight="semibold"
+              fontSize="32px"
+              color={
+                colorMode === "light"
+                  ? colors.light.textMain
+                  : colors.dark.textMain
+              }
             >
               {value}
             </Text>
@@ -52,11 +66,17 @@ const CookerStaticsCard = ({
             </Box>
           </Flex>
           {subtext ? (
-            <Text fontSize="12px" color={colorMode === "light" ? colors.light.textSub : colors.dark.textSub}>
+            <Text
+              fontSize="12px"
+              color={
+                colorMode === "light"
+                  ? colors.light.textSub
+                  : colors.dark.textSub
+              }
+            >
               {subtext}
             </Text>
           ) : null}
-
         </Flex>
       </CardBody>
     </Card.Root>

@@ -530,19 +530,16 @@ export default function Navbar() {
                                   : colors.dark.bgFixed
                               }
                             >
-                              {!user?.role === "delivery" && (
-                                <>
-                                  <Menu.Item value="Personal-Info" asChild>
-                                    <Link to="/personal-info">
-                                      <HStack spacing={3}>
-                                        <Icon as={User} boxSize={4} />
-                                        <Text>Personal Info</Text>
-                                      </HStack>
-                                    </Link>
-                                  </Menu.Item>
-                                  <Separator />
-                                </>
-                              )}
+                              <Menu.Item value="Personal-Info" asChild>
+                                <Link to="/personal-info">
+                                  <HStack spacing={3}>
+                                    <Icon as={User} boxSize={4} />
+                                    <Text>Personal Info</Text>
+                                  </HStack>
+                                </Link>
+                              </Menu.Item>
+                              <Separator />
+
                               {/* Dark Mode with Switch */}
                               <Menu.Item value="color-mode">
                                 <HStack justify="space-between" w="full">
