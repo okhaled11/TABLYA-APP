@@ -119,14 +119,17 @@ function App() {
             </Route>
           </Route>
           {/* Delivery Routes - Only for cookers */}
+          <Route element={<RoleProtectedRoute allowedRoles={["delivery"]} />}>
+            <Route path="/delivery" element={<DeliveryPage />}>
+              <Route
+                index
+                element={<Navigate to="/delivery/orders" replace />}
+              />
+              <Route path="orders" element={<DeliveryOrders />} />
+              <Route path="Statistics" element={<DeliveryStatistics />} />
+            </Route>
+          </Route>
         </Route>
-        {/* <Route element={<RoleProtectedRoute allowedRoles={["delivery"]} />}> */}
-        <Route path="/delivery" element={<DeliveryPage />}>
-          <Route index element={<Navigate to="/delivery/orders" replace />} />
-          <Route path="orders" element={<DeliveryOrders />} />
-          <Route path="Statistics" element={<DeliveryStatistics />} />
-        </Route>
-        {/* </Route> */}
         <Route path="*" element={<PageNotFound />} />
       </Routes>
 
