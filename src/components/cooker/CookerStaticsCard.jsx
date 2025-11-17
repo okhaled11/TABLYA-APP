@@ -10,7 +10,6 @@ const CookerStaticsCard = ({
   icon: Icon,
   iconBg,
   iconColor,
-  valueColor,
 }) => {
   const { colorMode } = useColorMode();
 
