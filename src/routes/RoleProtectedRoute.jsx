@@ -33,6 +33,8 @@ const RoleProtectedRoute = ({ allowedRoles }) => {
       return <Navigate to="/cooker" replace />;
     } else if (user.role === "admin") {
       return <Navigate to="/admin" replace />;
+    } else if (user.role === "delivery") {
+      return <Navigate to="/delivery" replace />;
     }
     // Default redirect
     return <Navigate to="/" replace />;

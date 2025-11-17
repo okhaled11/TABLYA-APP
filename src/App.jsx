@@ -38,6 +38,9 @@ import CookerMenu from "./pages/cooker/menu/CookerMenu";
 import CookerOrders from "./pages/cooker/CookerOrders";
 import CookerReviews from "./pages/cooker/review/CookerReviews";
 import AuthCallback from "./pages/auth/AuthCallback";
+import DeliveryPage from "./pages/delivery/DeliveryPage";
+import DeliveryOrders from "./components/delivery/DeliveryOrders";
+import DeliveryStatistics from "./components/delivery/DeliveryStatistics";
 
 function App() {
   const token = CookieService.get("access_token");
@@ -55,7 +58,7 @@ function App() {
           path="/"
           element={
             <>
-              <RoleBasedRedirect />
+              {/* <RoleBasedRedirect /> */}
               <Landing />
             </>
           }
@@ -115,7 +118,15 @@ function App() {
               <Route path="reviews" element={<CookerReviews />} />
             </Route>
           </Route>
+          {/* Delivery Routes - Only for cookers */}
         </Route>
+        {/* <Route element={<RoleProtectedRoute allowedRoles={["delivery"]} />}> */}
+        <Route path="/delivery" element={<DeliveryPage />}>
+          <Route index element={<Navigate to="/delivery/orders" replace />} />
+          <Route path="orders" element={<DeliveryOrders />} />
+          <Route path="Statistics" element={<DeliveryStatistics />} />
+        </Route>
+        {/* </Route> */}
         <Route path="*" element={<PageNotFound />} />
       </Routes>
 
