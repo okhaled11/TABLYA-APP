@@ -31,6 +31,7 @@ import {
   Sun,
   ShoppingBagIcon,
   ShoppingCartSimple,
+  Bell,
 } from "@phosphor-icons/react";
 import { FiSearch } from "react-icons/fi";
 import { useColorMode } from "../theme/color-mode";
@@ -49,6 +50,10 @@ import { FiShoppingCart } from "react-icons/fi";
 import { clearCart } from "../app/features/Customer/CartSlice";
 import { supabase } from "../services/supabaseClient";
 import { toaster } from "../components/ui/toaster";
+import {
+  useGetDeliveryByUserIdQuery,
+  useUpdateDeliveryAvailabilityMutation,
+} from "../app/features/delivery/deliveryApi";
 
 export default function Navbar() {
   const { t, i18n } = useTranslation();
@@ -59,6 +64,7 @@ export default function Navbar() {
   const { colorMode, toggleColorMode } = useColorMode();
   const [checked, setChecked] = useState(colorMode === "dark");
   const [isAvailable, setIsAvailable] = useState(false);
+  const [notificationCount, setNotificationCount] = useState(0);
   const dialog = useDialog();
   const navigate = useNavigate();
 
@@ -67,10 +73,23 @@ export default function Navbar() {
     skip: !token,
   });
 
-  // Fetch cooker availability status
+  // Get delivery data for delivery role
+  const { data: deliveryData, isLoading: deliveryLoading } =
+    useGetDeliveryByUserIdQuery(user?.id, {
+      skip: !user?.id || user?.role !== "delivery",
+    });
+
+  // Update delivery availability mutation
+  const [updateDeliveryAvailability] = useUpdateDeliveryAvailabilityMutation();
+
+  // Fetch availability status for cooker or delivery
   useEffect(() => {
-    const fetchAvailability = async () => {
-      if (user?.role === "cooker" && user?.id) {
+    if (user?.role === "delivery" && deliveryData) {
+      // Use delivery data from RTK Query (real-time cached)
+      setIsAvailable(!!deliveryData.availability);
+    } else if (user?.role === "cooker" && user?.id) {
+      // Keep existing cooker logic with direct Supabase call
+      const fetchCookerAvailability = async () => {
         const { data, error } = await supabase
           .from("cookers")
           .select("is_available")
@@ -78,15 +97,128 @@ export default function Navbar() {
           .single();
 
         if (error) {
-          console.error("Error fetching availability:", error);
+          console.error("Error fetching cooker availability:", error);
         } else if (data) {
-          setIsAvailable(data.is_available || false);
+          setIsAvailable(!!data.is_available);
+        } else {
+          setIsAvailable(false);
         }
+      };
+      fetchCookerAvailability();
+    }
+  }, [user, deliveryData]);
+
+  // Fetch and listen to new orders count for cooker
+  useEffect(() => {
+    if (user?.role !== "cooker" || !user?.id) {
+      setNotificationCount(0);
+      return;
+    }
+
+    const fetchNewOrdersCount = async () => {
+      // Get all pending orders (status = "created") for this cooker
+      const { data: pendingOrders, error } = await supabase
+        .from("orders")
+        .select("id, created_at")
+        .eq("cooker_id", user.id)
+        .eq("status", "created")
+        .order("created_at", { ascending: false });
+
+      if (error) {
+        console.error("❌ Error fetching pending orders count:", error);
+        setNotificationCount(0);
+        return;
       }
+
+      if (!pendingOrders || pendingOrders.length === 0) {
+        console.log("📭 No pending orders found");
+        setNotificationCount(0);
+        return;
+      }
+
+      // Get the last seen timestamp from localStorage
+      const lastSeenKey = `lastSeenOrderTime_${user.id}`;
+      const lastSeenTime = localStorage.getItem(lastSeenKey);
+
+      let newOrdersCount = 0;
+
+      if (!lastSeenTime) {
+        // First time - count all pending orders
+        newOrdersCount = pendingOrders.length;
+      } else {
+        // Count orders created after last seen time
+        newOrdersCount = pendingOrders.filter(
+          (order) => new Date(order.created_at) > new Date(lastSeenTime)
+        ).length;
+      }
+
+      console.log("🔔 Notification count update:", {
+        totalPendingOrders: pendingOrders.length,
+        lastSeenTime,
+        newOrdersCount,
+      });
+
+      setNotificationCount(newOrdersCount);
     };
 
-    fetchAvailability();
-  }, [user]);
+    // Initial fetch
+    fetchNewOrdersCount();
+
+    // Listen to real-time changes for new orders
+    const channel = supabase
+      .channel(`cooker-orders-${user.id}`)
+      .on(
+        "postgres_changes",
+        {
+          event: "INSERT",
+          schema: "public",
+          table: "orders",
+          filter: `cooker_id=eq.${user.id}`,
+        },
+        async (payload) => {
+          console.log("🆕 New order INSERTED:", payload.new);
+          // Only count if status is "created"
+          if (payload.new?.status === "created") {
+            console.log("✅ Order has status 'created', updating count...");
+            await fetchNewOrdersCount();
+          }
+        }
+      )
+      .on(
+        "postgres_changes",
+        {
+          event: "UPDATE",
+          schema: "public",
+          table: "orders",
+          filter: `cooker_id=eq.${user.id}`,
+        },
+        async (payload) => {
+          console.log("🔄 Order UPDATED:", payload.new);
+          // Update count when order status changes
+          await fetchNewOrdersCount();
+        }
+      )
+      .on(
+        "postgres_changes",
+        {
+          event: "DELETE",
+          schema: "public",
+          table: "orders",
+          filter: `cooker_id=eq.${user.id}`,
+        },
+        async (payload) => {
+          await fetchNewOrdersCount();
+        }
+      )
+      .subscribe((status) => {
+        console.log(" Realtime subscription status:", status);
+      });
+
+    return () => {
+      console.log("🧹 Cleaning up realtime subscription");
+      supabase.removeChannel(channel);
+    };
+  }, [user?.id, user?.role]);
 
   // handler for color mode switch
   const handleChange = (e) => {
@@ -94,17 +226,11 @@ export default function Navbar() {
     toggleColorMode();
   };
 
-  // handler for availability switch (cooker only)
+  // handler for availability switch (cooker or delivery)
   const handleAvailabilityChange = async (e) => {
     const newAvailability = e.checked;
 
-    // Debug: Check user object
-    console.log("Full user object:", user);
-    console.log("User ID:", user?.id);
-
-    // Validate user ID before updating
     if (!user?.id) {
-      console.error("User ID is undefined!");
       toaster.create({
         title: "Failed to update availability",
         description: "User information not available. Please refresh the page.",
@@ -113,33 +239,28 @@ export default function Navbar() {
       return;
     }
 
+    // Optimistic update
     setIsAvailable(newAvailability);
 
-    console.log(
-      "Updating availability for user_id:",
-      user.id,
-      "to:",
-      newAvailability
-    );
+    try {
+      if (user?.role === "delivery") {
+        // Use RTK Query mutation for delivery
+        await updateDeliveryAvailability({
+          userId: user.id,
+          isAvailable: newAvailability,
+        }).unwrap();
+      } else if (user?.role === "cooker") {
+        // Keep existing cooker logic with direct Supabase call
+        const { error } = await supabase
+          .from("cookers")
+          .update({ is_available: newAvailability })
+          .eq("user_id", user.id);
 
-    // Update in database
-    const { data, error } = await supabase
-      .from("cookers")
-      .update({ is_available: newAvailability })
-      .eq("user_id", user.id)
-      .select();
+        if (error) throw error;
+      } else {
+        throw new Error("Unsupported role");
+      }
 
-    if (error) {
-      console.error("Error updating availability:", error);
-      // Revert on error
-      setIsAvailable(!newAvailability);
-      toaster.create({
-        title: "Failed to update availability",
-        description: error.message,
-        type: "error",
-      });
-    } else {
-      console.log("Successfully updated availability:", data);
       toaster.create({
         title: newAvailability
           ? "You are now available"
@@ -147,8 +268,17 @@ export default function Navbar() {
         type: "success",
         duration: 2000,
       });
+    } catch (error) {
+      // Revert on error
+      setIsAvailable(!newAvailability);
+      toaster.create({
+        title: "Failed to update availability",
+        description: error.message || "Something went wrong",
+        type: "error",
+      });
     }
   };
+
   //  handler for language switch
   const handleLanguageChange = (e) => {
     setCheckedLang(e.checked);
@@ -157,6 +287,7 @@ export default function Navbar() {
     i18n.changeLanguage(newLang);
     document.dir = newLang === "ar" ? "rtl" : "ltr";
   };
+
   // logout handler
   const onOkHandler = () => {
     CookieService.remove("access_token", { path: "/" });
@@ -164,6 +295,22 @@ export default function Navbar() {
     dispatch(clearCart());
     navigate("/login");
     window.location.reload();
+  };
+
+  // Handle notification click - reset count and navigate to orders
+  const handleNotificationClick = async () => {
+    if (user?.role === "cooker" && user?.id) {
+      // Save current timestamp as last seen time
+      const currentTime = new Date().toISOString();
+      const lastSeenKey = `lastSeenOrderTime_${user.id}`;
+      localStorage.setItem(lastSeenKey, currentTime);
+
+      console.log("✅ Marked all orders as seen at:", currentTime);
+
+      // Reset notification count
+      setNotificationCount(0);
+    }
+    navigate("/cooker/orders");
   };
 
   return (
@@ -226,8 +373,8 @@ export default function Navbar() {
                   </Button>
                 ) : (
                   <HStack spacing={{ base: "0", md: "6" }}>
-                    {/* Show Cart only for customers, not for cookers */}
-                    {user?.role !== "cooker" && (
+                    {/* Show Cart only for customers, not for cookers or delivery */}
+                    {user?.role !== "cooker" && user?.role !== "delivery" && (
                       <Flex gap={3} alignItems={"center"} position="relative">
                         <IconButton
                           as={Link}
@@ -259,8 +406,46 @@ export default function Navbar() {
                         </IconButton>
                       </Flex>
                     )}
-                    {/* Availability Badge with Switch for Cooker */}
+                    {/* Show Notification for cookers */}
                     {user?.role === "cooker" && (
+                      <Flex gap={3} alignItems={"center"} position="relative">
+                        <IconButton
+                          onClick={handleNotificationClick}
+                          aria-label="Notifications"
+                          variant="outline"
+                          border={"none"}
+                          color={"white"}
+                          size="2xl"
+                          _hover={{ bg: "transparent" }}
+                          cursor="pointer"
+                        >
+                          <Icon as={Bell} boxSize={8} />
+                          {notificationCount > 0 && (
+                            <Badge
+                              position="absolute"
+                              top="3"
+                              right="2"
+                              bg="red.500"
+                              borderRadius="full"
+                              width={{ base: "16px", md: "20px" }}
+                              height={{ base: "16px", md: "20px" }}
+                              display="flex"
+                              alignItems="center"
+                              justifyContent="center"
+                              color="white"
+                              fontSize={{ base: "10px", md: "12px" }}
+                              fontWeight="bold"
+                            >
+                              {notificationCount > 99
+                                ? "99+"
+                                : notificationCount}
+                            </Badge>
+                          )}
+                        </IconButton>
+                      </Flex>
+                    )}
+                    {/* Availability Badge with Switch for Cooker and Delivery */}
+                    {(user?.role === "cooker" || user?.role === "delivery") && (
                       <Badge
                         bg={
                           isAvailable
@@ -353,15 +538,8 @@ export default function Navbar() {
                                   </HStack>
                                 </Link>
                               </Menu.Item>
-                              {/* <Menu.Item value="Payment-method">
-                                <Link to="/personal-info/payment">
-                                <HStack spacing={3}>
-                                  <Icon as={CreditCard} boxSize={4} />
-                                  <Text fontSize={"sm"}>Payment Method</Text>
-                                </HStack>
-                                </Link>
-                              </Menu.Item> */}
                               <Separator />
+
                               {/* Dark Mode with Switch */}
                               <Menu.Item value="color-mode">
                                 <HStack justify="space-between" w="full">

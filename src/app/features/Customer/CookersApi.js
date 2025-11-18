@@ -37,7 +37,7 @@ export const cookersApi = createApi({
       providesTags: ["Cookers"],
     }),
 
-    // Get single cooker details
+    // Get single cooker details (with realtime updates)
     getCookerById: builder.query({
       async queryFn(id) {
         const { data, error } = await supabase
@@ -50,6 +50,35 @@ export const cookersApi = createApi({
         return { data };
       },
       providesTags: ["Cookers"],
+      async onCacheEntryAdded(id, { updateCachedData, cacheDataLoaded, cacheEntryRemoved }) {
+        try {
+          await cacheDataLoaded;
+          const channel = supabase
+            .channel(`cookers-realtime-${id}`)
+            .on(
+              'postgres_changes',
+              {
+                event: 'UPDATE',
+                schema: 'public',
+                table: 'cookers',
+                filter: `user_id=eq.${id}`,
+              },
+              (payload) => {
+                const row = payload?.new;
+                if (!row) return;
+                updateCachedData((draft) => {
+                  Object.assign(draft, row);
+                });
+              }
+            )
+            .subscribe();
+
+          await cacheEntryRemoved;
+          supabase.removeChannel(channel);
+        } catch (_) {
+          // noop
+        }
+      },
     }),
     // Get menu items by cooker id
     getMenuItemsByCookerId: builder.query({

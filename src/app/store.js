@@ -16,8 +16,9 @@ import { cookersApi as aminCookersApi } from "./features/Admin/cookerSlice";
 import { cookerApprovalsApi } from "./features/Admin/cookerApprovals";
 import { ordersApi as adminOrdersApi } from "./features/Admin/ordersApi";
 import { ordersApi as customerOrdersApi } from "./features/Customer/ordersSlice";
-import { reportsApi } from "./features/Admin/reportsApi";
+import { reportsApi as adminReportsApi } from "./features/Admin/reportsApi";
 import { AdminUserSlice } from "./features/Admin/adminUserManagemnetSlice";
+import { adminReportActionsApi } from "./features/Admin/adminReportActionsApi";
 
 import { passwordApi } from "./features/Customer/passwordSlice";
 import { personalInfoApi } from "./features/Customer/personalInfoSlice";
@@ -29,11 +30,15 @@ import { reviewsApi } from "./features/Customer/reviewsApi";
 import { UserSlice } from "./features/UserSlice";
 import { CookerAcceptOrder } from "./features/Cooker/CookerAcceptOrder";
 import { CookerMenuApi } from "./features/cooker/CookerMenuApi";
+import { CookerAnalyticsApi } from "./features/Cooker/CookerAnalytics";
 
 import CartSlice from "./features/Customer/CartSlice";
 import favoriteCookersReducer from "./features/Customer/favoriteCookersSlice";
 import { favoritesApi } from "./features/Customer/favoritesApi";
 import { adminAuthApi } from "./features/Admin/adminData";
+
+import { MariamSettingsApi } from "./features/Admin/MariamSettings";
+import { deliveryApi } from "./features/delivery/deliveryApi";
 
 const persistCartConfig = {
   key: "cart",
@@ -71,9 +76,11 @@ export const store = configureStore({
     [dashboardApi.reducerPath]: dashboardApi.reducer,
     [cookerApprovalsApi.reducerPath]: cookerApprovalsApi.reducer,
     [adminOrdersApi.reducerPath]: adminOrdersApi.reducer,
-    [reportsApi.reducerPath]: reportsApi.reducer,
+    [adminReportsApi.reducerPath]: adminReportsApi.reducer,
     [adminAuthApi.reducerPath]: adminAuthApi.reducer,
     [AdminUserSlice.reducerPath]: AdminUserSlice.reducer,
+    [MariamSettingsApi.reducerPath]: MariamSettingsApi.reducer,
+    [adminReportActionsApi.reducerPath]: adminReportActionsApi.reducer,
 
     // Auth & User
     [authApi.reducerPath]: authApi.reducer,
@@ -83,6 +90,10 @@ export const store = configureStore({
     // Cooker APIs
     [CookerAcceptOrder.reducerPath]: CookerAcceptOrder.reducer,
     [CookerMenuApi.reducerPath]: CookerMenuApi.reducer,
+    [CookerAnalyticsApi.reducerPath]: CookerAnalyticsApi.reducer,
+
+    // Delivery APIs
+    [deliveryApi.reducerPath]: deliveryApi.reducer,
   },
 
   middleware: (getDefaultMiddleware) =>
@@ -100,7 +111,7 @@ export const store = configureStore({
       dashboardApi.middleware,
       adminOrdersApi.middleware,
       customerOrdersApi.middleware,
-      reportsApi.middleware,
+      adminReportsApi.middleware,
       passwordApi.middleware,
       personalInfoApi.middleware,
       addressApi.middleware,
@@ -114,7 +125,11 @@ export const store = configureStore({
       favoritesApi.middleware,
       AdminUserSlice.middleware,
       CookerAcceptOrder.middleware,
-      CookerMenuApi.middleware
+      CookerMenuApi.middleware,
+      CookerAnalyticsApi.middleware,
+      MariamSettingsApi.middleware,
+      adminReportActionsApi.middleware,
+      deliveryApi.middleware
     ),
 });
 

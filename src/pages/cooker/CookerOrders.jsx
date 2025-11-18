@@ -1,6 +1,21 @@
-import { Box, Flex, Heading, Image, Text } from "@chakra-ui/react";
-import { Portal, Select, createListCollection } from "@chakra-ui/react";
-import { useState, useEffect } from "react";
+import {
+  Box,
+  Flex,
+  Heading,
+  Image,
+  Text,
+  Portal,
+  Select,
+  createListCollection,
+  Button,
+  Group,
+  useDialog,
+  Grid,
+  Pagination,
+  ButtonGroup,
+  IconButton,
+} from "@chakra-ui/react";
+import { useState, useEffect, useMemo } from "react";
 import { useColorStyles } from "../../hooks/useColorStyles";
 import {
   useGetCookerOrdersQuery,
@@ -11,82 +26,113 @@ import { IoPerson } from "react-icons/io5";
 import { FaLocationDot } from "react-icons/fa6";
 import { FaPhone } from "react-icons/fa6";
 import { BsFillCreditCardFill } from "react-icons/bs";
-import { Button, Group } from "@chakra-ui/react";
 import { MdOutlineDoneOutline } from "react-icons/md";
 import { PiCookingPot } from "react-icons/pi";
 import { MdOutlineDeliveryDining } from "react-icons/md";
 import { MdOutlineCancel } from "react-icons/md";
+import { LuChevronLeft, LuChevronRight } from "react-icons/lu";
 import srcLoadingImg from "../../assets/Transparent Version.gif";
+import CustomAlertDialog from "../../shared/CustomAlertDailog";
+
+
+const ORDERS_PER_PAGE = 2;
 
 const CookerOrders = () => {
   /* ---------------variable----------------- */
   const colors = useColorStyles();
+
   /* ---------------state----------------- */
   const [value, setValue] = useState([]);
-  const [allOrder, setAllOrder] = useState();
+  const [deleteId, setDeleteId] = useState([]);
+  const [allOrder, setAllOrder] = useState([]);
+  const [currentPage, setCurrentPage] = useState(1);
+  const dialog = useDialog();
 
   /* ---------------Redux Query----------------- */
   const { data: orders, isLoading, error } = useGetCookerOrdersQuery();
   const [updateOrderStatus, { isLoading: isUpdating }] =
     useUpdateOrderStatusMutation();
   const [deleteOrder, { isLoading: isDeleting }] = useDeleteOrderMutation();
-  console.log(orders);
+
+  const selectedStatus = Array.isArray(value)
+    ? value[value.length - 1] ?? "Default"
+    : value || "Default";
 
   /* ---------------useEffect----------------- */
   useEffect(() => {
-    if (orders) {
+    if (!orders) {
+      setAllOrder([]);
+      return;
+    }
+
+    if (selectedStatus === "Default") {
       setAllOrder(orders);
-      console.log("Cooker Orders Data:", orders);
+      return;
     }
-    if (error) {
-      console.error("Error fetching orders:", error);
-    }
-  }, [orders, error]);
+
+    const filteredOrders = orders.filter(
+      (order) => order.status?.toLowerCase() === selectedStatus.toLowerCase()
+    );
+
+    setAllOrder(filteredOrders);
+    // Reset to page 1 when filter changes
+    setCurrentPage(1);
+  }, [orders, selectedStatus]);
+
+  /* ---------------Pagination Logic----------------- */
+  const { paginatedOrders } = useMemo(() => {
+    const startIndex = (currentPage - 1) * ORDERS_PER_PAGE;
+    const endIndex = startIndex + ORDERS_PER_PAGE;
+    const paginated = allOrder.slice(startIndex, endIndex);
+    const pages = Math.ceil(allOrder.length / ORDERS_PER_PAGE);
+
+    return {
+      paginatedOrders: paginated,
+      totalPages: pages,
+    };
+  }, [allOrder, currentPage]);
 
   /* ---------------HANDLER----------------- */
   const handleStatusUpdate = async (orderId, status) => {
     try {
       await updateOrderStatus({ orderId, status }).unwrap();
-      console.log(`Order ${orderId} status updated to ${status}`);
     } catch (err) {
       console.error("Failed to update order status:", err);
     }
   };
 
-  const sortHandler = (allOrder) => {
-    const result = allOrder?.sort((a, b) => {
-      return new Date(a.created_at) - new Date(b.created_at);
-    });
-
-    return result;
-  };
-  setTimeout(() => {
-    console.log(sortHandler());
-  }, 1000);
-
   const handleDeleteOrder = async (orderId) => {
-    if (window.confirm("Are you sure you want to cancel this order?")) {
-      try {
-        await deleteOrder(orderId).unwrap();
-        console.log(`Order ${orderId} deleted successfully`);
-      } catch (err) {
-        console.error("Failed to delete order:", err);
+    try {
+      await deleteOrder(orderId).unwrap();
+      // If we deleted the last order on a page, go to previous page
+      if (paginatedOrders.length === 1 && currentPage > 1) {
+        setCurrentPage(currentPage - 1);
       }
+    } catch (err) {
+      console.error("Failed to delete order:", err);
     }
   };
+
+  const handlePageChange = (details) => {
+    setCurrentPage(details.page);
+    // Scroll to top when page changes
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
   const frameworks = createListCollection({
     items: [
-      { label: "Status", value: "Status" },
-      { label: "Date", value: "Date" },
+      { label: "Default", value: "Default" },
+      { label: "confirmed", value: "confirmed" },
+      { label: "preparing", value: "preparing" },
+      { label: "out_for_delivery", value: "out_for_delivery" },
     ],
   });
-  console.log(value);
 
   return (
     <>
       <Box py={6}>
         {/* name order and select */}
-        <Flex my={4} justifyContent={"space-between"}>
+        <Flex my={4} justifyContent={"space-between"} alignItems="center">
           {/* order */}
           <Heading
             fontSize={{ base: "25px", lg: "45px" }}
@@ -106,7 +152,6 @@ const CookerOrders = () => {
             bg={colors.bgFixed}
           >
             <Select.HiddenSelect />
-
             <Select.Control>
               <Select.Trigger border="none" outline="none">
                 <Select.ValueText placeholder="Default" color={"white"} />
@@ -134,6 +179,15 @@ const CookerOrders = () => {
           </Select.Root>
         </Flex>
 
+        {/* Orders count */}
+        {!isLoading && !error && allOrder.length > 0 && (
+          <Text color={colors.textSub} fontSize="sm" mb={4}>
+            Showing {(currentPage - 1) * ORDERS_PER_PAGE + 1} -{" "}
+            {Math.min(currentPage * ORDERS_PER_PAGE, allOrder.length)} of{" "}
+            {allOrder.length} orders
+          </Text>
+        )}
+
         {/* content order */}
         {isLoading && (
           <Image
@@ -141,7 +195,7 @@ const CookerOrders = () => {
             mx={"auto"}
             rounded="md"
             src={srcLoadingImg}
-            alt="John Doe"
+            alt="Loading"
           />
         )}
 
@@ -151,16 +205,18 @@ const CookerOrders = () => {
           </Text>
         )}
 
-        {!isLoading && !error && orders && orders.length === 0 && (
+        {!isLoading && !error && orders && allOrder.length === 0 && (
           <Text color={colors.textSub} textAlign="center" my={6}>
-            No orders found
+            {selectedStatus === "Default"
+              ? "No orders found"
+              : "No orders with the selected status"}
           </Text>
         )}
 
         {!isLoading &&
           !error &&
           orders &&
-          allOrder?.map((order) => {
+          paginatedOrders.map((order) => {
             const orderDate = new Date(order.created_at);
             const formattedDate = orderDate.toLocaleDateString("en-GB");
             const formattedTime = orderDate.toLocaleTimeString("en-US", {
@@ -173,167 +229,208 @@ const CookerOrders = () => {
               <Box
                 key={order.id}
                 bg={colors.bgThird}
-                rounded={"56px"}
-                p={6}
-                my={6}
+                rounded={{ base: "24px", md: "32px" }}
+                p={{ base: 4, md: 5 }}
+                my={4}
               >
-                {/* date and total */}
+                {/* Header: date, time, id and total */}
                 <Flex
                   justifyContent={"space-between"}
+                  alignItems={{ base: "flex-start", md: "center" }}
                   direction={{ base: "column", md: "row" }}
-                  textAlign={"center"}
-                  my={6}
+                  gap={{ base: 2, md: 0 }}
+                  mb={4}
+                  pb={3}
+                  borderBottom={`1px solid ${colors.bgFourth}`}
                 >
                   <Text
                     color={colors.textSub}
-                    fontSize={{ base: "15px" }}
-                    fontWeight={"bold"}
+                    fontSize={{ base: "13px", md: "14px" }}
+                    fontWeight={"medium"}
                   >
                     {formattedDate} | {formattedTime} | #{order.id.slice(0, 8)}
                   </Text>
                   <Text
-                    color={colors.textMain}
-                    fontSize={"30px"}
+                    color={colors.mainFixed}
+                    fontSize={{ base: "20px", md: "24px" }}
                     fontWeight={"bold"}
                   >
-                    Total: {order.total?.toFixed(2) || "0.00"} LE
+                    {order.total?.toFixed(2) || "0.00"} LE
                   </Text>
                 </Flex>
-                {/* order item and customer details */}
-                <Flex
-                  justifyContent={"space-between"}
-                  direction={{ base: "column", md: "row" }}
-                  gap={6}
+
+                {/* Main Content: order items and customer details */}
+                <Grid
+                  templateColumns={{ base: "1fr", md: "1fr 1fr" }}
+                  gap={{ base: 4, md: 5 }}
+                  mb={4}
                 >
-                  {/* order item  */}
+                  {/* Order Items */}
                   <Box
                     bg={colors.bgFourth}
-                    w={{ base: "100%", md: "50%" }}
-                    rounded={"26px"}
-                    p={6}
+                    rounded={"20px"}
+                    p={{ base: 4, md: 5 }}
                   >
                     <Heading
-                      as={"h2"}
-                      fontSize={{ base: "25px", md: "28px" }}
+                      as={"h3"}
+                      fontSize={{ base: "16px", md: "18px" }}
                       fontWeight={600}
-                      mb={6}
+                      mb={3}
+                      color={colors.textMain}
                     >
                       Order Items
                     </Heading>
-                    {order.order_items && order.order_items.length > 0 ? (
-                      order.order_items.map((item, index) => (
-                        <Text key={index} my={2} color={colors.textSub}>
-                          {item.quantity}x {item.title}
+                    <Box maxH="120px" overflowY="auto">
+                      {order.order_items && order.order_items.length > 0 ? (
+                        order.order_items.map((item, index) => (
+                          <Text
+                            key={index}
+                            mb={1.5}
+                            color={colors.textSub}
+                            fontSize={{ base: "14px", md: "15px" }}
+                          >
+                            {item.quantity}x {item.title}
+                          </Text>
+                        ))
+                      ) : (
+                        <Text color={colors.textSub} fontSize="14px">
+                          No items
                         </Text>
-                      ))
-                    ) : (
-                      <Text color={colors.textSub}>No items</Text>
-                    )}
-                    {/* notes */}
+                      )}
+                    </Box>
 
-                    {order.notes ? (
-                      <Box>
-                        {" "}
+                    {/* Notes */}
+                    {order.notes && (
+                      <Box
+                        mt={3}
+                        pt={3}
+                        borderTop={`1px solid ${colors.bgThird}`}
+                      >
                         <Heading
-                          as={"h2"}
-                          fontSize={{ base: "25px", md: "28px" }}
+                          as={"h4"}
+                          fontSize={{ base: "14px", md: "16px" }}
                           fontWeight={600}
-                          mb={2}
+                          mb={1}
+                          color={colors.textMain}
                         >
-                          notes
+                          Notes
                         </Heading>
-                        <Text my={2} color={colors.textSub}>
+                        <Text
+                          color={colors.textSub}
+                          fontSize="13px"
+                          noOfLines={2}
+                        >
                           {order.notes}
                         </Text>
                       </Box>
-                    ) : null}
+                    )}
                   </Box>
-                  {/* customer details   */}
+
+                  {/* Customer Details */}
                   <Box
                     bg={colors.info10a}
-                    w={{ base: "100%", md: "40%" }}
-                    rounded={"26px"}
-                    p={6}
+                    rounded={"20px"}
+                    p={{ base: 4, md: 5 }}
                   >
                     <Heading
-                      as={"h2"}
-                      fontSize={{ base: "25px", lg: "28px" }}
+                      as={"h3"}
+                      fontSize={{ base: "16px", md: "18px" }}
                       fontWeight={600}
-                      mb={6}
+                      mb={3}
                       color={colors.textMain}
                     >
                       Customer Details
                     </Heading>
 
                     {order.customer ? (
-                      <>
+                      <Box>
                         <Flex
-                          my={3}
+                          mb={2}
                           color={colors.textSub}
                           alignItems={"center"}
-                          gap={3}
+                          gap={2}
                         >
-                          <IoPerson size={20} color={colors.info} />
-                          <Text fontSize={{ base: "16px", md: "18px" }}>
+                          <IoPerson size={16} color={colors.info} />
+                          <Text
+                            fontSize={{ base: "14px", md: "15px" }}
+                            noOfLines={1}
+                          >
                             {order.customer.name || "No name"}
                           </Text>
                         </Flex>
                         <Flex
-                          my={3}
+                          mb={2}
                           color={colors.textSub}
-                          alignItems={"center"}
-                          gap={3}
+                          alignItems={"flex-start"}
+                          gap={2}
                         >
-                          <FaLocationDot size={28} color={colors.info} />
-                          <Text fontSize={{ base: "16px", md: "18px" }}>
+                          <Box mt={0.5}>
+                            <FaLocationDot size={16} color={colors.info} />
+                          </Box>
+                          <Text
+                            fontSize={{ base: "14px", md: "15px" }}
+                            noOfLines={2}
+                          >
                             {order.address || "No address"}
                           </Text>
                         </Flex>
                         <Flex
-                          my={3}
+                          mb={3}
                           color={colors.textSub}
                           alignItems={"center"}
-                          gap={3}
+                          gap={2}
                         >
-                          <FaPhone size={20} color={colors.info} />
-                          <Text fontSize={{ base: "16px", md: "18px" }}>
+                          <FaPhone size={14} color={colors.info} />
+                          <Text fontSize={{ base: "14px", md: "15px" }}>
                             {order.customer.phone || "No phone"}
                           </Text>
                         </Flex>
-                      </>
+
+                        {/* Payment Method */}
+                        <Box pt={2} borderTop={`1px solid ${colors.bgThird}`}>
+                          <Text
+                            fontSize={{ base: "13px", md: "14px" }}
+                            fontWeight={600}
+                            mb={1}
+                            color={colors.textMain}
+                          >
+                            Payment
+                          </Text>
+                          <Flex alignItems={"center"} gap={1.5}>
+                            <BsFillCreditCardFill
+                              size={14}
+                              color={colors.info}
+                            />
+                            <Text fontSize="13px" color={colors.textSub}>
+                              {order.payment_method || "Not specified"}
+                            </Text>
+                          </Flex>
+                        </Box>
+                      </Box>
                     ) : (
-                      <Text color={colors.textSub}>
+                      <Text color={colors.textSub} fontSize="14px">
                         No customer information
                       </Text>
                     )}
-
-                    <Heading
-                      as={"h2"}
-                      fontSize={{ base: "25px", lg: "28px" }}
-                      fontWeight={600}
-                      my={6}
-                    >
-                      Payment Method
-                    </Heading>
-                    <Flex my={2} color={colors.textSub} alignItems={"center"}>
-                      <BsFillCreditCardFill color={colors.info} />
-                      <Text mx={2}>
-                        {order.payment_method || "Not specified"}
-                      </Text>
-                    </Flex>
                   </Box>
-                </Flex>
-                {/* buttons */}
+                </Grid>
+
+                {/* Action Buttons */}
                 <Flex
                   direction={{ base: "column", md: "row" }}
                   justifyContent={"space-between"}
-                  my={8}
                   gap={3}
+                  mt={4}
                 >
-                  <Flex gap={4} direction={{ base: "column", md: "row" }}>
+                  <Flex
+                    gap={2}
+                    direction={{ base: "column", sm: "row" }}
+                    flex={1}
+                  >
                     <Button
+                      size={{ base: "sm", md: "md" }}
                       variant="outline"
-                      rounded={"20px"}
+                      rounded={"16px"}
                       bg={
                         order.status === "confirmed"
                           ? colors.mainFixed
@@ -342,7 +439,7 @@ const CookerOrders = () => {
                       color={
                         order.status === "confirmed" ? "white" : colors.textSub
                       }
-                      p={6}
+                      fontSize={{ base: "13px", md: "14px" }}
                       onClick={() => handleStatusUpdate(order.id, "confirmed")}
                       isDisabled={isUpdating || order.status === "confirmed"}
                       _hover={{
@@ -351,12 +448,17 @@ const CookerOrders = () => {
                             ? colors.mainFixed
                             : colors.bgThird,
                       }}
+                      flex={1}
                     >
-                      <MdOutlineDoneOutline /> Confirmed
+                      <MdOutlineDoneOutline size={16} />
+                      <Box as="span" ml={1}>
+                        Confirmed
+                      </Box>
                     </Button>
                     <Button
+                      size={{ base: "sm", md: "md" }}
                       variant="outline"
-                      rounded={"20px"}
+                      rounded={"16px"}
                       bg={
                         order.status === "preparing"
                           ? colors.mainFixed
@@ -365,7 +467,7 @@ const CookerOrders = () => {
                       color={
                         order.status === "preparing" ? "white" : colors.textSub
                       }
-                      p={6}
+                      fontSize={{ base: "13px", md: "14px" }}
                       onClick={() => handleStatusUpdate(order.id, "preparing")}
                       isDisabled={isUpdating || order.status === "preparing"}
                       _hover={{
@@ -374,13 +476,17 @@ const CookerOrders = () => {
                             ? colors.mainFixed
                             : colors.bgThird,
                       }}
+                      flex={1}
                     >
-                      <PiCookingPot />
-                      Preparing
+                      <PiCookingPot size={16} />
+                      <Box as="span" ml={1}>
+                        Preparing
+                      </Box>
                     </Button>
                     <Button
+                      size={{ base: "sm", md: "md" }}
                       variant="outline"
-                      rounded={"20px"}
+                      rounded={"16px"}
                       bg={
                         order.status === "out_for_delivery"
                           ? colors.mainFixed
@@ -391,7 +497,7 @@ const CookerOrders = () => {
                           ? "white"
                           : colors.textSub
                       }
-                      p={6}
+                      fontSize={{ base: "13px", md: "14px" }}
                       onClick={() =>
                         handleStatusUpdate(order.id, "out_for_delivery")
                       }
@@ -404,27 +510,132 @@ const CookerOrders = () => {
                             ? colors.mainFixed
                             : colors.bgThird,
                       }}
+                      flex={1}
                     >
-                      <MdOutlineDeliveryDining /> Out for Delivery
+                      <MdOutlineDeliveryDining size={16} />
+                      <Box
+                        as="span"
+                        ml={1}
+                        display={{ base: "none", sm: "inline" }}
+                      >
+                        Out for Delivery
+                      </Box>
+                      <Box
+                        as="span"
+                        ml={1}
+                        display={{ base: "inline", sm: "none" }}
+                      >
+                        Delivery
+                      </Box>
                     </Button>
                   </Flex>
                   <Button
+                    size={{ base: "sm", md: "md" }}
                     variant="outline"
-                    rounded={"20px"}
+                    rounded={"16px"}
                     bg={colors.bgThird}
                     color={colors.mainFixed}
-                    p={6}
-                    onClick={() => handleDeleteOrder(order.id)}
+                    fontSize={{ base: "13px", md: "14px" }}
+                    onClick={() => {
+                      dialog.setOpen(true);
+                      setDeleteId(order.id);
+                    }}
                     isDisabled={isDeleting}
                     _hover={{ bg: colors.bgFourth }}
+                    w={{ base: "100%", md: "auto" }}
                   >
-                    <MdOutlineCancel /> Cancel Order
+                    <MdOutlineCancel size={16} />
+                    <Box as="span" ml={1}>
+                      Cancel
+                    </Box>
                   </Button>
                 </Flex>
               </Box>
             );
           })}
+
+        {/* Pagination */}
+        {!isLoading && !error && allOrder.length > ORDERS_PER_PAGE && (
+          <Flex justifyContent="center" mt={8} mb={4}>
+            <Pagination.Root
+              count={allOrder.length}
+              pageSize={ORDERS_PER_PAGE}
+              page={currentPage}
+              onPageChange={handlePageChange}
+            >
+              <ButtonGroup
+                variant="ghost"
+                size={{ base: "sm", md: "md" }}
+                gap={1}
+              >
+                <Pagination.PrevTrigger asChild>
+                  <IconButton
+                    bg={colors.bgThird}
+                    color={colors.textSub}
+                    _hover={{ bg: colors.bgFourth }}
+                    _disabled={{
+                      opacity: 0.4,
+                      cursor: "not-allowed",
+                    }}
+                  >
+                    <LuChevronLeft />
+                  </IconButton>
+                </Pagination.PrevTrigger>
+
+                <Pagination.Items
+                  render={(page) => (
+                    <IconButton
+                      bg={
+                        page.type === "page" && page.value === currentPage
+                          ? colors.mainFixed
+                          : colors.bgThird
+                      }
+                      color={
+                        page.type === "page" && page.value === currentPage
+                          ? "white"
+                          : colors.textSub
+                      }
+                      _hover={{
+                        bg:
+                          page.type === "page" && page.value === currentPage
+                            ? colors.mainFixed
+                            : colors.bgFourth,
+                      }}
+                    >
+                      {page.value}
+                    </IconButton>
+                  )}
+                />
+
+                <Pagination.NextTrigger asChild>
+                  <IconButton
+                    bg={colors.bgThird}
+                    color={colors.textSub}
+                    _hover={{ bg: colors.bgFourth }}
+                    _disabled={{
+                      opacity: 0.4,
+                      cursor: "not-allowed",
+                    }}
+                  >
+                    <LuChevronRight />
+                  </IconButton>
+                </Pagination.NextTrigger>
+              </ButtonGroup>
+            </Pagination.Root>
+          </Flex>
+        )}
       </Box>
+
+      <CustomAlertDialog
+        dialog={dialog}
+        title={"Are you sure you want to cancel this order?"}
+        description={
+          "This action cannot be undone. The order will be permanently cancelled."
+        }
+        cancelTxt={"No, go back"}
+        okTxt={"Yes, cancel it"}
+        onOkHandler={() => handleDeleteOrder(deleteId)}
+      />
     </>
   );
 };

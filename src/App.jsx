@@ -49,6 +49,8 @@ function ScrollToTop() {
 
   return null;
 }
+import DeliveryOrders from "./components/delivery/DeliveryOrders";
+import DeliveryStatistics from "./components/delivery/DeliveryStatistics";
 
 function App() {
   const token = CookieService.get("access_token");
@@ -67,7 +69,7 @@ function App() {
           path="/"
           element={
             <>
-              <RoleBasedRedirect />
+              {/* <RoleBasedRedirect /> */}
               <Landing />
             </>
           }
@@ -127,9 +129,15 @@ function App() {
               <Route path="reviews" element={<CookerReviews />} />
             </Route>
           </Route>
+          {/* Delivery Routes - Only for cookers */}
           <Route element={<RoleProtectedRoute allowedRoles={["delivery"]} />}>
             <Route path="/delivery" element={<DeliveryPage />}>
-              <Route index element={<Navigate to="/delivery/home" replace />} />
+              <Route
+                index
+                element={<Navigate to="/delivery/orders" replace />}
+              />
+              <Route path="orders" element={<DeliveryOrders />} />
+              <Route path="Statistics" element={<DeliveryStatistics />} />
             </Route>
           </Route>
         </Route>

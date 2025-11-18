@@ -1,7 +1,7 @@
 import { Box, Flex, Text, ScrollArea } from "@chakra-ui/react";
 const ScrollAreaComponent = ({ children }) => {
   return (
-    <ScrollArea.Root height="20rem">
+    <ScrollArea.Root height="15rem">
       <ScrollArea.Viewport
         css={{
           "--scroll-shadow-size": "4rem",

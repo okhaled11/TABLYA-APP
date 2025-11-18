@@ -20,7 +20,7 @@ export default function OrderActivity() {
     ))
     const chart = useChart({
         data: formattedData,
-        series: [{ name: "orders", color: "teal.solid" }],
+        series: [{ name: "orders", color: "rgb(250, 44, 35)" }],
     })
 
 

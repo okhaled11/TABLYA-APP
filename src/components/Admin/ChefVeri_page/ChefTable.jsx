@@ -1,6 +1,6 @@
 
 
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { supabase } from "../../../services/supabaseClient";
 import { FaRegCheckCircle } from "react-icons/fa";
 import { VscError } from "react-icons/vsc";
@@ -20,6 +20,7 @@ import { Text } from '@chakra-ui/react';
 import { Select } from '@chakra-ui/react';
 import { NativeSelect } from "@chakra-ui/react"
 import { Spinner, VStack } from "@chakra-ui/react"
+import { useMemo } from 'react';
 
 import colors from '../../../theme/color';
 // import { useGetAdminIdQuery } from '../../../app/features/Admin/adminData';
@@ -29,7 +30,7 @@ export default function ChefTable() {
 
 
     const { colorMode } = useColorMode();
-    const { data: cooker_approvals = [], refetch, isLoading } = useGetAllCookerApprovalsQuery();
+    const { data: cooker_approvals = [], isLoading } = useGetAllCookerApprovalsQuery();
 
     const [approveCooker] = useApproveCookerMutation();
     const [deleteCookerApproval, { isLoading: isDeleting }] = useDeleteCookerApprovalMutation();
@@ -64,7 +65,7 @@ export default function ChefTable() {
             setIsApproving(true);
             await approveCooker({ id: selectedCooker.id }).unwrap();  //if there's an admin we have to write approve_by : adminEmail 
 
-            await refetch();
+            // await refetch();
             toaster.create({
                 title: "Update successful",
                 description: `Cooker is added successfully `,
@@ -134,12 +135,15 @@ export default function ChefTable() {
         }
     };
 
-    //filter handling 
 
-    const [statusFilter, setStatusFilter] = useState("all"); // all, pending, approved, rejected
-    const filteredCookers = statusFilter === "all"
-        ? cooker_approvals
-        : cooker_approvals.filter(cooker => cooker.status === statusFilter);
+
+    const [statusFilter, setStatusFilter] = useState("all"); 
+    const filteredCookers = useMemo(() => {                                 // usememo instead to prevent unnecessary renders 
+        return statusFilter === "all"
+            ? cooker_approvals
+            : cooker_approvals.filter(cooker => cooker.status === statusFilter);
+    }, [cooker_approvals, statusFilter]);
+
 
     //******************************************************************** */
 
@@ -155,10 +159,10 @@ export default function ChefTable() {
 
 
     return (
-        <Card.Root borderRadius="xl" h="100%" border="none" shadow="sm" bg={colorMode === "light" ? "white" : colors.dark.bgMain} mt={"40px"} mb={"20px"}>
+        <Card.Root borderRadius="xl" h="100%" border="none" shadow="sm" bg={colorMode === "light" ? "white" : colors.dark.bgThird} mt={"40px"} mb={"20px"}>
 
-            <CardBody bg={colorMode === "light" ? "white" : colors.dark.bgMain}>
-
+            <CardBody bg={colorMode === "light" ? "white" : colors.dark.bgThird}>
+                {/* filter by status */}
                 <HStack spacing={4} mb={4} justifyContent="flex-end"  >
                     <Text>Filter by Status:</Text>
 
@@ -178,7 +182,7 @@ export default function ChefTable() {
 
                 <Table.Root size="lg" interactive >
                     <Table.Header stickyHeader>
-                        <Table.Row bg={colorMode === "light" ? "rgb(227, 240, 230)" : colors.dark.bgSecond}>
+                        <Table.Row bg={colorMode === "light" ? "rgb(255, 234, 233)" : colors.dark.bgSecond}>
                             <Table.ColumnHeader>Avatar</Table.ColumnHeader>
                             <Table.ColumnHeader>Seller Name</Table.ColumnHeader>
                             <Table.ColumnHeader>Cuisine Type</Table.ColumnHeader>
@@ -234,7 +238,7 @@ export default function ChefTable() {
                                             py={"8px"}
                                             borderRadius={"30px"}
                                             color={cooker.status === "pending" ? "rgb(245, 198, 58)" : cooker.status === "approved" ? "rgb(23, 163, 74)" : "rgb(239, 67, 67)"}
-                                            background={cooker.status === "pending" ? "rgb(249, 243, 227)" : cooker.status === "approved" ? "rgb(227, 240, 230)" : "rgb(249, 231, 230)"}
+                                            background={cooker.status === "approved" ?colorMode==="light"? " rgb(227, 240, 230)" : "rgb(25, 39, 2)" : cooker.status === "pending" ? colorMode==="light"? "rgb(249, 243, 227)":"rgb(67, 30, 8)" : colorMode==="light" ?"rgb(249, 231, 230)": "rgb(66, 17, 12)"}
                                         >
                                             {cooker.status}
                                         </Badge>
@@ -386,35 +390,6 @@ export default function ChefTable() {
             </CardBody>
 
         </Card.Root>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
     );

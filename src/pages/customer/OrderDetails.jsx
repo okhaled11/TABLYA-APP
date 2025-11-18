@@ -592,7 +592,7 @@ function OrderDetails() {
                       fontWeight="bold"
                     >
                       <Text>Total</Text>
-                      <Text>{total.toFixed(2)} LE</Text>
+                      <Text>{total?.toFixed(2)} LE</Text>
                     </Flex>
                   </VStack>
                 </Box>
