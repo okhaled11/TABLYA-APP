@@ -5,6 +5,7 @@ import storage from "redux-persist/lib/storage";
 import PersonalRegisterChefReducer from "./features/PersonalRegisterChefSlice";
 import authReducer from "./features/Auth/loginSlice";
 import registerReducer from "./features/Auth/registerCustomerSlice";
+import registrationAddressReducer from "./features/Auth/registrationAddressSlice";
 import { registerChef } from "./features/Auth/registerChefSlice";
 import { authApi } from "./features/Auth/authSlice";
 import { cookersApprovalsApi } from "./features/Admin/cookerApprovalsApi";
@@ -45,13 +46,15 @@ export const store = configureStore({
   reducer: {
     auth: authReducer,
     register: registerReducer,
+    registrationAddress: registrationAddressReducer,
     PersonalRegisterChef: PersonalRegisterChefReducer,
 
     // Customer APIs
-     
+
     [cookersApi.reducerPath]: cookersApi.reducer,
     [OrdersApiCustomerSlice.reducerPath]: OrdersApiCustomerSlice.reducer,
-    [OrdersHistoryCustomerSlice.reducerPath]: OrdersHistoryCustomerSlice.reducer,
+    [OrdersHistoryCustomerSlice.reducerPath]:
+      OrdersHistoryCustomerSlice.reducer,
     [ReportsApiSlice.reducerPath]: ReportsApiSlice.reducer,
     [customerOrdersApi.reducerPath]: customerOrdersApi.reducer,
     [reviewsApi.reducerPath]: reviewsApi.reducer,

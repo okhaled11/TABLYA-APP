@@ -22,10 +22,19 @@ import {
 } from "@chakra-ui/react";
 import { useColorMode } from "../../theme/color-mode";
 import colors from "../../theme/color";
-import { MapPin, Trash, Plus, Pen, MapTrifold, House } from "@phosphor-icons/react";
+import {
+  MapPin,
+  Trash,
+  Plus,
+  Pen,
+  MapTrifold,
+  House,
+} from "@phosphor-icons/react";
 import { useState, useEffect } from "react";
 import { toaster } from "../ui/toaster";
 import { supabase } from "../../services/supabaseClient";
+import CookieService from "../../services/cookies";
+import { useGetUserDataQuery } from "../../app/features/Auth/authSlice";
 import {
   useGetAddressesQuery,
   useAddAddressMutation,
@@ -56,6 +65,16 @@ export default function AddressTab() {
     street: "",
     buildingNumber: "",
   });
+
+  const token = CookieService.get("access_token");
+  const { data: user } = useGetUserDataQuery(undefined, {
+    skip: !token,
+  });
+  const userRole = user?.role;
+  const isSingleAddressRole = userRole === "cooker" || userRole === "delivery";
+
+  const truncateText = (text, maxLength = 50) =>
+    text && text.length > maxLength ? `${text.slice(0, maxLength)}...` : text;
 
   // API hooks
   const { data: addresses = [], refetch, isLoading } = useGetAddressesQuery();
@@ -117,62 +136,89 @@ export default function AddressTab() {
             `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&addressdetails=1`
           );
           const data = await response.json();
-          
+
           console.log("🗺️ Reverse Geocoding Response:", data);
 
           if (data && data.address) {
             // Extract address components
             const address = data.address;
-            
+
             console.log("📋 Address Components:", address);
-            
+
             // Set city
-            const cityName = address.city || address.town || address.village || address.county || "";
+            const cityName =
+              address.city ||
+              address.town ||
+              address.village ||
+              address.county ||
+              "";
             setCity(cityName);
 
             // Set area with smart logic for neighbourhood and residential
             let areaName = "";
             const hasNeighbourhood = address.neighbourhood || false;
             const hasResidential = address.residential || false;
-            
+
             // If both neighbourhood and residential exist, use the standard area (suburb/district)
             if (hasNeighbourhood && hasResidential) {
-              areaName = address.suburb || address.district || address.hamlet || "";
-              console.log("🏘️ Both neighbourhood & residential found, using standard area:", areaName);
-            } 
+              areaName =
+                address.suburb || address.district || address.hamlet || "";
+              console.log(
+                "🏘️ Both neighbourhood & residential found, using standard area:",
+                areaName
+              );
+            }
             // If only one exists, use it
             else if (hasNeighbourhood || hasResidential) {
-              areaName = hasNeighbourhood ? address.neighbourhood : address.residential;
-              console.log("🏘️ Using specific area:", areaName, hasNeighbourhood ? "(neighbourhood)" : "(residential)");
+              areaName = hasNeighbourhood
+                ? address.neighbourhood
+                : address.residential;
+              console.log(
+                "🏘️ Using specific area:",
+                areaName,
+                hasNeighbourhood ? "(neighbourhood)" : "(residential)"
+              );
             }
             // Otherwise, use standard area fields
             else {
-              areaName = address.suburb || address.district || address.hamlet || "";
+              areaName =
+                address.suburb || address.district || address.hamlet || "";
               console.log("🏘️ Using standard area:", areaName);
             }
             setArea(areaName);
 
             // Set street with comprehensive fallback logic
-            let streetName = address.road || address.street || address.pedestrian || "";
-            
+            let streetName =
+              address.road || address.street || address.pedestrian || "";
+
             // If no direct street found, try alternative paths and ways
             if (!streetName) {
-              streetName = address.footway || address.cycleway || address.path || 
-                          address.track || address.alley || "";
+              streetName =
+                address.footway ||
+                address.cycleway ||
+                address.path ||
+                address.track ||
+                address.alley ||
+                "";
               if (streetName) {
                 console.log("🛣️ Using alternative path:", streetName);
               }
             }
-            
+
             // If still no street, try using nearby landmarks or amenities
             if (!streetName) {
-              streetName = address.amenity || address.shop || address.building || 
-                          address.tourism || address.leisure || "";
+              streetName =
+                address.amenity ||
+                address.shop ||
+                address.building ||
+                address.tourism ||
+                address.leisure ||
+                "";
               if (streetName) {
                 console.log("🏢 Using nearby landmark:", streetName);
               }
             }
-            
+
             // If still nothing, try using highway or place names
             if (!streetName) {
               streetName = address.highway || address.place || "";
@@ -180,7 +226,7 @@ export default function AddressTab() {
                 console.log("🗺️ Using place/highway name:", streetName);
               }
             }
-            
+
             setStreet(streetName);
 
             // Set building number if available
@@ -206,7 +252,8 @@ export default function AddressTab() {
             console.warn("⚠️ No address data returned from API");
             toaster.create({
               title: "Warning",
-              description: "Could not get address details. Please enter manually.",
+              description:
+                "Could not get address details. Please enter manually.",
               type: "warning",
               duration: 3000,
             });
@@ -215,7 +262,8 @@ export default function AddressTab() {
           console.error("❌ Reverse Geocoding Error:", error);
           toaster.create({
             title: "Error",
-            description: "Failed to get address from location. Coordinates saved.",
+            description:
+              "Failed to get address from location. Coordinates saved.",
             type: "error",
             duration: 3000,
           });
@@ -227,10 +275,11 @@ export default function AddressTab() {
         console.error("❌ Geolocation Error:", error);
         setIsGettingLocation(false);
         let errorMessage = "Failed to get your location";
-        
+
         switch (error.code) {
           case error.PERMISSION_DENIED:
-            errorMessage = "Location permission denied. Please enable location access.";
+            errorMessage =
+              "Location permission denied. Please enable location access.";
             break;
           case error.POSITION_UNAVAILABLE:
             errorMessage = "Location information is unavailable";
@@ -259,11 +308,35 @@ export default function AddressTab() {
 
   const handleSaveAddress = async () => {
     // Reset errors
-    setAddressErrors({ label: "", city: "", area: "", street: "", buildingNumber: "" });
+    setAddressErrors({
+      label: "",
+      city: "",
+      area: "",
+      street: "",
+      buildingNumber: "",
+    });
+
+    // Require using current location to fill city and area
+    if (!latitude || !longitude) {
+      toaster.create({
+        title: "Location Required",
+        description:
+          "Please use current location to auto-fill your city and area.",
+        type: "error",
+        duration: 3000,
+      });
+      return;
+    }
 
     // Validation
     let hasError = false;
-    const errors = { label: "", city: "", area: "", street: "", buildingNumber: "" };
+    const errors = {
+      label: "",
+      city: "",
+      area: "",
+      street: "",
+      buildingNumber: "",
+    };
 
     if (!newAddressLabel) {
       errors.label = "Please select an address label";
@@ -413,9 +486,7 @@ export default function AddressTab() {
   return (
     <>
       <Box
-        bg={
-          colorMode === "light" ? colors.light.bgThird : colors.dark.bgThird
-        }
+        bg={colorMode === "light" ? colors.light.bgThird : colors.dark.bgThird}
         borderRadius="25px"
         p={8}
       >
@@ -431,189 +502,202 @@ export default function AddressTab() {
                   </Box>
                 </HStack>
               ))}
-              <Skeleton height="50px" borderRadius="12px" width="30%" alignSelf="center" />
+              <Skeleton
+                height="50px"
+                borderRadius="12px"
+                width="30%"
+                alignSelf="center"
+              />
             </>
           ) : (
             <>
               {/* Address List */}
               {addresses.length > 0 ? (
                 addresses.map((addr) => (
-            <HStack key={addr.id} spacing={3} align="start">
-              {/* Radio Button for Primary Selection - Outside the box */}
-              <Box
-                w="20px"
-                h="20px"
-                borderRadius="full"
-                border={`2px solid ${
-                  addr.is_default
-                    ? colorMode === "light"
-                      ? colors.light.mainFixed
-                      : colors.dark.mainFixed
-                    : colorMode === "light"
-                    ? colors.light.border1
-                    : colors.dark.border1
-                }`}
-                bg={
-                  addr.is_default
-                    ? colorMode === "light"
-                      ? colors.light.mainFixed
-                      : colors.dark.mainFixed
-                    : "transparent"
-                }
-                display="flex"
-                alignItems="center"
-                justifyContent="center"
-                flexShrink={0}
-                cursor="pointer"
-                onClick={() => handleSetPrimary(addr.id)}
-                transition="all 0.2s"
-                _hover={{
-                  transform: "scale(1.1)",
-                  borderColor:
-                    colorMode === "light"
-                      ? colors.light.mainFixed
-                      : colors.dark.mainFixed,
-                }}
-                mt={6}
-              >
-                {addr.is_default && (
-                  <Box w="8px" h="8px" borderRadius="full" bg="white" />
-                )}
-              </Box>
-
-              {/* Address Card */}
-              <Box
-              
-                flex={1}
-                bg={
-                  colorMode === "light"
-                    ? colors.light.bgFourth
-                    : colors.dark.bgFourth
-                }
-                borderRadius="12px"
-                p={5}
-                border={
-                  addr.is_default
-                    ? `2px solid ${
-                        colorMode === "light"
-                          ? colors.light.mainFixed
-                          : colors.dark.mainFixed
-                      }`
-                    : "none"
-                }
-              >
-                <HStack justify="space-between" align="start">
-                  <HStack spacing={3} flex={1} align="start">
+                  <HStack key={addr.id} spacing={3} align="center">
+                    {/* Radio Button for Primary Selection - Outside the box */}
                     <Box
+                      w="20px"
+                      h="20px"
+                      borderRadius="full"
+                      border={`2px solid ${
+                        addr.is_default
+                          ? colorMode === "light"
+                            ? colors.light.mainFixed
+                            : colors.dark.mainFixed
+                          : colorMode === "light"
+                          ? colors.light.border1
+                          : colors.dark.border1
+                      }`}
                       bg={
-                        colorMode === "light"
-                          ? colors.light.mainFixed10a
-                          : colors.dark.mainFixed10a
+                        addr.is_default
+                          ? colorMode === "light"
+                            ? colors.light.mainFixed
+                            : colors.dark.mainFixed
+                          : "transparent"
                       }
-                      borderRadius="12px"
-                      p={3}
                       display="flex"
                       alignItems="center"
                       justifyContent="center"
-                      mt={1}
-                    >
-                      <MapPin 
-                        size={28} 
-                        weight="fill" 
-                        color={
+                      flexShrink={0}
+                      cursor="pointer"
+                      onClick={() => handleSetPrimary(addr.id)}
+                      transition="all 0.2s"
+                      _hover={{
+                        transform: "scale(1.1)",
+                        borderColor:
                           colorMode === "light"
                             ? colors.light.mainFixed
-                            : colors.dark.mainFixed
-                        }
-                      />
+                            : colors.dark.mainFixed,
+                      }}
+                    >
+                      {addr.is_default && (
+                        <Box w="8px" h="8px" borderRadius="full" bg="white" />
+                      )}
                     </Box>
-                    <VStack align="start" spacing={1} flex={1}>
-                      <HStack>
-                        <Text
-                          fontWeight="bold"
-                          color={
-                            colorMode === "light"
-                              ? colors.light.textMain
-                              : colors.dark.textMain
-                          }
-                        >
-                          {addr.label}
-                        </Text>
-                        {addr.is_default && (
+
+                    {/* Address Card */}
+                    <Box
+                      flex={1}
+                      bg={
+                        colorMode === "light"
+                          ? colors.light.bgFourth
+                          : colors.dark.bgFourth
+                      }
+                      borderRadius="12px"
+                      p={5}
+                      border={
+                        addr.is_default
+                          ? `2px solid ${
+                              colorMode === "light"
+                                ? colors.light.mainFixed
+                                : colors.dark.mainFixed
+                            }`
+                          : "none"
+                      }
+                    >
+                      <HStack justify="space-between" align="start">
+                        <HStack spacing={3} flex={1} align="start">
                           <Box
                             bg={
                               colorMode === "light"
-                                ? colors.light.success20a
-                                : colors.dark.success20a
+                                ? colors.light.mainFixed10a
+                                : colors.dark.mainFixed10a
                             }
+                            borderRadius="12px"
+                            p={3}
+                            display="flex"
+                            alignItems="center"
+                            justifyContent="center"
+                            mt={1}
+                          >
+                            <MapPin
+                              size={28}
+                              weight="fill"
+                              color={
+                                colorMode === "light"
+                                  ? colors.light.mainFixed
+                                  : colors.dark.mainFixed
+                              }
+                            />
+                          </Box>
+                          <VStack align="start" spacing={1} flex={1}>
+                            <Text
+                              fontWeight="bold"
+                              color={
+                                colorMode === "light"
+                                  ? colors.light.textMain
+                                  : colors.dark.textMain
+                              }
+                              noOfLines={1}
+                            >
+                              {truncateText(addr.label, 50)}
+                            </Text>
+                            {addr.is_default && (
+                              <Box
+                                bg={
+                                  colorMode === "light"
+                                    ? colors.light.success20a
+                                    : colors.dark.success20a
+                                }
+                                color={
+                                  colorMode === "light"
+                                    ? colors.light.success
+                                    : colors.dark.success
+                                }
+                                px={2}
+                                py={0.5}
+                                borderRadius="full"
+                                fontSize="xs"
+                              >
+                                Primary
+                              </Box>
+                            )}
+                            <Text
+                              fontSize="sm"
+                              color={
+                                colorMode === "light"
+                                  ? colors.light.textSub
+                                  : colors.dark.textSub
+                              }
+                              noOfLines={1}
+                            >
+                              {truncateText(
+                                `${addr.building_no} ${addr.street}, ${
+                                  addr.area
+                                }, ${addr.city}${
+                                  addr.floor ? `, Floor ${addr.floor}` : ""
+                                }${
+                                  addr.apartment
+                                    ? `, Apt ${addr.apartment}`
+                                    : ""
+                                }`,
+                                35
+                              )}
+                            </Text>
+                          </VStack>
+                        </HStack>
+                        <HStack flexDirection="column" spacing={2}>
+                          <IconButton
+                            size="xl"
+                            variant="ghost"
                             color={
                               colorMode === "light"
-                                ? colors.light.success
-                                : colors.dark.success
+                                ? colors.light.textSub
+                                : colors.dark.textSub
                             }
-                            
-                            px={2}
-                            py={0.5}
-                            borderRadius="full"
-                            fontSize="xs"
+                            onClick={() => handleEditAddress(addr)}
+                            _hover={{
+                              bg:
+                                colorMode === "light"
+                                  ? colors.light.bgFourth
+                                  : colors.dark.bgFourth,
+                            }}
                           >
-                            Primary
-                          </Box>
-                        )}
+                            <Pen size={18} />
+                          </IconButton>
+                          <IconButton
+                            size="xl"
+                            variant="ghost"
+                            color={
+                              colorMode === "light"
+                                ? colors.light.error
+                                : colors.dark.error
+                            }
+                            onClick={() => handleDeleteAddress(addr.id)}
+                            _hover={{
+                              bg:
+                                colorMode === "light"
+                                  ? colors.light.error10a
+                                  : colors.dark.error10a,
+                            }}
+                          >
+                            <Trash size={18} />
+                          </IconButton>
+                        </HStack>
                       </HStack>
-                      <Text
-                        fontSize="sm"
-                        color={
-                          colorMode === "light"
-                            ? colors.light.textSub
-                            : colors.dark.textSub
-                        }
-                      >
-                        {`${addr.building_no} ${addr.street}, ${addr.area}, ${addr.city}${addr.floor ? `, Floor ${addr.floor}` : ""}${addr.apartment ? `, Apt ${addr.apartment}` : ""}`}
-                      </Text>
-                    </VStack>
+                    </Box>
                   </HStack>
-                  <HStack spacing={2}>
-                    <IconButton
-                      size="sm"
-                      variant="ghost"
-                      color={
-                        colorMode === "light"
-                          ? colors.light.textSub
-                          : colors.dark.textSub
-                      }
-                      onClick={() => handleEditAddress(addr)}
-                      _hover={{
-                        bg:
-                          colorMode === "light"
-                            ? colors.light.bgFourth
-                            : colors.dark.bgFourth,
-                      }}
-                    >
-                      <Pen  size={18} />
-                    </IconButton>
-                    <IconButton
-                      size="sm"
-                      variant="ghost"
-                      color={
-                        colorMode === "light"
-                          ? colors.light.error
-                          : colors.dark.error
-                      }
-                      onClick={() => handleDeleteAddress(addr.id)}
-                      _hover={{
-                        bg:
-                          colorMode === "light"
-                            ? colors.light.error10a
-                            : colors.dark.error10a,
-                      }}
-                    >
-                      <Trash size={18} />
-                    </IconButton>
-                  </HStack>
-                </HStack>
-              </Box>
-            </HStack>
                 ))
               ) : (
                 /* Empty State */
@@ -621,14 +705,22 @@ export default function AddressTab() {
                   <Box
                     p={4}
                     rounded="full"
-                    bg={colorMode === "light" ? colors.light.mainFixed : colors.dark.mainFixed}
+                    bg={
+                      colorMode === "light"
+                        ? colors.light.mainFixed
+                        : colors.dark.mainFixed
+                    }
                     color="white"
                   >
                     <House size={40} weight="fill" />
                   </Box>
                   <Text
                     fontSize={{ base: "16px", md: "20px" }}
-                    color={colorMode === "light" ? colors.light.textSub : colors.dark.textSub}
+                    color={
+                      colorMode === "light"
+                        ? colors.light.textSub
+                        : colors.dark.textSub
+                    }
                     textAlign="center"
                   >
                     You currently have no saved addresses
@@ -637,35 +729,37 @@ export default function AddressTab() {
               )}
 
               {/* Add New Address Button */}
-              <Button
-                width={"40%"}
-                alignSelf="center"
-                variant="outline"
-                borderColor={
-                  colorMode === "light"
-                    ? colors.light.mainFixed
-                    : colors.dark.mainFixed
-                }
-                bg="transparent"
-                color={
-                  colorMode === "light"
-                    ? colors.light.mainFixed
-                    : colors.dark.mainFixed
-                }
-                borderRadius="12px"
-                size="lg"
-                borderWidth="2px"
-                leftIcon={<Plus size={20} weight="bold" />}
-                onClick={() => setIsAddressDialogOpen(true)}
-                _hover={{
-                  bg:
+              {(!isSingleAddressRole || addresses.length === 0) && (
+                <Button
+                  width={"60%"}
+                  alignSelf="center"
+                  variant="outline"
+                  borderColor={
                     colorMode === "light"
-                      ? colors.light.mainFixed10a
-                      : colors.dark.mainFixed10a,
-                }}
-              > 
-                + Add Address
-              </Button>
+                      ? colors.light.mainFixed
+                      : colors.dark.mainFixed
+                  }
+                  bg="transparent"
+                  color={
+                    colorMode === "light"
+                      ? colors.light.mainFixed
+                      : colors.dark.mainFixed
+                  }
+                  borderRadius="12px"
+                  size="lg"
+                  borderWidth="2px"
+                  leftIcon={<Plus size={20} weight="bold" />}
+                  onClick={() => setIsAddressDialogOpen(true)}
+                  _hover={{
+                    bg:
+                      colorMode === "light"
+                        ? colors.light.mainFixed10a
+                        : colors.dark.mainFixed10a,
+                  }}
+                >
+                  + Add Address
+                </Button>
+              )}
             </>
           )}
         </VStack>
@@ -688,7 +782,13 @@ export default function AddressTab() {
             setLongitude(null);
             setIsPrimary(false);
             setEditingAddressId(null);
-            setAddressErrors({ label: "", city: "", area: "", street: "", buildingNumber: "" });
+            setAddressErrors({
+              label: "",
+              city: "",
+              area: "",
+              street: "",
+              buildingNumber: "",
+            });
           }
         }}
         size="md"
@@ -696,9 +796,7 @@ export default function AddressTab() {
         <DialogBackdrop bg="blackAlpha.700" backdropFilter="blur(4px)" />
         <DialogContent
           bg={
-            colorMode === "light"
-              ? colors.light.bgThird
-              : colors.dark.bgThird
+            colorMode === "light" ? colors.light.bgThird : colors.dark.bgThird
           }
           borderRadius="20px"
           maxW={{ base: "90%", sm: "500px", md: "700px", lg: "800px" }}
@@ -729,7 +827,6 @@ export default function AddressTab() {
                   : colors.dark.textSub
               }
               mt={1}
-          
             >
               Provide your address information
             </Text>
@@ -738,9 +835,7 @@ export default function AddressTab() {
 
           <Separator
             borderColor={
-              colorMode === "light"
-                ? colors.light.border1
-                : colors.dark.border1
+              colorMode === "light" ? colors.light.border1 : colors.dark.border1
             }
           />
 
@@ -932,363 +1027,367 @@ export default function AddressTab() {
               {/* City Input */}
               <GridItem colSpan={{ base: 1, md: 1 }}>
                 <VStack align="stretch" spacing={2}>
-                <Text
-                  fontSize="sm"
-                  fontWeight="medium"
-                  color={
-                    colorMode === "light"
-                      ? colors.light.textMain
-                      : colors.dark.textMain
-                  }
-                >
-                  City
-                </Text>
-                <Input
-                  placeholder="Enter city or use current location"
-                  value={city}
-                  onChange={(e) => {
-                    setCity(e.target.value);
-                    if (addressErrors.city) {
-                      setAddressErrors({ ...addressErrors, city: "" });
-                    }
-                  }}
-                  bg={
-                    colorMode === "light"
-                      ? colors.light.bgInput
-                      : colors.dark.bgInput
-                  }
-                  border={
-                    addressErrors.city
-                      ? `1px solid ${
-                          colorMode === "light"
-                            ? colors.light.error
-                            : colors.dark.error
-                        }`
-                      : "none"
-                  }
-                  borderRadius="12px"
-                  color={
-                    colorMode === "light"
-                      ? colors.light.textMain
-                      : colors.dark.textMain
-                  }
-                  _placeholder={{
-                    color:
-                      colorMode === "light"
-                        ? colors.light.textSub
-                        : colors.dark.textSub,
-                  }}
-                />
-                {addressErrors.city && (
                   <Text
                     fontSize="sm"
+                    fontWeight="medium"
                     color={
                       colorMode === "light"
-                        ? colors.light.error
-                        : colors.dark.error
+                        ? colors.light.textMain
+                        : colors.dark.textMain
                     }
                   >
-                    {addressErrors.city}
+                    City
                   </Text>
-                )}
+                  <Input
+                    placeholder="Auto-filled from current location"
+                    value={city}
+                    onChange={(e) => {
+                      setCity(e.target.value);
+                      if (addressErrors.city) {
+                        setAddressErrors({ ...addressErrors, city: "" });
+                      }
+                    }}
+                    bg={
+                      colorMode === "light"
+                        ? colors.light.bgInput
+                        : colors.dark.bgInput
+                    }
+                    border={
+                      addressErrors.city
+                        ? `1px solid ${
+                            colorMode === "light"
+                              ? colors.light.error
+                              : colors.dark.error
+                          }`
+                        : "none"
+                    }
+                    borderRadius="12px"
+                    color={
+                      colorMode === "light"
+                        ? colors.light.textMain
+                        : colors.dark.textMain
+                    }
+                    _placeholder={{
+                      color:
+                        colorMode === "light"
+                          ? colors.light.textSub
+                          : colors.dark.textSub,
+                    }}
+                    isDisabled
+                  />
+                  {addressErrors.city && (
+                    <Text
+                      fontSize="sm"
+                      color={
+                        colorMode === "light"
+                          ? colors.light.error
+                          : colors.dark.error
+                      }
+                    >
+                      {addressErrors.city}
+                    </Text>
+                  )}
                 </VStack>
               </GridItem>
 
               {/* Area Input */}
               <GridItem colSpan={{ base: 1, md: 1 }}>
                 <VStack align="stretch" spacing={2}>
-                <Text
-                  fontSize="sm"
-                  fontWeight="medium"
-                  color={
-                    colorMode === "light"
-                      ? colors.light.textMain
-                      : colors.dark.textMain
-                  }
-                >
-                  Area
-                </Text>
-                <Input
-                  placeholder="Enter area or use current location"
-                  value={area}
-                  onChange={(e) => {
-                    setArea(e.target.value);
-                    if (addressErrors.area) {
-                      setAddressErrors({ ...addressErrors, area: "" });
-                    }
-                  }}
-                  bg={
-                    colorMode === "light"
-                      ? colors.light.bgInput
-                      : colors.dark.bgInput
-                  }
-                  border={
-                    addressErrors.area
-                      ? `1px solid ${
-                          colorMode === "light"
-                            ? colors.light.error
-                            : colors.dark.error
-                        }`
-                      : "none"
-                  }
-                  borderRadius="12px"
-                  color={
-                    colorMode === "light"
-                      ? colors.light.textMain
-                      : colors.dark.textMain
-                  }
-                  _placeholder={{
-                    color:
-                      colorMode === "light"
-                        ? colors.light.textSub
-                        : colors.dark.textSub,
-                  }}
-                />
-                {addressErrors.area && (
                   <Text
                     fontSize="sm"
+                    fontWeight="medium"
                     color={
                       colorMode === "light"
-                        ? colors.light.error
-                        : colors.dark.error
+                        ? colors.light.textMain
+                        : colors.dark.textMain
                     }
                   >
-                    {addressErrors.area}
+                    Area
                   </Text>
-                )}
+                  <Input
+                    placeholder="Auto-filled from current location"
+                    value={area}
+                    onChange={(e) => {
+                      setArea(e.target.value);
+                      if (addressErrors.area) {
+                        setAddressErrors({ ...addressErrors, area: "" });
+                      }
+                    }}
+                    bg={
+                      colorMode === "light"
+                        ? colors.light.bgInput
+                        : colors.dark.bgInput
+                    }
+                    border={
+                      addressErrors.area
+                        ? `1px solid ${
+                            colorMode === "light"
+                              ? colors.light.error
+                              : colors.dark.error
+                          }`
+                        : "none"
+                    }
+                    borderRadius="12px"
+                    color={
+                      colorMode === "light"
+                        ? colors.light.textMain
+                        : colors.dark.textMain
+                    }
+                    _placeholder={{
+                      color:
+                        colorMode === "light"
+                          ? colors.light.textSub
+                          : colors.dark.textSub,
+                    }}
+                  />
+                  {addressErrors.area && (
+                    <Text
+                      fontSize="sm"
+                      color={
+                        colorMode === "light"
+                          ? colors.light.error
+                          : colors.dark.error
+                      }
+                    >
+                      {addressErrors.area}
+                    </Text>
+                  )}
                 </VStack>
               </GridItem>
 
               {/* Street Input */}
               <GridItem colSpan={{ base: 1, md: 1 }}>
                 <VStack align="stretch" spacing={2}>
-                <Text
-                  fontSize="sm"
-                  fontWeight="medium"
-                  color={
-                    colorMode === "light"
-                      ? colors.light.textMain
-                      : colors.dark.textMain
-                  }
-                >
-                  Street
-                </Text>
-                <Input
-                  placeholder="Enter street or use current location"
-                  value={street}
-                  onChange={(e) => {
-                    setStreet(e.target.value);
-                    if (addressErrors.street) {
-                      setAddressErrors({ ...addressErrors, street: "" });
-                    }
-                  }}
-                  bg={
-                    colorMode === "light"
-                      ? colors.light.bgInput
-                      : colors.dark.bgInput
-                  }
-                  border={
-                    addressErrors.street
-                      ? `1px solid ${
-                          colorMode === "light"
-                            ? colors.light.error
-                            : colors.dark.error
-                        }`
-                      : "none"
-                  }
-                  borderRadius="12px"
-                  color={
-                    colorMode === "light"
-                      ? colors.light.textMain
-                      : colors.dark.textMain
-                  }
-                  _placeholder={{
-                    color:
-                      colorMode === "light"
-                        ? colors.light.textSub
-                        : colors.dark.textSub,
-                  }}
-                />
-                {addressErrors.street && (
                   <Text
                     fontSize="sm"
+                    fontWeight="medium"
                     color={
                       colorMode === "light"
-                        ? colors.light.error
-                        : colors.dark.error
+                        ? colors.light.textMain
+                        : colors.dark.textMain
                     }
                   >
-                    {addressErrors.street}
+                    Street
                   </Text>
-                )}
+                  <Input
+                    placeholder="Enter street or use current location"
+                    value={street}
+                    onChange={(e) => {
+                      setStreet(e.target.value);
+                      if (addressErrors.street) {
+                        setAddressErrors({ ...addressErrors, street: "" });
+                      }
+                    }}
+                    bg={
+                      colorMode === "light"
+                        ? colors.light.bgInput
+                        : colors.dark.bgInput
+                    }
+                    border={
+                      addressErrors.street
+                        ? `1px solid ${
+                            colorMode === "light"
+                              ? colors.light.error
+                              : colors.dark.error
+                          }`
+                        : "none"
+                    }
+                    borderRadius="12px"
+                    color={
+                      colorMode === "light"
+                        ? colors.light.textMain
+                        : colors.dark.textMain
+                    }
+                    _placeholder={{
+                      color:
+                        colorMode === "light"
+                          ? colors.light.textSub
+                          : colors.dark.textSub,
+                    }}
+                  />
+                  {addressErrors.street && (
+                    <Text
+                      fontSize="sm"
+                      color={
+                        colorMode === "light"
+                          ? colors.light.error
+                          : colors.dark.error
+                      }
+                    >
+                      {addressErrors.street}
+                    </Text>
+                  )}
                 </VStack>
               </GridItem>
 
               {/* Building Number Input */}
               <GridItem colSpan={{ base: 1, md: 1 }}>
                 <VStack align="stretch" spacing={2}>
-                <Text
-                  fontSize="sm"
-                  fontWeight="medium"
-                  color={
-                    colorMode === "light"
-                      ? colors.light.textMain
-                      : colors.dark.textMain
-                  }
-                >
-                  Building Number
-                </Text>
-                <Input
-                  placeholder="e.g., 123"
-                  value={buildingNumber}
-                  onChange={(e) => {
-                    const value = e.target.value;
-                    // Allow only numbers
-                    if (value === "" || /^[0-9]+$/.test(value)) {
-                      setBuildingNumber(value);
-                      if (addressErrors.buildingNumber) {
-                        setAddressErrors({ ...addressErrors, buildingNumber: "" });
-                      }
-                    }
-                  }}
-                  type="text"
-                  inputMode="numeric"
-                  pattern="[0-9]*"
-                  bg={
-                    colorMode === "light"
-                      ? colors.light.bgInput
-                      : colors.dark.bgInput
-                  }
-                  border={
-                    addressErrors.buildingNumber
-                      ? `1px solid ${
-                          colorMode === "light"
-                            ? colors.light.error
-                            : colors.dark.error
-                        }`
-                      : "none"
-                  }
-                  borderRadius="12px"
-                  color={
-                    colorMode === "light"
-                      ? colors.light.textMain
-                      : colors.dark.textMain
-                  }
-                  _placeholder={{
-                    color:
-                      colorMode === "light"
-                        ? colors.light.textSub
-                        : colors.dark.textSub,
-                  }}
-                />
-                {addressErrors.buildingNumber && (
                   <Text
                     fontSize="sm"
+                    fontWeight="medium"
                     color={
                       colorMode === "light"
-                        ? colors.light.error
-                        : colors.dark.error
+                        ? colors.light.textMain
+                        : colors.dark.textMain
                     }
                   >
-                    {addressErrors.buildingNumber}
+                    Building Number
                   </Text>
-                )}
+                  <Input
+                    placeholder="e.g., 123"
+                    value={buildingNumber}
+                    onChange={(e) => {
+                      const value = e.target.value;
+                      // Allow only numbers
+                      if (value === "" || /^[0-9]+$/.test(value)) {
+                        setBuildingNumber(value);
+                        if (addressErrors.buildingNumber) {
+                          setAddressErrors({
+                            ...addressErrors,
+                            buildingNumber: "",
+                          });
+                        }
+                      }
+                    }}
+                    type="text"
+                    inputMode="numeric"
+                    pattern="[0-9]*"
+                    bg={
+                      colorMode === "light"
+                        ? colors.light.bgInput
+                        : colors.dark.bgInput
+                    }
+                    border={
+                      addressErrors.buildingNumber
+                        ? `1px solid ${
+                            colorMode === "light"
+                              ? colors.light.error
+                              : colors.dark.error
+                          }`
+                        : "none"
+                    }
+                    borderRadius="12px"
+                    color={
+                      colorMode === "light"
+                        ? colors.light.textMain
+                        : colors.dark.textMain
+                    }
+                    _placeholder={{
+                      color:
+                        colorMode === "light"
+                          ? colors.light.textSub
+                          : colors.dark.textSub,
+                    }}
+                  />
+                  {addressErrors.buildingNumber && (
+                    <Text
+                      fontSize="sm"
+                      color={
+                        colorMode === "light"
+                          ? colors.light.error
+                          : colors.dark.error
+                      }
+                    >
+                      {addressErrors.buildingNumber}
+                    </Text>
+                  )}
                 </VStack>
               </GridItem>
 
               {/* Floor Input (Optional) */}
               <GridItem colSpan={{ base: 1, md: 1 }}>
                 <VStack align="stretch" spacing={2}>
-                <Text
-                  fontSize="sm"
-                  fontWeight="medium"
-                  color={
-                    colorMode === "light"
-                      ? colors.light.textMain
-                      : colors.dark.textMain
-                  }
-                >
-                  Floor (Optional)
-                </Text>
-                <Input
-                  placeholder="e.g., 3"
-                  value={floor}
-                  onChange={(e) => {
-                    const value = e.target.value;
-                    // Allow only numbers
-                    if (value === "" || /^[0-9]+$/.test(value)) {
-                      setFloor(value);
-                    }
-                  }}
-                  type="text"
-                  inputMode="numeric"
-                  pattern="[0-9]*"
-                  bg={
-                    colorMode === "light"
-                      ? colors.light.bgInput
-                      : colors.dark.bgInput
-                  }
-                  border="none"
-                  borderRadius="12px"
-                  color={
-                    colorMode === "light"
-                      ? colors.light.textMain
-                      : colors.dark.textMain
-                  }
-                  _placeholder={{
-                    color:
+                  <Text
+                    fontSize="sm"
+                    fontWeight="medium"
+                    color={
                       colorMode === "light"
-                        ? colors.light.textSub
-                        : colors.dark.textSub,
-                  }}
-                />
+                        ? colors.light.textMain
+                        : colors.dark.textMain
+                    }
+                  >
+                    Floor (Optional)
+                  </Text>
+                  <Input
+                    placeholder="e.g., 3"
+                    value={floor}
+                    onChange={(e) => {
+                      const value = e.target.value;
+                      // Allow only numbers
+                      if (value === "" || /^[0-9]+$/.test(value)) {
+                        setFloor(value);
+                      }
+                    }}
+                    type="text"
+                    inputMode="numeric"
+                    pattern="[0-9]*"
+                    bg={
+                      colorMode === "light"
+                        ? colors.light.bgInput
+                        : colors.dark.bgInput
+                    }
+                    border="none"
+                    borderRadius="12px"
+                    color={
+                      colorMode === "light"
+                        ? colors.light.textMain
+                        : colors.dark.textMain
+                    }
+                    _placeholder={{
+                      color:
+                        colorMode === "light"
+                          ? colors.light.textSub
+                          : colors.dark.textSub,
+                    }}
+                  />
                 </VStack>
               </GridItem>
 
               {/* Apartment Input (Optional) */}
               <GridItem colSpan={{ base: 1, md: 1 }}>
                 <VStack align="stretch" spacing={2}>
-                <Text
-                  fontSize="sm"
-                  fontWeight="medium"
-                  color={
-                    colorMode === "light"
-                      ? colors.light.textMain
-                      : colors.dark.textMain
-                  }
-                >
-                  Apartment (Optional)
-                </Text>
-                <Input
-                  placeholder="e.g., 5A"
-                  value={apartment}
-                  onChange={(e) => {
-                    const value = e.target.value;
-                    // Allow numbers and letters (for apartment like 5A, 10B)
-                    if (value === "" || /^[0-9A-Za-z]+$/.test(value)) {
-                      setApartment(value);
-                    }
-                  }}
-                  type="text"
-                  bg={
-                    colorMode === "light"
-                      ? colors.light.bgInput
-                      : colors.dark.bgInput
-                  }
-                  border="none"
-                  borderRadius="12px"
-                  color={
-                    colorMode === "light"
-                      ? colors.light.textMain
-                      : colors.dark.textMain
-                  }
-                  _placeholder={{
-                    color:
+                  <Text
+                    fontSize="sm"
+                    fontWeight="medium"
+                    color={
                       colorMode === "light"
-                        ? colors.light.textSub
-                        : colors.dark.textSub,
-                  }}
-                />
+                        ? colors.light.textMain
+                        : colors.dark.textMain
+                    }
+                  >
+                    Apartment (Optional)
+                  </Text>
+                  <Input
+                    placeholder="e.g., 5A"
+                    value={apartment}
+                    onChange={(e) => {
+                      const value = e.target.value;
+                      // Allow numbers and letters (for apartment like 5A, 10B)
+                      if (value === "" || /^[0-9A-Za-z]+$/.test(value)) {
+                        setApartment(value);
+                      }
+                    }}
+                    type="text"
+                    bg={
+                      colorMode === "light"
+                        ? colors.light.bgInput
+                        : colors.dark.bgInput
+                    }
+                    border="none"
+                    borderRadius="12px"
+                    color={
+                      colorMode === "light"
+                        ? colors.light.textMain
+                        : colors.dark.textMain
+                    }
+                    _placeholder={{
+                      color:
+                        colorMode === "light"
+                          ? colors.light.textSub
+                          : colors.dark.textSub,
+                    }}
+                  />
                 </VStack>
               </GridItem>
 
@@ -1340,7 +1439,7 @@ export default function AddressTab() {
                         </Text>
                         {!latitude && !longitude && (
                           <Text fontSize="xs" color="inherit">
-                            (Optional)
+                            (Required)
                           </Text>
                         )}
                       </HStack>
@@ -1352,8 +1451,10 @@ export default function AddressTab() {
                             : colors.dark.textSub
                         }
                       >
-                        {latitude && longitude 
-                          ? `✓ Location detected (${latitude.toFixed(6)}, ${longitude.toFixed(6)})` 
+                        {latitude && longitude
+                          ? `✓ Location detected (${latitude.toFixed(
+                              6
+                            )}, ${longitude.toFixed(6)})`
                           : "Auto-fill address fields"}
                       </Text>
                     </VStack>
@@ -1364,87 +1465,87 @@ export default function AddressTab() {
               {/* Primary Switch */}
               <GridItem colSpan={{ base: 1, md: 1 }}>
                 <Button
-                variant="outline"
-                borderColor={
-                  isPrimary
-                    ? colorMode === "light"
-                      ? colors.light.mainFixed
-                      : colors.dark.mainFixed
-                    : colorMode === "light"
-                    ? colors.light.border1
-                    : colors.dark.border1
-                }
-                bg={
-                  isPrimary
-                    ? colorMode === "light"
-                      ? colors.light.mainFixed10a
-                      : colors.dark.mainFixed10a
-                    : "transparent"
-                }
-                color={
-                  isPrimary
-                    ? colorMode === "light"
-                      ? colors.light.mainFixed
-                      : colors.dark.mainFixed
-                    : colorMode === "light"
-                    ? colors.light.textMain
-                    : colors.dark.textMain
-                }
-                borderRadius="12px"
-                size="lg"
-                h="auto"
-                py={3}
-                px={4}
-                onClick={() => setIsPrimary(!isPrimary)}
-                transition="all 0.2s"
-                w="full"
-              >
-                <HStack spacing={3} w="full">
-                  <Box
-                    w="20px"
-                    h="20px"
-                    borderRadius="full"
-                    border={`2px solid ${
-                      isPrimary
-                        ? colorMode === "light"
-                          ? colors.light.mainFixed
-                          : colors.dark.mainFixed
-                        : colorMode === "light"
-                        ? colors.light.border1
-                        : colors.dark.border1
-                    }`}
-                    bg={
-                      isPrimary
-                        ? colorMode === "light"
-                          ? colors.light.mainFixed
-                          : colors.dark.mainFixed
-                        : "transparent"
-                    }
-                    display="flex"
-                    alignItems="center"
-                    justifyContent="center"
-                    flexShrink={0}
-                  >
-                    {isPrimary && (
-                      <Box w="8px" h="8px" borderRadius="full" bg="white" />
-                    )}
-                  </Box>
-                  <VStack align="start" spacing={0} flex={1}>
-                    <Text fontSize="sm" fontWeight="bold">
-                      Set as Primary Address
-                    </Text>
-                    <Text
-                      fontSize="xs"
-                      color={
-                        colorMode === "light"
-                          ? colors.light.textSub
-                          : colors.dark.textSub
+                  variant="outline"
+                  borderColor={
+                    isPrimary
+                      ? colorMode === "light"
+                        ? colors.light.mainFixed
+                        : colors.dark.mainFixed
+                      : colorMode === "light"
+                      ? colors.light.border1
+                      : colors.dark.border1
+                  }
+                  bg={
+                    isPrimary
+                      ? colorMode === "light"
+                        ? colors.light.mainFixed10a
+                        : colors.dark.mainFixed10a
+                      : "transparent"
+                  }
+                  color={
+                    isPrimary
+                      ? colorMode === "light"
+                        ? colors.light.mainFixed
+                        : colors.dark.mainFixed
+                      : colorMode === "light"
+                      ? colors.light.textMain
+                      : colors.dark.textMain
+                  }
+                  borderRadius="12px"
+                  size="lg"
+                  h="auto"
+                  py={3}
+                  px={4}
+                  onClick={() => setIsPrimary(!isPrimary)}
+                  transition="all 0.2s"
+                  w="full"
+                >
+                  <HStack spacing={3} w="full">
+                    <Box
+                      w="20px"
+                      h="20px"
+                      borderRadius="full"
+                      border={`2px solid ${
+                        isPrimary
+                          ? colorMode === "light"
+                            ? colors.light.mainFixed
+                            : colors.dark.mainFixed
+                          : colorMode === "light"
+                          ? colors.light.border1
+                          : colors.dark.border1
+                      }`}
+                      bg={
+                        isPrimary
+                          ? colorMode === "light"
+                            ? colors.light.mainFixed
+                            : colors.dark.mainFixed
+                          : "transparent"
                       }
+                      display="flex"
+                      alignItems="center"
+                      justifyContent="center"
+                      flexShrink={0}
                     >
-                      This will be your default delivery address
-                    </Text>
-                  </VStack>
-                </HStack>
+                      {isPrimary && (
+                        <Box w="8px" h="8px" borderRadius="full" bg="white" />
+                      )}
+                    </Box>
+                    <VStack align="start" spacing={0} flex={1}>
+                      <Text fontSize="sm" fontWeight="bold">
+                        Set as Primary Address
+                      </Text>
+                      <Text
+                        fontSize="xs"
+                        color={
+                          colorMode === "light"
+                            ? colors.light.textSub
+                            : colors.dark.textSub
+                        }
+                      >
+                        This will be your default delivery address
+                      </Text>
+                    </VStack>
+                  </HStack>
                 </Button>
               </GridItem>
             </Grid>
@@ -1452,9 +1553,7 @@ export default function AddressTab() {
 
           <Separator
             borderColor={
-              colorMode === "light"
-                ? colors.light.border1
-                : colors.dark.border1
+              colorMode === "light" ? colors.light.border1 : colors.dark.border1
             }
           />
 
@@ -1485,7 +1584,13 @@ export default function AddressTab() {
                   setApartment("");
                   setIsPrimary(false);
                   setEditingAddressId(null);
-                  setAddressErrors({ label: "", city: "", area: "", street: "", buildingNumber: "" });
+                  setAddressErrors({
+                    label: "",
+                    city: "",
+                    area: "",
+                    street: "",
+                    buildingNumber: "",
+                  });
                 }}
                 _hover={{
                   bg:

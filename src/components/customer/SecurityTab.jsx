@@ -1,4 +1,12 @@
-import { Box, Heading, VStack, Text, Button, HStack, Skeleton } from "@chakra-ui/react";
+import {
+  Box,
+  Heading,
+  VStack,
+  Text,
+  Button,
+  HStack,
+  Skeleton,
+} from "@chakra-ui/react";
 import { toaster } from "../ui/toaster";
 import { useSendPasswordResetEmailMutation } from "../../app/features/Customer/passwordSlice";
 import { LockKey } from "@phosphor-icons/react";
@@ -44,7 +52,8 @@ export default function SecurityTab({ user, isLoading }) {
                   Password
                 </Heading>
                 <Text fontSize="sm" color={styles.textSub}>
-                  Click the button below to receive a password reset link via email
+                  Click the button below to receive a password reset link via
+                  email
                 </Text>
               </VStack>
               <Button
@@ -57,7 +66,7 @@ export default function SecurityTab({ user, isLoading }) {
                 loadingText="Sending Email..."
                 _hover={{ bg: styles.mainFixed70a }}
               >
-                Send Password Reset Email
+                Send Email
               </Button>
             </VStack>
           </HStack>

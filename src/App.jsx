@@ -1,4 +1,4 @@
-import { Navigate, Route, Routes } from "react-router-dom";
+import { Navigate, Route, Routes, useLocation } from "react-router-dom";
 import { useEffect } from "react";
 import { useTranslation } from "react-i18next";
 
@@ -38,6 +38,17 @@ import CookerMenu from "./pages/cooker/menu/CookerMenu";
 import CookerOrders from "./pages/cooker/CookerOrders";
 import CookerReviews from "./pages/cooker/review/CookerReviews";
 import AuthCallback from "./pages/auth/AuthCallback";
+import DeliveryPage from "./pages/delivery/DeliveryPage";
+
+function ScrollToTop() {
+  const location = useLocation();
+
+  useEffect(() => {
+    window.scrollTo({ top: 0, left: 0, behavior: "smooth" });
+  }, [location.pathname]);
+
+  return null;
+}
 
 function App() {
   const token = CookieService.get("access_token");
@@ -50,6 +61,7 @@ function App() {
 
   return (
     <>
+      <ScrollToTop />
       <Routes>
         <Route
           path="/"
@@ -113,6 +125,11 @@ function App() {
               <Route path="menu" element={<CookerMenu />} />
               <Route path="orders" element={<CookerOrders />} />
               <Route path="reviews" element={<CookerReviews />} />
+            </Route>
+          </Route>
+          <Route element={<RoleProtectedRoute allowedRoles={["delivery"]} />}>
+            <Route path="/delivery" element={<DeliveryPage />}>
+              <Route index element={<Navigate to="/delivery/home" replace />} />
             </Route>
           </Route>
         </Route>

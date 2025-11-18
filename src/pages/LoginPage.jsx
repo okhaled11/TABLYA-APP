@@ -82,6 +82,8 @@ const LoginPage = ({ isAuthenticated }) => {
           navigate("/cooker", { replace: true });
         } else if (role === "customer") {
           navigate("/home", { replace: true });
+        } else if (role === "delivery") {
+          navigate("/delivery", { replace: true });
         } else {
           navigate("/", { replace: true });
         }

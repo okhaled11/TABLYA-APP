@@ -5,7 +5,10 @@ import CartSection from "../../components/cart/CartSection";
 import OrderSummarySection from "../../components/cart/OrderSummarySection";
 import { useGetUserDataQuery } from "../../app/features/Auth/authSlice";
 import { toaster } from "../../components/ui/toaster";
-import { useCreateOrderMutation, useUpdateOrderPaymentStatusMutation } from "../../app/features/Customer/ordersSlice";
+import {
+  useCreateOrderMutation,
+  useUpdateOrderPaymentStatusMutation,
+} from "../../app/features/Customer/ordersSlice";
 import { clearCart } from "../../app/features/Customer/CartSlice";
 
 export default function CartPage() {
@@ -43,9 +46,14 @@ export default function CartPage() {
   };
 
   const handleCheckout = async (opts = {}) => {
-    const { notes = "", payment_method = "cash", payment_status = "pending", orderId = null, paymentDetails = null } =
-      typeof opts === "string" ? { notes: opts } : opts || {};
-    
+    const {
+      notes = "",
+      payment_method = "cash",
+      payment_status = "pending",
+      orderId = null,
+      paymentDetails = null,
+    } = typeof opts === "string" ? { notes: opts } : opts || {};
+
     // If orderId exists, this is a PayPal payment completion - just update status
     if (orderId) {
       try {
@@ -54,9 +62,9 @@ export default function CartPage() {
           orderId,
           payment_status: "paid",
         }).unwrap();
-        
+
         console.log("Payment status updated successfully:", result);
-        
+
         toaster.create({
           title: "Payment successful",
           description: `Order #${orderId} paid successfully via PayPal`,
@@ -66,7 +74,7 @@ export default function CartPage() {
           position: "top",
         });
         dispatch(clearCart());
-        navigate("/home");
+        navigate("/home/order");
       } catch (e) {
         console.error("Failed to update payment:", e);
         toaster.create({
@@ -80,7 +88,7 @@ export default function CartPage() {
       }
       return;
     }
-    
+
     // Otherwise, create new order (for cash payment)
     if (!validateBeforeCheckout()) return;
     try {
@@ -107,7 +115,7 @@ export default function CartPage() {
         position: "top",
       });
       dispatch(clearCart());
-      navigate("/home");
+      navigate("/home/order");
     } catch (e) {
       toaster.create({
         title: "Failed to create order",
@@ -119,12 +127,16 @@ export default function CartPage() {
       });
     }
   };
-  
+
   // Create order for PayPal (before payment)
   const handleCreateOrderForPayPal = async (opts = {}) => {
-    const { notes = "", payment_method = "credit_card", payment_status = "pending" } = opts || {};
+    const {
+      notes = "",
+      payment_method = "credit_card",
+      payment_status = "pending",
+    } = opts || {};
     if (!validateBeforeCheckout()) return null;
-    
+
     try {
       const delivery_fee = 0;
       const discount = 0;
@@ -139,7 +151,7 @@ export default function CartPage() {
         payment_status,
         items: cartItems,
       }).unwrap();
-      
+
       return resp?.id || null;
     } catch (e) {
       toaster.create({
