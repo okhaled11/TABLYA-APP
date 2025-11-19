@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   Box,
   Textarea,
@@ -12,14 +12,14 @@ import {
 import { AiFillStar, AiOutlineStar } from "react-icons/ai";
 import { IoWarningOutline } from "react-icons/io5";
 import CustomModal from "../../shared/Modal";
-import { useAddReviewMutation } from "../../app/features/Customer/reviewsApi";
+import { useAddReviewMutation, useUpdateReviewMutation } from "../../app/features/Customer/reviewsApi";
 import { toaster } from "../ui/toaster";
 import { useParams } from "react-router-dom";
 import { useGetUserDataQuery } from "../../app/features/Auth/authSlice";
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import { useColorMode } from "../../theme/color-mode";
 import colors from "../../theme/color";
-const ReviewModal = ({ dialog }) => {
+const ReviewModal = ({ dialog, existingReview }) => {
   const { colorMode } = useColorMode();
   const [rating, setRating] = useState(0);
   const [hoverRating, setHoverRating] = useState(0);
@@ -31,6 +31,7 @@ const ReviewModal = ({ dialog }) => {
   const customerId = userData?.sub;
 
   const [addReview, { isLoading }] = useAddReviewMutation();
+  const [updateReview, { isLoading: isUpdating }] = useUpdateReviewMutation();
 
   const checkTextSensitivity = async (text) => {
     const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
@@ -82,6 +83,13 @@ const ReviewModal = ({ dialog }) => {
     }
   };
 
+  useEffect(() => {
+    if (existingReview) {
+      setRating(existingReview?.rating || 0);
+      setReview(existingReview?.comment || "");
+    }
+  }, [existingReview]);
+
   const handleSubmit = async () => {
     // Check for empty input first
     if (!rating || !review) {
@@ -123,23 +131,34 @@ const ReviewModal = ({ dialog }) => {
     // Submit review if text is safe
     try {
       setCheckingText(false);
-      const reviewData = {
-        rating,
-        comment: review,
-        customer_id: customerId,
-        cooker_id: cookerId,
-      };
 
-      await addReview(reviewData).unwrap();
-
-      toaster.create({
-        title: "Review",
-        description: "Review submitted successfully",
-        type: "success",
-        duration: 3000,
-        isClosable: true,
-        position: "top",
-      });
+      if (existingReview?.id) {
+        await updateReview({ id: existingReview.id, updates: { rating, comment: review } }).unwrap();
+        toaster.create({
+          title: "Review",
+          description: "Review updated successfully",
+          type: "success",
+          duration: 3000,
+          isClosable: true,
+          position: "top",
+        });
+      } else {
+        const reviewData = {
+          rating,
+          comment: review,
+          customer_id: customerId,
+          cooker_id: cookerId,
+        };
+        await addReview(reviewData).unwrap();
+        toaster.create({
+          title: "Review",
+          description: "Review submitted successfully",
+          type: "success",
+          duration: 3000,
+          isClosable: true,
+          position: "top",
+        });
+      }
 
       // reset form
       setRating(0);
@@ -164,11 +183,11 @@ const ReviewModal = ({ dialog }) => {
       <CustomModal
         dialog={dialog}
         description="Rate this meal and let others know your experience"
-        title="Add A Review"
-        okTxt="Submit Review"
+        title={existingReview ? "Update Your Review" : "Add A Review"}
+        okTxt={existingReview ? "Update Review" : "Submit Review"}
         cancelTxt="Cancel"
         onOkHandler={handleSubmit}
-        isLoading={isLoading || checkingText}
+        isLoading={isLoading || isUpdating || checkingText}
       >
       <Box mb={4}>
         <Text fontWeight="bold" mb={2}>
