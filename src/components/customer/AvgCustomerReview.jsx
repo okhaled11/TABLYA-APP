@@ -48,6 +48,30 @@ const AvgCustomerReview = () => {
       ? reviews.some((r) => r.customer_id === customerId)
       : false;
   }, [reviews, customerId]);
+  const starCounts = useMemo(() => {
+    const counts = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 };
+    if (Array.isArray(reviews)) {
+      reviews.forEach((r) => {
+        const s = Math.round(Number(r?.rating) || 0);
+        if (s >= 1 && s <= 5) counts[s] += 1;
+      });
+    }
+    return counts;
+  }, [reviews]);
+
+  const totalReviews = useMemo(
+    () => Object.values(starCounts).reduce((a, b) => a + b, 0),
+    [starCounts]
+  );
+
+  const existingReview = useMemo(
+    () =>
+      Array.isArray(reviews)
+        ? reviews.find((r) => r.customer_id === customerId) || null
+        : null,
+    [reviews, customerId]
+  );
+
   return (
     <>
       <Box flex="1" maxW={{ base: "100%", md: "350px" }} textAlign="center">
@@ -79,57 +103,72 @@ const AvgCustomerReview = () => {
             / 5
           </Text>
         </Flex>
-        <Flex alignItems="center" justifyContent="center" gap={4}>
-          <FaStar color="#FF861F" size={20} />
+        {[5, 4, 3, 2, 1].map((s) => {
+          const count = starCounts[s] || 0;
+          const p = totalReviews ? Math.max(0, Math.min(100, (count / totalReviews) * 100)) : 0;
+          return (
+            <Flex key={s} alignItems="center" justifyContent="center" gap={4} mt={2}>
+              <Flex alignItems="center" gap={1} minW="40px" justifyContent="center">
+                <Text
+                  color={
+                    colorMode == "light"
+                      ? colors.light.textMain
+                      : colors.dark.textMain
+                  }
+                >
+                  {s}
+                </Text>
+                <FaStar color="#FF861F" size={16} />
+              </Flex>
 
-          <Progress.Root
-            width="220px"
-            value={percent} 
-            colorPalette={"red"} 
-            variant="outline"
-          >
-            <Progress.Track>
-              <Progress.Range />
-            </Progress.Track>
-          </Progress.Root>
+              <Progress.Root
+                width="220px"
+                value={p}
+                colorPalette={"red"}
+                variant="outline"
+              >
+                <Progress.Track>
+                  <Progress.Range />
+                </Progress.Track>
+              </Progress.Root>
 
-          <Text
-            color={
-              colorMode == "light"
-                ? colors.light.textMain
-                : colors.dark.textMain
-            }
-          >
-            {cooker?.total_reviews || 0}
-          </Text>
-        </Flex>
-        {!hasReviewed && (
-          <Button
-            mt={4}
-            color={
-              colorMode == "light"
-                ? colors.light.mainFixed
-                : colors.dark.mainFixed
-            }
-            borderColor={
-              colorMode == "light"
-                ? colors.light.mainFixed
-                : colors.dark.mainFixed
-            }
-            borderRadius="12px"
-            variant="outline"
-            w="80%"
-            _hover={{ bg: colors.light.mainFixed, color: "white" }}
-            transition="0.5s ease"
-            onClick={() => {
-              dialog.setOpen(true);
-            }}
-          >
-            Add Review
-          </Button>
-        )}
+              <Text
+                color={
+                  colorMode == "light"
+                    ? colors.light.textMain
+                    : colors.dark.textMain
+                }
+              >
+                {count}
+              </Text>
+            </Flex>
+          );
+        })}
+        <Button
+          mt={4}
+          color={
+            colorMode == "light"
+              ? colors.light.mainFixed
+              : colors.dark.mainFixed
+          }
+          borderColor={
+            colorMode == "light"
+              ? colors.light.mainFixed
+              : colors.dark.mainFixed
+          }
+          borderRadius="12px"
+          variant="outline"
+          w="80%"
+          _hover={{ bg: colors.light.mainFixed, color: "white" }}
+          transition="0.5s ease"
+          onClick={() => {
+            dialog.setOpen(true);
+          }}
+        >
+          {hasReviewed ? "Update Review" : "Add Review"}
+        </Button>
       </Box>
-      <ReviewModal dialog={dialog} />
+      <ReviewModal dialog={dialog} existingReview={existingReview} />
     </>
   );
 };
