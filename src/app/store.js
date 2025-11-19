@@ -37,6 +37,7 @@ import { favoritesApi } from "./features/Customer/favoritesApi";
 import { adminAuthApi } from "./features/Admin/adminData";
 
 import { MariamSettingsApi } from "./features/Admin/MariamSettings";
+import { landingReviews } from "./features/Landing/LandingReviews";
 
 const persistCartConfig = {
   key: "cart",
@@ -78,6 +79,7 @@ export const store = configureStore({
     [AdminUserSlice.reducerPath]: AdminUserSlice.reducer,
     [MariamSettingsApi.reducerPath]: MariamSettingsApi.reducer,
     [adminReportActionsApi.reducerPath]: adminReportActionsApi.reducer,
+    [landingReviews.reducerPath]:landingReviews.reducer,
 
     // Auth & User
     [authApi.reducerPath]: authApi.reducer,
@@ -122,7 +124,8 @@ export const store = configureStore({
       CookerMenuApi.middleware,
       CookerAnalyticsApi.middleware,
       MariamSettingsApi.middleware,
-      adminReportActionsApi.middleware
+      adminReportActionsApi.middleware,
+      landingReviews.middleware,
     ),
 });
 

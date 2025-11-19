@@ -8,6 +8,7 @@ import "swiper/css/pagination";
 import "swiper/css/effect-coverflow";
 import i18n from "../../i18n";
 import { useEffect } from "react";
+import { Avatar } from "@chakra-ui/react"
 
 import {
   Box, Text, Heading, Flex, Image, Container,
@@ -17,64 +18,24 @@ import { FaQuoteLeft, FaStar, FaArrowLeft, FaArrowRight } from "react-icons/fa";
 import { Card } from "@chakra-ui/react";
 import { useColorMode } from "../../theme/color-mode";
 import { useTranslation } from "react-i18next";
+import { useGetLandingReviewsQuery } from "../../app/features/Landing/LandingReviews";
 
 
-
-
-// dummy data will be replaced next
-const testimonials = [
-  {
-    id: 1,
-    name: "Sara K.",
-    date: "August 2025",
-    text: "I’m so glad I found this website! The food is incredible, and it feels so good to support local cooks. It’s like having a home-cooked meal without any of the work",
-    rating: 5,
-    img: "/assets/customer.png",
-  },
-  {
-    id: 2,
-    name: "Sara K.",
-    date: "July 2025",
-    text: "I’m so glad I found this website! The food is incredible, and it feels so good to support local cooks. It’s like having a home-cooked meal without any of the work",
-    rating: 4,
-    img: "/assets/customer.png",
-  },
-  {
-    id: 3,
-    name: "Sara K.",
-    date: "June 2025",
-    text: "I’m so glad I found this website! The food is incredible, and it feels so good to support local cooks. It’s like having a home-cooked meal without any of the work",
-    rating: 5,
-    img: "/assets/customer.png",
-  },
-  {
-    id: 4,
-    name: "Sara K.",
-    date: "May 2025",
-    text: "I’m so glad I found this website! The food is incredible, and it feels so good to support local cooks. It’s like having a home-cooked meal without any of the work",
-    rating: 5,
-    img: "/assets/customer.png",
-  },
-  {
-    id: 5,
-    name: "Sara K.",
-    date: "May 2025",
-    text: "I’m so glad I found this website! The food is incredible, and it feels so good to support local cooks. It’s like having a home-cooked meal without any of the work",
-    rating: 5,
-    img: "/assets/customer.png",
-  },
-];
 
 export default function Testimonials() {
+  const { data: reviews, isLoading } = useGetLandingReviewsQuery();
+  //  console.log(reviews);
+  const filteredReviews = reviews?.filter(item => item.rating === 5);
+
 
   const { t } = useTranslation();
 
   const { colorMode } = useColorMode();
 
-
   //   useEffect(() => {
   //   document.documentElement.dir = i18n.language === "ar" ? "rtl" : "ltr";
   // }, [i18n.language]);
+
 
   return (
     <Box
@@ -140,89 +101,143 @@ export default function Testimonials() {
 
 
           >
-            {testimonials.map((item) => (
-              <SwiperSlide key={item.id}>
-                <Flex justify="center" mt={"10px"}>
-                  <Card.Root
+            {isLoading ? (<Flex justify="center" align="center" height="250px">
+              <Image
+                src="src\assets\Transparent Version.gif"
+                alt="loading"
+                width="100px"
+                height="100px"
+                objectFit="contain"
+              />
+            </Flex>) : (filteredReviews?.map((item) => {
+              // convert date to short numeric
 
-                    bg={colorMode === "light" ? "white" : "rgb(20, 4, 2)"}
-                    borderRadius="2xl"
-                    w={{ base: "400px", md: "400px" }}
-                    h="100%"
-                    border={"none"}
-                    shadow="sm"
-                    transition="transform 0.3s ease"
-                    _hover={{ transform: "scale(1.03)" }}
-                  >
-                    <Card.Body p={5} h="100%">
-                      <FaQuoteLeft color="#f44336" size="28px" />
-                      <Text
-                        mt={4}
-                        fontSize="sm"
-                        color={colorMode === "light" ? "black" : "white"}
-                        lineHeight="1.6"
-                        mb={6}
-                        noOfLines={5}
-                      >
-                        {item.text}
-                      </Text>
+              const options = { year: "numeric", month: "short", day: "numeric" };
+              const day = new Date(item.created_at).toLocaleDateString("en-US", options);
 
-                      <Box
-                        h="1px"
-                        bg={
-                          colorMode === "light"
-                            ? "rgb(233, 230, 230)"
-                            : "rgb(43, 28, 26)"
-                        }
-                        my={4}
-                      />
 
-                      <Flex justify="space-between" align="center">
-                        <Flex align="center" gap={3}>
-                          <Image
+              return (
+                <SwiperSlide key={item.id}>
+                  <Flex justify="center" mt={"10px"}>
+                    <Card.Root
+
+                      bg={colorMode === "light" ? "white" : "rgb(20, 4, 2)"}
+                      borderRadius="2xl"
+                      w={{ base: "400px", md: "400px" }}
+                      // h="100%"
+                      h="250px"
+                      border={"none"}
+                      shadow="sm"
+                      transition="transform 0.3s ease"
+                      _hover={{ transform: "scale(1.03)" }}
+                    >
+                      <Card.Body p={5} h="100%" display="flex" flexDirection="column" justifyContent="space-between">
+                        <Box
+                          // scroll
+                          overflowY="auto"
+                          maxH="200px"
+                          css={{
+                            /* Firefox */
+                            scrollbarWidth: "none",
+                            /* IE 10+ */
+                            msOverflowStyle: "none",
+                            /* Chrome, Safari, Opera */
+                            "&::-webkit-scrollbar": {
+                              display: "none",
+                            },
+                          }}
+
+                        >
+
+
+
+                          <FaQuoteLeft color="#f44336" size="28px" />
+                          <Text
+                            mt={4}
+                            fontSize="sm"
+                            color={colorMode === "light" ? "black" : "white"}
+                            lineHeight="1.6"
+                            mb={4}
+                            noOfLines={3}
+                          >
+                            {item.comment}
+                          </Text>
+
+
+                        </Box >
+                        {/* mt auto to stick in bottom */}
+                        <Box mt="auto">
+
+                          <Box
+                            h="1px"
+                            bg={
+                              colorMode === "light"
+                                ? "rgb(233, 230, 230)"
+                                : "rgb(43, 28, 26)"
+                            }
+                            my={4}
+
+                          />
+
+
+                          <Flex justify="space-between" align="center">
+                            <Flex align="center" gap={3}>
+                              {/* <Image
                             src={item.img}
                             alt={item.name}
                             borderRadius="full"
                             boxSize="45px"
                             objectFit="cover"
-                          />
-                          <Box>
-                            <Text
-                              fontWeight="semibold"
-                              fontSize="sm"
-                              color={
-                                colorMode === "light" ? "#2e0000" : "white"
-                              }
-                            >
-                              {item.name}
-                            </Text>
-                            <Text
-                              fontSize="xs"
-                              color={
-                                colorMode === "light"
-                                  ? "gray.500"
-                                  : "whiteAlpha.700"
-                              }
-                            >
-                              {item.date}
-                            </Text>
-                          </Box>
-                        </Flex>
+                          /> */}
 
-                        <Flex>
-                          {Array.from({ length: 5 }).map((_, i) => (
-                            <FaStar
-                              key={i}
-                              color={i < item.rating ? "#ff7b54" : "#ddd"}
-                            />
-                          ))}
-                        </Flex>
-                      </Flex>
-                    </Card.Body>
-                  </Card.Root>
-                </Flex>
-              </SwiperSlide>
-            ))}
+
+                              <Avatar.Root colorPalette={"red"}>
+                                <Avatar.Fallback />
+                              </Avatar.Root>
+                              <Box>
+                                <Text
+                                  fontWeight="semibold"
+                                  fontSize="sm"
+                                  color={
+                                    colorMode === "light" ? "#2e0000" : "white"
+                                  }
+                                >
+                                  {item.customer?.user?.name}
+                                </Text>
+                                <Text
+                                  fontSize="xs"
+                                  color={
+                                    colorMode === "light"
+                                      ? "gray.500"
+                                      : "whiteAlpha.700"
+                                  }
+                                >
+                                  {day}
+                                </Text>
+                              </Box>
+                            </Flex>
+
+                            <Flex>
+                              {Array.from({ length: 5 }).map((_, i) => (
+                                <FaStar
+                                  key={i}
+                                  color={i < item.rating ? "#ff7b54" : "#ddd"}
+                                />
+                              ))}
+                            </Flex>
+                          </Flex>
+
+                        </Box>
+
+                      </Card.Body>
+                    </Card.Root>
+                  </Flex>
+                </SwiperSlide>
+
+              );
+
+
+            }))}
           </Swiper>
 
         </Box>
