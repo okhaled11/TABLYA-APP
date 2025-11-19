@@ -17,16 +17,37 @@ export const personalInfoApi = createApi({
           } = await supabase.auth.getUser();
 
           if (userError || !user) {
-            return { error: { message: userError?.message || "User not found" } };
+            return {
+              error: { message: userError?.message || "User not found" },
+            };
           }
 
           // Extract user data from auth.users
+          const nameFromMetadata =
+            user.user_metadata?.name || user.user_metadata?.full_name || "";
+
+          let firstName = user.user_metadata?.first_name || "";
+          let lastName = user.user_metadata?.last_name || "";
+
+          // If first/last name are not explicitly stored, try to derive them from full name
+          if ((!firstName || !lastName) && nameFromMetadata) {
+            const parts = nameFromMetadata.trim().split(" ");
+
+            if (!firstName && parts.length > 0) {
+              firstName = parts[0];
+            }
+
+            if (!lastName && parts.length > 1) {
+              lastName = parts.slice(1).join(" ");
+            }
+          }
+
           const userData = {
             id: user.id,
             email: user.email,
-            name: user.user_metadata?.name || user.user_metadata?.full_name || "",
-            firstName: user.user_metadata?.first_name || "",
-            lastName: user.user_metadata?.last_name || "",
+            name: nameFromMetadata,
+            firstName,
+            lastName,
             phone: user.user_metadata?.phone || user.phone || "",
             avatar_url: user.user_metadata?.avatar_url || "",
             created_at: user.created_at,
@@ -54,26 +75,33 @@ export const personalInfoApi = createApi({
           } = await supabase.auth.getUser();
 
           if (userError || !user) {
-            return { error: { message: userError?.message || "User not found" } };
+            return {
+              error: { message: userError?.message || "User not found" },
+            };
           }
 
           const fullName = `${firstName} ${lastName}`;
 
           // Primary update: Update auth.users table via supabase.auth.updateUser
-          const { data: authData, error: authError } = await supabase.auth.updateUser({
-            email: email, // This updates email in auth.users and sends confirmation if changed
-            data: {
-              name: fullName,
-              full_name: fullName, // Some systems use full_name
-              first_name: firstName,
-              last_name: lastName,
-              phone: phone,
-            },
-          });
+          const { data: authData, error: authError } =
+            await supabase.auth.updateUser({
+              email: email, // This updates email in auth.users and sends confirmation if changed
+              data: {
+                name: fullName,
+                full_name: fullName, // Some systems use full_name
+                first_name: firstName,
+                last_name: lastName,
+                phone: phone,
+              },
+            });
 
           if (authError) {
             console.error("Auth update error:", authError);
-            return { error: { message: authError.message || "Failed to update auth profile" } };
+            return {
+              error: {
+                message: authError.message || "Failed to update auth profile",
+              },
+            };
           }
 
           // Secondary update: Also update custom users table for consistency (if exists)
