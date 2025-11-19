@@ -17,6 +17,7 @@ import {
   FaLock,
   FaUserAlt,
 } from "react-icons/fa";
+import AddressDialog from "../shared/AddressDialog";
 import { Link, useNavigate } from "react-router-dom";
 import { useColorMode } from "../../theme/color-mode";
 import colors from "../../theme/color";
@@ -25,6 +26,7 @@ import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { useDispatch, useSelector } from "react-redux";
 import { registerCustomer } from "../../app/features/Auth/registerCustomerSlice";
+import { clearRegistrationAddress } from "../../app/features/Auth/registrationAddressSlice";
 import { toaster } from "../ui/toaster";
 import { useTranslation } from "react-i18next";
 import { resendConfirmation } from "../../services/authService";
@@ -45,6 +47,8 @@ const CustomerRegister = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [resendLoading, setResendLoading] = useState(false);
+  const [isAddressDialogOpen, setIsAddressDialogOpen] = useState(false);
+  const [hasAddedAddress, setHasAddedAddress] = useState(false);
   const { loading, needsEmailConfirmation, confirmationMessage } = useSelector(
     (state) => state.register
   );
@@ -66,6 +70,19 @@ const CustomerRegister = () => {
   });
   // handle submit
   const onSubmit = async (data) => {
+    // Check if address has been added
+    if (!hasAddedAddress) {
+      toaster.create({
+        title: t("customerRegister.errorTitle"),
+        description: "Please add your address before registering",
+        type: "error",
+        duration: 3000,
+        isClosable: true,
+        position: "top",
+      });
+      return;
+    }
+
     const result = await dispatch(
       registerCustomer({
         ...data,
@@ -94,6 +111,8 @@ const CustomerRegister = () => {
           duration: 3000,
           isClosable: true,
         });
+        // Clear registration address after successful registration
+        dispatch(clearRegistrationAddress());
         // redirect to login
         setTimeout(() => {
           navigate("/login");
@@ -498,6 +517,42 @@ const CustomerRegister = () => {
             </Field.Root>
           </Flex>
 
+          {/* Add Address Button */}
+          <Button
+            leftIcon={<FaMapMarkerAlt />}
+            variant={hasAddedAddress ? "solid" : "outline"}
+            borderColor={
+              colorMode === "light"
+                ? colors.light.mainFixed
+                : colors.dark.mainFixed
+            }
+            bg={
+              hasAddedAddress
+                ? colorMode === "light"
+                  ? colors.light.mainFixed
+                  : colors.dark.mainFixed
+                : "transparent"
+            }
+            color={
+              hasAddedAddress
+                ? "white"
+                : colorMode === "light"
+                ? colors.light.mainFixed
+                : colors.dark.mainFixed
+            }
+            borderRadius="12px"
+            w="full"
+            onClick={() => setIsAddressDialogOpen(true)}
+            _hover={{
+              bg:
+                colorMode === "light"
+                  ? colors.light.mainFixed10a
+                  : colors.dark.mainFixed10a,
+            }}
+          >
+            {hasAddedAddress ? "✓ Address Added" : "Add Address *"}
+          </Button>
+
           {/* Submit Button */}
           <Button
             type="submit"
@@ -532,6 +587,14 @@ const CustomerRegister = () => {
           </Text>
         </Flex>
       </Box>
+
+      {/* Address Dialog */}
+      <AddressDialog
+        isOpen={isAddressDialogOpen}
+        onClose={() => setIsAddressDialogOpen(false)}
+        onAddressAdded={() => setHasAddedAddress(true)}
+        userType="customer"
+      />
     </Flex>
   );
 };

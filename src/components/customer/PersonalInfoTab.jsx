@@ -90,7 +90,7 @@ export default function PersonalInfoTab() {
         type: "success",
         duration: 3000,
       });
-      
+
       // Refetch user data to show updated avatar
       refetch();
     } catch (error) {
@@ -119,7 +119,7 @@ export default function PersonalInfoTab() {
         type: "success",
         duration: 3000,
       });
-      
+
       // Refetch user data from auth.users to show updated info
       refetch();
       setIsEditing(false);
@@ -174,133 +174,134 @@ export default function PersonalInfoTab() {
         <VStack spacing={8} align="stretch">
           {/* Avatar Section */}
           <VStack spacing={3}>
-          <Box position="relative">
-            <Avatar.Root
-              size="2xl"
-              borderColor={styles.mainFixed}
-              borderWidth="3px"
-            >
-              <Avatar.Image
-                src={
-                  user?.avatar_url ||
-                  `https://ui-avatars.com/api/?name=${user?.name}`
-                }
+            <Box position="relative">
+              <Avatar.Root
+                size="2xl"
+                borderColor={styles.mainFixed}
+                borderWidth="2px"
+              >
+                <Avatar.Image
+                  src={
+                    user?.avatar_url ||
+                    `https://ui-avatars.com/api/?name=${user?.name}`
+                  }
+                />
+              </Avatar.Root>
+              <input
+                type="file"
+                ref={fileInputRef}
+                onChange={handleAvatarUpload}
+                accept="image/*"
+                style={{ display: "none" }}
               />
-            </Avatar.Root>
-            <input
-              type="file"
-              ref={fileInputRef}
-              onChange={handleAvatarUpload}
-              accept="image/*"
-              style={{ display: "none" }}
-            />
-            <IconButton
-              position="absolute"
-              bottom="0"
-              right="0"
-              size="sm"
-              borderRadius="full"
+              <IconButton
+                position="absolute"
+                bottom="-2"
+                right="-3"
+                size="sm"
+                borderRadius="full"
+                bg={styles.mainFixed}
+                color="white"
+                onClick={() => fileInputRef.current?.click()}
+                isLoading={isUploading}
+                _hover={{ bg: styles.mainFixed70a }}
+              >
+                <PencilSimple size={10} weight="bold" />
+              </IconButton>
+            </Box>
+            <Text fontSize="xl" fontWeight="bold" color={styles.textMain}>
+              {user?.name || "User"}
+            </Text>
+          </VStack>
+
+          {/* Form Fields */}
+          <Grid templateColumns={{ base: "1fr", md: "repeat(2, 1fr)" }} gap={6}>
+            <GridItem>
+              <FormField
+                label="First Name"
+                placeholder="Enter your first name"
+                value={firstName}
+                onChange={(e) => {
+                  setFirstName(e.target.value);
+                  setIsEditing(true);
+                }}
+              />
+            </GridItem>
+
+            <GridItem>
+              <FormField
+                label="Last Name"
+                placeholder="Enter your last name"
+                value={lastName}
+                onChange={(e) => {
+                  setLastName(e.target.value);
+                  setIsEditing(true);
+                }}
+              />
+            </GridItem>
+
+            <GridItem>
+              <FormField
+                label="Email"
+                placeholder="Enter your email"
+                type="email"
+                disabled
+                value={email}
+                onChange={(e) => {
+                  setEmail(e.target.value);
+                  setIsEditing(true);
+                }}
+              />
+            </GridItem>
+
+            <GridItem>
+              <FormField
+                label="Phone"
+                placeholder="Enter your phone number"
+                type="tel"
+                value={phone}
+                onChange={(e) => {
+                  setPhone(e.target.value);
+                  setIsEditing(true);
+                }}
+              />
+            </GridItem>
+          </Grid>
+
+          {/* Buttons */}
+          <HStack spacing={4} mt={4}>
+            <Button
+              flex={1}
               bg={styles.mainFixed}
               color="white"
-              onClick={() => fileInputRef.current?.click()}
-              isLoading={isUploading}
+              borderRadius="12px"
+              size="lg"
+              onClick={handleSaveChanges}
+              isLoading={isUpdating}
+              loadingText="Saving..."
+              isDisabled={!isEditing}
               _hover={{ bg: styles.mainFixed70a }}
+              _loading={{
+                bg: styles.mainFixed,
+                opacity: 0.7,
+              }}
             >
-              <PencilSimple size={16} weight="fill" />
-            </IconButton>
-          </Box>
-          <Text fontSize="xl" fontWeight="bold" color={styles.textMain}>
-            {user?.name || "User"}
-          </Text>
-        </VStack>
-
-        {/* Form Fields */}
-        <Grid templateColumns={{ base: "1fr", md: "repeat(2, 1fr)" }} gap={6}>
-          <GridItem>
-            <FormField
-              label="First Name"
-              placeholder="Enter your first name"
-              value={firstName}
-              onChange={(e) => {
-                setFirstName(e.target.value);
-                setIsEditing(true);
-              }}
-            />
-          </GridItem>
-
-          <GridItem>
-            <FormField
-              label="Last Name"
-              placeholder="Enter your last name"
-              value={lastName}
-              onChange={(e) => {
-                setLastName(e.target.value);
-                setIsEditing(true);
-              }}
-            />
-          </GridItem>
-
-          <GridItem>
-            <FormField
-              label="Email"
-              placeholder="Enter your email"
-              type="email"
-              value={email}
-              onChange={(e) => {
-                setEmail(e.target.value);
-                setIsEditing(true);
-              }}
-            />
-          </GridItem>
-
-          <GridItem>
-            <FormField
-              label="Phone"
-              placeholder="Enter your phone number"
-              type="tel"
-              value={phone}
-              onChange={(e) => {
-                setPhone(e.target.value);
-                setIsEditing(true);
-              }}
-            />
-          </GridItem>
-        </Grid>
-
-        {/* Buttons */}
-        <HStack spacing={4} mt={4}>
-          <Button
-            flex={1}
-            bg={styles.mainFixed}
-            color="white"
-            borderRadius="12px"
-            size="lg"
-            onClick={handleSaveChanges}
-            isLoading={isUpdating}
-            loadingText="Saving..."
-            isDisabled={!isEditing}
-            _hover={{ bg: styles.mainFixed70a }}
-            _loading={{
-              bg: styles.mainFixed,
-              opacity: 0.7,
-            }}
-          >
-            Save Changes
-          </Button>
-          <Button
-            flex={1}
-            variant="outline"
-            borderColor={styles.mainFixed}
-            color={styles.mainFixed}
-            borderRadius="12px"
-            size="lg"
-            onClick={handleDiscardChanges}
-            isDisabled={!isEditing || isUpdating}
-            _hover={{ bg: styles.mainFixed10a }}
-          >
-            Discard Changes
-          </Button>
-        </HStack>
+              Save Changes
+            </Button>
+            <Button
+              flex={1}
+              variant="outline"
+              borderColor={styles.mainFixed}
+              color={styles.mainFixed}
+              borderRadius="12px"
+              size="lg"
+              onClick={handleDiscardChanges}
+              isDisabled={!isEditing || isUpdating}
+              _hover={{ bg: styles.mainFixed10a }}
+            >
+              Discard Changes
+            </Button>
+          </HStack>
         </VStack>
       )}
     </Box>
