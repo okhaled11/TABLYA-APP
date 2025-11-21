@@ -9,6 +9,9 @@ import {
   Badge,
   Skeleton,
   SkeletonText,
+  Pagination,
+  ButtonGroup,
+  IconButton,
 } from "@chakra-ui/react";
 import { useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
@@ -28,6 +31,7 @@ import {
   IoReceiptOutline,
   IoTimeOutline,
 } from "react-icons/io5";
+import { LuChevronLeft, LuChevronRight } from "react-icons/lu";
 import {
   useCreateReportMutation,
   useGetUserReportsQuery,
@@ -51,6 +55,10 @@ const OrderPage = () => {
   const [reportReason, setReportReason] = useState("");
   const [reportDetails, setReportDetails] = useState("");
   const [reportTargetId, setReportTargetId] = useState(null);
+const ORDERS_PER_PAGE_ACTIVE = 2;
+const ORDERS_PER_PAGE_HISTORY = 3;
+const [currentPageActive, setCurrentPageActive] = useState(1);
+const [currentPageHistory, setCurrentPageHistory] = useState(1);
 
   /* --------------------------HOOKS------------------------- */
   const navigate = useNavigate();
@@ -342,12 +350,43 @@ const OrderPage = () => {
   );
 
   // Limit order history to last 3
-  const limitedOrderHistory = orderHistory?.slice(0, 3);
+  const startHistoryIndex =
+  (currentPageHistory - 1) * ORDERS_PER_PAGE_HISTORY;
+const paginatedHistory =
+  orderHistory?.slice(
+    startHistoryIndex,
+    startHistoryIndex + ORDERS_PER_PAGE_HISTORY
+  ) || [];
+const totalHistoryPages = Math.ceil(
+  (orderHistory?.length || 0) / ORDERS_PER_PAGE_HISTORY
+);
 
   console.log("Active orders after filter:", activeOrders);
   console.log("Hidden order IDs:", hiddenOrderIds);
 
-  /* -----------------RENDER---------------------------- */
+  useEffect(() => {
+  if (currentPageActive > totalActivePages && totalActivePages > 0) {
+    setCurrentPageActive(1);
+  }
+}, [totalActivePages, currentPageActive]);
+
+useEffect(() => {
+  if (currentPageHistory > totalHistoryPages && totalHistoryPages > 0) {
+    setCurrentPageHistory(1);
+  }
+}, [totalHistoryPages, currentPageHistory]);
+
+const handleActivePageChange = (details) => {
+  setCurrentPageActive(details.page);
+  window.scrollTo({ top: 0, behavior: "smooth" });
+};
+
+const handleHistoryPageChange = (details) => {
+  setCurrentPageHistory(details.page);
+  window.scrollTo({ top: 0, behavior: "smooth" });
+};
+
+/* -----------------RENDER---------------------------- */
 
   // Check if user has already reported this order
   const isOrderReported = (orderId) => {
@@ -439,7 +478,7 @@ const OrderPage = () => {
     }
   };
 
-  const activeOrderHandler = activeOrders?.map(
+  const activeOrderHandler = paginatedActiveOrders?.map(
     ({ id, status, created_at, total, order_items }) => {
       console.log("Order ID:", id);
       console.log("Order items:", order_items);
@@ -753,6 +792,30 @@ const OrderPage = () => {
         )}
       </Box>
 
+      { !ordersLoading && activeOrders && activeOrders.length > ORDERS_PER_PAGE_ACTIVE && (
+        <Flex justifyContent="center" mt={8} mb={4}>
+          <Pagination.Root count={activeOrders.length} pageSize={ORDERS_PER_PAGE_ACTIVE} page={currentPageActive} onPageChange={handleActivePageChange}>
+            <ButtonGroup variant="ghost" size={{ base: "sm", md: "md" }} gap={1}>
+              <Pagination.PrevTrigger asChild>
+                <IconButton bg={colorMode === "light" ? colors.light.bgThird : colors.dark.bgThird} color={colorMode === "light" ? colors.light.textSub : colors.dark.textSub} _hover={{ bg: colorMode === "light" ? colors.light.bgFourth : colors.dark.bgFourth }} _disabled={{ opacity: 0.4, cursor: "not-allowed" }}>
+                  <LuChevronLeft />
+                </IconButton>
+              </Pagination.PrevTrigger>
+              <Pagination.Items render={(page) => (
+                <IconButton bg={ page.type === "page" && page.value === currentPageActive ? (colorMode === "light" ? colors.light.mainFixed : colors.dark.mainFixed) : (colorMode === "light" ? colors.light.bgThird : colors.dark.bgThird) } color={ page.type === "page" && page.value === currentPageActive ? "white" : (colorMode === "light" ? colors.light.textSub : colors.dark.textSub) } _hover={{ bg: page.type === "page" && page.value === currentPageActive ? (colorMode === "light" ? colors.light.mainFixed : colors.dark.mainFixed) : (colorMode === "light" ? colors.light.bgFourth : colors.dark.bgFourth) }}>
+                  {page.value}
+                </IconButton>
+              )} />
+              <Pagination.NextTrigger asChild>
+                <IconButton bg={colorMode === "light" ? colors.light.bgThird : colors.dark.bgThird} color={colorMode === "light" ? colors.light.textSub : colors.dark.textSub} _hover={{ bg: colorMode === "light" ? colors.light.bgFourth : colors.dark.bgFourth }} _disabled={{ opacity: 0.4, cursor: "not-allowed" }}>
+                  <LuChevronRight />
+                </IconButton>
+              </Pagination.NextTrigger>
+            </ButtonGroup>
+          </Pagination.Root>
+        </Flex>
+      )}
+
       <Box>
         <Text fontSize={{ base: "20px", md: "40px" }} fontWeight={"700"}>
           Order History
@@ -763,8 +826,8 @@ const OrderPage = () => {
             <OrderSkeleton key="history-skeleton-2" />
             <OrderSkeleton key="history-skeleton-3" />
           </>
-        ) : limitedOrderHistory && limitedOrderHistory.length > 0 ? (
-          limitedOrderHistory.map(({ status, at, orders }, index) => {
+        ) : paginatedHistory && paginatedHistory.length > 0 ? (
+          paginatedHistory.map(({ status, at, orders }, index) => {
             const orderDetails = orders;
 
             const { color: statusColor, bg: statusBg } =
@@ -1011,6 +1074,30 @@ const OrderPage = () => {
           </Box>
         )}
       </Box>
+
+      { !orderHistoryLoading && orderHistory && orderHistory.length > ORDERS_PER_PAGE_HISTORY && (
+        <Flex justifyContent="center" mt={8} mb={4}>
+          <Pagination.Root count={orderHistory.length} pageSize={ORDERS_PER_PAGE_HISTORY} page={currentPageHistory} onPageChange={handleHistoryPageChange}>
+            <ButtonGroup variant="ghost" size={{ base: "sm", md: "md" }} gap={1}>
+              <Pagination.PrevTrigger asChild>
+                <IconButton bg={colorMode === "light" ? colors.light.bgThird : colors.dark.bgThird} color={colorMode === "light" ? colors.light.textSub : colors.dark.textSub} _hover={{ bg: colorMode === "light" ? colors.light.bgFourth : colors.dark.bgFourth }} _disabled={{ opacity: 0.4, cursor: "not-allowed" }}>
+                  <LuChevronLeft />
+                </IconButton>
+              </Pagination.PrevTrigger>
+              <Pagination.Items render={(page) => (
+                <IconButton bg={ page.type === "page" && page.value === currentPageHistory ? (colorMode === "light" ? colors.light.mainFixed : colors.dark.mainFixed) : (colorMode === "light" ? colors.light.bgThird : colors.dark.bgThird) } color={ page.type === "page" && page.value === currentPageHistory ? "white" : (colorMode === "light" ? colors.light.textSub : colors.dark.textSub) } _hover={{ bg: page.type === "page" && page.value === currentPageHistory ? (colorMode === "light" ? colors.light.mainFixed : colors.dark.mainFixed) : (colorMode === "light" ? colors.light.bgFourth : colors.dark.bgFourth) }}>
+                  {page.value}
+                </IconButton>
+              )} />
+              <Pagination.NextTrigger asChild>
+                <IconButton bg={colorMode === "light" ? colors.light.bgThird : colors.dark.bgThird} color={colorMode === "light" ? colors.light.textSub : colors.dark.textSub} _hover={{ bg: colorMode === "light" ? colors.light.bgFourth : colors.dark.bgFourth }} _disabled={{ opacity: 0.4, cursor: "not-allowed" }}>
+                  <LuChevronRight />
+                </IconButton>
+              </Pagination.NextTrigger>
+            </ButtonGroup>
+          </Pagination.Root>
+        </Flex>
+      )}
 
       {/* Report Modal (custom overlay) */}
       {isReportOpen && (

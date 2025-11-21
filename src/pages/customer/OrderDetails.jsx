@@ -61,7 +61,7 @@ function OrderDetails() {
       const status = orderDetails.status;
       if (status === "confirmed" || status === "created") {
         setCurrentStep(1);
-      } else if (status === "preparing") {
+      } else if (status === "preparing"|| status === "ready_for_pickup") {
         setCurrentStep(2);
       } else if (status === "out_for_delivery") {
         setCurrentStep(3);

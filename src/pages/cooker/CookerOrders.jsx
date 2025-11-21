@@ -124,7 +124,7 @@ const CookerOrders = () => {
       { label: "Default", value: "Default" },
       { label: "confirmed", value: "confirmed" },
       { label: "preparing", value: "preparing" },
-      { label: "out_for_delivery", value: "out_for_delivery" },
+      { label: "ready_for_pickup", value: "ready_for_pickup" },
     ],
   });
 
@@ -488,25 +488,25 @@ const CookerOrders = () => {
                       variant="outline"
                       rounded={"16px"}
                       bg={
-                        order.status === "out_for_delivery"
+                        order.status === "ready_for_pickup"
                           ? colors.mainFixed
                           : colors.bgFourth
                       }
                       color={
-                        order.status === "out_for_delivery"
+                        order.status === "ready_for_pickup"
                           ? "white"
                           : colors.textSub
                       }
                       fontSize={{ base: "13px", md: "14px" }}
                       onClick={() =>
-                        handleStatusUpdate(order.id, "out_for_delivery")
+                        handleStatusUpdate(order.id, "ready_for_pickup")
                       }
                       isDisabled={
-                        isUpdating || order.status === "out_for_delivery"
+                        isUpdating || order.status === "ready_for_pickup"
                       }
                       _hover={{
                         bg:
-                          order.status === "out_for_delivery"
+                          order.status === "ready_for_pickup"
                             ? colors.mainFixed
                             : colors.bgThird,
                       }}
@@ -518,7 +518,7 @@ const CookerOrders = () => {
                         ml={1}
                         display={{ base: "none", sm: "inline" }}
                       >
-                        Out for Delivery
+                        ready for Pickup   
                       </Box>
                       <Box
                         as="span"

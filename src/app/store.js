@@ -39,6 +39,7 @@ import { adminAuthApi } from "./features/Admin/adminData";
 
 import { MariamSettingsApi } from "./features/Admin/MariamSettings";
 import { deliveryApi } from "./features/delivery/deliveryApi";
+import { deleveryOrder } from "./features/delivery/deleveryOrder";
 
 const persistCartConfig = {
   key: "cart",
@@ -94,6 +95,7 @@ export const store = configureStore({
 
     // Delivery APIs
     [deliveryApi.reducerPath]: deliveryApi.reducer,
+    [deleveryOrder.reducerPath]: deleveryOrder.reducer,
   },
 
   middleware: (getDefaultMiddleware) =>
@@ -129,7 +131,8 @@ export const store = configureStore({
       CookerAnalyticsApi.middleware,
       MariamSettingsApi.middleware,
       adminReportActionsApi.middleware,
-      deliveryApi.middleware
+      deliveryApi.middleware,
+      deleveryOrder.middleware
     ),
 });
 
