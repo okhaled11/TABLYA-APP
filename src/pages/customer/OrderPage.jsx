@@ -323,21 +323,31 @@ const [currentPageHistory, setCurrentPageHistory] = useState(1);
     return statusMap[status] || status;
   };
 
+  const getStatusBadgeStyles = (status) => {
+    const palette = colorMode === "light" ? colors.light : colors.dark;
+
+    switch (status) {
+      case "confirmed":
+        return { color: palette.pending, bg: palette.pending20a };
+      case "preparing":
+        return { color: palette.warning, bg: palette.warning20a };
+      case "out_for_delivery":
+        return { color: palette.info, bg: palette.info20a };
+      case "delivered":
+        return { color: palette.success, bg: palette.success20a };
+      case "cancelled":
+        return { color: palette.error, bg: palette.error20a };
+      default:
+        return { color: palette.pending, bg: palette.pending20a };
+    }
+  };
+
   const activeOrders = orders?.filter(
-  (order) =>
-    order.status !== "delivered" &&
-    order.status !== "cancelled" &&
-    !hiddenOrderIds.includes(order.id)
-);
-const startActiveIndex = (currentPageActive - 1) * ORDERS_PER_PAGE_ACTIVE;
-const paginatedActiveOrders =
-  activeOrders?.slice(
-    startActiveIndex,
-    startActiveIndex + ORDERS_PER_PAGE_ACTIVE
-  ) || [];
-const totalActivePages = Math.ceil(
-  (activeOrders?.length || 0) / ORDERS_PER_PAGE_ACTIVE
-);
+    (order) =>
+      order.status !== "delivered" &&
+      order.status !== "cancelled" &&
+      !hiddenOrderIds.includes(order.id)
+  );
 
   // Limit order history to last 3
   const startHistoryIndex =
@@ -476,6 +486,8 @@ const handleHistoryPageChange = (details) => {
       console.log("Order items is array?", Array.isArray(order_items));
       const isCreatedStatus = status === "created";
 
+      const { color: statusColor, bg: statusBg } = getStatusBadgeStyles(status);
+
       return (
         <Box
           key={id}
@@ -505,16 +517,8 @@ const handleHistoryPageChange = (details) => {
                 rounded={"xl"}
                 px={4}
                 py={2}
-                color={
-                  colorMode === "light"
-                    ? colors.light.pending
-                    : colors.dark.pending
-                }
-                bg={
-                  colorMode === "light"
-                    ? colors.light.pending20a
-                    : colors.dark.pending20a
-                }
+                color={statusColor}
+                bg={statusBg}
               >
                 {getStatusDisplayName(status)}
               </Badge>
@@ -826,6 +830,9 @@ const handleHistoryPageChange = (details) => {
           paginatedHistory.map(({ status, at, orders }, index) => {
             const orderDetails = orders;
 
+            const { color: statusColor, bg: statusBg } =
+              getStatusBadgeStyles(status);
+
             return (
               <Box
                 key={at}
@@ -849,24 +856,8 @@ const handleHistoryPageChange = (details) => {
                       fontSize={"18px"}
                       rounded={"xl"}
                       p={3}
-                      color={
-                        status === "delivered"
-                          ? colorMode === "light"
-                            ? colors.light.success
-                            : colors.dark.success
-                          : colorMode === "light"
-                          ? colors.light.pending
-                          : colors.dark.pending
-                      }
-                      bg={
-                        status === "delivered"
-                          ? colorMode === "light"
-                            ? colors.light.success20a
-                            : colors.dark.success20a
-                          : colorMode === "light"
-                          ? colors.light.pending20a
-                          : colors.dark.pending20a
-                      }
+                      color={statusColor}
+                      bg={statusBg}
                     >
                       {getStatusDisplayName(status)}
                     </Badge>

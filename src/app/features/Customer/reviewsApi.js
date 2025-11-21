@@ -104,8 +104,25 @@ export const reviewsApi = createApi({
       },
       invalidatesTags: [{ type: "Reviews", id: "LIST" }],
     }),
+    //Update existing review
+    updateReview: builder.mutation({
+      async queryFn({ id, updates }) {
+        const { data, error } = await supabase
+          .from("reviews")
+          .update(updates)
+          .eq("id", id)
+          .select()
+          .single();
+        if (error) return { error };
+        return { data };
+      },
+      invalidatesTags: (result, error, arg) => [
+        { type: "Reviews", id: "LIST" },
+        ...(arg?.id ? [{ type: "Reviews", id: arg.id }] : []),
+      ],
+    }),
   }),
 });
 
-export const { useGetReviewsByCookerIdQuery, useAddReviewMutation } =
+export const { useGetReviewsByCookerIdQuery, useAddReviewMutation, useUpdateReviewMutation } =
   reviewsApi;

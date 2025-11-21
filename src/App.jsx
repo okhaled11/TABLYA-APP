@@ -1,4 +1,4 @@
-import { Navigate, Route, Routes } from "react-router-dom";
+import { Navigate, Route, Routes, useLocation } from "react-router-dom";
 import { useEffect } from "react";
 import { useTranslation } from "react-i18next";
 
@@ -39,6 +39,16 @@ import CookerOrders from "./pages/cooker/CookerOrders";
 import CookerReviews from "./pages/cooker/review/CookerReviews";
 import AuthCallback from "./pages/auth/AuthCallback";
 import DeliveryPage from "./pages/delivery/DeliveryPage";
+
+function ScrollToTop() {
+  const location = useLocation();
+
+  useEffect(() => {
+    window.scrollTo({ top: 0, left: 0, behavior: "smooth" });
+  }, [location.pathname]);
+
+  return null;
+}
 import DeliveryOrders from "./components/delivery/DeliveryOrders";
 import DeliveryStatistics from "./components/delivery/DeliveryStatistics";
 import DeliveryOrderMap from "./pages/delivery/DeliveryOrderMap";
@@ -54,6 +64,7 @@ function App() {
 
   return (
     <>
+      <ScrollToTop />
       <Routes>
         <Route
           path="/"

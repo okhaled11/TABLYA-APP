@@ -12,8 +12,9 @@ import {
 } from "@chakra-ui/react";
 import { useColorMode } from "../../theme/color-mode";
 import colors from "../../theme/color";
-import { FaUser, FaPhoneAlt } from "react-icons/fa";
+import { FaUser, FaPhoneAlt, FaMapMarkerAlt } from "react-icons/fa";
 import { MdEmail } from "react-icons/md";
+import AddressDialog from "../shared/AddressDialog";
 import { LuUpload } from "react-icons/lu";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
@@ -27,6 +28,7 @@ import { useTranslation } from "react-i18next";
 import { Link as LinkRoute } from "react-router-dom";
 import { CloseButton } from "@chakra-ui/react";
 import { MdInsertPhoto } from "react-icons/md";
+import { useState } from "react";
 
 export const PersonalRegisterChef = ({ nextStepHandler }) => {
   /* ---------------state----------------- */
@@ -34,6 +36,8 @@ export const PersonalRegisterChef = ({ nextStepHandler }) => {
   const dispatch = useDispatch();
   const { t, i18n } = useTranslation();
   const isRTL = i18n.language === "ar";
+  const [isAddressDialogOpen, setIsAddressDialogOpen] = useState(false);
+  const [hasAddedAddress, setHasAddedAddress] = useState(false);
 
   /* ---------------variable----------------- */
   const bgInput =
@@ -48,6 +52,17 @@ export const PersonalRegisterChef = ({ nextStepHandler }) => {
   } = useForm({ resolver: yupResolver(registerSchemaPersonaChef) });
 
   const onSubmit = (data) => {
+    // Check if address has been added
+    if (!hasAddedAddress) {
+      toaster.create({
+        title: "Address Required",
+        description: "Please add your address before continuing",
+        type: "error",
+        duration: 3500,
+      });
+      return;
+    }
+
     console.log(data);
     const dataUpdated = { ...data };
     dispatch(getDataRegisterChef(dataUpdated));
@@ -202,18 +217,19 @@ export const PersonalRegisterChef = ({ nextStepHandler }) => {
           onFileAccept={async (details) => {
             const file = details.files?.[0];
             if (!file) return;
-            
+
             // Validate file type
-            if (!file.type.startsWith('image/')) {
+            if (!file.type.startsWith("image/")) {
               toaster.create({
                 title: "Invalid File Type",
-                description: "Please upload an image file only (JPG, PNG, GIF, etc.)",
+                description:
+                  "Please upload an image file only (JPG, PNG, GIF, etc.)",
                 type: "error",
                 duration: 3500,
               });
               return;
             }
-            
+
             try {
               // Convert image to WebP format
               const webpFile = await convertImageToWebP(file, {
@@ -221,7 +237,7 @@ export const PersonalRegisterChef = ({ nextStepHandler }) => {
                 maxWidth: 1920,
                 maxHeight: 1920,
               });
-              
+
               const imageUrl = await uploadImageToImgBB(webpFile);
               setValue("id_card_front_url", imageUrl, {
                 shouldValidate: true,
@@ -229,11 +245,12 @@ export const PersonalRegisterChef = ({ nextStepHandler }) => {
             } catch (error) {
               toaster.create({
                 title: "Conversion Error",
-                description: "Failed to process image. Please try another file.",
+                description:
+                  "Failed to process image. Please try another file.",
                 type: "error",
                 duration: 3500,
               });
-              console.error('Image conversion error:', error);
+              console.error("Image conversion error:", error);
             }
           }}
         >
@@ -306,18 +323,19 @@ export const PersonalRegisterChef = ({ nextStepHandler }) => {
           onFileAccept={async (details) => {
             const file = details.files?.[0];
             if (!file) return;
-            
+
             // Validate file type
-            if (!file.type.startsWith('image/')) {
+            if (!file.type.startsWith("image/")) {
               toaster.create({
                 title: "Invalid File Type",
-                description: "Please upload an image file only (JPG, PNG, GIF, etc.)",
+                description:
+                  "Please upload an image file only (JPG, PNG, GIF, etc.)",
                 type: "error",
                 duration: 3500,
               });
               return;
             }
-            
+
             try {
               // Convert image to WebP format
               const webpFile = await convertImageToWebP(file, {
@@ -325,7 +343,7 @@ export const PersonalRegisterChef = ({ nextStepHandler }) => {
                 maxWidth: 1920,
                 maxHeight: 1920,
               });
-              
+
               const imageUrl = await uploadImageToImgBB(webpFile);
               setValue("id_card_back_url", imageUrl, {
                 shouldValidate: true,
@@ -333,11 +351,12 @@ export const PersonalRegisterChef = ({ nextStepHandler }) => {
             } catch (error) {
               toaster.create({
                 title: "Conversion Error",
-                description: "Failed to process image. Please try another file.",
+                description:
+                  "Failed to process image. Please try another file.",
                 type: "error",
                 duration: 3500,
               });
-              console.error('Image conversion error:', error);
+              console.error("Image conversion error:", error);
             }
           }}
         >
@@ -410,18 +429,19 @@ export const PersonalRegisterChef = ({ nextStepHandler }) => {
           onFileAccept={async (details) => {
             const file = details.files?.[0];
             if (!file) return;
-            
+
             // Validate file type
-            if (!file.type.startsWith('image/')) {
+            if (!file.type.startsWith("image/")) {
               toaster.create({
                 title: "Invalid File Type",
-                description: "Please upload an image file only (JPG, PNG, GIF, etc.)",
+                description:
+                  "Please upload an image file only (JPG, PNG, GIF, etc.)",
                 type: "error",
                 duration: 3500,
               });
               return;
             }
-            
+
             try {
               // Convert image to WebP format
               const webpFile = await convertImageToWebP(file, {
@@ -429,7 +449,7 @@ export const PersonalRegisterChef = ({ nextStepHandler }) => {
                 maxWidth: 1920,
                 maxHeight: 1920,
               });
-              
+
               const imageUrl = await uploadImageToImgBB(webpFile);
               setValue("selfie_with_id_url", imageUrl, {
                 shouldValidate: true,
@@ -437,11 +457,12 @@ export const PersonalRegisterChef = ({ nextStepHandler }) => {
             } catch (error) {
               toaster.create({
                 title: "Conversion Error",
-                description: "Failed to process image. Please try another file.",
+                description:
+                  "Failed to process image. Please try another file.",
                 type: "error",
                 duration: 3500,
               });
-              console.error('Image conversion error:', error);
+              console.error("Image conversion error:", error);
             }
           }}
         >
@@ -492,6 +513,23 @@ export const PersonalRegisterChef = ({ nextStepHandler }) => {
         </Field.ErrorText>
       </Field.Root>
 
+      {/* Add Address Button */}
+      <Button
+        leftIcon={<FaMapMarkerAlt />}
+        variant={hasAddedAddress ? "solid" : "outline"}
+        borderColor="#FA2c23"
+        bg={hasAddedAddress ? "#FA2c23" : "transparent"}
+        color={hasAddedAddress ? "white" : "#FA2c23"}
+        w="100%"
+        rounded="md"
+        onClick={() => setIsAddressDialogOpen(true)}
+        _hover={{
+          bg: "#FA2c2310",
+        }}
+      >
+        {hasAddedAddress ? "✓ Address Added" : "Add Address *"}
+      </Button>
+
       {/* Continue */}
       <Button bg="#FA2c23" type="submit" w="100%" rounded="md">
         {t("personalRegisterChef.continue")}
@@ -511,6 +549,14 @@ export const PersonalRegisterChef = ({ nextStepHandler }) => {
           {t("personalRegisterChef.login")}
         </Link>
       </Text>
+
+      {/* Address Dialog */}
+      <AddressDialog
+        isOpen={isAddressDialogOpen}
+        onClose={() => setIsAddressDialogOpen(false)}
+        onAddressAdded={() => setHasAddedAddress(true)}
+        userType="chef"
+      />
     </Box>
   );
 };
