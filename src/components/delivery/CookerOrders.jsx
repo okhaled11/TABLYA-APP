@@ -12,8 +12,6 @@ import {
   ButtonGroup,
   IconButton,
   Portal,
-  Select,
-  createListCollection,
 } from "@chakra-ui/react";
 import { LuChevronLeft, LuChevronRight } from "react-icons/lu";
 import testColor from "../../theme/color";
@@ -30,7 +28,6 @@ import {
 import { useColorStyles } from "../../hooks/useColorStyles";
 import CustomAlertDialog from "../../shared/CustomAlertDailog";
 import { IoMdClose } from "react-icons/io";
-import { useNavigate } from "react-router-dom";
 
 const ORDERS_PER_PAGE = 2;
 
@@ -44,52 +41,26 @@ const DeliveryOrders = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const dialog = useDialog();
   const [deleteId, setDeleteId] = useState(null);
-  const [value, setValue] = useState([]);
-  const navigate = useNavigate();
   console.log(orders);
 
-  const selectedStatus = Array.isArray(value)
-    ? value[value.length - 1] ?? "Default"
-    : value || "Default";
-
-  useEffect(() => {
-    setCurrentPage(1);
-  }, [selectedStatus]);
-
-  const frameworks = createListCollection({
-    items: [
-      { label: "Default", value: "Default" },
-      { label: "Receive Order", value: "out_for_delivery" },
-      { label: "Mark Complete", value: "delivered" },
-    ],
-  });
-
   // Filter out hidden orders
-  const ordersAfterHidden = useMemo(() => {
+  const visibleOrders = useMemo(() => {
     if (!orders) return [];
     return orders.filter((order) => !hiddenOrderIds.includes(order.id));
   }, [orders, hiddenOrderIds]);
-
-  const filteredOrders = useMemo(() => {
-    if (selectedStatus === "Default") {
-      return ordersAfterHidden;
-    }
-
-    return ordersAfterHidden.filter((order) => order.status === selectedStatus);
-  }, [ordersAfterHidden, selectedStatus]);
 
   // Pagination logic
   const { paginatedOrders, totalPages } = useMemo(() => {
     const startIndex = (currentPage - 1) * ORDERS_PER_PAGE;
     const endIndex = startIndex + ORDERS_PER_PAGE;
-    const paginated = filteredOrders.slice(startIndex, endIndex);
-    const pages = Math.ceil(filteredOrders.length / ORDERS_PER_PAGE);
+    const paginated = visibleOrders.slice(startIndex, endIndex);
+    const pages = Math.ceil(visibleOrders.length / ORDERS_PER_PAGE);
 
     return {
       paginatedOrders: paginated,
       totalPages: pages,
     };
-  }, [filteredOrders, currentPage]);
+  }, [visibleOrders, currentPage]);
 
   // Reset to page 1 when orders change
   useEffect(() => {
@@ -118,51 +89,19 @@ const DeliveryOrders = () => {
 
   return (
     <Box py={6}>
-      <Flex my={4} justifyContent="space-between" alignItems="center">
-        <Heading
-          size="lg"
-          fontSize={{ base: "2xl", md: "3xl" }}
-          fontWeight="bold"
-          color={
-            colorMode === "light"
-              ? testColor.light.textMain
-              : testColor.dark.textMain
-          }
-        >
-          Orders
-        </Heading>
-
-        <Select.Root
-          collection={frameworks}
-          width={{ base: "160px", md: "240px" }}
-          value={value}
-          onValueChange={(e) => setValue(e.value)}
-          rounded="2xl"
-          bg={colors.bgFixed}
-        >
-          <Select.HiddenSelect />
-          <Select.Control>
-            <Select.Trigger border="none" outline="none">
-              <Select.ValueText placeholder="Default" color="white" />
-            </Select.Trigger>
-            <Select.IndicatorGroup>
-              <Select.Indicator />
-            </Select.IndicatorGroup>
-          </Select.Control>
-          <Portal>
-            <Select.Positioner>
-              <Select.Content bg={colors.bgFixed} color="white" rounded="2xl">
-                {frameworks.items.map((framework) => (
-                  <Select.Item item={framework} key={framework.value}>
-                    {framework.label}
-                    <Select.ItemIndicator />
-                  </Select.Item>
-                ))}
-              </Select.Content>
-            </Select.Positioner>
-          </Portal>
-        </Select.Root>
-      </Flex>
+      <Heading
+        size="lg"
+        fontSize={{ base: "2xl", md: "3xl" }}
+        fontWeight="bold"
+        my={4}
+        color={
+          colorMode === "light"
+            ? testColor.light.textMain
+            : testColor.dark.textMain
+        }
+      >
+        Orders
+      </Heading>
 
       {isLoading ? (
         <Flex justifyContent="center" alignItems="center" py={10}>
@@ -175,15 +114,15 @@ const DeliveryOrders = () => {
       ) : (
         <Box py={4} align="center" textAlign="center">
           {/* Orders count */}
-          {!isLoading && filteredOrders.length > 0 && (
+          {!isLoading && visibleOrders.length > 0 && (
             <Text color={colors.textSub} fontSize="sm" mb={4}>
               Showing {(currentPage - 1) * ORDERS_PER_PAGE + 1} -{" "}
-              {Math.min(currentPage * ORDERS_PER_PAGE, filteredOrders.length)}{" "}
-              of {filteredOrders.length} orders
+              {Math.min(currentPage * ORDERS_PER_PAGE, visibleOrders.length)} of{" "}
+              {visibleOrders.length} orders
             </Text>
           )}
 
-          {!orders || filteredOrders.length === 0 ? (
+          {!orders || visibleOrders.length === 0 ? (
             <Text
               color={colors.textSub}
               fontSize={{ base: "14px", md: "15px" }}
@@ -416,7 +355,7 @@ const DeliveryOrders = () => {
                               : "out_for_delivery";
                           handleStatusUpdate(order.id, newStatus);
                         }}
-                        disabled={order.status === "delivered"? true : false}
+                        isDisabled={isUpdating || order.status === "delivered"}
                         _hover={{
                           bg:
                             order.status === "out_for_delivery"
@@ -447,16 +386,28 @@ const DeliveryOrders = () => {
                         size={{ base: "sm", md: "md" }}
                         variant="outline"
                         rounded="16px"
-                        bg={colors.bgFourth}
-                        color={colors.textSub}
+                        bg={
+                          order.status === "Open In Map"
+                            ? colors.mainFixed
+                            : colors.bgFourth
+                        }
+                        color={
+                          order.status === "Open In Map"
+                            ? "white"
+                            : colors.textSub
+                        }
                         fontSize={{ base: "13px", md: "14px" }}
-                        onClick={() =>
-                          navigate(`/delivery/orders/map/${order.id}`, {
-                            state: { order },
-                          })
+                        // onClick={() =>
+                        //   // navigate page  ya omer to map
+                        // }
+                        isDisabled={
+                          isUpdating || order.status === "Open In Map"
                         }
                         _hover={{
-                          bg: colors.bgThird,
+                          bg:
+                            order.status === "Open In Map"
+                              ? colors.mainFixed
+                              : colors.bgThird,
                         }}
                         flex={1}
                       >
@@ -563,10 +514,10 @@ const DeliveryOrders = () => {
           )}
 
           {/* Pagination */}
-          {!isLoading && filteredOrders.length > ORDERS_PER_PAGE && (
+          {!isLoading && visibleOrders.length > ORDERS_PER_PAGE && (
             <Flex justifyContent="center" mt={8} mb={4}>
               <Pagination.Root
-                count={filteredOrders.length}
+                count={visibleOrders.length}
                 pageSize={ORDERS_PER_PAGE}
                 page={currentPage}
                 onPageChange={handlePageChange}

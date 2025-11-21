@@ -41,6 +41,7 @@ import AuthCallback from "./pages/auth/AuthCallback";
 import DeliveryPage from "./pages/delivery/DeliveryPage";
 import DeliveryOrders from "./components/delivery/DeliveryOrders";
 import DeliveryStatistics from "./components/delivery/DeliveryStatistics";
+import DeliveryOrderMap from "./pages/delivery/DeliveryOrderMap";
 
 function App() {
   const token = CookieService.get("access_token");
@@ -127,6 +128,10 @@ function App() {
               />
               <Route path="orders" element={<DeliveryOrders />} />
               <Route path="Statistics" element={<DeliveryStatistics />} />
+            <Route
+              path="orders/map/:orderId"
+              element={<DeliveryOrderMap />}
+            />
             </Route>
           </Route>
         </Route>
