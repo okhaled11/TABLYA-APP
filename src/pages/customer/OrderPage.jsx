@@ -348,6 +348,15 @@ const [currentPageHistory, setCurrentPageHistory] = useState(1);
       order.status !== "cancelled" &&
       !hiddenOrderIds.includes(order.id)
   );
+  const startActiveIndex = (currentPageActive - 1) * ORDERS_PER_PAGE_ACTIVE;
+  const paginatedActiveOrders =
+    activeOrders?.slice(
+      startActiveIndex,
+      startActiveIndex + ORDERS_PER_PAGE_ACTIVE
+    ) || [];
+  const totalActivePages = Math.ceil(
+    (activeOrders?.length || 0) / ORDERS_PER_PAGE_ACTIVE
+  );
 
   // Limit order history to last 3
   const startHistoryIndex =
