@@ -766,6 +766,8 @@ const OrderPage = () => {
         ) : limitedOrderHistory && limitedOrderHistory.length > 0 ? (
           limitedOrderHistory.map(({ status, at, orders }, index) => {
             const orderDetails = orders;
+            const isTodayOrder =
+              new Date(at).toDateString() === new Date().toDateString();
 
             const { color: statusColor, bg: statusBg } =
               getStatusBadgeStyles(status);
@@ -942,28 +944,30 @@ const OrderPage = () => {
                     })}
                   </Text>
                 </Flex>
-                {index === 0 && !isOrderReported(orderDetails?.id) && (
-                  <Flex justify="flex-end" mt={3}>
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      colorScheme="red"
-                      leftIcon={<IoFlagOutline />}
-                      onClick={() => openReportModal(orderDetails?.id)}
-                      borderColor={
-                        colorMode === "light" ? "red.500" : "red.400"
-                      }
-                      color={colorMode === "light" ? "red.500" : "red.400"}
-                      _hover={{
-                        bg: colorMode === "light" ? "red.50" : "red.900",
-                        borderColor:
-                          colorMode === "light" ? "red.600" : "red.300",
-                      }}
-                    >
-                      Report
-                    </Button>
-                  </Flex>
-                )}
+                {index === 0 &&
+                  isTodayOrder &&
+                  !isOrderReported(orderDetails?.id) && (
+                    <Flex justify="flex-end" mt={3}>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        colorScheme="red"
+                        leftIcon={<IoFlagOutline />}
+                        onClick={() => openReportModal(orderDetails?.id)}
+                        borderColor={
+                          colorMode === "light" ? "red.500" : "red.400"
+                        }
+                        color={colorMode === "light" ? "red.500" : "red.400"}
+                        _hover={{
+                          bg: colorMode === "light" ? "red.50" : "red.900",
+                          borderColor:
+                            colorMode === "light" ? "red.600" : "red.300",
+                        }}
+                      >
+                        Report
+                      </Button>
+                    </Flex>
+                  )}
                 {index === 0 && isOrderReported(orderDetails?.id) && (
                   <Flex justify="flex-end" mt={3}>
                     <Text
