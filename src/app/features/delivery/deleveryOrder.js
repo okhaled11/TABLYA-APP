@@ -60,6 +60,7 @@ export const deleveryOrder = createApi({
               payment_method,
               created_at,
               customer_id,
+              cooker_id,
               address,
               city,
               delivery_id
@@ -92,6 +93,7 @@ export const deleveryOrder = createApi({
                 payment_method,
                 created_at,
                 customer_id,
+                cooker_id,
                 address,
                 delivery_id
               `
@@ -147,6 +149,19 @@ export const deleveryOrder = createApi({
               return { data: [] };
             }
 
+            // Cooker addresses for matched orders (to show chef address text)
+            const cookerIds = matchedOrders
+              .map((o) => o.cooker_id)
+              .filter(Boolean);
+            let cookerAddressesData = [];
+            if (cookerIds.length > 0) {
+              const { data: cookerAddrRows } = await supabase
+                .from("addresses")
+                .select("user_id, city, area, street, is_default")
+                .in("user_id", cookerIds);
+              cookerAddressesData = cookerAddrRows || [];
+            }
+
             // Continue with matched orders
             const orderIds = matchedOrders.map((o) => o.id);
 
@@ -191,6 +206,24 @@ export const deleveryOrder = createApi({
                 customerAddresses[0] ||
                 null;
 
+              const cookerAddresses = (cookerAddressesData || []).filter(
+                (addr) => addr.user_id === order.cooker_id
+              );
+              const defaultCookerAddress =
+                cookerAddresses.find((addr) => addr.is_default) ||
+                cookerAddresses[0] ||
+                null;
+
+              const cooker_address = defaultCookerAddress
+                ? [
+                    defaultCookerAddress.city,
+                    defaultCookerAddress.area,
+                    defaultCookerAddress.street,
+                  ]
+                    .filter(Boolean)
+                    .join(", ")
+                : null;
+
               return {
                 ...order,
                 order_items: items,
@@ -198,6 +231,7 @@ export const deleveryOrder = createApi({
                 city: deliveryCity,
                 latitude: defaultAddress?.latitude ?? null,
                 longitude: defaultAddress?.longitude ?? null,
+                cooker_address,
               };
             });
 
@@ -232,7 +266,7 @@ export const deleveryOrder = createApi({
 
           console.log(" Found customers:", usersData.length);
 
-          // 6. Get customer addresses with coordinates
+          // 6. Get addresses
           let customerAddressesData = [];
           if (customerIds.length > 0) {
             const { data: addrRows } = await supabase
@@ -240,6 +274,16 @@ export const deleveryOrder = createApi({
               .select("user_id, latitude, longitude, is_default")
               .in("user_id", customerIds);
             customerAddressesData = addrRows || [];
+          }
+          // cooker addresses (for displaying chef address text)
+          let cookerAddressesData = [];
+          const cookerIds = ordersData.map((o) => o.cooker_id).filter(Boolean);
+          if (cookerIds.length > 0) {
+            const { data: cookerAddrRows } = await supabase
+              .from("addresses")
+              .select("user_id, city, area, street, is_default")
+              .in("user_id", cookerIds);
+            cookerAddressesData = cookerAddrRows || [];
           }
 
           // 7. Combine all data
@@ -256,12 +300,31 @@ export const deleveryOrder = createApi({
               customerAddresses[0] ||
               null;
 
+            const cookerAddresses = cookerAddressesData.filter(
+              (addr) => addr.user_id === order.cooker_id
+            );
+            const defaultCookerAddress =
+              cookerAddresses.find((addr) => addr.is_default) ||
+              cookerAddresses[0] ||
+              null;
+
+            const cooker_address = defaultCookerAddress
+              ? [
+                  defaultCookerAddress.city,
+                  defaultCookerAddress.area,
+                  defaultCookerAddress.street,
+                ]
+                  .filter(Boolean)
+                  .join(", ")
+              : null;
+
             return {
               ...order,
               order_items: items,
               customer,
               latitude: defaultAddress?.latitude ?? null,
               longitude: defaultAddress?.longitude ?? null,
+              cooker_address,
             };
           });
 
@@ -276,6 +339,88 @@ export const deleveryOrder = createApi({
         }
       },
       providesTags: ["DeliveryOrders"],
+      refetchOnFocus: true,
+      refetchOnReconnect: true,
+      async onCacheEntryAdded(
+        _,
+        { cacheDataLoaded, cacheEntryRemoved, refetch, updateCachedData }
+      ) {
+        try {
+          await cacheDataLoaded;
+
+          const { data: userRes } = await supabase.auth.getUser();
+          const userId = userRes?.user?.id || null;
+          let deliveryCity = null;
+          if (userId) {
+            const { data: deliveryRow } = await supabase
+              .from("deliveries")
+              .select("city")
+              .eq("user_id", userId)
+              .single();
+            deliveryCity = deliveryRow?.city || null;
+          }
+
+          const baseConfig = {
+            schema: "public",
+            table: "orders",
+          };
+
+          const allowedStatuses = [
+            "ready_for_pickup",
+            "out_for_delivery",
+            "delivered",
+          ];
+
+          const channel = supabase
+            .channel(`delivery-orders-${userId || "all"}`)
+            .on("postgres_changes", { ...baseConfig, event: "INSERT" }, () => {
+              // A new order may match our city/address rules; safest is to refetch
+              refetch();
+            })
+            .on(
+              "postgres_changes",
+              { ...baseConfig, event: "UPDATE" },
+              (payload) => {
+                const row = payload.new;
+                if (!row) return;
+                if (
+                  ![
+                    "ready_for_pickup",
+                    "out_for_delivery",
+                    "delivered",
+                  ].includes(row.status)
+                )
+                  return;
+                if (row.delivery_id && userId && row.delivery_id !== userId)
+                  return;
+
+                updateCachedData((draft) => {
+                  const idx = draft.findIndex((o) => o.id === row.id);
+                  if (idx !== -1) {
+                    draft[idx].status = row.status;
+                    draft[idx].delivery_id = row.delivery_id ?? null;
+                  }
+                });
+              }
+            )
+            .on(
+              "postgres_changes",
+              { ...baseConfig, event: "DELETE" },
+              (payload) => {
+                const row = payload.old;
+                if (!row) return;
+                updateCachedData((draft) => {
+                  const idx = draft.findIndex((o) => o.id === row.id);
+                  if (idx !== -1) draft.splice(idx, 1);
+                });
+              }
+            )
+            .subscribe();
+
+          await cacheEntryRemoved;
+          supabase.removeChannel(channel);
+        } catch (_) {}
+      },
     }),
 
     updateOrderStatus: builder.mutation({
@@ -335,6 +480,35 @@ export const deleveryOrder = createApi({
           return { data };
         } catch (e) {
           return { error: { message: e.message || "Failed to update status" } };
+        }
+      },
+      async onQueryStarted({ orderId, status }, { dispatch, queryFulfilled }) {
+        const {
+          data: { user },
+        } = await supabase.auth.getUser();
+        const patch = dispatch(
+          deleveryOrder.util.updateQueryData(
+            "getOrdersForDeliveryCity",
+            undefined,
+            (draft) => {
+              const idx = draft.findIndex((o) => o.id === orderId);
+              if (idx !== -1) {
+                draft[idx].status = status;
+                if (status === "out_for_delivery" || status === "delivered") {
+                  draft[idx].delivery_id =
+                    user?.id || draft[idx].delivery_id || null;
+                }
+                if (status === "ready_for_pickup") {
+                  draft[idx].delivery_id = null;
+                }
+              }
+            }
+          )
+        );
+        try {
+          await queryFulfilled;
+        } catch {
+          patch.undo();
         }
       },
       invalidatesTags: ["DeliveryOrders"],
