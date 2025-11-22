@@ -1,19 +1,3 @@
-// // // // src/components/admin/AdminNavBar.jsx
-// // import { Flex, Text, Avatar, Spacer, Box } from "@chakra-ui/react";
-// // // import { Avatar } from "@chakra-ui/react";
-
-// // export default function AdminNavBar() {
-// //   return (
-// //     <Box style={{ background: "white", padding: "10px" }}>
-// //       <Flex justify="flex-end" marginInlineEnd={"5"}>
-// //         <Avatar.Root>
-// //           <Avatar.Fallback name="User Name" />
-// //           <Avatar.Image src="https://bit.ly/broken-link" />
-// //         </Avatar.Root>
-// //       </Flex>
-// //     </Box>
-// //   );
-// // }
 import {
   Flex,
   Box,
@@ -26,8 +10,12 @@ import {
   Text,
   Separator,
   Button,
+  Float,
+  Circle,
 } from "@chakra-ui/react";
 import { Moon, Sun, SignOut, User } from "@phosphor-icons/react";
+import { FaRegBell } from "react-icons/fa";
+
 import colors from "../../theme/color";
 import { useColorMode } from "../../theme/color-mode";
 import CookieService from "../../services/cookies";
@@ -60,8 +48,7 @@ export default function AdminNavBar() {
       boxShadow="sm"
       position="sticky"
       top="0"
-      zIndex="1000" 
-      
+      zIndex="1000"
     >
       <Flex align="center" justify="flex-end" gap={4}>
         {/* Color Mode Toggle */}
@@ -79,6 +66,25 @@ export default function AdminNavBar() {
             <Icon as={Sun} boxSize={5} />
           )}
         </IconButton>
+        {/* <IconButton
+          aria-label="Notifications"
+          variant="ghost"
+          size="sm"
+          color={colorMode === "light" ? "gray.600" : "white"}
+          _hover={{ bg: "transparent" }}
+        >
+          <FaRegBell />
+          <Float placement="top-end" offsetX="1" offsetY="1">
+            <Circle
+              // bg="green.500"
+              size="16px"
+              outline="0.1em solid"
+              
+            >
+              11
+              </Circle>
+          </Float>
+        </IconButton> */}
 
         {/* Avatar with menu */}
         <Menu.Root positioning={{ placement: "bottom-end" }}>
@@ -87,8 +93,7 @@ export default function AdminNavBar() {
               <Avatar.Fallback name={admin?.name || "Admin"} />
               <Avatar.Image
                 src={
-                  admin?.avatar_url ||
-                  "https://ui-avatars.com/api/?name=Admin"
+                  admin?.avatar_url || "https://ui-avatars.com/api/?name=Admin"
                 }
               />
             </Avatar.Root>
@@ -121,6 +126,9 @@ export default function AdminNavBar() {
                     </Text>
                     <Text fontSize="xs" color="gray.400">
                       {admin?.email || "admin@example.com"}
+                    </Text>
+                    <Text fontSize="xs" color="gray.400">
+                      {admin?.phone || null}
                     </Text>
                   </Box>
                 </HStack>
