@@ -216,10 +216,10 @@ const DeliveryOrders = () => {
                     <Text
                       color={colors.textSub}
                       fontSize={{ base: "13px", md: "14px" }}
-                      fontWeight="medium"
+                      fontWeight=""
                     >
-                      {formattedDate} | {formattedTime} | #
-                      {order.id.slice(0, 8)}
+                      {formattedDate} | {formattedTime} | # ORD-
+                      {order.id.slice(0, 8).toUpperCase()}
                     </Text>
                     <Text
                       color={colors.mainFixed}
@@ -410,13 +410,12 @@ const DeliveryOrders = () => {
                         }
                         fontSize={{ base: "13px", md: "14px" }}
                         onClick={() => {
-                          const newStatus =
-                            order.status === "out_for_delivery"
-                              ? "ready_for_pickup"
-                              : "out_for_delivery";
-                          handleStatusUpdate(order.id, newStatus);
+                          if (order.status !== "ready_for_pickup") return;
+                          handleStatusUpdate(order.id, "out_for_delivery");
                         }}
-                        disabled={order.status === "delivered"? true : false}
+                        isDisabled={
+                          isUpdating || order.status !== "ready_for_pickup"
+                        }
                         _hover={{
                           bg:
                             order.status === "out_for_delivery"
@@ -496,7 +495,9 @@ const DeliveryOrders = () => {
                         onClick={() =>
                           handleStatusUpdate(order.id, "delivered")
                         }
-                        isDisabled={isUpdating || order.status === "delivered"}
+                        isDisabled={
+                          isUpdating || order.status !== "out_for_delivery"
+                        }
                         _hover={{
                           bg:
                             order.status === "delivered"
