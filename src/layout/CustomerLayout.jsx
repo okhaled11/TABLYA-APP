@@ -7,9 +7,9 @@ import { User, MapPin, Lock, ArrowLeft } from "@phosphor-icons/react";
 import Footer from "../shared/Footer";
 import { useLocation, useNavigate } from "react-router-dom";
 
-export default function CustomerLayout({ tabs }) {
+export default function CustomerLayout({ tabs, lockToAddressTab = false }) {
   const { colorMode } = useColorMode();
-  const [activeTab, setActiveTab] = useState(0);
+  const [activeTab, setActiveTab] = useState(lockToAddressTab ? 1 : 0);
   const sliderRef = useRef(null);
   const [isDragging, setIsDragging] = useState(false);
   const [startX, setStartX] = useState(0);
@@ -34,7 +34,7 @@ export default function CustomerLayout({ tabs }) {
     if (!isDragging) return;
     e.preventDefault();
     const x = e.pageX - sliderRef.current.offsetLeft;
-    const walk = (x - startX) * 2; 
+    const walk = (x - startX) * 2;
     sliderRef.current.scrollLeft = scrollLeft - walk;
   };
 
@@ -56,17 +56,23 @@ export default function CustomerLayout({ tabs }) {
   // Map URL segment to tab index and vice versa
   const segments = ["", "address", "security"]; // '' => personal-info root
 
-  // Sync active tab when URL changes
+  // Sync active tab when URL changes, but keep it locked on Address when required
   useEffect(() => {
     // Expecting path like /personal-info or /personal-info/<segment>
     const parts = location.pathname.split("/").filter(Boolean);
     const idx = parts.indexOf("personal-info");
     const seg = idx >= 0 ? parts[idx + 1] || "" : "";
-    const newIndex = Math.max(0, segments.indexOf(seg));
+    let newIndex = Math.max(0, segments.indexOf(seg));
+
+    if (lockToAddressTab) {
+      newIndex = 1; // Force Address tab
+    }
+
     if (newIndex !== activeTab) setActiveTab(newIndex);
-  }, [location.pathname]);
+  }, [location.pathname, lockToAddressTab, activeTab]);
 
   const goToTab = (index) => {
+    if (lockToAddressTab && index !== 1) return;
     setActiveTab(index);
     const seg = segments[index];
     const to = seg ? `/personal-info/${seg}` : "/personal-info";
@@ -77,7 +83,6 @@ export default function CustomerLayout({ tabs }) {
     <>
       <Navbar />
       <Box px={{ base: 4, md: 8 }} py={8} maxW="1600px" mx="auto">
-        
         {/* Header with Back Button */}
         <HStack mb={6} spacing={3}>
           <Icon
@@ -89,11 +94,15 @@ export default function CustomerLayout({ tabs }) {
                 : colors.dark.textMain
             }
             cursor="pointer"
-            onClick={() =>navigate("/home")}
+            onClick={() => {
+              if (lockToAddressTab) return;
+              navigate("/home");
+            }}
             _hover={{
-              color: colorMode === "light"
-                ? colors.light.mainFixed
-                : colors.dark.mainFixed
+              color:
+                colorMode === "light"
+                  ? colors.light.mainFixed
+                  : colors.dark.mainFixed,
             }}
             transition="all 0.2s"
           />
@@ -109,7 +118,7 @@ export default function CustomerLayout({ tabs }) {
             {menuItems[activeTab].title}
           </Text>
         </HStack>
-    
+
         <Box
           ref={sliderRef}
           display={{ base: "block", md: "none" }}
@@ -126,11 +135,17 @@ export default function CustomerLayout({ tabs }) {
               height: "4px",
             },
             "&::-webkit-scrollbar-track": {
-              background: colorMode === "light" ? colors.light.bgFourth : colors.dark.bgFourth,
+              background:
+                colorMode === "light"
+                  ? colors.light.bgFourth
+                  : colors.dark.bgFourth,
               borderRadius: "10px",
             },
             "&::-webkit-scrollbar-thumb": {
-              background: colorMode === "light" ? colors.light.mainFixed : colors.dark.mainFixed,
+              background:
+                colorMode === "light"
+                  ? colors.light.mainFixed
+                  : colors.dark.mainFixed,
               borderRadius: "10px",
             },
           }}
@@ -146,8 +161,8 @@ export default function CustomerLayout({ tabs }) {
                   borderRadius="12px"
                   bg={
                     isActive
-                      ? colorMode === "light" 
-                        ? colors.light.mainFixed 
+                      ? colorMode === "light"
+                        ? colors.light.mainFixed
                         : colors.dark.mainFixed
                       : colorMode === "light"
                       ? colors.light.bgThird
@@ -157,9 +172,9 @@ export default function CustomerLayout({ tabs }) {
                   onClick={() => goToTab(index)}
                   transition="all 0.2s"
                   _hover={{
-                    bg: isActive 
-                      ? colorMode === "light" 
-                        ? colors.light.mainFixed70a 
+                    bg: isActive
+                      ? colorMode === "light"
+                        ? colors.light.mainFixed70a
                         : colors.dark.mainFixed70a
                       : colorMode === "light"
                       ? colors.light.mainFixed10a
@@ -172,9 +187,9 @@ export default function CustomerLayout({ tabs }) {
                       as={item.icon}
                       boxSize={4}
                       color={
-                        isActive 
-                          ? colorMode === "light" 
-                            ? colors.light.white 
+                        isActive
+                          ? colorMode === "light"
+                            ? colors.light.white
                             : colors.dark.white
                           : colorMode === "light"
                           ? colors.light.textMain
@@ -183,9 +198,9 @@ export default function CustomerLayout({ tabs }) {
                     />
                     <Text
                       color={
-                        isActive 
-                          ? colorMode === "light" 
-                            ? colors.light.white 
+                        isActive
+                          ? colorMode === "light"
+                            ? colors.light.white
                             : colors.dark.white
                           : colorMode === "light"
                           ? colors.light.textMain
@@ -225,23 +240,28 @@ export default function CustomerLayout({ tabs }) {
                     p={4}
                     borderRadius="0"
                     bg={
-                      isActive 
-                        ? colorMode === "light" 
-                          ? colors.light.mainFixed10a 
+                      isActive
+                        ? colorMode === "light"
+                          ? colors.light.mainFixed10a
                           : colors.dark.mainFixed10a
                         : colorMode === "light"
                         ? colors.light.bgThird
                         : colors.dark.bgThird
                     }
                     borderLeft={
-                      isActive 
-                        ? `4px solid ${colorMode === "light" ? colors.light.mainFixed : colors.dark.mainFixed}`
+                      isActive
+                        ? `4px solid ${
+                            colorMode === "light"
+                              ? colors.light.mainFixed
+                              : colors.dark.mainFixed
+                          }`
                         : "4px solid transparent"
                     }
                     _hover={{
-                      bg: colorMode === "light" 
-                        ? colors.light.mainFixed10a 
-                        : colors.dark.mainFixed10a,
+                      bg:
+                        colorMode === "light"
+                          ? colors.light.mainFixed10a
+                          : colors.dark.mainFixed10a,
                       cursor: "pointer",
                     }}
                     transition="all 0.2s"
@@ -252,9 +272,9 @@ export default function CustomerLayout({ tabs }) {
                         as={item.icon}
                         boxSize={5}
                         color={
-                          isActive 
-                            ? colorMode === "light" 
-                              ? colors.light.mainFixed 
+                          isActive
+                            ? colorMode === "light"
+                              ? colors.light.mainFixed
                               : colors.dark.mainFixed
                             : colorMode === "light"
                             ? colors.light.textMain
@@ -263,9 +283,9 @@ export default function CustomerLayout({ tabs }) {
                       />
                       <Text
                         color={
-                          isActive 
-                            ? colorMode === "light" 
-                              ? colors.light.mainFixed 
+                          isActive
+                            ? colorMode === "light"
+                              ? colors.light.mainFixed
                               : colors.dark.mainFixed
                             : colorMode === "light"
                             ? colors.light.textMain
@@ -283,12 +303,10 @@ export default function CustomerLayout({ tabs }) {
           </Box>
 
           {/* Content - 2/3 */}
-          <Box w={{ base: "100%", md: "66.67%" }}>
-            {tabs[activeTab]}
-          </Box>
+          <Box w={{ base: "100%", md: "66.67%" }}>{tabs[activeTab]}</Box>
         </Flex>
       </Box>
-      <Footer/>
+      <Footer />
     </>
   );
 }
