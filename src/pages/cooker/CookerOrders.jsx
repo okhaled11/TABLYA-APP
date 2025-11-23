@@ -13,7 +13,8 @@ import {
   IconButton,
 } from "@chakra-ui/react";
 import { useState, useEffect, useMemo } from "react";
-import { useColorStyles } from "../../hooks/useColorStyles";
+import colors from "../../theme/color";
+import { useColorMode } from "../../theme/color-mode";
 import { toaster } from "../../components/ui/toaster";
 import {
   useGetCookerOrdersQuery,
@@ -36,7 +37,7 @@ const ORDERS_PER_PAGE = 2;
 
 const CookerOrders = () => {
   /* ---------------variable----------------- */
-  const colors = useColorStyles();
+  const { colorMode } = useColorMode();
 
   /* ---------------state----------------- */
   const [selectedStatus, setSelectedStatus] = useState("Default");
@@ -154,7 +155,14 @@ const CookerOrders = () => {
     <>
       <Box py={6}>
         {/* name order and select */}
-        <Flex my={4} justifyContent={"space-between"} alignItems="center">
+        <Flex
+          my={4}
+          justifyContent="space-between"
+          alignItems="center"
+          direction={{ base: "column", md: "row" }}
+          gap={{ base: 3, md: 0 }}
+          w="100%"
+        >
           {/* order */}
           <Heading
             fontSize={{ base: "25px", lg: "45px" }}
@@ -166,11 +174,23 @@ const CookerOrders = () => {
 
           {/* select menu */}
           <Flex
-            bg={colors.bgThird}
+            bg={
+              colorMode === "light" ? colors.light.bgThird : colors.dark.bgThird
+            }
             borderRadius="999px"
             p="4px"
             alignItems="center"
             gap={1}
+            w={{ base: "100%", md: "auto" }}
+            overflowX={{ base: "auto", md: "visible" }}
+            flexWrap={{ base: "nowrap", md: "nowrap" }}
+            justifyContent={{ base: "flex-start", md: "flex-start" }}
+            sx={{
+              scrollSnapType: "x mandatory",
+              "::-webkit-scrollbar": { display: "none" },
+              msOverflowStyle: "none",
+              scrollbarWidth: "none",
+            }}
           >
             {statusTabs.map((tab) => {
               const isActive = selectedStatus === tab.value;
@@ -179,13 +199,18 @@ const CookerOrders = () => {
                   key={tab.value}
                   size="sm"
                   variant="ghost"
-                  px={4}
-                  py={2}
+                  px={{ base: 3, md: 4 }}
+                  py={{ base: 1.5, md: 2 }}
                   borderRadius="999px"
                   bg={isActive ? "white" : "transparent"}
-                  color={isActive ? colors.textMain : colors.textSub}
+                  color={
+                    isActive ? colors.light.mainFixed : colors.light.textSub
+                  }
                   fontWeight={isActive ? "bold" : "medium"}
+                  fontSize={{ base: "13px", md: "14px" }}
                   onClick={() => setSelectedStatus(tab.value)}
+                  flexShrink={0}
+                  sx={{ scrollSnapAlign: "center" }}
                   _hover={{
                     bg: isActive ? "white" : colors.bgFourth,
                   }}
@@ -199,7 +224,13 @@ const CookerOrders = () => {
 
         {/* Orders count */}
         {!isLoading && !error && allOrder.length > 0 && (
-          <Text color={colors.textSub} fontSize="sm" mb={4}>
+          <Text
+            color={
+              colorMode === "light" ? colors.light.textSub : colors.dark.textSub
+            }
+            fontSize="sm"
+            mb={4}
+          >
             Showing {(currentPage - 1) * ORDERS_PER_PAGE + 1} -{" "}
             {Math.min(currentPage * ORDERS_PER_PAGE, allOrder.length)} of{" "}
             {allOrder.length} orders
@@ -224,7 +255,13 @@ const CookerOrders = () => {
         )}
 
         {!isLoading && !error && orders && allOrder.length === 0 && (
-          <Text color={colors.textSub} textAlign="center" my={6}>
+          <Text
+            color={
+              colorMode === "light" ? colors.light.textSub : colors.dark.textSub
+            }
+            textAlign="center"
+            my={6}
+          >
             {selectedStatus === "Default"
               ? "No orders found"
               : "No orders with the selected status"}
@@ -255,7 +292,11 @@ const CookerOrders = () => {
             return (
               <Box
                 key={order.id}
-                bg={colors.bgThird}
+                bg={
+                  colorMode === "light"
+                    ? colors.light.bgThird
+                    : colors.dark.bgThird
+                }
                 rounded={{ base: "24px", md: "32px" }}
                 p={{ base: 4, md: 5 }}
                 my={4}
@@ -268,10 +309,18 @@ const CookerOrders = () => {
                   gap={{ base: 2, md: 0 }}
                   mb={4}
                   pb={3}
-                  borderBottom={`1px solid ${colors.bgFourth}`}
+                  borderBottom={`1px solid ${
+                    colorMode === "light"
+                      ? colors.light.bgFourth
+                      : colors.dark.bgFourth
+                  }`}
                 >
                   <Text
-                    color={colors.textSub}
+                    color={
+                      colorMode === "light"
+                        ? colors.light.textSub
+                        : colors.dark.textSub
+                    }
                     fontSize={{ base: "13px", md: "14px" }}
                     fontWeight={"medium"}
                   >
@@ -279,7 +328,11 @@ const CookerOrders = () => {
                     {order.id.slice(0, 8).toUpperCase()}
                   </Text>
                   <Text
-                    color={colors.mainFixed}
+                    color={
+                      colorMode === "light"
+                        ? colors.light.mainFixed
+                        : colors.dark.mainFixed
+                    }
                     fontSize={{ base: "20px", md: "24px" }}
                     fontWeight={"bold"}
                   >
@@ -295,7 +348,11 @@ const CookerOrders = () => {
                 >
                   {/* Order Items */}
                   <Box
-                    bg={colors.bgFourth}
+                    bg={
+                      colorMode === "light"
+                        ? colors.light.bgFourth
+                        : colors.dark.bgFourth
+                    }
                     rounded={"20px"}
                     p={{ base: 4, md: 5 }}
                   >
@@ -304,7 +361,11 @@ const CookerOrders = () => {
                       fontSize={{ base: "16px", md: "18px" }}
                       fontWeight={600}
                       mb={3}
-                      color={colors.textMain}
+                      color={
+                        colorMode === "light"
+                          ? colors.light.textMain
+                          : colors.dark.textMain
+                      }
                     >
                       Order Items
                     </Heading>
@@ -314,14 +375,25 @@ const CookerOrders = () => {
                           <Text
                             key={index}
                             mb={1.5}
-                            color={colors.textSub}
+                            color={
+                              colorMode === "light"
+                                ? colors.light.textSub
+                                : colors.dark.textSub
+                            }
                             fontSize={{ base: "14px", md: "15px" }}
                           >
                             {item.quantity}x {item.title}
                           </Text>
                         ))
                       ) : (
-                        <Text color={colors.textSub} fontSize="14px">
+                        <Text
+                          color={
+                            colorMode === "light"
+                              ? colors.light.textSub
+                              : colors.dark.textSub
+                          }
+                          fontSize="14px"
+                        >
                           No items
                         </Text>
                       )}
@@ -332,19 +404,31 @@ const CookerOrders = () => {
                       <Box
                         mt={3}
                         pt={3}
-                        borderTop={`1px solid ${colors.bgThird}`}
+                        borderTop={`1px solid ${
+                          colorMode === "light"
+                            ? colors.light.bgThird
+                            : colors.dark.bgThird
+                        }`}
                       >
                         <Heading
                           as={"h4"}
                           fontSize={{ base: "14px", md: "16px" }}
                           fontWeight={600}
                           mb={1}
-                          color={colors.textMain}
+                          color={
+                            colorMode === "light"
+                              ? colors.light.textMain
+                              : colors.dark.textMain
+                          }
                         >
                           Notes
                         </Heading>
                         <Text
-                          color={colors.textSub}
+                          color={
+                            colorMode === "light"
+                              ? colors.light.textSub
+                              : colors.dark.textSub
+                          }
                           fontSize="13px"
                           noOfLines={2}
                         >
@@ -356,16 +440,24 @@ const CookerOrders = () => {
 
                   {/* Customer Details */}
                   <Box
-                    bg={colors.info10a}
+                    bg={
+                      colorMode === "light"
+                        ? colors.light.info10a
+                        : colors.dark.info10a
+                    }
                     rounded={"20px"}
                     p={{ base: 4, md: 5 }}
                   >
                     <Heading
                       as={"h3"}
                       fontSize={{ base: "16px", md: "18px" }}
-                      fontWeight={600}
+                      fontWeight={"bold"}
                       mb={3}
-                      color={colors.textMain}
+                      color={
+                        colorMode === "light"
+                          ? colors.light.textMain
+                          : colors.dark.textMain
+                      }
                     >
                       Customer Details
                     </Heading>
@@ -374,11 +466,22 @@ const CookerOrders = () => {
                       <Box>
                         <Flex
                           mb={2}
-                          color={colors.textSub}
+                          color={
+                            colorMode === "light"
+                              ? colors.light.textSub
+                              : colors.dark.textSub
+                          }
                           alignItems={"center"}
                           gap={2}
                         >
-                          <IoPerson size={16} color={colors.info} />
+                          <IoPerson
+                            size={16}
+                            color={
+                              colorMode === "light"
+                                ? colors.light.info
+                                : colors.dark.info
+                            }
+                          />
                           <Text
                             fontSize={{ base: "14px", md: "15px" }}
                             noOfLines={1}
@@ -388,12 +491,23 @@ const CookerOrders = () => {
                         </Flex>
                         <Flex
                           mb={2}
-                          color={colors.textSub}
+                          color={
+                            colorMode === "light"
+                              ? colors.light.textSub
+                              : colors.dark.textSub
+                          }
                           alignItems={"flex-start"}
                           gap={2}
                         >
                           <Box mt={0.5}>
-                            <FaLocationDot size={16} color={colors.info} />
+                            <FaLocationDot
+                              size={16}
+                              color={
+                                colorMode === "light"
+                                  ? colors.light.info
+                                  : colors.dark.info
+                              }
+                            />
                           </Box>
                           <Text
                             fontSize={{ base: "14px", md: "15px" }}
@@ -404,39 +518,79 @@ const CookerOrders = () => {
                         </Flex>
                         <Flex
                           mb={3}
-                          color={colors.textSub}
+                          color={
+                            colorMode === "light"
+                              ? colors.light.textSub
+                              : colors.dark.textSub
+                          }
                           alignItems={"center"}
                           gap={2}
                         >
-                          <FaPhone size={14} color={colors.info} />
+                          <FaPhone
+                            size={14}
+                            color={
+                              colorMode === "light"
+                                ? colors.light.info
+                                : colors.dark.info
+                            }
+                          />
                           <Text fontSize={{ base: "14px", md: "15px" }}>
                             {order.customer.phone || "No phone"}
                           </Text>
                         </Flex>
 
                         {/* Payment Method */}
-                        <Box pt={2} borderTop={`1px solid ${colors.bgThird}`}>
+                        <Box
+                          pt={2}
+                          borderTop={`1px solid ${
+                            colorMode === "light"
+                              ? colors.light.bgThird
+                              : colors.dark.bgThird
+                          }`}
+                        >
                           <Text
                             fontSize={{ base: "13px", md: "14px" }}
-                            fontWeight={600}
+                            fontWeight={"bold"}
                             mb={1}
-                            color={colors.textMain}
+                            color={
+                              colorMode === "light"
+                                ? colors.light.textMain
+                                : colors.dark.textMain
+                            }
                           >
                             Payment
                           </Text>
                           <Flex alignItems={"center"} gap={1.5}>
                             <BsFillCreditCardFill
                               size={14}
-                              color={colors.info}
+                              color={
+                                colorMode === "light"
+                                  ? colors.light.info
+                                  : colors.dark.info
+                              }
                             />
-                            <Text fontSize="13px" color={colors.textSub}>
+                            <Text
+                              fontSize="13px"
+                              color={
+                                colorMode === "light"
+                                  ? colors.light.textSub
+                                  : colors.dark.textSub
+                              }
+                            >
                               {order.payment_method || "Not specified"}
                             </Text>
                           </Flex>
                         </Box>
                       </Box>
                     ) : (
-                      <Text color={colors.textSub} fontSize="14px">
+                      <Text
+                        color={
+                          colorMode === "light"
+                            ? colors.light.textSub
+                            : colors.dark.textSub
+                        }
+                        fontSize="14px"
+                      >
                         No customer information
                       </Text>
                     )}
@@ -458,20 +612,27 @@ const CookerOrders = () => {
                     <Button
                       size={{ base: "sm", md: "md" }}
                       variant="outline"
+                      py={2}
                       rounded={"16px"}
-                      bg={isConfirmed ? colors.mainFixed : colors.bgFourth}
-                      color={isConfirmed ? "white" : colors.textSub}
+                      bg={
+                        isConfirmed
+                          ? colors.light.mainFixed
+                          : colors.light.bgFourth
+                      }
+                      color={isConfirmed ? "white" : colors.light.textSub}
                       fontSize={{ base: "13px", md: "14px" }}
                       onClick={() => handleStatusUpdate(order, "confirmed")}
                       isDisabled={isUpdating || !canClickConfirm}
                       _hover={{
-                        bg: isConfirmed ? colors.mainFixed : colors.bgThird,
+                        bg: isConfirmed
+                          ? colors.light.mainFixed
+                          : colors.light.bgThird,
                       }}
                       _disabled={{
                         opacity: 0.5,
                         cursor: "not-allowed",
-                        bg: colors.bgThird,
-                        color: colors.textSub,
+                        bg: colors.light.bgThird,
+                        color: colors.light.textSub,
                       }}
                       flex={1}
                     >
@@ -482,22 +643,29 @@ const CookerOrders = () => {
                     </Button>
                     {!canClickConfirm && (
                       <Button
+                        py={2}
                         size={{ base: "sm", md: "md" }}
                         variant="outline"
                         rounded={"16px"}
-                        bg={isPreparing ? colors.mainFixed : colors.bgFourth}
-                        color={isPreparing ? "white" : colors.textSub}
+                        bg={
+                          isPreparing
+                            ? colors.light.mainFixed
+                            : colors.light.bgFourth
+                        }
+                        color={isPreparing ? "white" : colors.light.textSub}
                         fontSize={{ base: "13px", md: "14px" }}
                         onClick={() => handleStatusUpdate(order, "preparing")}
                         isDisabled={isUpdating || !canClickPreparing}
                         _hover={{
-                          bg: isPreparing ? colors.mainFixed : colors.bgThird,
+                          bg: isPreparing
+                            ? colors.light.mainFixed
+                            : colors.light.bgThird,
                         }}
                         _disabled={{
                           opacity: 0.5,
                           cursor: "not-allowed",
-                          bg: colors.bgThird,
-                          color: colors.textSub,
+                          bg: colors.light.bgThird,
+                          color: colors.light.textSub,
                         }}
                         flex={1}
                       >
@@ -509,13 +677,18 @@ const CookerOrders = () => {
                     )}
                     {!canClickConfirm && (
                       <Button
+                        py={2}
                         size={{ base: "sm", md: "md" }}
                         variant="outline"
                         rounded={"16px"}
                         bg={
-                          isReadyForPickup ? colors.mainFixed : colors.bgFourth
+                          isReadyForPickup
+                            ? colors.light.mainFixed
+                            : colors.light.bgFourth
                         }
-                        color={isReadyForPickup ? "white" : colors.textSub}
+                        color={
+                          isReadyForPickup ? "white" : colors.light.textSub
+                        }
                         fontSize={{ base: "13px", md: "14px" }}
                         onClick={() =>
                           handleStatusUpdate(order, "ready_for_pickup")
@@ -523,14 +696,14 @@ const CookerOrders = () => {
                         isDisabled={isUpdating || !canClickReadyForPickup}
                         _hover={{
                           bg: isReadyForPickup
-                            ? colors.mainFixed
-                            : colors.bgThird,
+                            ? colors.light.mainFixed
+                            : colors.light.bgThird,
                         }}
                         _disabled={{
                           opacity: 0.5,
                           cursor: "not-allowed",
-                          bg: colors.bgThird,
-                          color: colors.textSub,
+                          bg: colors.light.bgThird,
+                          color: colors.light.textSub,
                         }}
                         flex={1}
                       >
@@ -554,23 +727,24 @@ const CookerOrders = () => {
                   </Flex>
                   {canClickConfirm && (
                     <Button
+                      py={2}
                       size={{ base: "sm", md: "md" }}
                       variant="outline"
                       rounded={"16px"}
-                      bg={colors.bgThird}
-                      color={colors.mainFixed}
+                      bg={colors.light.bgThird}
+                      color={colors.light.mainFixed}
                       fontSize={{ base: "13px", md: "14px" }}
                       onClick={() => {
                         dialog.setOpen(true);
                         setDeleteId(order.id);
                       }}
                       isDisabled={isDeleting}
-                      _hover={{ bg: colors.bgFourth }}
+                      _hover={{ bg: colors.light.bgFourth }}
                       _disabled={{
                         opacity: 0.5,
                         cursor: "not-allowed",
-                        bg: colors.bgThird,
-                        color: colors.textSub,
+                        bg: colors.light.bgThird,
+                        color: colors.light.textSub,
                       }}
                       w={{ base: "100%", md: "auto" }}
                     >
@@ -601,9 +775,9 @@ const CookerOrders = () => {
               >
                 <Pagination.PrevTrigger asChild>
                   <IconButton
-                    bg={colors.bgThird}
-                    color={colors.textSub}
-                    _hover={{ bg: colors.bgFourth }}
+                    bg={colors.light.bgThird}
+                    color={colors.light.textSub}
+                    _hover={{ bg: colors.light.bgFourth }}
                     _disabled={{
                       opacity: 0.4,
                       cursor: "not-allowed",
@@ -618,19 +792,19 @@ const CookerOrders = () => {
                     <IconButton
                       bg={
                         page.type === "page" && page.value === currentPage
-                          ? colors.mainFixed
-                          : colors.bgThird
+                          ? colors.light.mainFixed
+                          : colors.light.bgThird
                       }
                       color={
                         page.type === "page" && page.value === currentPage
                           ? "white"
-                          : colors.textSub
+                          : colors.light.textSub
                       }
                       _hover={{
                         bg:
                           page.type === "page" && page.value === currentPage
-                            ? colors.mainFixed
-                            : colors.bgFourth,
+                            ? colors.light.mainFixed
+                            : colors.light.bgFourth,
                       }}
                     >
                       {page.value}
@@ -640,9 +814,9 @@ const CookerOrders = () => {
 
                 <Pagination.NextTrigger asChild>
                   <IconButton
-                    bg={colors.bgThird}
-                    color={colors.textSub}
-                    _hover={{ bg: colors.bgFourth }}
+                    bg={colors.light.bgThird}
+                    color={colors.light.textSub}
+                    _hover={{ bg: colors.light.bgFourth }}
                     _disabled={{
                       opacity: 0.4,
                       cursor: "not-allowed",
