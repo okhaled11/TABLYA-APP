@@ -13,6 +13,7 @@ import {
   InputGroup,
   Dialog,
   Button,
+  Spinner,
 } from "@chakra-ui/react";
 import { Select, Portal, createListCollection } from "@chakra-ui/react";
 import { FiFilter } from "react-icons/fi";
@@ -37,6 +38,7 @@ import {
 } from "react-icons/md";
 import { IoTimeOutline } from "react-icons/io5";
 import { GoogleGenerativeAI, SchemaType } from "@google/generative-ai";
+import { detectLang } from "../../utils";
 
 const AddMealModal = ({ dialog, item = null, mode = "create" }) => {
   const { colorMode } = useColorMode();
@@ -48,6 +50,7 @@ const AddMealModal = ({ dialog, item = null, mode = "create" }) => {
   const [imageCheckPending, setImageCheckPending] = useState(false);
   const [warningOpen, setWarningOpen] = useState(false);
   const [warningText, setWarningText] = useState("");
+  const [descGenerating, setDescGenerating] = useState(false);
 
   const isEditing = mode === "edit" && !!item;
 
@@ -69,6 +72,7 @@ const AddMealModal = ({ dialog, item = null, mode = "create" }) => {
     clearErrors,
     trigger,
     getValues,
+    watch,
     formState: { errors },
   } = useForm({
     resolver: yupResolver(addMealSchema, { context: { isEditing } }),
@@ -101,6 +105,9 @@ const AddMealModal = ({ dialog, item = null, mode = "create" }) => {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isEditing, item]);
+
+  const descValue = watch("description");
+  const isDescEmpty = !descValue || descValue.trim().length === 0;
 
   const handleImageChange = (e) => {
     const file =
@@ -222,6 +229,92 @@ const AddMealModal = ({ dialog, item = null, mode = "create" }) => {
     return isFood && !isNSFW;
   };
 
+  // const detectLang = detectLang(text);
+
+  const generateDescriptionFromTitle = async (title) => {
+    const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
+    if (!apiKey) return "";
+    const genAI = new GoogleGenerativeAI(apiKey);
+    const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
+    const lang = detectLang(title);
+    const prompt =
+      lang === "ar"
+        ? `اكتب وصفًا قصيرًا من 1-3 جملة لطبق بعنوان: "${title}". اجعله بسيطًا وجذابًا يناسب قائمة منزلية، يبرز النكهات والمكونات الشائعة بدون أسعار أو ادعاءات صحية أو إيموجي.`
+        : `Write a short 1-3 sentence description for a dish titled: "${title}". Keep it simple and enticing for a home-cooked menu. Highlight flavors and common ingredients. No prices, health claims, or emojis.`;
+    try {
+      const result = await model.generateContent(prompt);
+      const out = (await result.response.text())?.trim();
+      const cleaned = out
+        ?.replace(/^"+|"+$/g, "")
+        .replace(/^`+|`+$/g, "")
+        .trim();
+      return cleaned || "";
+    } catch (err) {
+      console.warn("Gemini text generation failed:", err);
+      return "";
+    }
+  };
+
+  const handleDescriptionGenerateClick = async () => {
+    try {
+      setDescGenerating(true);
+      const title = getValues("name")?.trim();
+      if (!title) {
+        toaster.create({
+          title: "Add a meal name first",
+          description: "Please enter the meal name to generate a description.",
+          type: "warning",
+          duration: 2500,
+          isClosable: true,
+          position: "top",
+        });
+        return;
+      }
+      const currentDesc = getValues("description")?.trim();
+      let desc = await generateDescriptionFromTitle(title);
+      if (!desc) {
+        const lang = detectLang(title);
+        desc =
+          lang === "ar"
+            ? `طبق ${title} يتميز بمذاق شهي ومكونات بسيطة، مناسب للتقديم المنزلي.`
+            : `${title} features a tasty, home-style flavor with simple ingredients.`;
+      }
+      if (!currentDesc || currentDesc.length === 0) {
+        setValue("description", desc, {
+          shouldValidate: true,
+          shouldDirty: true,
+          shouldTouch: true,
+        });
+        await trigger("description");
+      }
+    } catch (e) {
+      toaster.create({
+        title: "Generate failed",
+        description: e?.message || "Please try again.",
+        type: "error",
+        duration: 3000,
+        isClosable: true,
+        position: "top",
+      });
+    } finally {
+      setDescGenerating(false);
+    }
+  };
+
+  const handleNameBlur = async () => {
+    const title = getValues("name")?.trim();
+    const currentDesc = getValues("description")?.trim();
+    if (!title || currentDesc) return;
+    const desc = await generateDescriptionFromTitle(title);
+    if (desc) {
+      setValue("description", desc, {
+        shouldValidate: true,
+        shouldDirty: true,
+      });
+      await trigger("description");
+    }
+  };
+
   const onSubmit = async (data) => {
     try {
       let processedImage = data.image;
@@ -313,164 +406,75 @@ const AddMealModal = ({ dialog, item = null, mode = "create" }) => {
         isLoading={isCreating || isUpdating || imageCheckPending}
       >
         <Box p={4}>
-        <Grid templateColumns={{ base: "1fr", md: "1fr 1fr" }} gap={4} mb={4}>
-          <GridItem>
-            <Field.Root>
-              <Field.Label
-                fontWeight="medium"
-                color={
-                  colorMode == "light"
-                    ? colors.light.textMain
-                    : colors.dark.textMain
-                }
-                mb={2}
-              >
-                Meal Name
-              </Field.Label>
-              <InputGroup startElement={<PiForkKnifeFill />}>
-                <Input
-                  {...register("name")}
-                  placeholder="Enter meal name"
-                  bg={
-                    colorMode === "light"
-                      ? colors.light.bgInput
-                      : colors.dark.bgInput
+          <Grid templateColumns={{ base: "1fr", md: "1fr 1fr" }} gap={4} mb={4}>
+            <GridItem>
+              <Field.Root>
+                <Field.Label
+                  fontWeight="medium"
+                  color={
+                    colorMode == "light"
+                      ? colors.light.textMain
+                      : colors.dark.textMain
                   }
-                  borderRadius="10px"
-                />
-              </InputGroup>
-              {errors?.name && (
-                <Field.HelperText color={"crimson"}>
-                  {errors?.name?.message}
-                </Field.HelperText>
-              )}
-            </Field.Root>
-          </GridItem>
-          <GridItem>
-            <Field.Root>
-              <Field.Label
-                fontWeight="medium"
-                color={
-                  colorMode == "light"
-                    ? colors.light.textMain
-                    : colors.dark.textMain
-                }
-                mb={2}
-              >
-                Meal Price (LE)
-              </Field.Label>
-              <InputGroup startElement={<PiMoneyWavyFill />}>
-                <Input
-                  {...register("price", { valueAsNumber: true })}
-                  type="number"
-                  placeholder="Enter meal price"
-                  bg={
-                    colorMode === "light"
-                      ? colors.light.bgInput
-                      : colors.dark.bgInput
-                  }
-                  borderRadius="10px"
-                />
-              </InputGroup>
-              {errors?.price && (
-                <Field.HelperText color={"crimson"}>
-                  {errors?.price?.message}
-                </Field.HelperText>
-              )}
-            </Field.Root>
-          </GridItem>
-        </Grid>
-
-        <Box mb={4}>
-          <Field.Root>
-            <Field.Label
-              fontWeight="medium"
-              color={
-                colorMode == "light"
-                  ? colors.light.textMain
-                  : colors.dark.textMain
-              }
-              mb={2}
-            >
-              Meal Description
-            </Field.Label>
-            <InputGroup endElement={<MdDescription />}>
-              <Textarea
-                {...register("description")}
-                placeholder="Describe your meal"
-                rows={3}
-                bg={
-                  colorMode === "light"
-                    ? colors.light.bgInput
-                    : colors.dark.bgInput
-                }
-                borderRadius="10px"
-              />
-            </InputGroup>
-            {errors?.description && (
-              <Field.HelperText color={"crimson"}>
-                {errors?.description?.message}
-              </Field.HelperText>
-            )}
-          </Field.Root>
-        </Box>
-
-        <Grid templateColumns={{ base: "1fr", md: "1fr 1fr" }} gap={4} mb={4}>
-          <GridItem>
-            <Field.Root>
-              <Field.Label
-                fontWeight="medium"
-                color={
-                  colorMode == "light"
-                    ? colors.light.textMain
-                    : colors.dark.textMain
-                }
-                mb={2}
-              >
-                Meal Image
-              </Field.Label>
-
-              <FileUpload.Root accept="image/*" gap="1" maxWidth="100%">
-                <FileUpload.HiddenInput onChange={handleImageChange} />
-                <InputGroup
-                  startElement={<LuFileImage />}
-                  endElement={
-                    <FileUpload.ClearTrigger asChild>
-                      <CloseButton
-                        me="-1"
-                        size="xs"
-                        variant="plain"
-                        focusVisibleRing="inside"
-                        focusRingWidth="2px"
-                        pointerEvents="auto"
-                      />
-                    </FileUpload.ClearTrigger>
-                  }
+                  mb={2}
                 >
+                  Meal Name
+                </Field.Label>
+                <InputGroup startElement={<PiForkKnifeFill />}>
                   <Input
-                    asChild
-                    borderRadius="10px"
+                    {...register("name", { onBlur: handleNameBlur })}
+                    placeholder="Enter meal name"
                     bg={
                       colorMode === "light"
                         ? colors.light.bgInput
                         : colors.dark.bgInput
                     }
-                  >
-                    <FileUpload.Trigger>
-                      <FileUpload.FileText lineClamp={1} />
-                    </FileUpload.Trigger>
-                  </Input>
+                    borderRadius="10px"
+                  />
                 </InputGroup>
-              </FileUpload.Root>
+                {errors?.name && (
+                  <Field.HelperText color={"crimson"}>
+                    {errors?.name?.message}
+                  </Field.HelperText>
+                )}
+              </Field.Root>
+            </GridItem>
+            <GridItem>
+              <Field.Root>
+                <Field.Label
+                  fontWeight="medium"
+                  color={
+                    colorMode == "light"
+                      ? colors.light.textMain
+                      : colors.dark.textMain
+                  }
+                  mb={2}
+                >
+                  Meal Price (LE)
+                </Field.Label>
+                <InputGroup startElement={<PiMoneyWavyFill />}>
+                  <Input
+                    {...register("price", { valueAsNumber: true })}
+                    type="number"
+                    placeholder="Enter meal price"
+                    bg={
+                      colorMode === "light"
+                        ? colors.light.bgInput
+                        : colors.dark.bgInput
+                    }
+                    borderRadius="10px"
+                  />
+                </InputGroup>
+                {errors?.price && (
+                  <Field.HelperText color={"crimson"}>
+                    {errors?.price?.message}
+                  </Field.HelperText>
+                )}
+              </Field.Root>
+            </GridItem>
+          </Grid>
 
-              {errors?.image && (
-                <Field.HelperText color={"crimson"}>
-                  {errors?.image?.message}
-                </Field.HelperText>
-              )}
-            </Field.Root>
-          </GridItem>
-          <GridItem>
+          <Box mb={4}>
             <Field.Root>
               <Field.Label
                 fontWeight="medium"
@@ -481,155 +485,263 @@ const AddMealModal = ({ dialog, item = null, mode = "create" }) => {
                 }
                 mb={2}
               >
-                Meal Category
+                Meal Description
               </Field.Label>
-              <Controller
-                name="category"
-                control={control}
-                render={({ field }) => (
-                  <Select.Root
-                    collection={frameworks}
-                    size="sm"
-                    value={field.value ? [field.value] : []}
-                    onValueChange={({ value }) => {
-                      field.onChange(
-                        Array.isArray(value) ? value[0] ?? "" : value ?? ""
-                      );
-                      clearErrors("category");
-                    }}
-                  >
-                    <Select.Control>
-                      <Select.Trigger
-                        px="3"
-                        py="2"
-                        bg={
-                          colorMode == "light"
-                            ? colors.light.textMain10a
-                            : colors.dark.textMain10a
-                        }
-                        // color="white"
-                        borderRadius="md"
-                        display="flex"
-                        alignItems="center"
-                        gap="2"
-                        w="100%"
-                      >
-                        <FiFilter />
-                        <Select.ValueText
-                          placeholder="Choose meal category"
-                          flex="1"
-                          textAlign="left"
-                        />
-                        <Select.Indicator />
-                      </Select.Trigger>
-                    </Select.Control>
+              <InputGroup
+                endElement={
+                  descGenerating ? (
+                    <Spinner size="sm" />
+                  ) : isDescEmpty ? (
+                    <Button
+                      size="xs"
+                      variant="ghost"
+                      onClick={handleDescriptionGenerateClick}
+                      title="Generate description"
+                      border="1px solid gray"
+                    >
+                      generate description
+                      <MdDescription />
+                    </Button>
+                  ) : undefined
+                }
+              >
+                <Textarea
+                  {...register("description")}
+                  placeholder="Describe your meal"
+                  rows={3}
+                  bg={
+                    colorMode === "light"
+                      ? colors.light.bgInput
+                      : colors.dark.bgInput
+                  }
+                  borderRadius="10px"
+                />
+              </InputGroup>
+              {errors?.description && (
+                <Field.HelperText color={"crimson"}>
+                  {errors?.description?.message}
+                </Field.HelperText>
+              )}
+            </Field.Root>
+          </Box>
 
-                    <Portal>
-                      <Select.Positioner zIndex={1700}>
-                        <Select.Content
-                          zIndex={1700}
+          <Grid templateColumns={{ base: "1fr", md: "1fr 1fr" }} gap={4} mb={4}>
+            <GridItem>
+              <Field.Root>
+                <Field.Label
+                  fontWeight="medium"
+                  color={
+                    colorMode == "light"
+                      ? colors.light.textMain
+                      : colors.dark.textMain
+                  }
+                  mb={2}
+                >
+                  Meal Image
+                </Field.Label>
+
+                <FileUpload.Root accept="image/*" gap="1" maxWidth="100%">
+                  <FileUpload.HiddenInput onChange={handleImageChange} />
+                  <InputGroup
+                    startElement={<LuFileImage />}
+                    endElement={
+                      <FileUpload.ClearTrigger asChild>
+                        <CloseButton
+                          me="-1"
+                          size="xs"
+                          variant="plain"
+                          focusVisibleRing="inside"
+                          focusRingWidth="2px"
+                          pointerEvents="auto"
+                        />
+                      </FileUpload.ClearTrigger>
+                    }
+                  >
+                    <Input
+                      asChild
+                      borderRadius="10px"
+                      bg={
+                        colorMode === "light"
+                          ? colors.light.bgInput
+                          : colors.dark.bgInput
+                      }
+                    >
+                      <FileUpload.Trigger>
+                        <FileUpload.FileText lineClamp={1} />
+                      </FileUpload.Trigger>
+                    </Input>
+                  </InputGroup>
+                </FileUpload.Root>
+
+                {errors?.image && (
+                  <Field.HelperText color={"crimson"}>
+                    {errors?.image?.message}
+                  </Field.HelperText>
+                )}
+              </Field.Root>
+            </GridItem>
+            <GridItem>
+              <Field.Root>
+                <Field.Label
+                  fontWeight="medium"
+                  color={
+                    colorMode == "light"
+                      ? colors.light.textMain
+                      : colors.dark.textMain
+                  }
+                  mb={2}
+                >
+                  Meal Category
+                </Field.Label>
+                <Controller
+                  name="category"
+                  control={control}
+                  render={({ field }) => (
+                    <Select.Root
+                      collection={frameworks}
+                      size="sm"
+                      value={field.value ? [field.value] : []}
+                      onValueChange={({ value }) => {
+                        field.onChange(
+                          Array.isArray(value) ? value[0] ?? "" : value ?? ""
+                        );
+                        clearErrors("category");
+                      }}
+                    >
+                      <Select.Control>
+                        <Select.Trigger
+                          px="3"
+                          py="2"
                           bg={
                             colorMode == "light"
-                              ? colors.light.bgFixed
-                              : colors.dark.bgFixed
+                              ? colors.light.textMain10a
+                              : colors.dark.textMain10a
                           }
-                          shadow="md"
+                          // color="white"
                           borderRadius="md"
-                          color={"white"}
+                          display="flex"
+                          alignItems="center"
+                          gap="2"
+                          w="100%"
                         >
-                          {frameworks.items.map((item) => (
-                            <Select.Item
-                              item={item}
-                              key={item.value}
-                              px="3"
-                              py="2"
-                            >
-                              {item.label}
-                            </Select.Item>
-                          ))}
-                        </Select.Content>
-                      </Select.Positioner>
-                    </Portal>
-                  </Select.Root>
-                )}
-              />
-              {errors?.category && (
-                <Field.HelperText color={"crimson"}>
-                  {errors?.category?.message}
-                </Field.HelperText>
-              )}
-            </Field.Root>
-          </GridItem>
-        </Grid>
+                          <FiFilter />
+                          <Select.ValueText
+                            placeholder="Choose meal category"
+                            flex="1"
+                            textAlign="left"
+                          />
+                          <Select.Indicator />
+                        </Select.Trigger>
+                      </Select.Control>
 
-        <Grid templateColumns={{ base: "1fr", md: "1fr 1fr" }} gap={4} mb={4}>
-          <GridItem>
-            <Field.Root>
-              <Field.Label
-                fontWeight="medium"
-                color={
-                  colorMode == "light"
-                    ? colors.light.textMain
-                    : colors.dark.textMain
-                }
-                mb={2}
-              >
-                In Stock
-              </Field.Label>
-              <InputGroup startElement={<MdOutlineProductionQuantityLimits />}>
-                <Input
-                  {...register("stock", { valueAsNumber: true })}
-                  type="number"
-                  placeholder="Available quantity"
-                  bg={
-                    colorMode === "light"
-                      ? colors.light.bgInput
-                      : colors.dark.bgInput
-                  }
-                  borderRadius="10px"
+                      <Portal>
+                        <Select.Positioner zIndex={1700}>
+                          <Select.Content
+                            zIndex={1700}
+                            bg={
+                              colorMode == "light"
+                                ? colors.light.bgFixed
+                                : colors.dark.bgFixed
+                            }
+                            shadow="md"
+                            borderRadius="md"
+                            color={"white"}
+                          >
+                            {frameworks.items.map((item) => (
+                              <Select.Item
+                                item={item}
+                                key={item.value}
+                                px="3"
+                                py="2"
+                              >
+                                {item.label}
+                              </Select.Item>
+                            ))}
+                          </Select.Content>
+                        </Select.Positioner>
+                      </Portal>
+                    </Select.Root>
+                  )}
                 />
-              </InputGroup>
-              {errors?.stock && (
-                <Field.HelperText color={"crimson"}>
-                  {errors?.stock?.message}
-                </Field.HelperText>
-              )}
-            </Field.Root>
-          </GridItem>
-          <GridItem>
-            <Field.Root>
-              <Field.Label
-                fontWeight="medium"
-                color={
-                  colorMode == "light"
-                    ? colors.light.textMain
-                    : colors.dark.textMain
-                }
-                mb={2}
-              >
-                Preparation Time (minutes)
-              </Field.Label>
-              <InputGroup startElement={<IoTimeOutline />}>
-                <Input
-                  {...register("preparation_time", { valueAsNumber: true })}
-                  type="number"
-                  placeholder="Time in minutes"
-                  bg={
-                    colorMode === "light"
-                      ? colors.light.bgInput
-                      : colors.dark.bgInput
+                {errors?.category && (
+                  <Field.HelperText color={"crimson"}>
+                    {errors?.category?.message}
+                  </Field.HelperText>
+                )}
+              </Field.Root>
+            </GridItem>
+          </Grid>
+
+          <Grid templateColumns={{ base: "1fr", md: "1fr 1fr" }} gap={4} mb={4}>
+            <GridItem>
+              <Field.Root>
+                <Field.Label
+                  fontWeight="medium"
+                  color={
+                    colorMode == "light"
+                      ? colors.light.textMain
+                      : colors.dark.textMain
                   }
-                  borderRadius="10px"
-                />
-              </InputGroup>
-              {errors?.preparation_time && (
-                <Field.HelperText color={"crimson"}>
-                  {errors?.preparation_time?.message}
-                </Field.HelperText>
-              )}
-            </Field.Root>
-          </GridItem>
-        </Grid>
+                  mb={2}
+                >
+                  In Stock
+                </Field.Label>
+                <InputGroup
+                  startElement={<MdOutlineProductionQuantityLimits />}
+                >
+                  <Input
+                    {...register("stock", { valueAsNumber: true })}
+                    type="number"
+                    placeholder="Available quantity"
+                    bg={
+                      colorMode === "light"
+                        ? colors.light.bgInput
+                        : colors.dark.bgInput
+                    }
+                    borderRadius="10px"
+                  />
+                </InputGroup>
+                {errors?.stock && (
+                  <Field.HelperText color={"crimson"}>
+                    {errors?.stock?.message}
+                  </Field.HelperText>
+                )}
+              </Field.Root>
+            </GridItem>
+            <GridItem>
+              <Field.Root>
+                <Field.Label
+                  fontWeight="medium"
+                  color={
+                    colorMode == "light"
+                      ? colors.light.textMain
+                      : colors.dark.textMain
+                  }
+                  mb={2}
+                >
+                  Preparation Time (minutes)
+                </Field.Label>
+                <InputGroup startElement={<IoTimeOutline />}>
+                  <Input
+                    {...register("preparation_time", { valueAsNumber: true })}
+                    type="number"
+                    placeholder="Time in minutes"
+                    bg={
+                      colorMode === "light"
+                        ? colors.light.bgInput
+                        : colors.dark.bgInput
+                    }
+                    borderRadius="10px"
+                  />
+                </InputGroup>
+                {errors?.preparation_time && (
+                  <Field.HelperText color={"crimson"}>
+                    {errors?.preparation_time?.message}
+                  </Field.HelperText>
+                )}
+              </Field.Root>
+            </GridItem>
+          </Grid>
         </Box>
       </CustomModal>
 
@@ -665,11 +777,7 @@ const AddMealModal = ({ dialog, item = null, mode = "create" }) => {
                   >
                     <IoWarningOutline size={28} />
                   </Box>
-                  <Dialog.Title
-                    fontSize="xl"
-                    fontWeight="bold"
-                    color="red.600"
-                  >
+                  <Dialog.Title fontSize="xl" fontWeight="bold" color="red.600">
                     Image Not Permitted
                   </Dialog.Title>
                 </Flex>
@@ -702,12 +810,7 @@ const AddMealModal = ({ dialog, item = null, mode = "create" }) => {
               </Dialog.Footer>
 
               <Dialog.CloseTrigger asChild>
-                <CloseButton
-                  size="sm"
-                  position="absolute"
-                  top={3}
-                  right={3}
-                />
+                <CloseButton size="sm" position="absolute" top={3} right={3} />
               </Dialog.CloseTrigger>
             </Dialog.Content>
           </Dialog.Positioner>
