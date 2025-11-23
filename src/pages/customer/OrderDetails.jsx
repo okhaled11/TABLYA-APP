@@ -34,9 +34,7 @@ import { useColorMode } from "../../theme/color-mode";
 import colors from "../../theme/color";
 import imgChef from "../../assets/image 17.png";
 import { useNavigate, useParams } from "react-router-dom";
-import {
-  useGetOrderDetailsQuery,
-} from "../../app/features/Customer/Orders/ordersApiCustomerSlice";
+import { useGetOrderDetailsQuery } from "../../app/features/Customer/Orders/ordersApiCustomerSlice";
 
 function OrderDetails() {
   /* ------------variable------------------------ */
@@ -44,7 +42,6 @@ function OrderDetails() {
   const { colorMode } = useColorMode();
   const [currentStep, setCurrentStep] = useState(1);
   const navigate = useNavigate();
-
 
   /* ----------------------DATA FETCHING------------------ */
   const {
@@ -61,7 +58,7 @@ function OrderDetails() {
       const status = orderDetails.status;
       if (status === "confirmed" || status === "created") {
         setCurrentStep(1);
-      } else if (status === "preparing"|| status === "ready_for_pickup") {
+      } else if (status === "preparing" || status === "ready_for_pickup") {
         setCurrentStep(2);
       } else if (status === "out_for_delivery") {
         setCurrentStep(3);
@@ -197,29 +194,30 @@ function OrderDetails() {
   const deliveryFee = orderDetails?.delivery_fee || 0;
   const total = orderDetails?.total;
   const discount = orderDetails?.discount;
+  const deliveryUser = orderDetails?.delivery_user;
 
- const steps = [
-   {
-     key: "placed",
-     title: "Confirmed",
-     icon: IoCheckmarkCircle,
-   },
-   {
-     key: "cooking",
-     title: "Preparing",
-     icon: IoRestaurant,
-   },
-   {
-     key: "out_for_delivery",
-     title: "Out for Delivery",
-     icon: IoBicycle,
-   },
-   {
-     key: "delivered",
-     title: "Delivered",
-     icon: IoHome,
-   },
- ];
+  const steps = [
+    {
+      key: "placed",
+      title: "Confirmed",
+      icon: IoCheckmarkCircle,
+    },
+    {
+      key: "cooking",
+      title: "Preparing",
+      icon: IoRestaurant,
+    },
+    {
+      key: "out_for_delivery",
+      title: "Out for Delivery",
+      icon: IoBicycle,
+    },
+    {
+      key: "delivered",
+      title: "Delivered",
+      icon: IoHome,
+    },
+  ];
   return (
     <Box minH="100vh" p={{ base: 3, md: 8 }}>
       <Box maxW="6xl" mx="auto">
@@ -277,21 +275,14 @@ function OrderDetails() {
           </Text>
 
           {/* Status Tracker - Always Horizontal */}
-          <Box 
-            mb={{ base: 6, md: 10 }} 
-            px={{ base: 2, md: 6 }} 
+          <Box
+            mb={{ base: 6, md: 10 }}
+            px={{ base: 2, md: 6 }}
             py={{ base: 4, md: 8 }}
-            bg={colorMode === "light" 
-              ? "whiteAlpha.50"
-              : "blackAlpha.300"
-            }
+            bg={colorMode === "light" ? "whiteAlpha.50" : "blackAlpha.300"}
             borderRadius="xl"
           >
-            <Flex 
-              justify="space-between" 
-              align="center" 
-              position="relative"
-            >
+            <Flex justify="space-between" align="center" position="relative">
               {/* Progress Line Background */}
               <Box
                 position="absolute"
@@ -303,7 +294,7 @@ function OrderDetails() {
                 borderRadius="full"
                 zIndex={0}
               />
-              
+
               {/* Animated Progress Line */}
               <Box
                 as={motion.div}
@@ -316,8 +307,8 @@ function OrderDetails() {
                 zIndex={1}
                 boxShadow="0 0 10px rgba(72, 187, 120, 0.5)"
                 initial={{ width: "0%" }}
-                animate={{ 
-                  width: `${((currentStep - 1) / (steps.length - 1)) * 84}%`
+                animate={{
+                  width: `${((currentStep - 1) / (steps.length - 1)) * 84}%`,
                 }}
                 transition={{ duration: 0.8, ease: "easeInOut" }}
               />
@@ -325,10 +316,11 @@ function OrderDetails() {
               {steps.map((step, index) => {
                 const isCompleted = index < currentStep;
                 const isCurrent = index === currentStep - 1;
-                const isDelivered = step.key === "delivered" && (isCompleted || isCurrent);
+                const isDelivered =
+                  step.key === "delivered" && (isCompleted || isCurrent);
                 const StepIcon = step.icon;
                 const stepColor = isDelivered ? "red.500" : "green.500";
-                
+
                 return (
                   <Flex
                     key={step.key}
@@ -342,13 +334,13 @@ function OrderDetails() {
                     <Box
                       as={motion.div}
                       initial={{ scale: 0, opacity: 0 }}
-                      animate={{ 
+                      animate={{
                         scale: 1,
-                        opacity: 1
+                        opacity: 1,
                       }}
                       transition={{
                         duration: 0.5,
-                        delay: index * 0.15
+                        delay: index * 0.15,
                       }}
                       position="relative"
                     >
@@ -358,23 +350,30 @@ function OrderDetails() {
                         borderRadius="full"
                         align="center"
                         justify="center"
-                        bg={isCompleted || isCurrent
-                          ? stepColor
-                          : (colorMode === "light" ? "gray.200" : "gray.700")
+                        bg={
+                          isCompleted || isCurrent
+                            ? stepColor
+                            : colorMode === "light"
+                            ? "gray.200"
+                            : "gray.700"
                         }
                         position="relative"
                         transition="all 0.3s ease"
-                        boxShadow={isCompleted || isCurrent
-                          ? "0 2px 8px rgba(72, 187, 120, 0.3)"
-                          : "none"
+                        boxShadow={
+                          isCompleted || isCurrent
+                            ? "0 2px 8px rgba(72, 187, 120, 0.3)"
+                            : "none"
                         }
                       >
                         <Icon
                           as={StepIcon}
                           boxSize={{ base: 4, md: 7 }}
-                          color={isCompleted || isCurrent 
-                            ? "white" 
-                            : (colorMode === "light" ? "gray.400" : "gray.500")
+                          color={
+                            isCompleted || isCurrent
+                              ? "white"
+                              : colorMode === "light"
+                              ? "gray.400"
+                              : "gray.500"
                           }
                         />
                       </Flex>
@@ -385,9 +384,14 @@ function OrderDetails() {
                       mt={{ base: 2, md: 3 }}
                       fontSize={{ base: "10px", md: "sm" }}
                       fontWeight={isCurrent ? "600" : "500"}
-                      color={isCompleted || isCurrent
-                        ? (colorMode === "light" ? colors.light.textMain : colors.dark.textMain)
-                        : (colorMode === "light" ? "gray.400" : "gray.600")
+                      color={
+                        isCompleted || isCurrent
+                          ? colorMode === "light"
+                            ? colors.light.textMain
+                            : colors.dark.textMain
+                          : colorMode === "light"
+                          ? "gray.400"
+                          : "gray.600"
                       }
                       textAlign="center"
                       whiteSpace="nowrap"
@@ -492,7 +496,6 @@ function OrderDetails() {
                     ))}
                   </VStack>
                 </Box>
-
               </VStack>
             </GridItem>
 
@@ -712,6 +715,118 @@ function OrderDetails() {
                     </HStack>
                   </VStack>
                 </Box>
+
+                {/* Delivery Partner (Driver) Information */}
+                {orderDetails?.status === "out_for_delivery" &&
+                  deliveryUser && (
+                    <Box borderRadius="xl" p={{ base: 3, md: 6 }}>
+                      <Heading
+                        as="h2"
+                        size={{ base: "md", md: "xl" }}
+                        mb={{ base: 3, md: 6 }}
+                      >
+                        Delivery Info
+                      </Heading>
+                      <Flex
+                        align="center"
+                        gap={{ base: 3, md: 4 }}
+                        bg={
+                          colorMode === "light"
+                            ? colors.light.info10a
+                            : colors.dark.info10a
+                        }
+                        borderRadius="xl"
+                        p={{ base: 3, md: 5 }}
+                      >
+                        <Box
+                          w={{ base: 16, md: 20 }}
+                          h={{ base: 16, md: 20 }}
+                          borderRadius="full"
+                          overflow="hidden"
+                          flexShrink={0}
+                          bg={
+                            colorMode === "light"
+                              ? colors.light.white10a
+                              : colors.dark.white10a
+                          }
+                          display="flex"
+                          alignItems="center"
+                          justifyContent="center"
+                        >
+                          {deliveryUser?.avatar_url ? (
+                            <Image
+                              src={deliveryUser.avatar_url}
+                              alt={deliveryUser.name || "Delivery Partner"}
+                              w="full"
+                              h="full"
+                              objectFit="cover"
+                            />
+                          ) : (
+                            <Icon
+                              as={IoBicycle}
+                              boxSize={{ base: 8, md: 10 }}
+                              color={
+                                colorMode === "light"
+                                  ? colors.light.info
+                                  : colors.dark.info
+                              }
+                            />
+                          )}
+                        </Box>
+                        <Box flex={1} minW={0}>
+                          <Heading
+                            as="h3"
+                            size={{ base: "sm", md: "lg" }}
+                            mb={{ base: 1, md: 2 }}
+                            noOfLines={1}
+                          >
+                            {deliveryUser?.name || "Delivery Partner"}
+                          </Heading>
+                          <HStack
+                            gap={{ base: 1, md: 2 }}
+                            fontSize={{ base: "sm", md: "md" }}
+                            alignItems="center"
+                          >
+                            <Icon
+                              as={IoCall}
+                              boxSize={{ base: 4, md: 5 }}
+                              color={
+                                colorMode === "light"
+                                  ? colors.light.mainFixed
+                                  : colors.dark.mainFixed
+                              }
+                            />
+                            {deliveryUser?.phone ? (
+                              <Text
+                                as="a"
+                                href={`tel:${deliveryUser.phone}`}
+                                color={
+                                  colorMode === "light"
+                                    ? colors.light.textMain
+                                    : colors.dark.textMain
+                                }
+                                fontWeight="medium"
+                                textDecoration="underline"
+                                _hover={{ opacity: 0.8 }}
+                              >
+                                {deliveryUser.phone}
+                              </Text>
+                            ) : (
+                              <Text
+                                color={
+                                  colorMode === "light"
+                                    ? colors.light.textSub
+                                    : colors.dark.textSub
+                                }
+                              >
+                                N/A
+                              </Text>
+                            )}
+                          </HStack>
+                        </Box>
+                      </Flex>
+                    </Box>
+                  )}
 
                 {/* Cooker Information */}
                 <Box borderRadius="xl" p={{ base: 3, md: 6 }}>
