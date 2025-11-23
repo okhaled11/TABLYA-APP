@@ -1,8 +1,30 @@
 * {
   font-family: "Alexandria", sans-serif !important;
+  scrollbar-width: thin;
+  scrollbar-color: #888 #3333;
 }
-html{
-  scroll-behavior:smooth;
+
+/* WebKit (Chrome – Edge – Safari) */
+::-webkit-scrollbar {
+  width: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.1); /* رمادي خفيف يناسب الفاتح والغامق */
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #888; /* رمادي محايد */
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #fa2c23; /* أغمق شوية وقت الـ hover */
+}
+
+html {
+  scroll-behavior: smooth;
 }
 
 html.light,

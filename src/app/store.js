@@ -5,6 +5,7 @@ import storage from "redux-persist/lib/storage";
 import PersonalRegisterChefReducer from "./features/PersonalRegisterChefSlice";
 import authReducer from "./features/Auth/loginSlice";
 import registerReducer from "./features/Auth/registerCustomerSlice";
+import registrationAddressReducer from "./features/Auth/registrationAddressSlice";
 import { registerChef } from "./features/Auth/registerChefSlice";
 import { authApi } from "./features/Auth/authSlice";
 import { cookersApprovalsApi } from "./features/Admin/cookerApprovalsApi";
@@ -38,6 +39,8 @@ import { adminAuthApi } from "./features/Admin/adminData";
 
 import { MariamSettingsApi } from "./features/Admin/MariamSettings";
 import { landingReviews } from "./features/Landing/LandingReviews";
+import { deliveryApi } from "./features/delivery/deliveryApi";
+import { deleveryOrder } from "./features/delivery/deleveryOrder";
 
 const persistCartConfig = {
   key: "cart",
@@ -50,6 +53,7 @@ export const store = configureStore({
   reducer: {
     auth: authReducer,
     register: registerReducer,
+    registrationAddress: registrationAddressReducer,
     PersonalRegisterChef: PersonalRegisterChefReducer,
 
     // Customer APIs
@@ -90,6 +94,10 @@ export const store = configureStore({
     [CookerAcceptOrder.reducerPath]: CookerAcceptOrder.reducer,
     [CookerMenuApi.reducerPath]: CookerMenuApi.reducer,
     [CookerAnalyticsApi.reducerPath]: CookerAnalyticsApi.reducer,
+
+    // Delivery APIs
+    [deliveryApi.reducerPath]: deliveryApi.reducer,
+    [deleveryOrder.reducerPath]: deleveryOrder.reducer,
   },
 
   middleware: (getDefaultMiddleware) =>
@@ -126,6 +134,8 @@ export const store = configureStore({
       MariamSettingsApi.middleware,
       adminReportActionsApi.middleware,
       landingReviews.middleware,
+      deliveryApi.middleware,
+      deleveryOrder.middleware
     ),
 });
 

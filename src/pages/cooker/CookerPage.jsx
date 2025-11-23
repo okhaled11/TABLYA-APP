@@ -9,8 +9,8 @@ const CookerPage = () => {
     <>
       <Navbar />
       <Container maxW="container.md" mx="auto" py={4}>
-              <CookerTabs />
-      <Outlet />
+        <CookerTabs />
+        <Outlet />
       </Container>
       <Footer />
     </>

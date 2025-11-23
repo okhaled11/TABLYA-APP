@@ -50,6 +50,10 @@ import { FiShoppingCart } from "react-icons/fi";
 import { clearCart } from "../app/features/Customer/CartSlice";
 import { supabase } from "../services/supabaseClient";
 import { toaster } from "../components/ui/toaster";
+import {
+  useGetDeliveryByUserIdQuery,
+  useUpdateDeliveryAvailabilityMutation,
+} from "../app/features/delivery/deliveryApi";
 
 export default function Navbar() {
   const { t, i18n } = useTranslation();
@@ -69,10 +73,23 @@ export default function Navbar() {
     skip: !token,
   });
 
-  // Fetch cooker availability status
+  // Get delivery data for delivery role
+  const { data: deliveryData, isLoading: deliveryLoading } =
+    useGetDeliveryByUserIdQuery(user?.id, {
+      skip: !user?.id || user?.role !== "delivery",
+    });
+
+  // Update delivery availability mutation
+  const [updateDeliveryAvailability] = useUpdateDeliveryAvailabilityMutation();
+
+  // Fetch availability status for cooker or delivery
   useEffect(() => {
-    const fetchAvailability = async () => {
-      if (user?.role === "cooker" && user?.id) {
+    if (user?.role === "delivery" && deliveryData) {
+      // Use delivery data from RTK Query (real-time cached)
+      setIsAvailable(!!deliveryData.availability);
+    } else if (user?.role === "cooker" && user?.id) {
+      // Keep existing cooker logic with direct Supabase call
+      const fetchCookerAvailability = async () => {
         const { data, error } = await supabase
           .from("cookers")
           .select("is_available")
@@ -80,15 +97,16 @@ export default function Navbar() {
           .single();
 
         if (error) {
-          console.error("Error fetching availability:", error);
+          console.error("Error fetching cooker availability:", error);
         } else if (data) {
-          setIsAvailable(data.is_available || false);
+          setIsAvailable(!!data.is_available);
+        } else {
+          setIsAvailable(false);
         }
-      }
-    };
-
-    fetchAvailability();
-  }, [user]);
+      };
+      fetchCookerAvailability();
+    }
+  }, [user, deliveryData]);
 
   // Fetch and listen to new orders count for cooker
   useEffect(() => {
@@ -189,12 +207,11 @@ export default function Navbar() {
           filter: `cooker_id=eq.${user.id}`,
         },
         async (payload) => {
-          console.log("🗑️ Order DELETED:", payload.old);
           await fetchNewOrdersCount();
         }
       )
       .subscribe((status) => {
-        console.log("📡 Realtime subscription status:", status);
+        console.log(" Realtime subscription status:", status);
       });
 
     return () => {
@@ -209,17 +226,11 @@ export default function Navbar() {
     toggleColorMode();
   };
 
-  // handler for availability switch (cooker only)
+  // handler for availability switch (cooker or delivery)
   const handleAvailabilityChange = async (e) => {
     const newAvailability = e.checked;
 
-    // Debug: Check user object
-    console.log("Full user object:", user);
-    console.log("User ID:", user?.id);
-
-    // Validate user ID before updating
     if (!user?.id) {
-      console.error("User ID is undefined!");
       toaster.create({
         title: "Failed to update availability",
         description: "User information not available. Please refresh the page.",
@@ -228,39 +239,42 @@ export default function Navbar() {
       return;
     }
 
+    // Optimistic update
     setIsAvailable(newAvailability);
 
-    console.log(
-      "Updating availability for user_id:",
-      user.id,
-      "to:",
-      newAvailability
-    );
+    try {
+      if (user?.role === "delivery") {
+        // Use RTK Query mutation for delivery
+        await updateDeliveryAvailability({
+          userId: user.id,
+          isAvailable: newAvailability,
+        }).unwrap();
+      } else if (user?.role === "cooker") {
+        // Keep existing cooker logic with direct Supabase call
+        const { error } = await supabase
+          .from("cookers")
+          .update({ is_available: newAvailability })
+          .eq("user_id", user.id);
 
-    // Update in database
-    const { data, error } = await supabase
-      .from("cookers")
-      .update({ is_available: newAvailability })
-      .eq("user_id", user.id)
-      .select();
+        if (error) throw error;
+      } else {
+        throw new Error("Unsupported role");
+      }
 
-    if (error) {
-      console.error("Error updating availability:", error);
-      // Revert on error
-      setIsAvailable(!newAvailability);
-      toaster.create({
-        title: "Failed to update availability",
-        description: error.message,
-        type: "error",
-      });
-    } else {
-      console.log("Successfully updated availability:", data);
       toaster.create({
         title: newAvailability
           ? "You are now available"
           : "You are now unavailable",
         type: "success",
         duration: 2000,
+      });
+    } catch (error) {
+      // Revert on error
+      setIsAvailable(!newAvailability);
+      toaster.create({
+        title: "Failed to update availability",
+        description: error.message || "Something went wrong",
+        type: "error",
       });
     }
   };
@@ -359,8 +373,8 @@ export default function Navbar() {
                   </Button>
                 ) : (
                   <HStack spacing={{ base: "0", md: "6" }}>
-                    {/* Show Cart only for customers, not for cookers */}
-                    {user?.role !== "cooker" && (
+                    {/* Show Cart only for customers, not for cookers or delivery */}
+                    {user?.role !== "cooker" && user?.role !== "delivery" && (
                       <Flex gap={3} alignItems={"center"} position="relative">
                         <IconButton
                           as={Link}
@@ -430,8 +444,8 @@ export default function Navbar() {
                         </IconButton>
                       </Flex>
                     )}
-                    {/* Availability Badge with Switch for Cooker */}
-                    {user?.role === "cooker" && (
+                    {/* Availability Badge with Switch for Cooker and Delivery */}
+                    {(user?.role === "cooker" || user?.role === "delivery") && (
                       <Badge
                         bg={
                           isAvailable
@@ -525,6 +539,7 @@ export default function Navbar() {
                                 </Link>
                               </Menu.Item>
                               <Separator />
+
                               {/* Dark Mode with Switch */}
                               <Menu.Item value="color-mode">
                                 <HStack justify="space-between" w="full">

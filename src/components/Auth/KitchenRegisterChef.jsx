@@ -13,7 +13,8 @@ import { IoChevronDown } from "react-icons/io5";
 import colors from "../../theme/color";
 import { AiOutlineEye, AiOutlineEyeInvisible } from "react-icons/ai";
 import { useColorMode } from "../../theme/color-mode";
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
+import { clearRegistrationAddress } from "../../app/features/Auth/registrationAddressSlice";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { registerSchemaKitchenChef } from "../../validation";
@@ -29,6 +30,7 @@ export default function KitchenRegisterChef() {
   const isRTL = i18n.language === "ar";
   const { colorMode } = useColorMode();
   const navigate = useNavigate();
+  const dispatch = useDispatch();
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [registerChef, { data, isError, error, isSuccess, isLoading }] =
@@ -77,6 +79,8 @@ export default function KitchenRegisterChef() {
           }),
         200
       );
+      // Clear registration address after successful registration
+      dispatch(clearRegistrationAddress());
       setTimeout(() => navigate("/login"), 500);
     }
 
