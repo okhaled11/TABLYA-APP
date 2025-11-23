@@ -1,10 +1,21 @@
-import { Flex, Text, Image, IconButton, HStack, Card } from "@chakra-ui/react";
+import {
+  Flex,
+  Text,
+  Image,
+  IconButton,
+  HStack,
+  Card,
+  useDialog,
+} from "@chakra-ui/react";
 import { FiTrash2, FiPlus, FiMinus } from "react-icons/fi";
 import { useColorMode } from "../../theme/color-mode";
 import colors from "../../theme/color";
+import { truncateText } from "../../utils";
+import CustomAlertDialog from "../../shared/CustomAlertDailog";
 
 export default function CartItemCard({ item, onRemove, onQuantityChange }) {
   const { colorMode } = useColorMode();
+  const dialog = useDialog();
   const isMaxQuantity = item.quantity >= Number(item?.stock || 1);
   return (
     <Card.Root
@@ -20,34 +31,49 @@ export default function CartItemCard({ item, onRemove, onQuantityChange }) {
       justifyContent="center"
       bg={colorMode === "light" ? colors.light.bgFourth : colors.dark.bgFourth}
     >
-      <Flex flex="1" direction="row">
+      <Flex flex="1" direction="row" minW="0">
         {/* ---------- Image ---------- */}
         <Image
           src={item.menu_img}
           alt={item.title}
-          boxSize="90px"
+          boxSize={{ base: "72px", md: "90px" }}
           objectFit="cover"
           borderRadius="12px"
+          flexShrink={0}
         />
 
         {/* ---------- Content ---------- */}
-        <Flex flex="1" direction="column" ml={4} justify="space-between">
-          <Flex justify="space-between" align="flex-start" w="100%">
+        <Flex
+          flex="1"
+          direction="column"
+          ml={4}
+          justify="space-between"
+          minW="0"
+        >
+          <Flex
+            justify="space-between"
+            align="flex-start"
+            w="100%"
+            minW="0"
+            gap={2}
+          >
             <Text
               fontWeight="medium"
-              fontSize="lg"
+              fontSize={{ base: "md", md: "lg" }}
               color={
                 colorMode === "light"
                   ? colors.light.textMain
                   : colors.dark.textMain
               }
               noOfLines={1}
+              overflowWrap="anywhere"
+              wordBreak="break-word"
             >
-              {item.title}
+              {truncateText(item.title, 20)}
             </Text>
 
             <IconButton
-              onClick={() => onRemove(item.id)}
+              onClick={() => dialog.setOpen(true)}
               aria-label="Remove item"
               variant="ghost"
               color={
@@ -56,6 +82,7 @@ export default function CartItemCard({ item, onRemove, onQuantityChange }) {
                   : colors.dark.mainFixed
               }
               size="sm"
+              flexShrink={0}
             >
               <FiTrash2 />
             </IconButton>
@@ -66,17 +93,20 @@ export default function CartItemCard({ item, onRemove, onQuantityChange }) {
             color={
               colorMode === "light" ? colors.light.textSub : colors.dark.textSub
             }
-            noOfLines={2}
+            noOfLines={3}
             mt={1}
+            overflowWrap="anywhere"
+            wordBreak="break-word"
           >
-            {item.description}
+            {truncateText(item.description, 200)}
           </Text>
 
           {/* ---------- Price & Quantity ---------- */}
-          <Flex justify="space-between" align="center" mt={3}>
+          <Flex justify="space-between" align="center" mt={3} minW="0" gap={2}>
             <Text
               fontWeight="semibold"
               fontSize="md"
+              whiteSpace="nowrap"
               color={
                 colorMode === "light"
                   ? colors.light.mainFixed
@@ -86,7 +116,7 @@ export default function CartItemCard({ item, onRemove, onQuantityChange }) {
               ${item.price.toFixed(2)}
             </Text>
 
-            <HStack px={3} py={1} spacing={2}>
+            <HStack px={{ base: 2, md: 3 }} py={1} spacing={2} flexShrink={0}>
               <IconButton
                 borderWidth="1px"
                 borderRadius="10px"
@@ -190,6 +220,16 @@ export default function CartItemCard({ item, onRemove, onQuantityChange }) {
           </Flex>
         </Flex>
       </Flex>
+      <CustomAlertDialog
+        dialog={dialog}
+        title={"Remove item?"}
+        description={`Remove ${item.title} from cart?`}
+        cancelTxt={"Cancel"}
+        okTxt={"Remove"}
+        onOkHandler={async () => {
+          onRemove(item.id);
+        }}
+      />
     </Card.Root>
   );
 }
