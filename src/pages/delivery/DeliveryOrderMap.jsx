@@ -9,7 +9,7 @@ import {
   Container,
   Icon,
 } from "@chakra-ui/react";
-import { FaMapMarkerAlt, FaArrowLeft } from "react-icons/fa";
+import { FaMapMarkerAlt, FaArrowLeft, FaLocationArrow } from "react-icons/fa";
 import Navbar from "../../layout/Navbar";
 import Footer from "../../shared/Footer";
 import { useColorStyles } from "../../hooks/useColorStyles";
@@ -29,96 +29,129 @@ const DeliveryOrderMap = () => {
     hour12: true,
   });
 
+  const latitude =
+    order?.latitude !== undefined && order?.latitude !== null
+      ? Number(order.latitude)
+      : null;
+  const longitude =
+    order?.longitude !== undefined && order?.longitude !== null
+      ? Number(order.longitude)
+      : null;
+
+  const hasCoordinates =
+    typeof latitude === "number" &&
+    !Number.isNaN(latitude) &&
+    typeof longitude === "number" &&
+    !Number.isNaN(longitude);
+
+  const mapQuery = hasCoordinates ? `${latitude},${longitude}` : null;
+
+  const mapSrc = mapQuery
+    ? `https://www.google.com/maps?q=${mapQuery}&z=15&output=embed`
+    : null;
+
+  const handleNavigateClick = () => {
+    if (!hasCoordinates) return;
+
+    const url = `https://www.google.com/maps/dir/?api=1&destination=${latitude},${longitude}`;
+
+    window.open(url, "_blank");
+  };
+
   return (
     <>
-      <Navbar />
-      <Box bg={colors.bgFixed} minH="100vh" color="white">
-        <Container maxW="container.lg" py={6}>
+      <Box minH="100vh" color="white" py={6}>
+        <Container maxW="container.lg">
           <Flex alignItems="center" mb={6} justifyContent="space-between">
             <Flex alignItems="center" gap={3}>
               <Button
                 size="sm"
                 variant="outline"
-                color="white"
-                borderColor="white"
+                color={colors.mainFixed}
+                borderColor={colors.mainFixed}
                 leftIcon={<FaArrowLeft />}
                 onClick={() => navigate(-1)}
               >
                 Back to Orders
               </Button>
-              <Text color={colors.textSub}>Orders &gt; Order in map</Text>
             </Flex>
           </Flex>
 
           <Box
-            bg="#2b0c0c"
+            bg="white"
+            h="90vh"
             borderRadius="2xl"
             border={`1px solid ${colors.bgFourth}`}
-            p={6}
-            mb={6}
+            p={4}
+            mb={9}
           >
             <Flex
-              justifyContent="space-between"
-              alignItems={{ base: "flex-start", md: "center" }}
-              flexDirection={{ base: "column", md: "row" }}
-              mb={4}
-            >
-              <Text color={colors.textSub} fontSize="sm">
-                {formattedDate} | {formattedTime} | #{orderId?.slice(0, 12)}
-              </Text>
-              <Text fontSize="lg" fontWeight="bold" color={colors.mainFixed}>
-                #{order?.id?.slice(0, 10) || orderId}
-              </Text>
-            </Flex>
-            <Flex
-              bg="#260909"
+              bg={colors.bgThird}
               borderRadius="2xl"
-              height={{ base: "280px", md: "360px" }}
+              height="100%"
               position="relative"
-              alignItems="flex-end"
-              padding={6}
               overflow="hidden"
               border={`1px solid ${colors.bgFourth}`}
             >
+              {hasCoordinates ? (
+                <>
+                  <Box
+                    as="iframe"
+                    src={mapSrc}
+                    title="Order location map"
+                    width="100%"
+                    height="100%"
+                    style={{ border: 0 }}
+                    loading="lazy"
+                    referrerPolicy="no-referrer-when-downgrade"
+                  />
+                  <Flex
+                    position="absolute"
+                    inset="0"
+                    alignItems="center"
+                    justifyContent="center"
+                    pointerEvents="none"
+                  >
+                    {/* <Icon
+                      as={FaMapMarkerAlt}
+                      boxSize={10}
+                      color="#FF3F3F"
+                      filter="drop-shadow(0 4px 8px rgba(0,0,0,0.45))"
+                    /> */}
+                  </Flex>
+                </>
+              ) : (
+                <Flex
+                  width="100%"
+                  height="100%"
+                  alignItems="center"
+                  justifyContent="center"
+                  bgGradient="linear(to-br, #3b1a1a, #120606)"
+                >
+                  <Icon as={FaMapMarkerAlt} boxSize={10} color="#FF3F3F" />
+                </Flex>
+              )}
+
               <Box
                 position="absolute"
-                inset="0"
-                bg="radial-gradient(circle, rgba(255,78,78,0.4), transparent 45%)"
-                opacity={0.7}
-              />
-              <Flex
-                position="relative"
-                width="full"
-                height="full"
-                borderRadius="2xl"
-                backgroundImage="linear-gradient(120deg, rgba(38,38,38,0.8) 0%, rgba(11,11,11,0.95) 100%)"
-                justifyContent="center"
-                alignItems="center"
-              >
-                <Icon
-                  as={FaMapMarkerAlt}
-                  boxSize={10}
-                  color="#FF3F3F"
-                  position="absolute"
-                />
-              </Flex>
-              <Box
-                position="relative"
+                left={{ base: 4, md: 6 }}
+                bottom={{ base: 4, md: 6 }}
                 bg={colors.bgThird}
                 px={4}
                 py={2}
                 borderRadius="xl"
                 border={`1px solid ${colors.bgFourth}`}
-                mb={2}
+                maxW="80%"
+                boxShadow="0 10px 25px rgba(0,0,0,0.35)"
               >
-                <Text fontSize="sm" color={colors.textMain}>
-                  {order?.address || "123 Ahmed Oraby Street, Suez"}
+                <Text fontSize="sm" color={colors.textMain} noOfLines={2}>
+                  {order?.address || "Address not available"}
                 </Text>
               </Box>
             </Flex>
           </Box>
 
-          <Box
+          {/* <Box
             bg={colors.bgThird}
             borderRadius="2xl"
             p={5}
@@ -136,10 +169,23 @@ const DeliveryOrderMap = () => {
             <Text color={colors.textSub}>
               Total: {order?.total ? `${order.total.toFixed(2)} LE` : "-"}
             </Text>
-          </Box>
+
+            <Button
+              mt={4}
+              w={{ base: "full", md: "auto" }}
+              leftIcon={<FaLocationArrow />}
+              bg={colors.mainFixed}
+              color="white"
+              borderRadius="full"
+              onClick={handleNavigateClick}
+              isDisabled={!hasCoordinates}
+              _hover={{ bg: colors.mainFixed, opacity: 0.9 }}
+            >
+              Open in Maps
+            </Button>
+          </Box> */}
         </Container>
       </Box>
-      <Footer />
     </>
   );
 };

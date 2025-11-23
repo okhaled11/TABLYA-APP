@@ -1,6 +1,3 @@
-"use client";
-
-import React from "react";
 import { Field, Text, Dialog, Portal, Button, Stack } from "@chakra-ui/react";
 
 const ViewReportModal = ({ report, isOpen, onClose }) => {

@@ -20,6 +20,7 @@ import {
   // useUpdateMenuItemAvailabilityMutation,
   useDeleteMenuItemMutation,
 } from "../../app/features/cooker/CookerMenuApi";
+import { truncateText } from "../../utils";
 
 const CookerMenuCard = ({ item }) => {
   const { colorMode } = useColorMode();
@@ -56,7 +57,7 @@ const CookerMenuCard = ({ item }) => {
   return (
     <>
       <Card.Root
-        direction="row"
+        position="relative"
         overflow="hidden"
         maxW="100%"
         w="100%"
@@ -70,40 +71,59 @@ const CookerMenuCard = ({ item }) => {
           colorMode === "light" ? colors.light.bgFourth : colors.dark.bgFourth
         }
       >
-        <Flex flex="1" direction="row">
+        <Flex
+          flex="1"
+          direction={{ base: "column", md: "row" }}
+          gap={{ base: 3, md: 4 }}
+          alignItems={{ base: "flex-start", md: "center" }}
+        >
           <Image
             src={item?.menu_img || ""}
             alt="item-img"
-            boxSize={{ base: "70px", md: "90px", lg: "110px" }}
+            boxSize={{ base: "80px", md: "90px", lg: "110px" }}
             objectFit="cover"
             borderRadius="12px"
+            flexShrink={0}
           />
-          <Flex flex="1" direction="row" justifyContent="space-between">
-            <Flex ml={4} direction="column" gap={3}>
-              <Text
-                fontWeight="medium"
-                fontSize={{ base: "md", md: "lg", lg: "xl" }}
-                mb={1}
-                color={
-                  colorMode === "light"
-                    ? colors.light.textMain
-                    : colors.dark.textMain
-                }
-              >
-                {item?.title || "No Title"}
-              </Text>
-              <Text
-                fontSize={{ base: "xs", md: "sm" }}
-                fontWeight={{ base: "light", md: "medium" }}
-                color={
-                  colorMode === "light"
-                    ? colors.light.textSub
-                    : colors.dark.textSub
-                }
-                noOfLines={2}
-              >
-                {item?.description || "No Description Available"}
-              </Text>
+          <Flex
+            flex="1"
+            direction="column"
+            gap={2}
+            minW={0}
+            ml={{ base: 0, md: 4 }}
+          >
+            <Text
+              fontWeight="medium"
+              fontSize={{ base: "md", md: "lg", lg: "xl" }}
+              color={
+                colorMode === "light"
+                  ? colors.light.textMain
+                  : colors.dark.textMain
+              }
+              noOfLines={1}
+              wordBreak="break-word"
+            >
+              {truncateText(item?.title, 25) || "No Title"}
+            </Text>
+            <Text
+              fontSize={{ base: "xs", md: "sm" }}
+              fontWeight={{ base: "light", md: "medium" }}
+              color={
+                colorMode === "light"
+                  ? colors.light.textSub
+                  : colors.dark.textSub
+              }
+              noOfLines={{ base: 2, md: 3 }}
+              wordBreak="break-word"
+            >
+              {truncateText(item?.description, 220) ||
+                "No Description Available"}
+            </Text>
+            <Flex
+              mt={{ base: 1, md: 2 }}
+              justifyContent="space-between"
+              alignItems="center"
+            >
               <Text
                 fontWeight="semibold"
                 fontSize={{ base: "sm", md: "md", lg: "lg" }}
@@ -115,70 +135,7 @@ const CookerMenuCard = ({ item }) => {
               >
                 {item?.price ?? 0} L.E
               </Text>
-            </Flex>
-            <Flex
-              direction="column"
-              gap={3}
-              justifyContent={{ base: "space-between", md: "space-around" }}
-              alignItems="flex-end"
-            >
-              <Badge
-                bg={
-                  item?.available
-                    ? colorMode === "light"
-                      ? colors.light.success20a
-                      : colors.dark.success20a
-                    : colorMode === "light"
-                    ? "#FFE5E5"
-                    : "#4A2626"
-                }
-                borderRadius="8px"
-                fontSize={{ base: "10px", md: "sm" }}
-                px={{ base: 2, md: 3 }}
-                py={{ base: 0.5, md: 1 }}
-                transition="all 0.3s ease"
-              >
-                <Flex gap={2} alignItems="center">
-                  <Status.Root
-                    display="flex"
-                    colorPalette={item?.available ? "green" : "red"}
-                    color={
-                      item?.available
-                        ? colorMode === "light"
-                          ? colors.light.success
-                          : colors.dark.success
-                        : colorMode === "light"
-                        ? "#DC2626"
-                        : "#EF4444"
-                    }
-                  >
-                    <Status.Indicator
-                      bg={item?.available ? "green.400" : "red.400"}
-                      boxShadow={
-                        item?.available
-                          ? "0 0 12px 2px #2EB200"
-                          : "0 0 12px 2px #DC2626"
-                      }
-                      filter="blur(0.5px)"
-                    />
-                    {item?.available ? "in Stock" : "Out of Stock"}
-                  </Status.Root>
-
-                  {/* <Switch.Root
-                   colorPalette={item?.available ? "green" : "green"}
-                    checked={!!item?.available}
-                    onCheckedChange={handleAvailabilityChange}
-                    disabled={isToggling}
-                    size="sm"
-                  >
-                    <Switch.HiddenInput />
-                    <Switch.Control>
-                      <Switch.Thumb />
-                    </Switch.Control>
-                  </Switch.Root> */}
-                </Flex>
-              </Badge>
-              <Flex gap={5}>
+              <Flex gap={4}>
                 <FaPen
                   style={{ cursor: "pointer" }}
                   onClick={() => editDialog.setOpen(true)}
@@ -192,6 +149,66 @@ const CookerMenuCard = ({ item }) => {
             </Flex>
           </Flex>
         </Flex>
+
+        <Badge
+          position="absolute"
+          top={{ base: 2, md: 3 }}
+          right={{ base: 2, md: 3 }}
+          bg={
+            item?.available
+              ? colorMode === "light"
+                ? colors.light.success20a
+                : colors.dark.success20a
+              : colorMode === "light"
+              ? "#FFE5E5"
+              : "#4A2626"
+          }
+          borderRadius="8px"
+          fontSize={{ base: "10px", md: "sm" }}
+          px={{ base: 2, md: 3 }}
+          py={{ base: 0.5, md: 1 }}
+          transition="all 0.3s ease"
+        >
+          <Flex gap={2} alignItems="center">
+            <Status.Root
+              display="flex"
+              colorPalette={item?.available ? "green" : "red"}
+              color={
+                item?.available
+                  ? colorMode === "light"
+                    ? colors.light.success
+                    : colors.dark.success
+                  : colorMode === "light"
+                  ? "#DC2626"
+                  : "#EF4444"
+              }
+            >
+              <Status.Indicator
+                bg={item?.available ? "green.400" : "red.400"}
+                boxShadow={
+                  item?.available
+                    ? "0 0 12px 2px #2EB200"
+                    : "0 0 12px 2px #DC2626"
+                }
+                filter="blur(0.5px)"
+              />
+              {item?.available ? "in Stock" : "Out of Stock"}
+            </Status.Root>
+
+            {/* <Switch.Root
+             colorPalette={item?.available ? "green" : "green"}
+              checked={!!item?.available}
+              onCheckedChange={handleAvailabilityChange}
+              disabled={isToggling}
+              size="sm"
+            >
+              <Switch.HiddenInput />
+              <Switch.Control>
+                <Switch.Thumb />
+              </Switch.Control>
+            </Switch.Root> */}
+          </Flex>
+        </Badge>
       </Card.Root>
 
       <CustomAlertDialog

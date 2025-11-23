@@ -12,7 +12,10 @@ import {
 import { AiFillStar, AiOutlineStar } from "react-icons/ai";
 import { IoWarningOutline } from "react-icons/io5";
 import CustomModal from "../../shared/Modal";
-import { useAddReviewMutation, useUpdateReviewMutation } from "../../app/features/Customer/reviewsApi";
+import {
+  useAddReviewMutation,
+  useUpdateReviewMutation,
+} from "../../app/features/Customer/reviewsApi";
 import { toaster } from "../ui/toaster";
 import { useParams } from "react-router-dom";
 import { useGetUserDataQuery } from "../../app/features/Auth/authSlice";
@@ -133,7 +136,10 @@ const ReviewModal = ({ dialog, existingReview }) => {
       setCheckingText(false);
 
       if (existingReview?.id) {
-        await updateReview({ id: existingReview.id, updates: { rating, comment: review } }).unwrap();
+        await updateReview({
+          id: existingReview.id,
+          updates: { rating, comment: review },
+        }).unwrap();
         toaster.create({
           title: "Review",
           description: "Review updated successfully",
@@ -189,39 +195,39 @@ const ReviewModal = ({ dialog, existingReview }) => {
         onOkHandler={handleSubmit}
         isLoading={isLoading || isUpdating || checkingText}
       >
-      <Box mb={4}>
-        <Text fontWeight="bold" mb={2}>
-          Your Rating
-        </Text>
-        <Flex>
-          {[1, 2, 3, 4, 5].map((star) => (
-            <Box
-              key={star}
-              cursor="pointer"
-              onClick={() => setRating(star)}
-              onMouseEnter={() => setHoverRating(star)}
-              onMouseLeave={() => setHoverRating(0)}
-            >
-              {star <= (hoverRating || rating) ? (
-                <AiFillStar color="#FF861F" size={24} />
-              ) : (
-                <AiOutlineStar color="#FF861F" size={24} />
-              )}
-            </Box>
-          ))}
-        </Flex>
-      </Box>
+        <Box mb={4}>
+          <Text fontWeight="bold" mb={2}>
+            Your Rating
+          </Text>
+          <Flex>
+            {[1, 2, 3, 4, 5].map((star) => (
+              <Box
+                key={star}
+                cursor="pointer"
+                onClick={() => setRating(star)}
+                onMouseEnter={() => setHoverRating(star)}
+                onMouseLeave={() => setHoverRating(0)}
+              >
+                {star <= (hoverRating || rating) ? (
+                  <AiFillStar color="#FF861F" size={24} />
+                ) : (
+                  <AiOutlineStar color="#FF861F" size={24} />
+                )}
+              </Box>
+            ))}
+          </Flex>
+        </Box>
 
-      <Box mb={4}>
-        <Text fontWeight="bold" mb={2}>
-          Your Review
-        </Text>
-        <Textarea
-          placeholder="Enter your review..."
-          value={review}
-          onChange={(e) => setReview(e.target.value)}
-        />
-      </Box>
+        <Box mb={4}>
+          <Text fontWeight="bold" mb={2}>
+            Your Review
+          </Text>
+          <Textarea
+            placeholder="Enter your review..."
+            value={review}
+            onChange={(e) => setReview(e.target.value)}
+          />
+        </Box>
       </CustomModal>
 
       <Dialog.Root
@@ -272,9 +278,9 @@ const ReviewModal = ({ dialog, existingReview }) => {
                   }
                   lineHeight="1.6"
                 >
-                  Your review contains sensitive or inappropriate content. Please
-                  revise your review to be respectful and appropriate before
-                  submitting.
+                  Your review contains sensitive or inappropriate content.
+                  Please revise your review to be respectful and appropriate
+                  before submitting.
                 </Text>
               </Dialog.Body>
 
@@ -291,12 +297,7 @@ const ReviewModal = ({ dialog, existingReview }) => {
               </Dialog.Footer>
 
               <Dialog.CloseTrigger asChild>
-                <CloseButton
-                  size="sm"
-                  position="absolute"
-                  top={3}
-                  right={3}
-                />
+                <CloseButton size="sm" position="absolute" top={3} right={3} />
               </Dialog.CloseTrigger>
             </Dialog.Content>
           </Dialog.Positioner>

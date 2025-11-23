@@ -45,7 +45,14 @@ export const registerSchema = yup
       .string()
       .trim()
       .required("Password is required")
-      .min(6, "Password should be at least 6 characters."),
+      .min(
+        8,
+        "Password must be at least 8 characters and include uppercase, lowercase, number, and special character."
+      )
+      .matches(
+        /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).+$/,
+        "Password must contain at least one uppercase letter, one lowercase letter, one number, and one special character."
+      ),
     confirmPassword: yup
       .string()
       .trim()
@@ -126,7 +133,14 @@ export const registerSchemaKitchenChef = yup
     password: yup
       .string()
       .required("Password is required")
-      .min(6, "Password should be at least 6 characters.")
+      .min(
+        8,
+        "Password must be at least 8 characters and include uppercase, lowercase, number, and special character."
+      )
+      .matches(
+        /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).+$/,
+        "Password must contain at least one uppercase letter, one lowercase letter, one number, and one special character."
+      )
       .trim(),
     confirmPassword: yup
       .string()

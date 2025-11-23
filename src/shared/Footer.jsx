@@ -1,4 +1,3 @@
-
 import React from "react";
 import {
   Box,
@@ -12,12 +11,11 @@ import {
   Image,
 } from "@chakra-ui/react";
 
-
 import { FaTiktok, FaInstagram, FaXTwitter } from "react-icons/fa6";
 import { SiSnapchat } from "react-icons/si";
-import logo from '../assets/logotitle.png';
+import logo from "../assets/logotitle.png";
 import { FaFacebook } from "react-icons/fa";
-import { useTranslation } from 'react-i18next';
+import { useTranslation } from "react-i18next";
 
 const Footer = () => {
   const { t } = useTranslation();
@@ -29,6 +27,7 @@ const Footer = () => {
       py={"10"}
       position={"relative"}
       overflow="hidden"
+      bottom={"-100px"}
     >
       <Container maxW="6xl" position={"relative"}>
         {/* Logo */}
@@ -47,32 +46,39 @@ const Footer = () => {
           mb={8}
           mx={{ base: "20px", md: "0px" }}
         >
-          
-
-
           <VStack align="flex-start" spacing={3}>
             <Heading fontSize="lg"> {t("footer.forCustomers")}</Heading>
-            <Link color={"rgb(184, 174, 169)"}>{t("footer.browseSellers")}    </Link>
-            <Link color={"rgb(184, 174, 169)"}>{t("footer.howItWorks")}    </Link>
-            <Link color={"rgb(184, 174, 169)"}>{t("footer.customerSupport")}    </Link>
+            <Link color={"rgb(184, 174, 169)"}>
+              {t("footer.browseSellers")}{" "}
+            </Link>
+            <Link color={"rgb(184, 174, 169)"}>{t("footer.howItWorks")} </Link>
+            <Link color={"rgb(184, 174, 169)"}>
+              {t("footer.customerSupport")}{" "}
+            </Link>
           </VStack>
 
           <VStack align="flex-start" spacing={3}>
             <Heading fontSize="lg"> {t("footer.forSellers")}</Heading>
-            <Link color={"rgb(184, 174, 169)"}>{t("footer.startSelling")}       </Link>
-            <Link color={"rgb(184, 174, 169)"}>{t("footer.sellerResources")}      </Link>
-            <Link color={"rgb(184, 174, 169)"}>{t("footer.sellerSupport")}      </Link>
+            <Link color={"rgb(184, 174, 169)"}>
+              {t("footer.startSelling")}{" "}
+            </Link>
+            <Link color={"rgb(184, 174, 169)"}>
+              {t("footer.sellerResources")}{" "}
+            </Link>
+            <Link color={"rgb(184, 174, 169)"}>
+              {t("footer.sellerSupport")}{" "}
+            </Link>
           </VStack>
 
           <VStack align="flex-start" spacing={3}>
             <Heading fontSize="lg"> {t("footer.company")} </Heading>
             <Link color={"rgb(184, 174, 169)"}>{t("footer.aboutUs")} </Link>
-            <Link color={"rgb(184, 174, 169)"}>{t("footer.contact")}  </Link>
-            <Link color={"rgb(184, 174, 169)"}>{t("footer.privacyPolicy")} </Link>
+            <Link color={"rgb(184, 174, 169)"}>{t("footer.contact")} </Link>
+            <Link color={"rgb(184, 174, 169)"}>
+              {t("footer.privacyPolicy")}{" "}
+            </Link>
           </VStack>
         </Flex>
-
-
 
         {/* Bottom Row */}
         <Flex
@@ -108,9 +114,7 @@ const Footer = () => {
             </Link>
           </HStack>
         </Flex>
-
       </Container>
-
 
       <Box
         position="absolute"
@@ -166,9 +170,3 @@ const Footer = () => {
 };
 
 export default Footer;
-
-
-
-
-
-
