@@ -4,9 +4,6 @@ import {
   Heading,
   Image,
   Text,
-  Portal,
-  Select,
-  createListCollection,
   Button,
   Group,
   useDialog,
@@ -17,6 +14,7 @@ import {
 } from "@chakra-ui/react";
 import { useState, useEffect, useMemo } from "react";
 import { useColorStyles } from "../../hooks/useColorStyles";
+import { toaster } from "../../components/ui/toaster";
 import {
   useGetCookerOrdersQuery,
   useUpdateOrderStatusMutation,
@@ -34,7 +32,6 @@ import { LuChevronLeft, LuChevronRight } from "react-icons/lu";
 import srcLoadingImg from "../../assets/Transparent Version.gif";
 import CustomAlertDialog from "../../shared/CustomAlertDailog";
 
-
 const ORDERS_PER_PAGE = 2;
 
 const CookerOrders = () => {
@@ -42,7 +39,7 @@ const CookerOrders = () => {
   const colors = useColorStyles();
 
   /* ---------------state----------------- */
-  const [value, setValue] = useState([]);
+  const [selectedStatus, setSelectedStatus] = useState("Default");
   const [deleteId, setDeleteId] = useState([]);
   const [allOrder, setAllOrder] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
@@ -53,10 +50,6 @@ const CookerOrders = () => {
   const [updateOrderStatus, { isLoading: isUpdating }] =
     useUpdateOrderStatusMutation();
   const [deleteOrder, { isLoading: isDeleting }] = useDeleteOrderMutation();
-
-  const selectedStatus = Array.isArray(value)
-    ? value[value.length - 1] ?? "Default"
-    : value || "Default";
 
   /* ---------------useEffect----------------- */
   useEffect(() => {
@@ -93,9 +86,40 @@ const CookerOrders = () => {
   }, [allOrder, currentPage]);
 
   /* ---------------HANDLER----------------- */
-  const handleStatusUpdate = async (orderId, status) => {
+  const canTransitionStatus = (currentStatus, nextStatus) => {
+    switch (nextStatus) {
+      case "confirmed":
+        return (
+          currentStatus !== "confirmed" &&
+          currentStatus !== "preparing" &&
+          currentStatus !== "ready_for_pickup"
+        );
+      case "preparing":
+        return currentStatus === "confirmed";
+      case "ready_for_pickup":
+        return currentStatus === "preparing";
+      default:
+        return false;
+    }
+  };
+
+  const handleStatusUpdate = async (order, status) => {
+    const currentStatus = (order.status || "").toLowerCase();
+
+    if (!canTransitionStatus(currentStatus, status)) {
+      toaster.create({
+        title: "Attention",
+        description: "You can't go back to the previous step or skip a step.",
+        type: "warning",
+        duration: 3000,
+        isClosable: true,
+        position: "top",
+      });
+      return;
+    }
+
     try {
-      await updateOrderStatus({ orderId, status }).unwrap();
+      await updateOrderStatus({ orderId: order.id, status }).unwrap();
     } catch (err) {
       console.error("Failed to update order status:", err);
     }
@@ -119,14 +143,12 @@ const CookerOrders = () => {
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
-  const frameworks = createListCollection({
-    items: [
-      { label: "Default", value: "Default" },
-      { label: "confirmed", value: "confirmed" },
-      { label: "preparing", value: "preparing" },
-      { label: "ready_for_pickup", value: "ready_for_pickup" },
-    ],
-  });
+  const statusTabs = [
+    { label: "All", value: "Default" },
+    { label: "Confirmed", value: "confirmed" },
+    { label: "Preparing", value: "preparing" },
+    { label: "Ready", value: "ready_for_pickup" },
+  ];
 
   return (
     <>
@@ -143,40 +165,36 @@ const CookerOrders = () => {
           </Heading>
 
           {/* select menu */}
-          <Select.Root
-            collection={frameworks}
-            width={{ base: "140px", md: "260px" }}
-            value={value}
-            onValueChange={(e) => setValue(e.value)}
-            rounded={"2xl"}
-            bg={colors.bgFixed}
+          <Flex
+            bg={colors.bgThird}
+            borderRadius="999px"
+            p="4px"
+            alignItems="center"
+            gap={1}
           >
-            <Select.HiddenSelect />
-            <Select.Control>
-              <Select.Trigger border="none" outline="none">
-                <Select.ValueText placeholder="Default" color={"white"} />
-              </Select.Trigger>
-              <Select.IndicatorGroup>
-                <Select.Indicator />
-              </Select.IndicatorGroup>
-            </Select.Control>
-            <Portal>
-              <Select.Positioner>
-                <Select.Content
-                  bg={colors.bgFixed}
-                  color={"white"}
-                  rounded={"2xl"}
+            {statusTabs.map((tab) => {
+              const isActive = selectedStatus === tab.value;
+              return (
+                <Button
+                  key={tab.value}
+                  size="sm"
+                  variant="ghost"
+                  px={4}
+                  py={2}
+                  borderRadius="999px"
+                  bg={isActive ? "white" : "transparent"}
+                  color={isActive ? colors.textMain : colors.textSub}
+                  fontWeight={isActive ? "bold" : "medium"}
+                  onClick={() => setSelectedStatus(tab.value)}
+                  _hover={{
+                    bg: isActive ? "white" : colors.bgFourth,
+                  }}
                 >
-                  {frameworks.items.map((framework) => (
-                    <Select.Item item={framework} key={framework.value}>
-                      {framework.label}
-                      <Select.ItemIndicator />
-                    </Select.Item>
-                  ))}
-                </Select.Content>
-              </Select.Positioner>
-            </Portal>
-          </Select.Root>
+                  {tab.label}
+                </Button>
+              );
+            })}
+          </Flex>
         </Flex>
 
         {/* Orders count */}
@@ -225,6 +243,15 @@ const CookerOrders = () => {
               hour12: true,
             });
 
+            const normalizedStatus = (order.status || "").toLowerCase();
+            const isConfirmed = normalizedStatus === "confirmed";
+            const isPreparing = normalizedStatus === "preparing";
+            const isReadyForPickup = normalizedStatus === "ready_for_pickup";
+            const canClickConfirm =
+              !isConfirmed && !isPreparing && !isReadyForPickup;
+            const canClickPreparing = isConfirmed;
+            const canClickReadyForPickup = isPreparing;
+
             return (
               <Box
                 key={order.id}
@@ -248,7 +275,8 @@ const CookerOrders = () => {
                     fontSize={{ base: "13px", md: "14px" }}
                     fontWeight={"medium"}
                   >
-                    {formattedDate} | {formattedTime} | #{order.id.slice(0, 8)}
+                    {formattedDate} | {formattedTime} | #ORD-
+                    {order.id.slice(0, 8).toUpperCase()}
                   </Text>
                   <Text
                     color={colors.mainFixed}
@@ -431,22 +459,19 @@ const CookerOrders = () => {
                       size={{ base: "sm", md: "md" }}
                       variant="outline"
                       rounded={"16px"}
-                      bg={
-                        order.status === "confirmed"
-                          ? colors.mainFixed
-                          : colors.bgFourth
-                      }
-                      color={
-                        order.status === "confirmed" ? "white" : colors.textSub
-                      }
+                      bg={isConfirmed ? colors.mainFixed : colors.bgFourth}
+                      color={isConfirmed ? "white" : colors.textSub}
                       fontSize={{ base: "13px", md: "14px" }}
-                      onClick={() => handleStatusUpdate(order.id, "confirmed")}
-                      isDisabled={isUpdating || order.status === "confirmed"}
+                      onClick={() => handleStatusUpdate(order, "confirmed")}
+                      isDisabled={isUpdating || !canClickConfirm}
                       _hover={{
-                        bg:
-                          order.status === "confirmed"
-                            ? colors.mainFixed
-                            : colors.bgThird,
+                        bg: isConfirmed ? colors.mainFixed : colors.bgThird,
+                      }}
+                      _disabled={{
+                        opacity: 0.5,
+                        cursor: "not-allowed",
+                        bg: colors.bgThird,
+                        color: colors.textSub,
                       }}
                       flex={1}
                     >
@@ -455,100 +480,106 @@ const CookerOrders = () => {
                         Confirmed
                       </Box>
                     </Button>
-                    <Button
-                      size={{ base: "sm", md: "md" }}
-                      variant="outline"
-                      rounded={"16px"}
-                      bg={
-                        order.status === "preparing"
-                          ? colors.mainFixed
-                          : colors.bgFourth
-                      }
-                      color={
-                        order.status === "preparing" ? "white" : colors.textSub
-                      }
-                      fontSize={{ base: "13px", md: "14px" }}
-                      onClick={() => handleStatusUpdate(order.id, "preparing")}
-                      isDisabled={isUpdating || order.status === "preparing"}
-                      _hover={{
-                        bg:
-                          order.status === "preparing"
+                    {!canClickConfirm && (
+                      <Button
+                        size={{ base: "sm", md: "md" }}
+                        variant="outline"
+                        rounded={"16px"}
+                        bg={isPreparing ? colors.mainFixed : colors.bgFourth}
+                        color={isPreparing ? "white" : colors.textSub}
+                        fontSize={{ base: "13px", md: "14px" }}
+                        onClick={() => handleStatusUpdate(order, "preparing")}
+                        isDisabled={isUpdating || !canClickPreparing}
+                        _hover={{
+                          bg: isPreparing ? colors.mainFixed : colors.bgThird,
+                        }}
+                        _disabled={{
+                          opacity: 0.5,
+                          cursor: "not-allowed",
+                          bg: colors.bgThird,
+                          color: colors.textSub,
+                        }}
+                        flex={1}
+                      >
+                        <PiCookingPot size={16} />
+                        <Box as="span" ml={1}>
+                          Preparing
+                        </Box>
+                      </Button>
+                    )}
+                    {!canClickConfirm && (
+                      <Button
+                        size={{ base: "sm", md: "md" }}
+                        variant="outline"
+                        rounded={"16px"}
+                        bg={
+                          isReadyForPickup ? colors.mainFixed : colors.bgFourth
+                        }
+                        color={isReadyForPickup ? "white" : colors.textSub}
+                        fontSize={{ base: "13px", md: "14px" }}
+                        onClick={() =>
+                          handleStatusUpdate(order, "ready_for_pickup")
+                        }
+                        isDisabled={isUpdating || !canClickReadyForPickup}
+                        _hover={{
+                          bg: isReadyForPickup
                             ? colors.mainFixed
                             : colors.bgThird,
-                      }}
-                      flex={1}
-                    >
-                      <PiCookingPot size={16} />
-                      <Box as="span" ml={1}>
-                        Preparing
-                      </Box>
-                    </Button>
-                    <Button
-                      size={{ base: "sm", md: "md" }}
-                      variant="outline"
-                      rounded={"16px"}
-                      bg={
-                        order.status === "ready_for_pickup"
-                          ? colors.mainFixed
-                          : colors.bgFourth
-                      }
-                      color={
-                        order.status === "ready_for_pickup"
-                          ? "white"
-                          : colors.textSub
-                      }
-                      fontSize={{ base: "13px", md: "14px" }}
-                      onClick={() =>
-                        handleStatusUpdate(order.id, "ready_for_pickup")
-                      }
-                      isDisabled={
-                        isUpdating || order.status === "ready_for_pickup"
-                      }
-                      _hover={{
-                        bg:
-                          order.status === "ready_for_pickup"
-                            ? colors.mainFixed
-                            : colors.bgThird,
-                      }}
-                      flex={1}
-                    >
-                      <MdOutlineDeliveryDining size={16} />
-                      <Box
-                        as="span"
-                        ml={1}
-                        display={{ base: "none", sm: "inline" }}
+                        }}
+                        _disabled={{
+                          opacity: 0.5,
+                          cursor: "not-allowed",
+                          bg: colors.bgThird,
+                          color: colors.textSub,
+                        }}
+                        flex={1}
                       >
-                        ready for Pickup   
-                      </Box>
-                      <Box
-                        as="span"
-                        ml={1}
-                        display={{ base: "inline", sm: "none" }}
-                      >
-                        Delivery
-                      </Box>
-                    </Button>
+                        <MdOutlineDeliveryDining size={16} />
+                        <Box
+                          as="span"
+                          ml={1}
+                          display={{ base: "none", sm: "inline" }}
+                        >
+                          ready for Pickup
+                        </Box>
+                        <Box
+                          as="span"
+                          ml={1}
+                          display={{ base: "inline", sm: "none" }}
+                        >
+                          Delivery
+                        </Box>
+                      </Button>
+                    )}
                   </Flex>
-                  <Button
-                    size={{ base: "sm", md: "md" }}
-                    variant="outline"
-                    rounded={"16px"}
-                    bg={colors.bgThird}
-                    color={colors.mainFixed}
-                    fontSize={{ base: "13px", md: "14px" }}
-                    onClick={() => {
-                      dialog.setOpen(true);
-                      setDeleteId(order.id);
-                    }}
-                    isDisabled={isDeleting}
-                    _hover={{ bg: colors.bgFourth }}
-                    w={{ base: "100%", md: "auto" }}
-                  >
-                    <MdOutlineCancel size={16} />
-                    <Box as="span" ml={1}>
-                      Cancel
-                    </Box>
-                  </Button>
+                  {canClickConfirm && (
+                    <Button
+                      size={{ base: "sm", md: "md" }}
+                      variant="outline"
+                      rounded={"16px"}
+                      bg={colors.bgThird}
+                      color={colors.mainFixed}
+                      fontSize={{ base: "13px", md: "14px" }}
+                      onClick={() => {
+                        dialog.setOpen(true);
+                        setDeleteId(order.id);
+                      }}
+                      isDisabled={isDeleting}
+                      _hover={{ bg: colors.bgFourth }}
+                      _disabled={{
+                        opacity: 0.5,
+                        cursor: "not-allowed",
+                        bg: colors.bgThird,
+                        color: colors.textSub,
+                      }}
+                      w={{ base: "100%", md: "auto" }}
+                    >
+                      <MdOutlineCancel size={16} />
+                      <Box as="span" ml={1}>
+                        Cancel
+                      </Box>
+                    </Button>
+                  )}
                 </Flex>
               </Box>
             );

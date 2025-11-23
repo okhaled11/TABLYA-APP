@@ -277,6 +277,22 @@ export const OrdersApiCustomerSlice = createApi({
             cookerUserData = userData;
           }
 
+          let deliveryUserData = null;
+          if (orderData?.delivery_id) {
+            const { data: deliveryUser, error: deliveryUserError } =
+              await supabase
+                .from("users")
+                .select("id, name, avatar_url, email, phone")
+                .eq("id", orderData.delivery_id)
+                .single();
+
+            if (deliveryUserError) {
+              console.warn("Error fetching delivery user:", deliveryUserError);
+            } else {
+              deliveryUserData = deliveryUser;
+            }
+          }
+
           const { data: orderItems, error: itemsError } = await supabase
             .from("order_items")
             .select(
@@ -321,6 +337,7 @@ export const OrdersApiCustomerSlice = createApi({
                   users: cookerUserData,
                 }
               : null,
+            delivery_user: deliveryUserData,
             order_items: orderItems || [],
             order_delivery: orderDelivery || null,
           };
@@ -440,7 +457,7 @@ export const OrdersApiCustomerSlice = createApi({
       async queryFn({ orderId }) {
         try {
           console.log("🔥 cancelOrder called with:", { orderId });
-          
+
           if (!orderId) {
             console.error("❌ orderId is missing or undefined");
             return { error: "Order ID is required" };
@@ -459,14 +476,12 @@ export const OrdersApiCustomerSlice = createApi({
           // Add entry to order history for cancelled order
           if (data && data.length > 0) {
             const cancelledOrder = data[0];
-            await supabase
-              .from("order_history")
-              .insert({
-                customer_id: cancelledOrder.customer_id,
-                order_id: orderId,
-                status: "cancelled",
-                at: new Date().toISOString()
-              });
+            await supabase.from("order_history").insert({
+              customer_id: cancelledOrder.customer_id,
+              order_id: orderId,
+              status: "cancelled",
+              at: new Date().toISOString(),
+            });
           }
 
           return { data };
