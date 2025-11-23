@@ -22,6 +22,9 @@ import {
 import { convertImageToWebP } from "../../services";
 import { useColorStyles } from "../../hooks/useColorStyles";
 import FormField from "../ui/FormField";
+import { registerSchema } from "../../validation";
+
+const profileSchema = registerSchema.pick(["firstName", "lastName", "phone"]);
 
 export default function PersonalInfoTab() {
   const styles = useColorStyles();
@@ -30,6 +33,7 @@ export default function PersonalInfoTab() {
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
   const [isEditing, setIsEditing] = useState(false);
+  const [fieldErrors, setFieldErrors] = useState({});
   const fileInputRef = useRef(null);
 
   // Get user data from auth.users
@@ -105,6 +109,38 @@ export default function PersonalInfoTab() {
 
   // Handle save changes
   const handleSaveChanges = async () => {
+    // Validate fields before saving
+    try {
+      await profileSchema.validate(
+        { firstName, lastName, phone },
+        { abortEarly: false }
+      );
+      setFieldErrors({});
+    } catch (validationError) {
+      const newErrors = {};
+
+      if (validationError?.inner?.length) {
+        validationError.inner.forEach((err) => {
+          if (err.path && !newErrors[err.path]) {
+            newErrors[err.path] = err.message;
+          }
+        });
+      } else if (validationError?.path) {
+        newErrors[validationError.path] = validationError.message;
+      }
+
+      setFieldErrors(newErrors);
+
+      toaster.create({
+        title: "Invalid data",
+        description: "Please fix the highlighted fields and try again.",
+        type: "error",
+        duration: 3000,
+      });
+
+      return;
+    }
+
     try {
       await updateUserProfile({
         firstName,
@@ -224,7 +260,12 @@ export default function PersonalInfoTab() {
                 onChange={(e) => {
                   setFirstName(e.target.value);
                   setIsEditing(true);
+                  setFieldErrors((prev) => ({
+                    ...prev,
+                    firstName: undefined,
+                  }));
                 }}
+                error={fieldErrors.firstName}
               />
             </GridItem>
 
@@ -236,7 +277,12 @@ export default function PersonalInfoTab() {
                 onChange={(e) => {
                   setLastName(e.target.value);
                   setIsEditing(true);
+                  setFieldErrors((prev) => ({
+                    ...prev,
+                    lastName: undefined,
+                  }));
                 }}
+                error={fieldErrors.lastName}
               />
             </GridItem>
 
@@ -263,7 +309,12 @@ export default function PersonalInfoTab() {
                 onChange={(e) => {
                   setPhone(e.target.value);
                   setIsEditing(true);
+                  setFieldErrors((prev) => ({
+                    ...prev,
+                    phone: undefined,
+                  }));
                 }}
+                error={fieldErrors.phone}
               />
             </GridItem>
           </Grid>
