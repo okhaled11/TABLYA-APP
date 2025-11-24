@@ -20,6 +20,7 @@ import { useEffect, useMemo, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { supabase } from "../../services/supabaseClient";
 import {toaster} from "../../components/ui/toaster";
+import { MdOutlineFastfood } from "react-icons/md";
 import {
   useAddFavoriteCookerMutation,
   useGetFavoriteCookersByCustomerQuery,
@@ -39,6 +40,7 @@ const ChefProfileCard = ({
   end_time,
   is_available,
   kitchen_name,
+  specialty,
   total_reviews,
   user_id, // optional explicit cooker user_id if provided by parent
 }) => {
@@ -284,8 +286,8 @@ const ChefProfileCard = ({
               </Flex>
 
               <Flex align="center" gap={2}>
-                {/* <Icon
-                  as={MdAlternateEmail}
+                <Icon
+                  as={MdOutlineFastfood }
                   color={
                     colorMode == "light"
                       ? colors.light.mainFixed
@@ -301,8 +303,8 @@ const ChefProfileCard = ({
                       : colors.dark.textMain
                   }
                 >
-                  {users?.email || "no email"}
-                </Text> */}
+                  {specialty || "no specialty"}
+                </Text>
                 <Icon
                   as={FaClock}
                   color={
@@ -354,8 +356,8 @@ const ChefProfileCard = ({
                 </Text>
               </Flex>
               <Flex align="center" gap={2}>
-                {/* <Icon
-                  as={MdAlternateEmail}
+                <Icon
+                  as={MdOutlineFastfood }
                   fontWeight="light"
                   color={
                     colorMode === "light"
@@ -371,8 +373,8 @@ const ChefProfileCard = ({
                       : colors.dark.textMain
                   }
                 >
-                  {users?.email || "no email"}
-                </Text> */}
+                  {specialty || "no specialty"}
+                </Text>
               </Flex>
               <Flex align="center" gap={2}>
                 {/* <Icon

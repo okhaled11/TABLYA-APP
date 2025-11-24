@@ -113,7 +113,7 @@ export default function CartItemCard({ item, onRemove, onQuantityChange }) {
                   : colors.dark.mainFixed
               }
             >
-              ${item.price.toFixed(2)}
+              {item.price_for_customer.toFixed(2)} L.E
             </Text>
 
             <HStack px={{ base: 2, md: 3 }} py={1} spacing={2} flexShrink={0}>

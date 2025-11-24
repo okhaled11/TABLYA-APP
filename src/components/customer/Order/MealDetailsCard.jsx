@@ -23,6 +23,7 @@ import {
   updateQuantity,
 } from "../../../app/features/Customer/CartSlice";
 import { Link } from "react-router-dom";
+import {truncateText} from "../../../utils/index"
 
 const MealDetailsCard = ({ mealData, chefData }) => {
   console.log(mealData);
@@ -76,8 +77,8 @@ const MealDetailsCard = ({ mealData, chefData }) => {
 
   const totalPrice =
     count === 0
-      ? mealData.price.toFixed(2)
-      : (mealData.price * count).toFixed(2);
+      ? mealData.price_for_customer.toFixed(2)
+      : (mealData.price_for_customer * count).toFixed(2);
 
   const isOutOfStock = availableStock === 0 || !mealData.available;
 
@@ -121,7 +122,6 @@ const MealDetailsCard = ({ mealData, chefData }) => {
     }
   };
 
-  console.log(chefData);
   return (
     <Container maxW="container.xl" py={{ base: 4, md: 6 }}>
       <Flex
@@ -136,7 +136,7 @@ const MealDetailsCard = ({ mealData, chefData }) => {
           position="relative"
           display="flex"
           flexDirection="column"
-          maxH={{ base: "400px", lg: "570px" }}
+          // maxH={{ base: "400px", lg: "570px" }}
         >
           <Box
             borderRadius="24px"
@@ -162,7 +162,7 @@ const MealDetailsCard = ({ mealData, chefData }) => {
         {/* Right Side - Details */}
         <Box
           flex="1"
-          maxH={{ base: "550px", md: "570px" }}
+          // maxH={{ base: "550px", md: "570px" }}
           borderRadius="2xl"
           p={{ base: 4, md: 6 }}
           bg={
@@ -193,7 +193,7 @@ const MealDetailsCard = ({ mealData, chefData }) => {
               }
               lineHeight="1.8"
             >
-              {mealData.description}
+              {truncateText(mealData.description, 150)}
             </Text>
 
             {/* Price */}
