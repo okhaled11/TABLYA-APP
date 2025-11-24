@@ -95,7 +95,7 @@ export const cookersApprovalsApi = createApi({
 
     //  Delete cooker approval (and if cooker existed already )
     deleteCookerApproval: builder.mutation({
-      async queryFn(id) {
+      async queryFn({id}) {
         try {
           const { data: approval, error: fetchError } = await supabase
             .from('cooker_approvals')
@@ -147,23 +147,47 @@ export const cookersApprovalsApi = createApi({
 
 //   Reject a cooker
     rejectCookerApproval: builder.mutation({
-      async queryFn({ id, notes }) {
+      async queryFn({ id }) {
         const { data, error } = await supabase
           .from('cooker_approvals')
-          .update({ status: 'rejected', notes })
+          .update({ status: 'rejected'})
           .eq('id', id);
-        if (error) return { error };
+        if (error) return { error :error };
         return { data };
       },
       invalidatesTags: ['CookerApprovals'],
     }),
+
+//send notes 
+
+sendNotes : builder.mutation ({
+async queryFn ({id , notes}){
+
+     const {data , error}= await supabase 
+     .from ('cooker_approvals')
+     .update({notes})
+     .eq ('id' , id);
+     
+     if (error) return {error: error};
+     return {data}
+
+
+
+}, invalidatesTags: [ 'CookerApprovals'], 
+
   }),
+})
+
 });
+
+
 
 export const {
   useGetCookerApprovalsQuery: useGetAllCookerApprovalsQuery,
-
+    
   useApproveCookerMutation,
   useDeleteCookerApprovalMutation,
-  useRejectCookerApprovalMutation
+  useRejectCookerApprovalMutation,
+  useSendNotesMutation
+
 } = cookersApprovalsApi;

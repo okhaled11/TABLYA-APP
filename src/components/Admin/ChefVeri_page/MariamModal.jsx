@@ -22,7 +22,8 @@ const MariamCustomModal = ({
   notes,
   setNotes,
   isApproving,
-  message
+  message, 
+  sendNotes
 }) => {
   if (!isOpen || !cooker || !type) return null;
 
@@ -30,6 +31,7 @@ const MariamCustomModal = ({
   const isReject = type === "reject";
   const isDetails = type === "details";
   const isDelete = type === "delete";
+  const sendnotes = type === "notes";
   const [previewImage, setPreviewImage] = useState(null);
 
 
@@ -49,7 +51,7 @@ const MariamCustomModal = ({
                     ? "Reject Cooker"
                     : isDelete
                       ? "Delete Cooker"
-                      : "Cooker Details"}
+                       : isDetails ?  "Cooker Details" : "Send Notes to the Cooker " }
               </Dialog.Title>
             </Dialog.Header>
 
@@ -78,7 +80,7 @@ const MariamCustomModal = ({
                       Are you sure you want to reject <b>{cooker.user?.name}</b> from joining our community?
                     </Text>
 
-                    <Textarea
+                    {/* <Textarea
                       placeholder="Enter rejection notes..."
                       value={notes}
                       onChange={(e) => setNotes(e.target.value)}
@@ -86,10 +88,34 @@ const MariamCustomModal = ({
                       minH="120px"
                       resize="vertical"
                       mt={"30px"}
-                    />
+                    /> */}
                   </VStack>
                 </>
               )}
+
+             {/* send notes or message to the cooker */}
+
+           {sendnotes && (
+           
+            <Textarea
+                      placeholder="Enter notes..."
+                      value={notes}
+                      onChange={(e) => setNotes(e.target.value)}
+                      size="lg"
+                      minH="120px"
+                      resize="vertical"
+                      mt={"20px"}
+                    />
+
+           )
+
+
+
+
+           }
+
+
+
               {/* Delete */}
               {isDelete && (
                 <>
@@ -113,8 +139,12 @@ const MariamCustomModal = ({
                     <DataList.Item>
                       <DataList.ItemLabel>Avatar</DataList.ItemLabel>
                       <DataList.ItemValue>
-                        <Avatar.Root size="80px">
-                          <Avatar.Image src={cooker.user?.avatar_url} />
+                        <Avatar.Root 
+                        width={"100px"}
+                         height="100px"
+                          borderRadius="full"
+                          overflow="hidden">
+                          <Avatar.Image src={cooker.user?.avatar_url}  />
                           <Avatar.Fallback name={cooker.user?.name} />
                         </Avatar.Root>
                       </DataList.ItemValue>
@@ -289,6 +319,15 @@ const MariamCustomModal = ({
                   Delete
                 </Button>
               )}
+              {sendnotes&& (
+                <Button onClick={sendNotes} background={colors.light.success}>
+                  Send
+                </Button>
+              )}
+
+
+
+
             </Dialog.Footer>
 
 

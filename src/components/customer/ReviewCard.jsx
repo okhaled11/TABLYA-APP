@@ -5,7 +5,7 @@ import colors from "../../theme/color";
 import { formatDate } from "../../utils";
 import { useState } from "react";
 
-const ReviewCard = ({ rating = 0, comment, created_at, customers }) => {
+const ReviewCard = ({ rating = 0, comment, updated_at, customers }) => {
   const { colorMode } = useColorMode();
   const [isExpanded, setIsExpanded] = useState(false);
   const MAX_LENGTH = 75; // Maximum characters before showing "Read More"
@@ -20,7 +20,7 @@ const ReviewCard = ({ rating = 0, comment, created_at, customers }) => {
     }
     return stars;
   };
-  const { day, month, year } = formatDate(created_at);
+  const { day, month, year } = formatDate(updated_at);
 
   const displayComment = () => {
     if (!shouldTruncate) return comment;

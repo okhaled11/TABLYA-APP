@@ -2,7 +2,7 @@ import { createApi, fakeBaseQuery } from "@reduxjs/toolkit/query/react";
 import { supabase } from "../../../services/supabaseClient";
 
 //Mariam's APIs 
-const PLATFORM_PROFIT_RATE = 0.1;  //10%
+ 
 
 export const dashboardApi = createApi({
   reducerPath: "dashboardApi",
@@ -82,7 +82,7 @@ export const dashboardApi = createApi({
 
     // ***************************************************
     // total orders
-    // ****************************************************
+    // ***************************************************
     getTotalOrders: builder.query({
       async queryFn(period = "monthly") {
         const now = new Date();

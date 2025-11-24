@@ -25,9 +25,12 @@ const CookerStatistics = () => {
   }, []);
   const { colorMode } = useColorMode();
 
-  const { data: orders = [], isLoading: ordersLoading } = useGetCookerOrdersQuery();
-  const { data: menuItems = [], isLoading: menuLoading } = useGetMyMenuItemsQuery();
-  const { data: cookerDetails, isLoading: cookerLoading } = useGetCookerByIdQuery(userId, { skip: !userId });
+  const { data: orders = [], isLoading: ordersLoading } =
+    useGetCookerOrdersQuery();
+  const { data: menuItems = [], isLoading: menuLoading } =
+    useGetMyMenuItemsQuery();
+  const { data: cookerDetails, isLoading: cookerLoading } =
+    useGetCookerByIdQuery(userId, { skip: !userId });
 
   const totalOrders = orders?.length || 0;
 
@@ -40,7 +43,10 @@ const CookerStatistics = () => {
     for (const order of orders) {
       const created = order?.created_at ? new Date(order.created_at) : null;
       if (!created) continue;
-      if (created.getMonth() === currentMonth && created.getFullYear() === currentYear) {
+      if (
+        created.getMonth() === currentMonth &&
+        created.getFullYear() === currentYear
+      ) {
         const items = order?.order_items || [];
         for (const it of items) {
           const qty = Number(it.quantity || 0);
@@ -52,8 +58,16 @@ const CookerStatistics = () => {
     return Math.round(sum);
   }, [orders]);
 
-  const activeMeals = useMemo(() => (menuItems ? menuItems.filter((m) => m.available === true).length : 0), [menuItems]);
-  const outOfStock = useMemo(() => (menuItems ? menuItems.filter((m) => (m.stock ?? 0) === 0).length : 0), [menuItems]);
+  const activeMeals = useMemo(
+    () =>
+      menuItems ? menuItems.filter((m) => m.available === true).length : 0,
+    [menuItems]
+  );
+  const outOfStock = useMemo(
+    () =>
+      menuItems ? menuItems.filter((m) => (m.stock ?? 0) === 0).length : 0,
+    [menuItems]
+  );
 
   const avgRating = cookerDetails?.avg_rating ?? 0;
   const totalReviews = cookerDetails?.total_reviews ?? 0;
@@ -64,36 +78,60 @@ const CookerStatistics = () => {
     <SimpleGrid columns={{ base: 1, md: 2, lg: 4 }} gap={4}>
       <CookerStaticsCard
         title="Total Orders"
-        value={ordersLoading ? "--" : totalOrders}
+        value={totalOrders}
+        loading={ordersLoading}
         icon={RiFileList3Fill}
-        iconBg={colorMode === "light" ? colors.light.info20a : colors.dark.info20a}
+        iconBg={
+          colorMode === "light" ? colors.light.info20a : colors.dark.info20a
+        }
         iconColor={colorMode === "light" ? colors.light.info : colors.dark.info}
       />
 
       <CookerStaticsCard
         title="Monthly Earning (LE)"
-        value={ordersLoading ? "--" : fmt(monthlyEarning)}
+        value={fmt(monthlyEarning)}
+        loading={ordersLoading}
         icon={PiMoneyWavyFill}
-        iconBg={colorMode === "light" ? colors.light.success20a : colors.dark.success20a}
-        iconColor={colorMode === "light" ? colors.light.success : colors.dark.success}
+        iconBg={
+          colorMode === "light"
+            ? colors.light.success20a
+            : colors.dark.success20a
+        }
+        iconColor={
+          colorMode === "light" ? colors.light.success : colors.dark.success
+        }
       />
 
       <CookerStaticsCard
         title="Active Meals"
-        value={menuLoading ? "--" : activeMeals}
-        subtext={menuLoading ? "" : `${outOfStock} out of stock`}
+        value={activeMeals}
+        subtext={`${outOfStock} out of stock`}
+        loading={menuLoading}
         icon={TbSoup}
-        iconBg={colorMode === "light" ? colors.light.pending20a : colors.dark.pending20a}
-        iconColor={colorMode === "light" ? colors.light.pending : colors.dark.pending}
+        iconBg={
+          colorMode === "light"
+            ? colors.light.pending20a
+            : colors.dark.pending20a
+        }
+        iconColor={
+          colorMode === "light" ? colors.light.pending : colors.dark.pending
+        }
       />
 
       <CookerStaticsCard
         title="Ratings"
-        value={cookerLoading ? "--" : (avgRating || 0)}
-        subtext={cookerLoading ? "" : `${totalReviews} reviews`}
+        value={avgRating || 0}
+        subtext={`${totalReviews} reviews`}
+        loading={cookerLoading}
         icon={FaStar}
-        iconBg={colorMode === "light" ? colors.light.warning20a : colors.dark.warning20a}
-        iconColor={colorMode === "light" ? colors.light.warning : colors.dark.warning}
+        iconBg={
+          colorMode === "light"
+            ? colors.light.warning20a
+            : colors.dark.warning20a
+        }
+        iconColor={
+          colorMode === "light" ? colors.light.warning : colors.dark.warning
+        }
       />
     </SimpleGrid>
   );

@@ -590,7 +590,11 @@ function OrderDetails() {
                     <Box borderTop="1px" borderColor="red.800" my={3} />
                     <Flex
                       justify="space-between"
-                      color="red.400"
+                      color={
+                        colorMode === "light"
+                          ? colors.light.mainFixed
+                          : colors.dark.mainFixed
+                      }
                       fontSize="xl"
                       fontWeight="bold"
                     >
@@ -604,8 +608,8 @@ function OrderDetails() {
                 <Box
                   bg={
                     colorMode === "light"
-                      ? colors.light.mainFixed10a
-                      : colors.dark.mainFixed10a
+                      ? colors.light.info10a
+                      : colors.dark.info10a
                   }
                   borderRadius="xl"
                   p={{ base: 3, md: 5 }}
@@ -625,44 +629,22 @@ function OrderDetails() {
                   <VStack gap={2} align="stretch">
                     <HStack gap={3}>
                       <Icon
-                        as={IoPersonSharp}
-                        boxSize={5}
-                        flexShrink={0}
-                        color={
-                          colorMode === "light"
-                            ? colors.light.mainFixed
-                            : colors.dark.mainFixed
-                        }
-                      />
-                      <Text
-                        color={
-                          colorMode === "light"
-                            ? colors.light.textMain
-                            : colors.dark.textMain
-                        }
-                        fontWeight="medium"
-                      >
-                        {orderDetails?.customer?.name || "N/A"}
-                      </Text>
-                    </HStack>
-                    <HStack gap={3}>
-                      <Icon
                         as={IoLocationSharp}
                         boxSize={5}
                         flexShrink={0}
                         color={
                           colorMode === "light"
-                            ? colors.light.mainFixed
-                            : colors.dark.mainFixed
+                            ? colors.light.info
+                            : colors.dark.info
                         }
                       />
                       <Text
                         color={
                           colorMode === "light"
-                            ? colors.light.textMain
-                            : colors.dark.textMain
+                            ? colors.light.textSub
+                            : colors.dark.textSub
                         }
-                        fontWeight="medium"
+                        fontWeight="light"
                       >
                         {orderDetails?.customer?.address || "N/A"}
                       </Text>
@@ -674,17 +656,17 @@ function OrderDetails() {
                         flexShrink={0}
                         color={
                           colorMode === "light"
-                            ? colors.light.mainFixed
-                            : colors.dark.mainFixed
+                            ? colors.light.info
+                            : colors.dark.info
                         }
                       />
                       <Text
                         color={
                           colorMode === "light"
-                            ? colors.light.textMain
-                            : colors.dark.textMain
+                            ? colors.light.textSub
+                            : colors.dark.textSub
                         }
-                        fontWeight="medium"
+                        fontWeight="light"
                       >
                         {orderDetails?.customer?.phone || "N/A"}
                       </Text>
@@ -696,17 +678,17 @@ function OrderDetails() {
                         flexShrink={0}
                         color={
                           colorMode === "light"
-                            ? colors.light.mainFixed
-                            : colors.dark.mainFixed
+                            ? colors.light.info
+                            : colors.dark.info
                         }
                       />
                       <Text
                         color={
                           colorMode === "light"
-                            ? colors.light.textMain
-                            : colors.dark.textMain
+                            ? colors.light.textSub
+                            : colors.dark.textSub
                         }
-                        fontWeight="medium"
+                        fontWeight="light"
                       >
                         {orderDetails?.order_delivery?.eta_minutes
                           ? `${orderDetails.order_delivery.eta_minutes} min`
@@ -717,116 +699,171 @@ function OrderDetails() {
                 </Box>
 
                 {/* Delivery Partner (Driver) Information */}
-                {orderDetails?.status === "out_for_delivery" &&
-                  deliveryUser && (
-                    <Box borderRadius="xl" p={{ base: 3, md: 6 }}>
-                      <Heading
-                        as="h2"
-                        size={{ base: "md", md: "xl" }}
-                        mb={{ base: 3, md: 6 }}
-                      >
-                        Delivery Info
-                      </Heading>
-                      <Flex
-                        align="center"
-                        gap={{ base: 3, md: 4 }}
+                <Box
+                  bg={
+                    colorMode === "light"
+                      ? colors.light.info10a
+                      : colors.dark.info10a
+                  }
+                  borderRadius="xl"
+                  p={{ base: 3, md: 5 }}
+                >
+                  <Heading
+                    as="h2"
+                    size={{ base: "md", md: "lg" }}
+                    color={
+                      colorMode === "light"
+                        ? colors.light.textMain
+                        : colors.dark.textMain
+                    }
+                    mb={{ base: 3, md: 4 }}
+                  >
+                    Delivery Info
+                  </Heading>
+                  {orderDetails?.status === "out_for_delivery" &&
+                  deliveryUser ? (
+                    <Flex
+                      align="center"
+                      gap={{ base: 3, md: 4 }}
+                      borderRadius="xl"
+                      p={{ base: 3, md: 5 }}
+                    >
+                      <Box
+                        w={{ base: 16, md: 20 }}
+                        h={{ base: 16, md: 20 }}
+                        borderRadius="full"
+                        overflow="hidden"
+                        flexShrink={0}
                         bg={
                           colorMode === "light"
-                            ? colors.light.info10a
-                            : colors.dark.info10a
+                            ? colors.light.white10a
+                            : colors.dark.white10a
                         }
-                        borderRadius="xl"
-                        p={{ base: 3, md: 5 }}
+                        display="flex"
+                        alignItems="center"
+                        justifyContent="center"
                       >
-                        <Box
-                          w={{ base: 16, md: 20 }}
-                          h={{ base: 16, md: 20 }}
-                          borderRadius="full"
-                          overflow="hidden"
-                          flexShrink={0}
-                          bg={
-                            colorMode === "light"
-                              ? colors.light.white10a
-                              : colors.dark.white10a
-                          }
-                          display="flex"
-                          alignItems="center"
-                          justifyContent="center"
+                        {deliveryUser?.avatar_url ? (
+                          <Image
+                            src={deliveryUser.avatar_url}
+                            alt={deliveryUser.name || "Delivery Partner"}
+                            w="full"
+                            h="full"
+                            objectFit="cover"
+                          />
+                        ) : (
+                          <Icon
+                            as={IoBicycle}
+                            boxSize={{ base: 8, md: 10 }}
+                            color={
+                              colorMode === "light"
+                                ? colors.light.info
+                                : colors.dark.info
+                            }
+                          />
+                        )}
+                      </Box>
+                      <Box flex={1} minW={0}>
+                        <Heading
+                          as="h3"
+                          size={{ base: "sm", md: "xl" }}
+                          mb={{ base: 1, md: 2 }}
+                          noOfLines={1}
+                          fontWeight="light"
                         >
-                          {deliveryUser?.avatar_url ? (
-                            <Image
-                              src={deliveryUser.avatar_url}
-                              alt={deliveryUser.name || "Delivery Partner"}
-                              w="full"
-                              h="full"
-                              objectFit="cover"
-                            />
+                          {deliveryUser?.name || "Delivery Partner"}
+                        </Heading>
+                        <HStack
+                          gap={{ base: 1, md: 2 }}
+                          fontSize={{ base: "sm", md: "md" }}
+                          alignItems="center"
+                        >
+                          <Icon
+                            as={IoCall}
+                            boxSize={{ base: 4, md: 5 }}
+                            color={
+                              colorMode === "light"
+                                ? colors.light.info
+                                : colors.dark.info
+                            }
+                          />
+                          {deliveryUser?.phone ? (
+                            <Text
+                              as="a"
+                              href={`tel:${deliveryUser.phone}`}
+                              color={
+                                colorMode === "light"
+                                  ? colors.light.textMain
+                                  : colors.dark.textMain
+                              }
+                              fontWeight="medium"
+                              textDecoration="underline"
+                              _hover={{ opacity: 0.8 }}
+                            >
+                              {deliveryUser.phone}
+                            </Text>
                           ) : (
-                            <Icon
-                              as={IoBicycle}
-                              boxSize={{ base: 8, md: 10 }}
+                            <Text
                               color={
                                 colorMode === "light"
-                                  ? colors.light.info
-                                  : colors.dark.info
+                                  ? colors.light.textSub
+                                  : colors.dark.textSub
                               }
-                            />
+                            >
+                              N/A
+                            </Text>
                           )}
-                        </Box>
-                        <Box flex={1} minW={0}>
-                          <Heading
-                            as="h3"
-                            size={{ base: "sm", md: "lg" }}
-                            mb={{ base: 1, md: 2 }}
-                            noOfLines={1}
-                          >
-                            {deliveryUser?.name || "Delivery Partner"}
-                          </Heading>
-                          <HStack
-                            gap={{ base: 1, md: 2 }}
-                            fontSize={{ base: "sm", md: "md" }}
-                            alignItems="center"
-                          >
-                            <Icon
-                              as={IoCall}
-                              boxSize={{ base: 4, md: 5 }}
-                              color={
-                                colorMode === "light"
-                                  ? colors.light.mainFixed
-                                  : colors.dark.mainFixed
-                              }
-                            />
-                            {deliveryUser?.phone ? (
-                              <Text
-                                as="a"
-                                href={`tel:${deliveryUser.phone}`}
-                                color={
-                                  colorMode === "light"
-                                    ? colors.light.textMain
-                                    : colors.dark.textMain
-                                }
-                                fontWeight="medium"
-                                textDecoration="underline"
-                                _hover={{ opacity: 0.8 }}
-                              >
-                                {deliveryUser.phone}
-                              </Text>
-                            ) : (
-                              <Text
-                                color={
-                                  colorMode === "light"
-                                    ? colors.light.textSub
-                                    : colors.dark.textSub
-                                }
-                              >
-                                N/A
-                              </Text>
-                            )}
-                          </HStack>
-                        </Box>
-                      </Flex>
-                    </Box>
+                        </HStack>
+                      </Box>
+                    </Flex>
+                  ) : (
+                    <Flex
+                      align="center"
+                      gap={{ base: 3, md: 4 }}
+                      borderRadius="xl"
+                      p={{ base: 3, md: 5 }}
+                      bg={
+                        colorMode === "light"
+                          ? colors.light.white10a
+                          : colors.dark.white10a
+                      }
+                    >
+                      <Icon
+                        as={IoBicycle}
+                        boxSize={{ base: 6, md: 8 }}
+                        color={
+                          colorMode === "light"
+                            ? colors.light.info
+                            : colors.dark.info
+                        }
+                        flexShrink={0}
+                      />
+                      <Box>
+                        <Text
+                          fontWeight="medium"
+                          color={
+                            colorMode === "light"
+                              ? colors.light.textMain
+                              : colors.dark.textMain
+                          }
+                        >
+                          No delivery assigned yet
+                        </Text>
+                        <Text
+                          fontSize="sm"
+                          color={
+                            colorMode === "light"
+                              ? colors.light.textSub
+                              : colors.dark.textSub
+                          }
+                        >
+                          You'll see your delivery partner here once your order
+                          is on the way.
+                        </Text>
+                      </Box>
+                    </Flex>
                   )}
+                </Box>
 
                 {/* Cooker Information */}
                 <Box borderRadius="xl" p={{ base: 3, md: 6 }}>
