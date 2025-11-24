@@ -150,6 +150,41 @@ export const registerSchemaKitchenChef = yup
   })
   .required();
 
+export const cookerProfileSchema = yup
+  .object({
+    kitchenName: yup
+      .string()
+      .required("Kitchen name is required")
+      .matches(/^[A-Za-z\s]+$/, "Kitchen name should contain only letters")
+      .min(3, "Kitchen name should be at least 3 characters.")
+      .trim(),
+    startTime: yup
+      .string()
+      .required("Start time is required")
+      .matches(/^([01]\d|2[0-3]):([0-5]\d)$/, "Invalid time format (HH:MM)")
+      .trim(),
+    endTime: yup
+      .string()
+      .required("End time is required")
+      .matches(/^([01]\d|2[0-3]):([0-5]\d)$/, "Invalid time format (HH:MM)")
+      .test(
+        "is-after-start",
+        "End time must be after start time",
+        function (value) {
+          const { startTime } = this.parent;
+          if (!startTime || !value) return true;
+          return value > startTime;
+        }
+      ),
+    specialty: yup.string().required("Specialty is required").trim(),
+    chefDescription: yup
+      .string()
+      .max(300, "Description should not exceed 300 characters")
+      .nullable()
+      .trim(),
+  })
+  .required();
+
 export const addMealSchema = yup
   .object({
     name: yup

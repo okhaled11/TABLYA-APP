@@ -37,7 +37,7 @@ export default function PersonalInfo() {
   }, [lockToAddressTab, location.pathname, navigate]);
 
   const tabs = [
-    <PersonalInfoTab />,
+    <PersonalInfoTab user={user} />,
     <AddressTab />,
     <SecurityTab user={user} />,
   ];
