@@ -38,6 +38,7 @@ import { favoritesApi } from "./features/Customer/favoritesApi";
 import { adminAuthApi } from "./features/Admin/adminData";
 
 import { MariamSettingsApi } from "./features/Admin/MariamSettings";
+import { landingReviews } from "./features/Landing/LandingReviews";
 import { deliveryApi } from "./features/delivery/deliveryApi";
 import { deleveryOrder } from "./features/delivery/deleveryOrder";
 
@@ -82,6 +83,7 @@ export const store = configureStore({
     [AdminUserSlice.reducerPath]: AdminUserSlice.reducer,
     [MariamSettingsApi.reducerPath]: MariamSettingsApi.reducer,
     [adminReportActionsApi.reducerPath]: adminReportActionsApi.reducer,
+    [landingReviews.reducerPath]:landingReviews.reducer,
 
     // Auth & User
     [authApi.reducerPath]: authApi.reducer,
@@ -131,6 +133,7 @@ export const store = configureStore({
       CookerAnalyticsApi.middleware,
       MariamSettingsApi.middleware,
       adminReportActionsApi.middleware,
+      landingReviews.middleware,
       deliveryApi.middleware,
       deleveryOrder.middleware
     ),

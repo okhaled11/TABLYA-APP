@@ -3,8 +3,12 @@ import { Menu } from "@chakra-ui/react"
 import { Button } from '@chakra-ui/react'
 import { Portal } from '@chakra-ui/react'
 import { MdKeyboardArrowDown } from "react-icons/md";
+import { useColorMode } from '../../../theme/color-mode';
 
 export default function Filterdropdown({ period, setPeriod }) {
+
+   const {colorMode} = useColorMode();
+
   //for filtering kpis in dashboard (monthly , daily , weekly)
     return (
         <Menu.Root  >
@@ -24,7 +28,7 @@ export default function Filterdropdown({ period, setPeriod }) {
                 <Menu.Positioner   >
                     <Menu.Content
                         borderRadius="md"
-                        bg="white"
+                        bg={colorMode==="light"? "white" : "rgb(20, 4, 2)"}
                         shadow="md"
                         w="200px">
                         <Menu.Item py={2} _hover={{ bg: "rgb(22, 162, 73)" }} onClick={() => setPeriod("daily")}>Daily</Menu.Item>

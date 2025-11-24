@@ -89,7 +89,7 @@ export default function RevenueSettings() {
       platform_commission_pct: 10,
       chef_commission_pct: 80,
       service_fee_amount: 10,
-      default_delivery_fee: 0,
+      
 
       //-----------------------------------------------
       sales_tax_pct: 10,
