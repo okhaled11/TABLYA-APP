@@ -25,10 +25,11 @@ import { FaRegCheckCircle, FaClipboardCheck, FaEye } from "react-icons/fa";
 import { MdOutlineDeliveryDining, MdCancel } from "react-icons/md";
 import OrderModal from "../../components/Admin/OrderModal";
 import colors from "../../theme/color";
+import { toaster } from "../../components/ui/toaster";
 
 function Deliveries() {
   const { data: orders, isLoading } = useGetOrdersQuery();
-  console.log(orders);
+  // console.log(orders);
   const { colorMode } = useColorMode();
 
   const [selectedOrder, setSelectedOrder] = useState(null);
@@ -43,17 +44,15 @@ function Deliveries() {
   // Handle user input
   const handleSearchChange = (e) => setSearchTerm(e.target.value);
   const handleFilterChange = (e) => setStatusFilter(e.target.value);
-const handleOpenModal = (order) => {
-  setSelectedOrder(order);
-  setIsModalOpen(true);
-};
-
-const handleCloseModal = () => {
-  setIsModalOpen(false);
-  setSelectedOrder(null);
+  const handleOpenModal = (order) => {
+    setSelectedOrder(order);
+    setIsModalOpen(true);
   };
 
-  
+  const handleCloseModal = () => {
+    setIsModalOpen(false);
+    setSelectedOrder(null);
+  };
 
   const ordersData = useMemo(() => {
     if (!orders) return [];
@@ -91,8 +90,6 @@ const handleCloseModal = () => {
     });
   }, [ordersData, statusFilter, searchTerm, startDate, endDate]);
 
-  
-
   // Pagination logic
   const totalPages = Math.ceil(filteredOrders.length / pageSize);
   const startIndex = (page - 1) * pageSize;
@@ -123,32 +120,40 @@ const handleCloseModal = () => {
 
   const handleExportCSV = () => {
     if (!filteredOrders || filteredOrders.length === 0) {
-      alert("No data to export.");
+      toaster.create({
+        title: "No orders to export",
+        type: "error",
+      });
       return;
     }
 
     // Define CSV headers
-    const headers = ["Order ID", "Restaurant", "Customer", "Delivery Partner", "Status", "Total", "Order Date"];
+    const headers = [
+      "Order ID",
+      "Restaurant",
+      "Customer",
+      "Delivery Partner",
+      "Status",
+      "Total",
+      "Order Date",
+    ];
 
-    // Convert user data to CSV rows
     const rows = filteredOrders.map((order) => [
-      [
-        `${order.id}`,
-        `${order.restaurant}`,
-        `${order.customer}`,
-        `${order.deliveryPartner}`,
-        `${order.status}`,
-        `${order.total}`,
-        `${new Intl.DateTimeFormat("en-US", {
-          year: "numeric",
-          month: "short",
-          day: "2-digit",
-        }).format(new Date(order.orderDate))}`,
-        `${new Intl.DateTimeFormat("en-US", {
-          hour: "numeric",
-          minute: "numeric",
-        }).format(new Date(order.orderTime))}`,
-      ]
+      order.id,
+      order.restaurant,
+      order.customer,
+      order.deliveryPartner,
+      order.status,
+      order.total,
+      new Intl.DateTimeFormat("en-US", {
+        year: "numeric",
+        month: "short",
+        day: "2-digit",
+      }).format(new Date(order.orderDate)),
+      new Intl.DateTimeFormat("en-US", {
+        hour: "numeric",
+        minute: "numeric",
+      }).format(new Date(order.orderTime)),
     ]);
 
     const csvContent = [headers, ...rows]
@@ -164,8 +169,12 @@ const handleCloseModal = () => {
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
+
+    toaster.create({
+      title: "Orders exported successfully",
+      type: "success",
+    });
   };
-  
 
   if (isLoading)
     return (
@@ -173,10 +182,13 @@ const handleCloseModal = () => {
         <Spinner size="xl" />
       </Flex>
     );
-    console.log("OrderModal received order:", selectedOrder);
+  // console.log("OrderModal received order:", selectedOrder);
 
   return (
-    <Box p={"30px"} bg={colorMode === "light" ? colors.light.bgMain : colors.dark.bgMain}>
+    <Box
+      p={"30px"}
+      bg={colorMode === "light" ? colors.light.bgMain : colors.dark.bgMain}
+    >
       {/* Header */}
       <Box textStyle="3xl" color={colorMode === "light" ? "black" : "white"}>
         Orders & Deliveries
@@ -196,7 +208,7 @@ const handleCloseModal = () => {
         <StatCard
           icon={FaClipboardCheck}
           iconBg="#eaf2ff"
-          backgroundColor={colorMode === "light" ? "white" : "#261c17"}
+          backgroundColor={colorMode === "light" ? "white" : "rgb(20, 4, 2)"}
           iconColor="#3b82f6"
           label="Confirmed Orders"
           value={ordersData.filter((o) => o.status === "confirmed").length}
@@ -207,7 +219,7 @@ const handleCloseModal = () => {
         <StatCard
           icon={FiPackage}
           iconBg="#fdf8e9"
-          backgroundColor={colorMode === "light" ? "white" : "#261c17"}
+          backgroundColor={colorMode === "light" ? "white" : "rgb(20, 4, 2)"}
           iconColor="#f4c127"
           label="Preparing Orders"
           value={ordersData.filter((o) => o.status === "preparing").length}
@@ -218,7 +230,7 @@ const handleCloseModal = () => {
         <StatCard
           icon={MdOutlineDeliveryDining}
           iconBg="#fff5e6"
-          backgroundColor={colorMode === "light" ? "white" : "#261c17"}
+          backgroundColor={colorMode === "light" ? "white" : "rgb(20, 4, 2)"}
           iconColor="#fb923c"
           label="Ready for Pickup"
           value={
@@ -231,7 +243,7 @@ const handleCloseModal = () => {
         <StatCard
           icon={FiTruck}
           iconBg="#e8f5fc"
-          backgroundColor={colorMode === "light" ? "white" : "#261c17"}
+          backgroundColor={colorMode === "light" ? "white" : "rgb(20, 4, 2)"}
           iconColor="#19a2e6"
           label="Out for Delivery"
           value={
@@ -244,7 +256,7 @@ const handleCloseModal = () => {
         <StatCard
           icon={FaRegCheckCircle}
           iconBg="#e7f5ec"
-          backgroundColor={colorMode === "light" ? "white" : "#261c17"}
+          backgroundColor={colorMode === "light" ? "white" : "rgb(20, 4, 2)"}
           iconColor="#24a855"
           label="Delivered Orders"
           value={ordersData.filter((o) => o.status === "delivered").length}
@@ -255,7 +267,7 @@ const handleCloseModal = () => {
         <StatCard
           icon={MdCancel}
           iconBg="#fdecec"
-          backgroundColor={colorMode === "light" ? "white" : "#261c17"}
+          backgroundColor={colorMode === "light" ? "white" : "rgb(20, 4, 2)"}
           iconColor="#ef4444"
           label="Cancelled Orders"
           value={ordersData.filter((o) => o.status === "cancelled").length}
@@ -269,7 +281,7 @@ const handleCloseModal = () => {
         borderRadius={10}
         p={5}
         borderColor={colorMode === "light" ? "gray.100" : "gray.900"}
-        background={colorMode === "light" ? "white" : "#261c17"}
+        background={colorMode === "light" ? "white" : "rgb(20, 4, 2)"}
         overflowX="auto"
       >
         {/* Search + Filter */}
@@ -310,10 +322,16 @@ const handleCloseModal = () => {
               onChange={(e) => setEndDate(e.target.value)}
             />
             <Button
-              
               onClick={() => {
                 setStartDate("");
                 setEndDate("");
+                setSearchTerm("");
+                setStatusFilter("");
+                setPage(1);
+                toaster.create({
+                  title: "Filters cleared",
+                  type: "success",
+                });
               }}
             >
               Clear
@@ -322,7 +340,7 @@ const handleCloseModal = () => {
 
           <Button
             size={"md"}
-            background="rgba(236, 110, 57, 1)"
+            background="#fa2c23"
             color="white"
             onClick={handleExportCSV}
           >
@@ -340,7 +358,7 @@ const handleCloseModal = () => {
                 _hover={{
                   bg: colorMode === "light" ? "gray.100" : "#140f0cff",
                 }}
-                background={colorMode === "light" ? "white" : "#261c17"}
+                background={colorMode === "light" ? "white" : "rgb(20, 4, 2)"}
               >
                 <Table.ColumnHeader>Restaurant</Table.ColumnHeader>
                 <Table.ColumnHeader>Customer</Table.ColumnHeader>
@@ -361,7 +379,7 @@ const handleCloseModal = () => {
                     bg: colorMode === "light" ? "gray.100" : "#140f0cff",
                   }}
                   height="10px"
-                  background={colorMode === "light" ? "white" : "#261c17"}
+                  background={colorMode === "light" ? "white" : "rgb(20, 4, 2)"}
                 >
                   <Table.Cell>{order.restaurant}</Table.Cell>
                   <Table.Cell>{order.customer}</Table.Cell>
