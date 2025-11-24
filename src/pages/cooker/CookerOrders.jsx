@@ -34,7 +34,6 @@ import { LuChevronLeft, LuChevronRight } from "react-icons/lu";
 import srcLoadingImg from "../../assets/Transparent Version.gif";
 import CustomAlertDialog from "../../shared/CustomAlertDailog";
 
-
 const ORDERS_PER_PAGE = 2;
 
 const CookerOrders = () => {
@@ -112,7 +111,7 @@ const CookerOrders = () => {
       console.error("Failed to delete order:", err);
     }
   };
-
+  console.log("test");
   const handlePageChange = (details) => {
     setCurrentPage(details.page);
     // Scroll to top when page changes
@@ -518,7 +517,7 @@ const CookerOrders = () => {
                         ml={1}
                         display={{ base: "none", sm: "inline" }}
                       >
-                        ready for Pickup   
+                        ready for Pickup
                       </Box>
                       <Box
                         as="span"
