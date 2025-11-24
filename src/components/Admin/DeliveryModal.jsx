@@ -16,7 +16,7 @@ import {
 } from "@chakra-ui/react";
 import { useForm } from "react-hook-form";
 import { supabase } from "../../services/supabaseClient";
-
+import { toaster } from "../../components/ui/toaster";
 const DeliveryModal = ({ isOpen, onClose }) => {
   const {
     register,
@@ -92,7 +92,7 @@ const DeliveryModal = ({ isOpen, onClose }) => {
     return data;
   };
 
-  // React Hook Form submit handler
+  // Delivery user Form submit handler
   const onSubmit = async (formData) => {
     try {
       const user = await signUpDeliveryUser({
@@ -110,12 +110,22 @@ const DeliveryModal = ({ isOpen, onClose }) => {
         city: formData.city,
       });
 
-      // alert("Delivery user created successfully!");
+      // Show success toast
+      toaster.create({
+        title: "Delivery user created successfully!",
+        type: "success",
+      });
+
       onClose();
       reset();
     } catch (err) {
       console.error(err);
-      // alert("Error: " + err.message);
+      // Show error toast
+      toaster.create({
+        title: "Failed to create delivery user",
+        description: err.message,
+        type: "error",
+      });
     }
   };
 
@@ -147,6 +157,14 @@ const DeliveryModal = ({ isOpen, onClose }) => {
                       flex="1"
                       {...register("first_name", {
                         required: "First name is required",
+                        minLength: {
+                          value: 3,
+                          message: "First name should be at least 3 letters",
+                        },
+                        pattern: {
+                          value: /^[A-Za-z\s]+$/,
+                          message: "First name should contain only letters",
+                        }
                       })}
                     />
                   </Field.Root>
@@ -164,6 +182,14 @@ const DeliveryModal = ({ isOpen, onClose }) => {
                       flex="1"
                       {...register("last_name", {
                         required: "Last name is required",
+                        minLength: {
+                          value: 3,
+                          message: "Last name should be at least 3 letters",
+                        },
+                        pattern: {
+                          value: /^[A-Za-z\s]+$/,
+                          message: "Last name should contain only letters",
+                        }
                       })}
                     />
                   </Field.Root>
@@ -182,7 +208,7 @@ const DeliveryModal = ({ isOpen, onClose }) => {
                       {...register("email", {
                         required: "Email is required",
                         pattern: {
-                          value: /\S+@\S+\.\S+/,
+                          value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
                           message: "Invalid email format",
                         },
                       })}
@@ -202,9 +228,14 @@ const DeliveryModal = ({ isOpen, onClose }) => {
                       flex="1"
                       {...register("phone", {
                         required: "Phone is required",
+                        pattern: {
+                          value: /^01[0125][0-9]{8}$/,
+                          message: "Invalid Egyptian phone number",
+                        },
                       })}
                     />
                   </Field.Root>
+
                   {errors.phone && (
                     <span style={{ color: "red", fontSize: "13px" }}>
                       {errors.phone.message}
@@ -243,6 +274,10 @@ const DeliveryModal = ({ isOpen, onClose }) => {
                       flex="1"
                       {...register("license_number", {
                         required: "License number is required",
+                        minLength: {
+                          value: 3,
+                          message: "License number should be at least 3 digits",
+                        }
                       })}
                     />
                   </Field.Root>
@@ -253,7 +288,7 @@ const DeliveryModal = ({ isOpen, onClose }) => {
                   )}
 
                   {/* CITY */}
-                  <Field.Root orientation="horizontal">
+                  {/* <Field.Root orientation="horizontal">
                     <Field.Label>City</Field.Label>
                     <Input
                       placeholder="Enter city"
@@ -265,7 +300,7 @@ const DeliveryModal = ({ isOpen, onClose }) => {
                     <span style={{ color: "red", fontSize: "13px" }}>
                       {errors.city.message}
                     </span>
-                  )}
+                  )} */}
 
                   <Button
                     colorScheme="orange"

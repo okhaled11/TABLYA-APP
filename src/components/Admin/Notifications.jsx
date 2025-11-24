@@ -1,32 +1,26 @@
-
 import React, { useEffect, useState } from "react";
 import { supabase } from "../../services/supabaseClient";
 import { FaBell, FaShoppingCart, FaCheckCircle } from "react-icons/fa";
+import { GoReport } from "react-icons/go";
 import { Box, Menu, Portal, Badge, Button } from "@chakra-ui/react";
 
 export default function Notifications() {
   const [unread, setUnread] = useState(true);
   const [notifications, setNotifications] = useState([]);
 
-
-  //handle unread 
+  //handle unread
 
   const openNotification = () => {
-
     setUnread(false);
     localStorage.setItem("unread", "false");
-
-  }
-  // handle remove notification 
+  };
+  // handle remove notification
 
   const handleremove = (id) => {
+    setNotifications((prev) => prev.filter((n) => n.id !== id));
+  };
 
-    setNotifications((prev) => prev.filter(n => n.id !== id));
-
-  }
-
-
-  //get notification from local storage 
+  //get notification from local storage
   useEffect(() => {
     const saved = localStorage.getItem("notifications");
     if (saved) {
@@ -39,7 +33,7 @@ export default function Notifications() {
     }
   }, []);
 
-  // save notification in local storage 
+  // save notification in local storage
   const addNotification = (notification) => {
     setNotifications((prev) => {
       const updated = [notification, ...prev];
@@ -48,7 +42,7 @@ export default function Notifications() {
     });
   };
 
-  //handle orders table 
+  //handle orders table
   useEffect(() => {
     const ordersSub = supabase
       .channel("orders-channel")
@@ -69,7 +63,6 @@ export default function Notifications() {
       )
       .subscribe();
 
-
     //handle cookers approvals table
     const approvalsSub = supabase
       .channel("approvals-channel")
@@ -89,10 +82,31 @@ export default function Notifications() {
         }
       )
       .subscribe();
-    //clean up 
+
+    // REPORTS notifications
+    const reportsSub = supabase
+      .channel("reports-channel")
+      .on(
+        "postgres_changes",
+        { event: "INSERT", schema: "public", table: "reports" },
+        (payload) => {
+          const notif = {
+            type: "report",
+            data: payload.new,
+            timestamp: new Date().toLocaleTimeString("en-US", {
+              hour: "2-digit",
+              minute: "2-digit",
+            }),
+          };
+          addNotification(notif);
+        }
+      )
+      .subscribe();
+    //clean up
     return () => {
       supabase.removeChannel(ordersSub);
       supabase.removeChannel(approvalsSub);
+      supabase.removeChannel(reportsSub);
     };
   }, []);
 
@@ -100,13 +114,16 @@ export default function Notifications() {
     <Box>
       <Menu.Root onOpenChange={openNotification}>
         <Menu.Trigger asChild>
-          <Button variant="ghost" position="relative" bg="transparent"
+          <Button
+            variant="ghost"
+            position="relative"
+            bg="transparent"
             _hover={{ bg: "transparent" }}
             _active={{ bg: "transparent" }}
             _focus={{ bg: "transparent", boxShadow: "none" }}
             outline="none"
-            p={0}>
-
+            p={0}
+          >
             <FaBell size={20} color="white" />
 
             {notifications.length > 0 && unread && (
@@ -162,29 +179,55 @@ export default function Notifications() {
                       >
                         {n.type === "order" ? (
                           <FaShoppingCart size={20} />
-                        ) : (
+                        ) : n.type === "approval" ? (
                           <FaCheckCircle size={20} />
+                        ) : (
+                          <GoReport size={20} />
                         )}
                       </Box>
 
                       <Box flex={1}>
-                        <Box fontWeight="600" fontSize="sm" color="gray.800" mb={1}>
-                          {n.type === "order" ? "New Order" : "New Chef Request"}
+                        <Box
+                          fontWeight="600"
+                          fontSize="sm"
+                          color="gray.800"
+                          mb={1}
+                        >
+                          {n.type === "order"
+                            ? "New Order"
+                            : n.type === "approval"
+                            ? "New Chef Request"
+                            : "New Report"}
                         </Box>
 
                         <Box fontSize="sm" color="gray.600">
                           {n.type === "order" ? (
                             "A new order has been created"
-                          ) : (
+                          ) : n.type === "approval" ? (
                             <>
                               <b>{n.data.name}</b> sent a request to join chefs
                             </>
+                          ) : (
+                            <>
+                              <b>{n.data.reporter_user_id}</b> reported{" "}
+                              {n.data.target_type}
+                            </>
                           )}
                           {/* remove btn */}
-                          <Button outline="none" bg="transparent"
+                          <Button
+                            outline="none"
+                            bg="transparent"
                             _hover={{ bg: "transparent" }}
                             _active={{ bg: "transparent" }}
-                            _focus={{ bg: "transparent", boxShadow: "none" }} variant={"none"} color={"red"} mx={"5px"} onClick={() => handleremove(n.id)} fontSize={"20px"}  >✕</Button>
+                            _focus={{ bg: "transparent", boxShadow: "none" }}
+                            variant={"none"}
+                            color={"red"}
+                            mx={"5px"}
+                            onClick={() => handleremove(n.id)}
+                            fontSize={"20px"}
+                          >
+                            ✕
+                          </Button>
                         </Box>
 
                         <Box fontSize="xs" color="gray.400" mt={1}>
