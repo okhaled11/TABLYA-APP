@@ -37,7 +37,7 @@ const DeliveryTabs = () => {
             >
               <RiFileList3Line size={20} />
 
-              <Box display={{ base: "none", sm: "inline" }}>Orders</Box>
+              <Box >Orders</Box>
             </Flex>
           </Tabs.Trigger>
 
@@ -56,7 +56,7 @@ const DeliveryTabs = () => {
               onClick={() => navigate("/delivery/Statistics")}
             >
               <FaArrowTrendUp size={20}/>
-              <Box display={{ base: "none", sm: "inline" }}>Statistics</Box>
+              <Box >Statistics</Box>
             </Flex>
           </Tabs.Trigger>
         </Flex>

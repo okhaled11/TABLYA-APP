@@ -167,7 +167,7 @@ const MenuItemCard = ({ item, isAvailable }) => {
                     : colors.dark.mainFixed
                 }
               >
-                ${item.price?.toFixed(2)}
+                {item?.price_for_customer.toFixed(2)} L.E
               </Text>
               {currentQuantity > 0 ? (
                 <HStack px={3} py={1} spacing={2} flexShrink={0}>

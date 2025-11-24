@@ -39,6 +39,7 @@ import {
 import { IoTimeOutline } from "react-icons/io5";
 import { GoogleGenerativeAI, SchemaType } from "@google/generative-ai";
 import { detectLang } from "../../utils";
+import { useGetPlatformSettingsQuery } from "../../app/features/Admin/MariamSettings";
 
 const AddMealModal = ({ dialog, item = null, mode = "create" }) => {
   const { colorMode } = useColorMode();
@@ -108,6 +109,11 @@ const AddMealModal = ({ dialog, item = null, mode = "create" }) => {
 
   const descValue = watch("description");
   const isDescEmpty = !descValue || descValue.trim().length === 0;
+
+  const priceValue = watch("price");
+  const { data: settings } = useGetPlatformSettingsQuery();
+  const feePct = Number(settings?.chef_fee_pct ?? settings?.chef_commission_pct ?? 0);
+  const chefEarnings = Number(priceValue || 0) * (1 - feePct / 100);
 
   const handleImageChange = (e) => {
     const file =
@@ -470,6 +476,17 @@ const AddMealModal = ({ dialog, item = null, mode = "create" }) => {
                     {errors?.price?.message}
                   </Field.HelperText>
                 )}
+                <Text
+                  mt={1}
+                  fontSize="sm"
+                  color={
+                    colorMode === "light"
+                      ? colors.light.textSub
+                      : colors.dark.textSub
+                  }
+                >
+                  Chef will earn: {Number.isFinite(chefEarnings) ? chefEarnings.toFixed(2) : "0.00"} LE {feePct ? `(after ${feePct}% fee)` : ""}
+                </Text>
               </Field.Root>
             </GridItem>
           </Grid>
