@@ -7,13 +7,15 @@ import colors from "../../theme/color";
 
 export default function OrderSummarySection({
   subtotal = 0,
+  deliveryFee: deliveryFeeProp = null,
+  total: totalProp = null,
   onCheckout = () => {},
   onValidate = () => true,
   onCreateOrderForPayPal = null,
 }) {
   const { colorMode } = useColorMode();
-  const deliveryFee = subtotal > 0 ? 0 : 0; // Free
-  const total = subtotal + deliveryFee;
+  const deliveryFee = typeof deliveryFeeProp === "number" ? deliveryFeeProp : 0;
+  const total = typeof totalProp === "number" ? totalProp : subtotal + deliveryFee;
 
   return (
     <Box
