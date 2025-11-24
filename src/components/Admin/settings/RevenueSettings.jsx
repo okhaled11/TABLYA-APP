@@ -57,11 +57,10 @@ export default function RevenueSettings() {
       platform_commission_pct: Number(platformComm) || 0,
       chef_commission_pct: Number(chefcomm) || 0,
       service_fee_amount: Number(servicefee) || 0,
-      default_delivery_fee: 0,
+      default_delivery_fee: Number(deliveryFee) || 0,
 
       //-----------------------------------------------
       sales_tax_pct: Number(salesTax),
-      delivery_fee: Number(deliveryFee),
       min_order_value: Number(minOrder),
       free_delivery_threshold: Number(freeDeliveryThreshold),
     });

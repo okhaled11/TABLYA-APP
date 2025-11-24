@@ -169,7 +169,7 @@ const handleCloseModal = () => {
 
   if (isLoading)
     return (
-      <Flex justify="center" align="center" h="60vh">
+      <Flex justify="center" align="center" h="100vh">
         <Spinner size="xl" />
       </Flex>
     );

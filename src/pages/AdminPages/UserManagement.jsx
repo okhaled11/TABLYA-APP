@@ -18,6 +18,7 @@ import {
   SimpleGrid,
   Wrap,
   WrapItem,
+  Spacer,
 } from "@chakra-ui/react";
 import React, { useEffect, useState } from "react";
 import { useGetUsersQuery } from "../../app/features/Admin/adminUserManagemnetSlice";
@@ -26,8 +27,10 @@ import { CiSearch } from "react-icons/ci";
 import { FaEye } from "react-icons/fa";
 import { FaEdit } from "react-icons/fa";
 import { FcSupport } from "react-icons/fc";
+import { CiDeliveryTruck } from "react-icons/ci";
+
 import ConfirmDialog from "../../components/Admin/ConfirmDialog";
-import  colors from "../../theme/color";
+import colors from "../../theme/color";
 import { FaSuperpowers, FaUserShield, FaUserXmark } from "react-icons/fa6";
 import { FaUserFriends, FaUtensils, FaMotorcycle } from "react-icons/fa";
 import StatCard from "../../components/Admin/StatCard";
@@ -36,6 +39,7 @@ import { useColorMode } from "../../theme/color-mode";
 import UserModal from "../../components/Admin/UserModal";
 import UserInfoModal from "../../components/Admin/UserModal";
 import EditUserModal from "../../components/Admin/EditUserModal";
+import DeliveryModal from "../../components/Admin/DeliveryModal";
 export default function UserManagement() {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedRole, setSelectedRole] = useState("");
@@ -43,7 +47,7 @@ export default function UserManagement() {
   // const [updateUser] = useUpdateUserMutation();
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [userToDelete, setUserToDelete] = useState(null);
-
+  const [isDeliveryModalOpen, setIsDeliveryModalOpen] = useState(false);
   const [page, setPage] = useState(1);
   const [localUsers, setLocalUsers] = useState([]);
   const [selectedUser, setSelectedUser] = useState(null);
@@ -142,6 +146,11 @@ export default function UserManagement() {
     }
   };
 
+  const handleDeliveryModal = () => {
+    
+    setIsDeliveryModalOpen(true);
+  };
+
   const handleCloseModal = () => setIsModalOpen(false);
 
   const handleExportCSV = () => {
@@ -194,9 +203,19 @@ export default function UserManagement() {
       bg={colorMode === "light" ? colors.light.bgMain : colors.dark.bgMain}
     >
       {/* Header */}
-      <Box textStyle="3xl" color={colorMode === "light" ? "black" : "white"}>
-        User Management
-      </Box>
+      <Flex>
+        <Box textStyle="3xl" color={colorMode === "light" ? "black" : "white"}>
+          User Management
+        </Box>
+        <Spacer />
+        <Box onClick={handleDeliveryModal}>
+          <Button background="rgba(236, 110, 57, 1)">
+            Add new Delivery
+            <CiDeliveryTruck />
+          </Button>
+        </Box>
+      </Flex>
+
       <Box textStyle="md" color="gray.500" marginBlock={5}>
         Manage all platform users
       </Box>
@@ -314,7 +333,6 @@ export default function UserManagement() {
                   _hover={{
                     bg: colorMode === "light" ? "gray.100" : "#140f0cff",
                   }}
-                  
                   background={colorMode === "light" ? "white" : "#261c17"}
                 >
                   <Table.ColumnHeader></Table.ColumnHeader>
@@ -501,6 +519,10 @@ export default function UserManagement() {
         message={`Are you sure you want to permanently delete ${userToDelete?.name}?`}
         confirmLabel="Delete"
         cancelLabel="Cancel"
+      />
+      <DeliveryModal
+        isOpen={isDeliveryModalOpen}
+        onClose={() => setIsDeliveryModalOpen(false)}
       />
     </Box>
   );
