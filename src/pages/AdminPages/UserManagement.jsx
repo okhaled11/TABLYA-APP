@@ -21,52 +21,50 @@ import {
   Spacer,
 } from "@chakra-ui/react";
 import React, { useEffect, useState } from "react";
-import { useGetUsersQuery } from "../../app/features/Admin/adminUserManagemnetSlice";
+import {
+  useGetUsersQuery,
+  useDeleteUserMutation,
+} from "../../app/features/Admin/adminUserManagemnetSlice";
 import { LuChevronLeft, LuChevronRight } from "react-icons/lu";
 import { CiSearch } from "react-icons/ci";
 import { FaEye } from "react-icons/fa";
 import { FaEdit } from "react-icons/fa";
-import { FcSupport } from "react-icons/fc";
 import { CiDeliveryTruck } from "react-icons/ci";
-
 import ConfirmDialog from "../../components/Admin/ConfirmDialog";
 import colors from "../../theme/color";
-import { FaSuperpowers, FaUserShield, FaUserXmark } from "react-icons/fa6";
+import { FaUserXmark } from "react-icons/fa6";
 import { FaUserFriends, FaUtensils, FaMotorcycle } from "react-icons/fa";
 import StatCard from "../../components/Admin/StatCard";
-import Demo from "../../components/Admin/UserModal";
 import { useColorMode } from "../../theme/color-mode";
-import UserModal from "../../components/Admin/UserModal";
 import UserInfoModal from "../../components/Admin/UserModal";
 import EditUserModal from "../../components/Admin/EditUserModal";
 import DeliveryModal from "../../components/Admin/DeliveryModal";
+import { toaster } from "../../components/ui/toaster";
 export default function UserManagement() {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedRole, setSelectedRole] = useState("");
   const { data: users, error, isLoading } = useGetUsersQuery();
-  // const [updateUser] = useUpdateUserMutation();
+  const [deleteUser] = useDeleteUserMutation();
+
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [userToDelete, setUserToDelete] = useState(null);
   const [isDeliveryModalOpen, setIsDeliveryModalOpen] = useState(false);
   const [page, setPage] = useState(1);
-  const [localUsers, setLocalUsers] = useState([]);
+  // const [localUsers, setLocalUsers] = useState([]);
   const [selectedUser, setSelectedUser] = useState(null);
   const [isInfoOpen, setIsInfoOpen] = useState(false);
   const [isEditOpen, setIsEditOpen] = useState(false);
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
 
-  console.log(users);
-
+  // console.log(users);
   const { colorMode } = useColorMode();
 
-  useEffect(() => {
-    if (users) setLocalUsers(users);
-  }, [users]);
+  
 
   if (isLoading)
     return (
-      <Flex justify="center" align="center" height="50vh">
+      <Flex justify="center" align="center" height="100vh">
         <Spinner size="xl" />
       </Flex>
     );
@@ -78,21 +76,38 @@ export default function UserManagement() {
       </Flex>
     );
 
-  const customerCount =
-    localUsers?.filter((u) => u.role === "customer").length || 0;
-  const chefCount = localUsers?.filter((u) => u.role === "cooker").length || 0;
-  const deliveryCount =
-    localUsers?.filter((u) => u.role === "delivery").length || 0;
+  const customerCount = users?.filter((u) => u.role === "customer").length || 0;
+  const chefCount = users?.filter((u) => u.role === "cooker").length || 0;
+  const deliveryCount = users?.filter((u) => u.role === "delivery").length || 0;
+  //  const adminCount = users?.filter((u) => u.role === "admin").length || 0;
 
-  // const adminCount = localUsers?.filter((u) => u.role === "admin").length || 0;
+  const filteredUsers = users
+    ?.filter((user) => (selectedRole ? user.role === selectedRole : true))
+    ?.filter((user) => {
+      if (!searchTerm) return true;
+      const search = searchTerm.toLowerCase();
+      return (
+        user.name.toLowerCase().includes(search) ||
+        user.email.toLowerCase().includes(search)
+      );
+    })
+    ?.filter((user) => {
+      const createdAt = new Date(user.created_at);
+      const from = startDate ? new Date(startDate) : null;
+      const to = endDate ? new Date(endDate) : null;
 
-  const filteredUsers = localUsers.filter(
-    (user) =>
-      (selectedRole === "" || user.role === selectedRole) &&
-      (searchTerm === "" ||
-        user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        user.email.toLowerCase().includes(searchTerm.toLowerCase()))
-  );
+      if (from && to && to < from) {
+        return false;
+      }
+
+      if (from && !to) return createdAt >= from;
+
+      if (!from && to) return createdAt <= to;
+
+      if (from && to) return createdAt >= from && createdAt <= to;
+
+      return true; // no dates selected
+    });
 
   const pageSize = 5;
 
@@ -112,29 +127,43 @@ export default function UserManagement() {
     setPage(1);
   };
 
-  const handleFilterByDate = () => {
-    if (!startDate && !endDate) {
-      setLocalUsers(users);
-      return;
-    }
+  // const handleFilterByDate = () => {
+  //   if (!startDate && !endDate) {
+  //     setLocalUsers(users);
+  //     return;
+  //   }
 
-    const filtered = users.filter((user) => {
-      const createdAt = new Date(user.created_at);
-      const from = startDate ? new Date(startDate) : null;
-      const to = endDate ? new Date(endDate) : null;
+  //   const filtered = users.filter((user) => {
+  //     const createdAt = new Date(user.created_at);
+  //     const from = startDate ? new Date(startDate) : null;
+  //     const to = endDate ? new Date(endDate) : null;
 
-      if (from && createdAt < from) return false;
-      if (to && createdAt > to) return false;
-      return true;
-    });
+  //     if (from && createdAt < from) return false;
+  //     if (to && createdAt > to) return false;
+  //     return true;
+  //   });
 
-    setLocalUsers(filtered);
-    setPage(1);
-  };
-
-  // const handleDelete = (userId) => {
-  //   setLocalUsers((prev) => prev.filter((u) => u.id !== userId));
+  //   setLocalUsers(filtered);
+  //   setPage(1);
   // };
+
+  const handleDelete = async (userId) => {
+    try {
+      await deleteUser(userId).unwrap();
+      toaster.create({
+        title: "User deleted successfully",
+        type: "success",
+      });
+    } catch (error) {
+      toaster.create({
+        title: "Failed to delete user",
+        type: "error",
+      });
+      console.error(error);
+    } finally {
+      setIsDeleteDialogOpen(false);
+    }
+  };
 
   const handleOpenModal = (user, mode) => {
     setSelectedUser(user);
@@ -147,22 +176,16 @@ export default function UserManagement() {
   };
 
   const handleDeliveryModal = () => {
-    
     setIsDeliveryModalOpen(true);
   };
 
-  const handleCloseModal = () => setIsModalOpen(false);
-
   const handleExportCSV = () => {
     if (!filteredUsers || filteredUsers.length === 0) {
-      alert("No data to export.");
+      toaster.create({ title: "No data to export", type: "error" });
       return;
     }
 
-    // Define CSV headers
-    const headers = ["Name", "Email", "Role", "phone", "Registration Date"];
-
-    // Convert user data to CSV rows
+    const headers = ["Name", "Email", "Role", "Phone", "Registration Date"];
     const rows = filteredUsers.map((user) => [
       `"${user.name}"`,
       `"${user.email}"`,
@@ -178,16 +201,16 @@ export default function UserManagement() {
     const csvContent = [headers, ...rows]
       .map((row) => row.join(","))
       .join("\n");
-
     const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
     const url = URL.createObjectURL(blob);
-
     const link = document.createElement("a");
     link.href = url;
     link.setAttribute("download", "users.csv");
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
+
+    toaster.create({ title: "CSV exported successfully", type: "success" });
   };
 
   const getBadgeColor = (role) => {
@@ -209,7 +232,7 @@ export default function UserManagement() {
         </Box>
         <Spacer />
         <Box onClick={handleDeliveryModal}>
-          <Button background="rgba(236, 110, 57, 1)">
+          <Button background="#fa2c23">
             Add new Delivery
             <CiDeliveryTruck />
           </Button>
@@ -227,7 +250,7 @@ export default function UserManagement() {
         marginBottom={8}
       >
         <StatCard
-          backgroundColor={colorMode === "light" ? "white" : "#261c17"}
+          backgroundColor={colorMode === "light" ? "white" : "rgb(20, 4, 2)"}
           icon={FaUserFriends}
           iconBg="#fdf8e9"
           iconColor="#e77240"
@@ -237,7 +260,7 @@ export default function UserManagement() {
         />
 
         <StatCard
-          backgroundColor={colorMode === "light" ? "white" : "#261c17"}
+          backgroundColor={colorMode === "light" ? "white" : "rgb(20, 4, 2)"}
           icon={FaUtensils}
           iconBg="#e7f5ec"
           iconColor="#16a249"
@@ -247,7 +270,7 @@ export default function UserManagement() {
         />
 
         <StatCard
-          backgroundColor={colorMode === "light" ? "white" : "#261c17"}
+          backgroundColor={colorMode === "light" ? "white" : "rgb(20, 4, 2)"}
           icon={FaMotorcycle}
           iconBg="#e8f5fc"
           iconColor="#3ea2e6"
@@ -263,7 +286,7 @@ export default function UserManagement() {
         borderRadius={10}
         padding={5}
         borderColor={colorMode === "light" ? "gray.100" : "gray.900"}
-        bg={colorMode === "light" ? "white" : "#261c17"}
+        bg={colorMode === "light" ? "white" : "rgb(20, 4, 2)"}
         overflowX="auto"
       >
         <Box height="1/6" alignItems={"center"}>
@@ -304,13 +327,26 @@ export default function UserManagement() {
                 onChange={(e) => setEndDate(e.target.value)}
                 placeholder="End Date"
               />
-              <Button colorScheme="blue" onClick={() => handleFilterByDate()}>
-                Filter
+              <Button
+                colorScheme="gray"
+                onClick={() => {
+                  setSearchTerm("");
+                  setSelectedRole("");
+                  setStartDate("");
+                  setEndDate("");
+                  setPage(1);
+                  toaster.create({
+                    title: "Filters cleared",
+                    type: "success",
+                  });
+                }}
+              >
+                Clear
               </Button>
             </Flex>
             <Flex flex={1}>
               <Button
-                background="rgba(236, 110, 57, 1)"
+                background="#fa2c23"
                 color="white"
                 onClick={handleExportCSV}
               >
@@ -333,7 +369,7 @@ export default function UserManagement() {
                   _hover={{
                     bg: colorMode === "light" ? "gray.100" : "#140f0cff",
                   }}
-                  background={colorMode === "light" ? "white" : "#261c17"}
+                  background={colorMode === "light" ? "white" : "rgb(20, 4, 2)"}
                 >
                   <Table.ColumnHeader></Table.ColumnHeader>
                   <Table.ColumnHeader>Name</Table.ColumnHeader>
@@ -357,7 +393,9 @@ export default function UserManagement() {
                       bg: colorMode === "light" ? "gray.100" : "#140f0cff",
                     }}
                     height="10px"
-                    background={colorMode === "light" ? "white" : "#261c17"}
+                    background={
+                      colorMode === "light" ? "white" : "rgb(20, 4, 2)"
+                    }
                   >
                     <Table.Cell>
                       <Avatar.Root shape="full" size="lg">
@@ -512,8 +550,7 @@ export default function UserManagement() {
         isOpen={isDeleteDialogOpen}
         onClose={() => setIsDeleteDialogOpen(false)}
         onConfirm={() => {
-          setLocalUsers((prev) => prev.filter((u) => u.id !== userToDelete.id));
-          setIsDeleteDialogOpen(false);
+          handleDelete(userToDelete.id);
         }}
         title="Delete User"
         message={`Are you sure you want to permanently delete ${userToDelete?.name}?`}
