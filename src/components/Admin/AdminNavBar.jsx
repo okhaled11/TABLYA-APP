@@ -23,6 +23,7 @@ import { useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import { authApi } from "../../app/features/Auth/authSlice";
 import { useGetUserDataQuery } from "../../app/features/Auth/authSlice";
+import Notifications from "./Notifications";
 
 
 export default function AdminNavBar() {
@@ -51,6 +52,9 @@ export default function AdminNavBar() {
       zIndex="1000"
     >
       <Flex align="center" justify="flex-end" gap={4}>
+
+          {/* bell Notification  */}
+         <Notifications/>
         {/* Color Mode Toggle */}
         <IconButton
           onClick={toggleColorMode}

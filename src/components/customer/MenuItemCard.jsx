@@ -1,14 +1,28 @@
-import { Box, Flex, Text, Image, Card, IconButton, HStack } from "@chakra-ui/react";
+import {
+  Box,
+  Flex,
+  Text,
+  Image,
+  Card,
+  IconButton,
+  HStack,
+} from "@chakra-ui/react";
 import { FaShoppingCart } from "react-icons/fa";
 import { RxCross2 } from "react-icons/rx";
 import { useColorMode } from "../../theme/color-mode";
 import colors from "../../theme/color";
 import { useDispatch, useSelector } from "react-redux";
-import { addToCart, clearCart, updateQuantity, removeItemFromCart } from "../../app/features/Customer/CartSlice";
+import {
+  addToCart,
+  clearCart,
+  updateQuantity,
+  removeItemFromCart,
+} from "../../app/features/Customer/CartSlice";
 import { Link } from "react-router-dom";
 import { useDialog } from "@chakra-ui/react";
 import CustomAlertDialog from "../../shared/CustomAlertDailog";
 import { toaster } from "../../components/ui/toaster";
+import { truncateText } from "../../utils";
 
 const MenuItemCard = ({ item, isAvailable }) => {
   const { colorMode } = useColorMode();
@@ -39,7 +53,9 @@ const MenuItemCard = ({ item, isAvailable }) => {
     e.stopPropagation();
     if (!cartItem) return;
     if (cartItem.quantity > 1) {
-      dispatch(updateQuantity({ id: item.id, quantity: cartItem.quantity - 1 }));
+      dispatch(
+        updateQuantity({ id: item.id, quantity: cartItem.quantity - 1 })
+      );
     } else {
       dispatch(removeItemFromCart(item.id));
     }
@@ -48,10 +64,12 @@ const MenuItemCard = ({ item, isAvailable }) => {
     e.preventDefault();
     e.stopPropagation();
     if (isRestaurantClosed || isMaxQuantity) return;
-    
+
     if (cartItem) {
       // Item already in cart, just update quantity
-      dispatch(updateQuantity({ id: item.id, quantity: cartItem.quantity + 1 }));
+      dispatch(
+        updateQuantity({ id: item.id, quantity: cartItem.quantity + 1 })
+      );
     } else {
       // Item not in cart, add it first
       if (cartItems.length === 0 || cookerId === item.cooker_id) {
@@ -67,7 +85,11 @@ const MenuItemCard = ({ item, isAvailable }) => {
     <>
       <Card.Root
         as={isDetailsDisabled ? Box : Link}
-        to={isDetailsDisabled ? undefined : `/home/cookers/${item.cooker_id}/meals/${item.id}`}
+        to={
+          isDetailsDisabled
+            ? undefined
+            : `/home/cookers/${item.cooker_id}/meals/${item.id}`
+        }
         direction="row"
         overflow="hidden"
         cursor={isDetailsDisabled ? "not-allowed" : "pointer"}
@@ -89,26 +111,30 @@ const MenuItemCard = ({ item, isAvailable }) => {
           }
         }}
       >
-        <Flex flex="1" direction="row">
+        <Flex flex="1" direction="row" minW="0">
           <Image
             src={item.menu_img}
             alt="item-img"
             boxSize={{ base: "70px", md: "90px", lg: "110px" }}
             objectFit="cover"
             borderRadius="12px"
+            flexShrink={0}
           />
-          <Flex ml={4} flex="1" direction="column">
+          <Flex ml={4} flex="1" direction="column" minW="0">
             <Text
               fontWeight="medium"
               fontSize={{ base: "md", md: "lg", lg: "xl" }}
               mb={1}
+              noOfLines={1}
+              overflowWrap="anywhere"
+              wordBreak="break-word"
               color={
                 colorMode === "light"
                   ? colors.light.textMain
                   : colors.dark.textMain
               }
             >
-              {item.title || "No Title"}
+              {truncateText(item.title, 20) || "No Title"}
             </Text>
             <Text
               fontSize={{ base: "xs", md: "sm" }}
@@ -119,10 +145,19 @@ const MenuItemCard = ({ item, isAvailable }) => {
                   : colors.dark.textSub
               }
               noOfLines={2}
+              overflowWrap="anywhere"
+              wordBreak="break-word"
             >
-              {item.description || "No Description Available"}
+              {truncateText(item.description, 200) ||
+                "No Description Available"}
             </Text>
-            <Flex justify="space-between" align="center" mt="auto">
+            <Flex
+              justify="space-between"
+              align="center"
+              mt="auto"
+              minW="0"
+              gap={2}
+            >
               <Text
                 fontWeight="semibold"
                 fontSize={{ base: "sm", md: "md", lg: "lg" }}
@@ -135,7 +170,7 @@ const MenuItemCard = ({ item, isAvailable }) => {
                 ${item.price?.toFixed(2)}
               </Text>
               {currentQuantity > 0 ? (
-                <HStack px={3} py={1} spacing={2}>
+                <HStack px={3} py={1} spacing={2} flexShrink={0}>
                   <IconButton
                     borderWidth="1px"
                     borderRadius="10px"
@@ -200,7 +235,9 @@ const MenuItemCard = ({ item, isAvailable }) => {
                         : colors.dark.mainFixed
                     }
                     color={
-                      colorMode === "light" ? colors.light.white : colors.dark.white
+                      colorMode === "light"
+                        ? colors.light.white
+                        : colors.dark.white
                     }
                     _hover={
                       !isMaxQuantity
@@ -221,7 +258,9 @@ const MenuItemCard = ({ item, isAvailable }) => {
                     variant="ghost"
                     onClick={handleIncrement}
                     aria-label={
-                      isMaxQuantity ? "Maximum quantity reached" : "Increase quantity"
+                      isMaxQuantity
+                        ? "Maximum quantity reached"
+                        : "Increase quantity"
                     }
                     opacity={isMaxQuantity ? 0.5 : 1}
                     cursor={isMaxQuantity ? "not-allowed" : "pointer"}
@@ -244,6 +283,7 @@ const MenuItemCard = ({ item, isAvailable }) => {
                   colorScheme="teal"
                   variant="outline"
                   size={{ base: "xs", md: "sm" }}
+                  flexShrink={0}
                   rounded="full"
                   _hover={
                     !isOutOfStock && !isMaxQuantity && !isRestaurantClosed
@@ -273,9 +313,13 @@ const MenuItemCard = ({ item, isAvailable }) => {
                       : "pointer"
                   }
                   opacity={
-                    isOutOfStock || isMaxQuantity || isRestaurantClosed ? 0.7 : 1
+                    isOutOfStock || isMaxQuantity || isRestaurantClosed
+                      ? 0.7
+                      : 1
                   }
-                  isDisabled={isOutOfStock || isMaxQuantity || isRestaurantClosed}
+                  isDisabled={
+                    isOutOfStock || isMaxQuantity || isRestaurantClosed
+                  }
                   title={
                     isRestaurantClosed
                       ? "Closed"
@@ -287,12 +331,14 @@ const MenuItemCard = ({ item, isAvailable }) => {
                   }
                 >
                   {isRestaurantClosed ? (
-                    <HStack spacing={1} align="center" px={2}>
+                    <HStack spacing={1} align="center" px={2} flexShrink={0}>
                       <RxCross2 />
                       <Text fontSize={{ base: "2xs", md: "xs" }}>Closed</Text>
                     </HStack>
                   ) : isOutOfStock ? (
-                    <Text fontSize={{ base: "2xs", md: "xs" }}>Out of Stock</Text>
+                    <Text fontSize={{ base: "2xs", md: "xs" }}>
+                      Out of Stock
+                    </Text>
                   ) : isMaxQuantity ? (
                     <Box
                       fontSize={{ base: "2xs", md: "xs" }}

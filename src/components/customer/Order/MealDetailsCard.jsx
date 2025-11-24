@@ -18,7 +18,10 @@ import { useColorMode } from "../../../theme/color-mode";
 import colors from "../../../theme/color";
 import imgMeal from "../../../assets/image31.png";
 import { useDispatch, useSelector } from "react-redux";
-import { addToCart, updateQuantity } from "../../../app/features/Customer/CartSlice";
+import {
+  addToCart,
+  updateQuantity,
+} from "../../../app/features/Customer/CartSlice";
 import { Link } from "react-router-dom";
 
 const MealDetailsCard = ({ mealData, chefData }) => {
@@ -35,10 +38,10 @@ const MealDetailsCard = ({ mealData, chefData }) => {
   }
 
   const availableStock = mealData.stock || 0;
-  
+
   // Local state for count when item is not in cart
-  const [localCount, setLocalCount] = useState(availableStock === 0 ? 0 : 1);
-  
+  const [localCount, setLocalCount] = useState (availableStock === 0 ? 0 : 1);
+
   // Get current quantity from cart or use local state
   const cartItem = cartItems.find((item) => item.id === mealData.id);
   const count = cartItem ? cartItem.quantity : localCount;
@@ -71,9 +74,10 @@ const MealDetailsCard = ({ mealData, chefData }) => {
     }
   };
 
-  const totalPrice = count === 0 
-    ? mealData.price.toFixed(2) 
-    : (mealData.price * count).toFixed(2);
+  const totalPrice =
+    count === 0
+      ? mealData.price.toFixed(2)
+      : (mealData.price * count).toFixed(2);
 
   const isOutOfStock = availableStock === 0 || !mealData.available;
 
@@ -135,14 +139,12 @@ const MealDetailsCard = ({ mealData, chefData }) => {
           maxH={{ base: "400px", lg: "570px" }}
         >
           <Box
-            borderRadius="3xl"
+            borderRadius="24px"
             overflow="hidden"
-            boxShadow="2xl"
-            border="4px solid"
-            borderColor={
-              colorMode === "light"
-                ? colors.light.mainFixed
-                : colors.dark.mainFixed
+            boxShadow="md"
+            p={3}
+            bg={
+              colorMode === "light" ? colors.light.bgThird : colors.dark.bgThird
             }
             flex="1"
           >
@@ -152,6 +154,7 @@ const MealDetailsCard = ({ mealData, chefData }) => {
               w="100%"
               h="100%"
               objectFit="cover"
+              borderRadius="12px"
             />
           </Box>
         </Box>
@@ -159,13 +162,7 @@ const MealDetailsCard = ({ mealData, chefData }) => {
         {/* Right Side - Details */}
         <Box
           flex="1"
-          border="2px solid"
           maxH={{ base: "550px", md: "570px" }}
-          borderColor={
-            colorMode === "light"
-              ? colors.light.mainFixed
-              : colors.dark.mainFixed
-          }
           borderRadius="2xl"
           p={{ base: 4, md: 6 }}
           bg={
@@ -211,7 +208,7 @@ const MealDetailsCard = ({ mealData, chefData }) => {
             >
               {totalPrice} LE
             </Text>
-            {count > 1 && (
+            {/* {count > 1 && (
               <Text
                 fontSize="sm"
                 color={
@@ -222,7 +219,7 @@ const MealDetailsCard = ({ mealData, chefData }) => {
               >
                 ({mealData.price.toFixed(2)} LE × {count})
               </Text>
-            )}
+            )} */}
 
             {/* Separator */}
             <Box
@@ -314,7 +311,7 @@ const MealDetailsCard = ({ mealData, chefData }) => {
 
               {/* Stock Information */}
               <Flex gap={4} mt={2} flexWrap="wrap">
-                <Text
+                {/* <Text
                   fontSize={{ base: "sm", md: "md" }}
                   color={
                     colorMode === "light"
@@ -323,7 +320,7 @@ const MealDetailsCard = ({ mealData, chefData }) => {
                   }
                 >
                   Available: {mealData.available ? "Yes" : "No"}
-                </Text>
+                </Text> */}
                 <Text
                   fontSize={{ base: "sm", md: "md" }}
                   fontWeight="600"
@@ -341,7 +338,15 @@ const MealDetailsCard = ({ mealData, chefData }) => {
                 </Text>
               </Flex>
             </Box>
-
+            {/* Separator */}
+            <Box
+              h="1px"
+              bg={
+                colorMode === "light"
+                  ? colors.light.textSub + "40"
+                  : colors.dark.textSub + "40"
+              }
+            />
             {/* Prepared By Section */}
             <Box>
               <Text
@@ -363,8 +368,8 @@ const MealDetailsCard = ({ mealData, chefData }) => {
                 borderRadius="xl"
                 bg={
                   colorMode === "light"
-                    ? colors.light.bgFourth
-                    : colors.dark.bgFourth
+                    ? colors.light.warning10a
+                    : colors.dark.warning10a
                 }
               >
                 <Box

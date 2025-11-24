@@ -1,7 +1,16 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { useSelector } from "react-redux";
 import { supabase } from "../../services/supabaseClient";
-import { Box, Grid, Heading, Spinner, Text, VStack } from "@chakra-ui/react";
+import {
+  Box,
+  Grid,
+  Heading,
+  Text,
+  VStack,
+  Skeleton,
+  SkeletonCircle,
+  SkeletonText,
+} from "@chakra-ui/react";
 import { useGetFavoriteCookersByCustomerQuery } from "../../app/features/Customer/favoritesApi";
 import { useGetCookersByIdsQuery } from "../../app/features/Customer/CookersApi";
 import ChefCard from "../../components/customer/ChefCard";
@@ -9,7 +18,7 @@ import { useColorMode } from "../../theme/color-mode";
 import colors from "../../theme/color";
 import { FaHeart } from "react-icons/fa";
 const CustomerFavourite = () => {
-  const {colorMode} = useColorMode();
+  const { colorMode } = useColorMode();
   const customerIdFromRedux = useSelector((s) => s.auth?.userData?.user?.id);
   const [customerIdFromSupabase, setCustomerIdFromSupabase] = useState(null);
 
@@ -24,27 +33,84 @@ const CustomerFavourite = () => {
 
   const customerId = customerIdFromRedux || customerIdFromSupabase;
 
-  // load favourite cooker ids for this customer
-  const { data: favouriteIds = [], isLoading: loadingFavIds } =
-    useGetFavoriteCookersByCustomerQuery(customerId, { skip: !customerId });
+  // load favourite cooker ids for this customer (do not refetch on mount to avoid flicker)
+  const favQuery = useGetFavoriteCookersByCustomerQuery(customerId, {
+    skip: !customerId,
+    refetchOnMountOrArgChange: false,
+    refetchOnFocus: false,
+  });
+  const favouriteIds = favQuery.data || []; // keep showing cached data if available
 
-  // fetch cookers details by ids
-  const { data: cookers = [], isLoading: loadingCookers } =
-    useGetCookersByIdsQuery(favouriteIds, { skip: !customerId });
+  // fetch cookers details by ids (skip until we have favouriteIds)
+  const cookersQuery = useGetCookersByIdsQuery(favouriteIds, {
+    skip: !customerId || favouriteIds.length === 0,
+    refetchOnMountOrArgChange: false,
+    refetchOnFocus: false,
+  });
+  const cookers = cookersQuery.data || []; // keep showing cached data if available
 
-  const isLoading = useMemo(() => loadingFavIds || loadingCookers, [loadingFavIds, loadingCookers]);
+  // pending only on true initial load (skeleton). When refetching, keep showing cached UI.
+  const isPending = useMemo(() => {
+    if (!customerId) return true;
+    const initialFavLoad = favQuery.isLoading && !favQuery.data;
+    const initialCookersLoad =
+      favouriteIds.length > 0 && cookersQuery.isLoading && !cookersQuery.data;
+    return initialFavLoad || initialCookersLoad;
+  }, [
+    customerId,
+    favQuery.isLoading,
+    favQuery.data,
+    favouriteIds.length,
+    cookersQuery.isLoading,
+    cookersQuery.data,
+  ]);
 
   return (
     <Box px={{ base: 4, md: 8 }} py={6}>
-      <Text size="lg" mb={6} fontWeight="bold" fontSize="2xl" color={colorMode === "light" ? colors.light.textMain : colors.dark.textMain}>My Favourite Chefs</Text>
+      <Text
+        size="lg"
+        mb={6}
+        fontWeight="bold"
+        fontSize="2xl"
+        color={
+          colorMode === "light" ? colors.light.textMain : colors.dark.textMain
+        }
+      >
+        My Favourite Chefs
+      </Text>
 
-      {isLoading && (
-        <Box display="flex" justifyContent="center" py={10}>
-          <Spinner size="lg" />
-        </Box>
+      {isPending && (
+        <Grid
+          templateColumns={{
+            base: "1fr",
+            sm: "repeat(2, 1fr)",
+            lg: "repeat(3, 1fr)",
+          }}
+          gap={6}
+        >
+          {Array.from({ length: 6 }).map((_, idx) => (
+            <Box
+              key={idx}
+              p={4}
+              rounded="2xl"
+              bg={
+                colorMode === "light"
+                  ? colors.light.bgThird
+                  : colors.dark.bgThird
+              }
+            >
+              <VStack align="stretch" spacing={4}>
+                <SkeletonCircle size="16" alignSelf="center" />
+                <Skeleton height="16px" />
+                <Skeleton height="16px" width="60%" />
+                <SkeletonText noOfLines={2} spacing="3" />
+              </VStack>
+            </Box>
+          ))}
+        </Grid>
       )}
 
-      {!isLoading && favouriteIds.length === 0 && (
+      {!isPending && favouriteIds.length === 0 && (
         <Box
           bg={
             colorMode === "light" ? colors.light.bgThird : colors.dark.bgThird
@@ -87,15 +153,20 @@ const CustomerFavourite = () => {
               }
               maxW="md"
             >
-              Start exploring our amazing chefs and add them to your favourites to see them here!
+              Start exploring our amazing chefs and add them to your favourites
+              to see them here!
             </Text>
           </VStack>
         </Box>
       )}
 
-      {!isLoading && favouriteIds.length > 0 && cookers.length > 0 && (
+      {!isPending && favouriteIds.length > 0 && cookers.length > 0 && (
         <Grid
-          templateColumns={{ base: "1fr", sm: "repeat(2, 1fr)", lg: "repeat(3, 1fr)" }}
+          templateColumns={{
+            base: "1fr",
+            sm: "repeat(2, 1fr)",
+            lg: "repeat(3, 1fr)",
+          }}
           gap={6}
         >
           {cookers.map((cooker) => (

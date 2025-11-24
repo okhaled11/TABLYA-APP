@@ -289,7 +289,7 @@ const OrderPage = () => {
                   title: "Stock Updated",
                   description:
                     "Order confirmed and stock has been reduced automatically!",
-                  status: "success",
+                  type: "success",
                   duration: 3000,
                 });
               }
@@ -410,14 +410,14 @@ const OrderPage = () => {
       toaster.create({
         title: "Order Cancelled",
         description: "Your order has been cancelled successfully.",
-        status: "success",
+        type: "success",
         duration: 3000,
       });
     } catch (error) {
       toaster.create({
         title: "Error",
         description: error.message || "Failed to cancel order",
-        status: "error",
+        type: "error",
         duration: 3000,
       });
     }
@@ -442,7 +442,7 @@ const OrderPage = () => {
         title: "Missing Information",
         description:
           "Please select a complaint category and provide a description.",
-        status: "warning",
+        type: "warning",
         duration: 3000,
       });
       return;
@@ -462,7 +462,7 @@ const OrderPage = () => {
           title: "Report Submitted Successfully",
           description:
             "Your report has been sent to our team for review. We'll investigate the issue promptly.",
-          status: "success",
+          type: "success",
           duration: 5000,
         });
         closeReportModal();
@@ -471,7 +471,7 @@ const OrderPage = () => {
           title: "Failed to Submit Report",
           description:
             res.error || "Something went wrong. Please try again later.",
-          status: "error",
+          type: "error",
           duration: 4000,
         });
       }
@@ -480,7 +480,7 @@ const OrderPage = () => {
         title: "Unexpected Error",
         description:
           "Something went wrong while sending your report. Please try again.",
-        status: "error",
+        type: "error",
         duration: 4000,
       });
     }

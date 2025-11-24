@@ -137,6 +137,8 @@ const ChefCard = ({
   };
   return (
     <Card.Root
+      as={Link}
+      to={`/home/cookers/${user_id}`}
       maxW="md"
       p={5}
       borderRadius="22px"
@@ -160,7 +162,11 @@ const ChefCard = ({
       }}
     >
       <IconButton
-        onClick={onToggleFavorite}
+        onClick={(e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          onToggleFavorite();
+        }}
         variant="ghost"
         aria-label="Add to favorites"
         position="absolute"

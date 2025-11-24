@@ -49,18 +49,25 @@ export const cookersApi = createApi({
         if (error) return { error };
         return { data };
       },
-      providesTags: ["Cookers"],
-      async onCacheEntryAdded(id, { updateCachedData, cacheDataLoaded, cacheEntryRemoved }) {
+      providesTags: (result, error, id) => [{ type: "Cooker", id }],
+      refetchOnFocus: false,
+      refetchOnReconnect: false,
+      refetchOnMountOrArgChange: false,
+      keepUnusedDataFor: 300,
+      async onCacheEntryAdded(
+        id,
+        { updateCachedData, cacheDataLoaded, cacheEntryRemoved }
+      ) {
         try {
           await cacheDataLoaded;
           const channel = supabase
             .channel(`cookers-realtime-${id}`)
             .on(
-              'postgres_changes',
+              "postgres_changes",
               {
-                event: 'UPDATE',
-                schema: 'public',
-                table: 'cookers',
+                event: "UPDATE",
+                schema: "public",
+                table: "cookers",
                 filter: `user_id=eq.${id}`,
               },
               (payload) => {
@@ -86,8 +93,8 @@ export const cookersApi = createApi({
         const { data, error } = await supabase
           .from("menu_items")
           .select("*")
-          .eq("cooker_id", cookerId)
-          // .eq("available", true); //show only available items
+          .eq("cooker_id", cookerId);
+        // .eq("available", true); //show only available items
 
         if (error) return { error };
         return { data };
@@ -118,8 +125,11 @@ export const cookersApi = createApi({
     getCustomerCity: builder.query({
       async queryFn() {
         try {
-          const { data: { user }, error: userError } = await supabase.auth.getUser();
-          
+          const {
+            data: { user },
+            error: userError,
+          } = await supabase.auth.getUser();
+
           if (userError || !user) {
             return { error: { message: "User not authenticated" } };
           }

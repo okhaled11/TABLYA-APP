@@ -75,7 +75,7 @@ const CookerMenuCard = ({ item }) => {
           flex="1"
           direction={{ base: "column", md: "row" }}
           gap={{ base: 3, md: 4 }}
-          alignItems={{ base: "flex-start", md: "center" }}
+          alignItems={{ base: "stretch", md: "center" }}
         >
           <Image
             src={item?.menu_img || ""}
@@ -90,6 +90,7 @@ const CookerMenuCard = ({ item }) => {
             direction="column"
             gap={2}
             minW={0}
+            w="100%"
             ml={{ base: 0, md: 4 }}
           >
             <Text
@@ -123,6 +124,7 @@ const CookerMenuCard = ({ item }) => {
               mt={{ base: 1, md: 2 }}
               justifyContent="space-between"
               alignItems="center"
+              w="100%"
             >
               <Text
                 fontWeight="semibold"
