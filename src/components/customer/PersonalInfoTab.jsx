@@ -10,6 +10,7 @@ import {
   GridItem,
   Skeleton,
   SkeletonCircle,
+  Textarea,
 } from "@chakra-ui/react";
 import { User, Envelope, Phone, PencilSimple } from "@phosphor-icons/react";
 import { useState, useRef, useEffect } from "react";
@@ -22,22 +23,44 @@ import {
 import { convertImageToWebP } from "../../services";
 import { useColorStyles } from "../../hooks/useColorStyles";
 import FormField from "../ui/FormField";
-import { registerSchema } from "../../validation";
+import { registerSchema, cookerProfileSchema } from "../../validation";
+import { useGetUserDataQuery } from "../../app/features/Auth/authSlice";
+import {
+  useGetCookerByIdQuery,
+  useUpsertCookerMutation,
+} from "../../app/features/Admin/cookerSlice";
 
 const profileSchema = registerSchema.pick(["firstName", "lastName", "phone"]);
 
-export default function PersonalInfoTab() {
+export default function PersonalInfoTab({ user: authUser }) {
   const styles = useColorStyles();
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
+  const [kitchenName, setKitchenName] = useState("");
+  const [specialty, setSpecialty] = useState("");
+  const [chefDescription, setChefDescription] = useState("");
+  const [startTime, setStartTime] = useState("");
+  const [endTime, setEndTime] = useState("");
   const [isEditing, setIsEditing] = useState(false);
   const [fieldErrors, setFieldErrors] = useState({});
   const fileInputRef = useRef(null);
 
+  const { data: authUserData } = useGetUserDataQuery(undefined, {
+    skip: !!authUser,
+  });
+  const currentUser = authUser || authUserData;
+  const isCooker = currentUser?.role === "cooker";
+  const cookerId = currentUser?.id;
+
   // Get user data from auth.users
   const { data: user, isLoading, refetch } = useGetUserProfileQuery();
+  const { data: cookerData } = useGetCookerByIdQuery(cookerId, {
+    skip: !isCooker || !cookerId,
+  });
+  const [upsertCooker, { isLoading: isSavingCooker }] =
+    useUpsertCookerMutation();
   const [updateUserProfile, { isLoading: isUpdating }] =
     useUpdateUserProfileMutation();
   const [uploadAvatar, { isLoading: isUploading }] = useUploadAvatarMutation();
@@ -51,6 +74,16 @@ export default function PersonalInfoTab() {
       setPhone(user.phone || "");
     }
   }, [user]);
+
+  // Update cooker-specific state when cooker data changes
+  useEffect(() => {
+    if (!isCooker || !cookerData) return;
+    setKitchenName(cookerData.kitchen_name || "");
+    setSpecialty(cookerData.specialty || "");
+    setChefDescription(cookerData.bio || "");
+    setStartTime(cookerData.start_time || "");
+    setEndTime(cookerData.end_time || "");
+  }, [isCooker, cookerData]);
 
   // Handle avatar upload
   const handleAvatarUpload = async (event) => {
@@ -115,6 +148,14 @@ export default function PersonalInfoTab() {
         { firstName, lastName, phone },
         { abortEarly: false }
       );
+
+      if (isCooker) {
+        await cookerProfileSchema.validate(
+          { kitchenName, startTime, endTime, specialty, chefDescription },
+          { abortEarly: false }
+        );
+      }
+
       setFieldErrors({});
     } catch (validationError) {
       const newErrors = {};
@@ -149,9 +190,22 @@ export default function PersonalInfoTab() {
         phone,
       }).unwrap();
 
+      if (isCooker && cookerId) {
+        const cookerPayload = {
+          user_id: cookerId,
+          kitchen_name: kitchenName || null,
+          specialty: specialty || null,
+          bio: chefDescription || "",
+          start_time: startTime || null,
+          end_time: endTime || null,
+        };
+
+        await upsertCooker(cookerPayload).unwrap();
+      }
+
       toaster.create({
         title: "Success",
-        description: "Profile updated successfully in auth.users",
+        description: "Profile updated successfully",
         type: "success",
         duration: 3000,
       });
@@ -319,6 +373,129 @@ export default function PersonalInfoTab() {
             </GridItem>
           </Grid>
 
+          {currentUser?.role === "cooker" && (
+            <>
+              <Grid
+                templateColumns={{ base: "1fr", md: "repeat(2, 1fr)" }}
+                gap={6}
+                mt={4}
+              >
+                <GridItem>
+                  <FormField
+                    label="Kitchen Name"
+                    placeholder="Enter your kitchen name"
+                    value={kitchenName}
+                    onChange={(e) => {
+                      setKitchenName(e.target.value);
+                      setIsEditing(true);
+                      setFieldErrors((prev) => ({
+                        ...prev,
+                        kitchenName: undefined,
+                      }));
+                    }}
+                    error={fieldErrors.kitchenName}
+                  />
+                </GridItem>
+
+                <GridItem>
+                  <FormField
+                    label="Specialty"
+                    placeholder="Enter your specialty"
+                    value={specialty}
+                    onChange={(e) => {
+                      setSpecialty(e.target.value);
+                      setIsEditing(true);
+                      setFieldErrors((prev) => ({
+                        ...prev,
+                        specialty: undefined,
+                      }));
+                    }}
+                    error={fieldErrors.specialty}
+                  />
+                </GridItem>
+              </Grid>
+
+              <Box mt={4}>
+                <Text
+                  fontSize="sm"
+                  fontWeight="medium"
+                  color={styles.textMain}
+                  mb={2}
+                >
+                  Chef Description
+                </Text>
+                <Textarea
+                  placeholder="Add your description"
+                  value={chefDescription}
+                  onChange={(e) => {
+                    setChefDescription(e.target.value);
+                    setIsEditing(true);
+                    setFieldErrors((prev) => ({
+                      ...prev,
+                      chefDescription: undefined,
+                    }));
+                  }}
+                  bg={styles.bgInput}
+                  borderRadius="12px"
+                  minH="100px"
+                />
+                {fieldErrors.chefDescription && (
+                  <Text fontSize="xs" color={styles.error} mt={1}>
+                    {fieldErrors.chefDescription}
+                  </Text>
+                )}
+              </Box>
+
+              <Box mt={4}>
+                <Text
+                  fontSize="sm"
+                  fontWeight="medium"
+                  color={styles.textMain}
+                  mb={2}
+                >
+                  Working Hours
+                </Text>
+                <Grid
+                  templateColumns={{ base: "1fr", md: "repeat(2, 1fr)" }}
+                  gap={6}
+                >
+                  <GridItem>
+                    <FormField
+                      label="Start Time"
+                      type="time"
+                      value={startTime}
+                      onChange={(e) => {
+                        setStartTime(e.target.value);
+                        setIsEditing(true);
+                        setFieldErrors((prev) => ({
+                          ...prev,
+                          startTime: undefined,
+                        }));
+                      }}
+                      error={fieldErrors.startTime}
+                    />
+                  </GridItem>
+                  <GridItem>
+                    <FormField
+                      label="End Time"
+                      type="time"
+                      value={endTime}
+                      onChange={(e) => {
+                        setEndTime(e.target.value);
+                        setIsEditing(true);
+                        setFieldErrors((prev) => ({
+                          ...prev,
+                          endTime: undefined,
+                        }));
+                      }}
+                      error={fieldErrors.endTime}
+                    />
+                  </GridItem>
+                </Grid>
+              </Box>
+            </>
+          )}
+
           {/* Buttons */}
           <HStack spacing={4} mt={4}>
             <Button
@@ -328,7 +505,7 @@ export default function PersonalInfoTab() {
               borderRadius="12px"
               size="lg"
               onClick={handleSaveChanges}
-              isLoading={isUpdating}
+              isLoading={isUpdating || isSavingCooker}
               loadingText="Saving..."
               isDisabled={!isEditing}
               _hover={{ bg: styles.mainFixed70a }}
@@ -347,7 +524,7 @@ export default function PersonalInfoTab() {
               borderRadius="12px"
               size="lg"
               onClick={handleDiscardChanges}
-              isDisabled={!isEditing || isUpdating}
+              isDisabled={!isEditing || isUpdating || isSavingCooker}
               _hover={{ bg: styles.mainFixed10a }}
             >
               Discard Changes
