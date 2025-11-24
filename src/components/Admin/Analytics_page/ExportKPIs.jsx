@@ -1,5 +1,5 @@
 import React from "react";
-import  { useGetTotalRevenueQuery, useGetTotalOrdersQuery, useGetAverageOrderValueQuery, useGetPlatformProfitQuery, useGetGrowthRateQuery } from "../../../app/features/Admin/dashboardApi";
+import { useGetTotalRevenueQuery, useGetTotalOrdersQuery, useGetAverageOrderValueQuery, useGetPlatformProfitQuery, useGetGrowthRateQuery, useGetTopPerformingCuisinesQuery, useGetWeeklyOrderActivityQuery, useGetSalesTrendQuery, useGetUserGrowthByTypeQuery } from "../../../app/features/Admin/dashboardApi";
 import { useGetUsersQuery } from "../../../app/features/UserSlice";
 import { MdOutlineFileDownload } from "react-icons/md";
 import { Flex, Button } from "@chakra-ui/react";
@@ -11,7 +11,11 @@ export default function ExportKPIs() {
   const { data: avgOrder } = useGetAverageOrderValueQuery();
   const { data: platformProfit } = useGetPlatformProfitQuery("monthly");
   const { data: growthRate } = useGetGrowthRateQuery();
-  const { data: users  } = useGetUsersQuery();
+  const { data: users } = useGetUsersQuery();
+  const { data: topCuisines } = useGetTopPerformingCuisinesQuery();
+  const { data: weeklyOrderActivity } = useGetWeeklyOrderActivityQuery();
+  const { data: salesTrend } = useGetSalesTrendQuery();
+  const { data: userGrowth } = useGetUserGrowthByTypeQuery();
 
   const handleExport = () => {
     const headers = ["KPI", "Value"];
@@ -23,6 +27,29 @@ export default function ExportKPIs() {
       ["Platform Profit", platformProfit || 0],
       ["Growth Rate (%)", growthRate?.toFixed(2) || 0],
       ["Total Users ", users.length || 0],
+      [
+        "Top Cuisines",
+        topCuisines
+          ? topCuisines.map(c => `${c.title} (${c.count})`).join(" | ")
+          : "No Data"
+      ],
+      ["weeklyOrderActivity", weeklyOrderActivity ? weeklyOrderActivity.map(o => `${o.day} (${o.orders}) orders`).join("|") : "No Data "],
+
+      ["Saled Trend (this month)", salesTrend ? salesTrend.map(s => `${s.date} (${s.revenue}) revenue`).join("|") : "No Data "],
+
+      [
+        "User Growth Per Day",
+        userGrowth
+          ? userGrowth
+            .map(
+              (item) =>
+                `${item.day} → cooker:${item.cooker}, customer:${item.customer}, delivery:${item.delivery}`
+            )
+            .join(" | ")
+          : "No Data",
+      ],
+
+
     ];
 
     const csvContent =
@@ -39,9 +66,9 @@ export default function ExportKPIs() {
   };
 
   return (
-    
 
-<Flex justify="flex-start" my={4}>
+
+    <Flex justify="flex-start" my={4}>
       <Button
         onClick={handleExport}
         bg={colors.light.mainFixed}
@@ -50,7 +77,7 @@ export default function ExportKPIs() {
         px={4}
         py={5}
         _hover={{ bg: colors.light.mainFixed }}
-       
+
       >
         Export KPIs to CSV <MdOutlineFileDownload />
       </Button>

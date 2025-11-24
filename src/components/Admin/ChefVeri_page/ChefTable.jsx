@@ -19,8 +19,10 @@ import { Box } from '@chakra-ui/react';
 import { Text } from '@chakra-ui/react';
 import { Select } from '@chakra-ui/react';
 import { NativeSelect } from "@chakra-ui/react"
-import { Spinner, VStack } from "@chakra-ui/react"
+import { Spinner, VStack, Avatar } from "@chakra-ui/react"
 import { useMemo } from 'react';
+import { AiFillMessage } from "react-icons/ai";
+import { useSendNotesMutation } from '../../../app/features/Admin/cookerApprovalsApi';
 
 import colors from '../../../theme/color';
 // import { useGetAdminIdQuery } from '../../../app/features/Admin/adminData';
@@ -31,7 +33,7 @@ export default function ChefTable() {
 
     const { colorMode } = useColorMode();
     const { data: cooker_approvals = [], isLoading } = useGetAllCookerApprovalsQuery();
-
+    const [sendNotes] = useSendNotesMutation();
     const [approveCooker] = useApproveCookerMutation();
     const [deleteCookerApproval, { isLoading: isDeleting }] = useDeleteCookerApprovalMutation();
     const [rejectCookerApproval] = useRejectCookerApprovalMutation();
@@ -87,13 +89,13 @@ export default function ChefTable() {
     /// handle delete btn (create toast )
     const handleDelete = async (id) => {
         try {
-            await deleteCookerApproval(id).unwrap();
+            await deleteCookerApproval({id: selectedCooker.id }).unwrap();
             toaster.create({
                 title: "Deleted",
                 description: "Cooker request deleted successfully",
                 type: "success",
             });
-            refetch();
+           
         } catch (err) {
             toaster.create({
                 title: "Error",
@@ -101,43 +103,66 @@ export default function ChefTable() {
                 type: "error",
             });
         }
+        finally {
+           
+            closeDialog();
+        }
     };
 
     //handle rejection 
 
-    const handleReject = async () => {
-        if (!notes) {
-            toaster.create({
-                title: "Error",
-                description: "Please provide rejection notes",
-                type: "error",
-            });
-            return;
-        }
+    const handleReject = async (id) => {
 
         try {
-            await rejectCookerApproval({ id: selectedCooker.id, notes }).unwrap();
+            await rejectCookerApproval({ id: selectedCooker.id }).unwrap();
             toaster.create({
                 title: "Rejected",
                 description: `${selectedCooker.user?.name} has been rejected successfully`,
                 type: "success",
             });
-            await refetch();
+           
         } catch (err) {
             toaster.create({
                 title: "Error",
                 description: "Failed to reject cooker request",
                 type: "error",
             });
-        } finally {
-            setNotes("");
+        }
+
+        finally {
             closeDialog();
         }
     };
 
+    //handle send notes 
+    const handleSendNotes = async () => {
+        try {
+
+            await sendNotes({ id: selectedCooker.id, notes }).unwrap();
+            toaster.create({
+                title: "Message sent",
+                description: ` Notes have been sent to ${selectedCooker.user?.name} successfully`,
+                type: "success",
+            });
+
+        } catch (err) {
+            toaster.create({
+                title: "Error",
+                description: "Failed to send notes to the cooker ",
+                type: "error",
+            });
+
+        } finally {
+            setNotes("");
+            closeDialog();
+        }
 
 
-    const [statusFilter, setStatusFilter] = useState("all"); 
+
+    }
+
+
+    const [statusFilter, setStatusFilter] = useState("all");
     const filteredCookers = useMemo(() => {                                 // usememo instead to prevent unnecessary renders 
         return statusFilter === "all"
             ? cooker_approvals
@@ -159,9 +184,9 @@ export default function ChefTable() {
 
 
     return (
-        <Card.Root borderRadius="xl" h="100%" border="none" shadow="sm" bg={colorMode === "light" ? "white" : colors.dark.bgThird} mt={"40px"} mb={"20px"}>
+        <Card.Root borderRadius={"20px"} h="100%" border="none" shadow="sm" bg={colorMode === "light" ? "white" : colors.dark.bgThird} mt={"40px"} mb={"20px"}>
 
-            <CardBody bg={colorMode === "light" ? "white" : colors.dark.bgThird}>
+            <CardBody bg={colorMode === "light" ? "white" : colors.dark.bgThird} borderRadius={"40px"}>
                 {/* filter by status */}
                 <HStack spacing={4} mb={4} justifyContent="flex-end"  >
                     <Text>Filter by Status:</Text>
@@ -213,11 +238,18 @@ export default function ChefTable() {
                             currentItems.map((cooker) => (
                                 <Table.Row key={cooker.id} bg={colorMode === "dark" ? colors.dark.bgMain : ""}>
                                     <Table.Cell>
-                                        <img
-                                            src={cooker.user?.avatar_url || "https://via.placeholder.com/80"}
-                                            alt={cooker.user?.name}
-                                            style={{ width: "80px", height: "80px", borderRadius: "50%", objectFit: "cover", marginBottom: "15px" }}
-                                        />
+
+                                        <Avatar.Root
+                                            width={"80px"}
+                                            height="80px"
+                                            borderRadius="full"
+                                            overflow="hidden"
+                                            colorPalette={"red"}>
+                                            
+                                            <Avatar.Image src={cooker.user?.avatar_url} />
+                                            <Avatar.Fallback name={cooker.user?.name} />
+                                        </Avatar.Root>
+
                                     </Table.Cell>
                                     <Table.Cell>{cooker.user?.name}</Table.Cell>
                                     <Table.Cell>{cooker.cooker?.specialty || "—"}</Table.Cell>
@@ -238,7 +270,7 @@ export default function ChefTable() {
                                             py={"8px"}
                                             borderRadius={"30px"}
                                             color={cooker.status === "pending" ? "rgb(245, 198, 58)" : cooker.status === "approved" ? "rgb(23, 163, 74)" : "rgb(239, 67, 67)"}
-                                            background={cooker.status === "approved" ?colorMode==="light"? " rgb(227, 240, 230)" : "rgb(25, 39, 2)" : cooker.status === "pending" ? colorMode==="light"? "rgb(249, 243, 227)":"rgb(67, 30, 8)" : colorMode==="light" ?"rgb(249, 231, 230)": "rgb(66, 17, 12)"}
+                                            background={cooker.status === "approved" ? colorMode === "light" ? " rgb(227, 240, 230)" : "rgb(25, 39, 2)" : cooker.status === "pending" ? colorMode === "light" ? "rgb(249, 243, 227)" : "rgb(67, 30, 8)" : colorMode === "light" ? "rgb(249, 231, 230)" : "rgb(66, 17, 12)"}
                                         >
                                             {cooker.status}
                                         </Badge>
@@ -290,20 +322,20 @@ export default function ChefTable() {
 
                                             )}
 
-
+                                            {/* detatils btn */}
                                             <Button
                                                 size="sm"
                                                 variant="ghost"
                                                 colorScheme="red"
                                                 borderWidth={"1px"}
                                                 borderColor={
-                                                    colorMode === "light" ? "green" : "green"
+                                                    colorMode === "light" ? "rgb(245, 198, 58)" : "rgb(245, 198, 58)"
                                                 }
                                                 borderRadius={"10px"}
-                                                _hover={{ backgroundColor: "green" }}
+                                                _hover={{ backgroundColor: "rgb(249, 243, 227)" }}
                                                 onClick={() => openDialog(cooker, "details")}
                                             >
-                                                <MdErrorOutline />
+                                                <MdErrorOutline  color='rgb(244, 192, 37)'/>
                                             </Button>
 
 
@@ -323,6 +355,26 @@ export default function ChefTable() {
                                             >
                                                 <FaUserXmark color="red" />
                                             </Button>
+
+                                            {/* send notes or message to the cooker */}
+                                            <Button
+                                                size="sm"
+                                                variant="ghost"
+                                                colorScheme="green"
+                                                borderWidth={"1px"}
+                                                borderColor={
+                                                    colorMode === "light" ? "rgb(23, 163, 74)" : "green"
+                                                }
+                                                borderRadius={"10px"}
+                                                _hover={{ backgroundColor: "rgb(227, 240, 230)" }}
+                                                onClick={() => openDialog(cooker, "notes")}
+
+                                            >
+                                                <AiFillMessage color="green" />
+                                            </Button>
+
+
+
                                         </HStack>
                                     </Table.Cell>
                                 </Table.Row>
@@ -379,6 +431,7 @@ export default function ChefTable() {
                     onDelete={handleDelete}
                     notes={notes}
                     setNotes={setNotes}
+                    sendNotes={handleSendNotes}
                     isApproving={isApproving} //for loading btn
                 />
 

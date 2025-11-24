@@ -15,6 +15,7 @@ import {
   InputGroup,
   NativeSelect,
   Pagination,
+  Spinner,
 } from "@chakra-ui/react";
 import { CiSearch } from "react-icons/ci";
 import { FiFileText, FiAlertTriangle } from "react-icons/fi";
@@ -233,6 +234,14 @@ export default function Complaints() {
   const startIndex = (page - 1) * pageSize;
   const endIndex = startIndex + pageSize;
   const paginatedReports = filteredReports.slice(startIndex, endIndex);
+
+
+  if (isLoading)
+    return (
+      <Flex justify="center" align="center" height="100vh">
+        <Spinner size="xl" />
+      </Flex>
+    );
 
   return (
     <Box

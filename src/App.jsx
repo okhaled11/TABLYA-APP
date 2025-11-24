@@ -80,7 +80,6 @@ function App() {
           path="/register"
           element={<RegisterPage isAuthenticated={token} />}
         />
-        <Route path="/auth/callback" element={<AuthCallback />} />
         <Route path="/pending-approval" element={<PendingApprovalPage />} />
         <Route path="/forgot-password" element={<ForgotPasswordPage />} />
         <Route path="/reset-password" element={<ResetPasswordPage />} />

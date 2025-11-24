@@ -2,26 +2,27 @@ import React, { useContext } from 'react'
 import { FiMenu, FiX } from 'react-icons/fi';
 import { useState } from 'react';
 
-import { Box, Flex, HStack, Image, Link, IconButton, Button, VStack} from '@chakra-ui/react';
+import { Box, Flex, HStack, Image, Link, IconButton, Button, VStack } from '@chakra-ui/react';
 import logo from '../../assets/logotitle.png';
 
 import { FiMoon, FiSun } from 'react-icons/fi';
 import { useColorMode } from '../../theme/color-mode';
 import { useTranslation } from 'react-i18next';
+import { Link as RouterLink } from "react-router-dom";
 
 export default function Navbar() {
   const { t, i18n } = useTranslation();
   const { colorMode, toggleColorMode } = useColorMode();
 
 
-const [isOpen, setIsOpen] = useState(false);
+  const [isOpen, setIsOpen] = useState(false);
 
   const toggleMenu = () => setIsOpen(!isOpen);
 
- const changeLanguage = (lang) => {
-   i18n.changeLanguage(lang);
-   document.dir = lang === "ar" ? "rtl" : "ltr";
- };
+  const changeLanguage = (lang) => {
+    i18n.changeLanguage(lang);
+    document.dir = lang === "ar" ? "rtl" : "ltr";
+  };
   return (
     <Box
       bg={"rgb(20, 4, 2)"}
@@ -55,6 +56,8 @@ const [isOpen, setIsOpen] = useState(false);
         >
           <HStack as={"nav"} spacing={4} display={{ base: "none", md: "flex" }}>
             <Link
+              as={RouterLink}
+              to="/home"
               px={3}
               py={1}
               fontSize={"lg"}
@@ -141,7 +144,7 @@ const [isOpen, setIsOpen] = useState(false);
 
 
           {/* theme toggle for dark and light modes */}
-          
+
           <IconButton
             aria-label="Toggle Menu"
             as={colorMode === "light" ? FiMoon : FiSun}
@@ -154,7 +157,7 @@ const [isOpen, setIsOpen] = useState(false);
             p={"10px"}
           />
           {/* ---------------------------------------------------------- */}
-          
+
           {/* Mobile Menu Toggle */}
           <IconButton
             aria-label="Toggle Menu"
