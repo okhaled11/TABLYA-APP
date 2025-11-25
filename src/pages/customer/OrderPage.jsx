@@ -599,7 +599,9 @@ const OrderPage = () => {
                         fontSize={{ base: "12px", md: "14px" }}
                         color={colors.light.textSub}
                       >
-                        Price: {item.price_at_order || item.menu_items?.price}{" "}
+                        Price:{" "}
+                        {item.price_at_order ||
+                          item?.price_for_customer}{" "}
                         LE
                       </Text>
                     </Box>
@@ -1021,7 +1023,9 @@ const OrderPage = () => {
                               color={colors.light.textSub}
                             >
                               Price:{" "}
-                              {item.price_at_order || item.menu_items?.price} LE
+                              {item.price_at_order ||
+                                item.menu_items?.price_for_customer}{" "}
+                              LE
                             </Text>
                           </Box>
                           <Text

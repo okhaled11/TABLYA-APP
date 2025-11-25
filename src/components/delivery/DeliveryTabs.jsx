@@ -1,13 +1,13 @@
 import { Flex, Tabs, Box } from "@chakra-ui/react";
-import { LuHouse } from "react-icons/lu";
 import { RiFileList3Line } from "react-icons/ri";
 import { FaArrowTrendUp, FaRegHeart } from "react-icons/fa6";
 import colors from "../../theme/color";
+import { useColorMode } from "../../theme/color-mode";
 import { useNavigate, useLocation } from "react-router-dom";
-import { MdRestaurantMenu } from "react-icons/md";
-import { FaRegStar } from "react-icons/fa";
+
 
 const DeliveryTabs = () => {
+  const {colorMode} = useColorMode();
   const navigate = useNavigate();
   const location = useLocation();
   const getActiveTab = () => {
@@ -18,7 +18,7 @@ const DeliveryTabs = () => {
   };
 
   return (
-    <Tabs.Root value={getActiveTab()}>
+    <Tabs.Root value={getActiveTab()} position="sticky" top={{ base: 20, md: 20 }} zIndex="900" bg={colorMode === "light" ? colors.light.bgMain : colors.dark.bgMain}>
       <Tabs.List>
         <Flex w="100%" justifyContent="center" gap={{ base: 6, md: 6 }}>
           <Tabs.Trigger

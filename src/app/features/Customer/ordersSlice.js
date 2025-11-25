@@ -55,7 +55,7 @@ export const ordersApi = createApi({
             menu_item_id: it.id,
             title: it.title || it.name || "",
             quantity: it.quantity || 1,
-            price_at_order: it.price,
+            price_at_order: it.price_for_customer,
           }));
 
           if (orderItems.length > 0) {
