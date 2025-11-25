@@ -2,6 +2,7 @@ import { Breadcrumb, Flex, Icon, IconButton } from "@chakra-ui/react";
 import { FiArrowLeft } from "react-icons/fi";
 import { LuChefHat, LuHouse, LuShirt } from "react-icons/lu";
 import { Link, useNavigate, useParams } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import ChefProfileCard from "../../../components/customer/ChefProfileCard";
 import { useGetCookerByIdQuery } from "../../../app/features/Customer/CookersApi";
 import ChefProfileCardSkeleton from "../../../components/ui/ChefProfileSkeleton";
@@ -9,9 +10,11 @@ import ChefMenuSection from "../../../components/customer/ChefMenuSection";
 import CustomerReviewSection from "../../../components/customer/CustomerReviewSection";
 
 const ChefMenuProfile = () => {
+  const { t, i18n } = useTranslation();
   const { id } = useParams();
   const { data: cooker, error, isLoading } = useGetCookerByIdQuery(id);
   const navigate = useNavigate();
+  const isRTL = i18n.language === 'ar';
   console.log(id);
   console.log("from id cooker", cooker);
 
@@ -29,20 +32,22 @@ const ChefMenuProfile = () => {
           >
             <Icon as={FiArrowLeft} boxSize={5} />
           </IconButton>
-          <Breadcrumb.List>
+          <Breadcrumb.List dir={isRTL ? 'rtl' : 'ltr'}>
             <Breadcrumb.Item>
               <Breadcrumb.Link as={Link} to="/home">
-                <LuHouse />
-                Home
+                <Flex align="center" gap={1} direction={isRTL ? 'row-reverse' : 'row'}>
+                  <LuHouse />
+                  {t('customer.breadcrumb.home')}
+                </Flex>
               </Breadcrumb.Link>
             </Breadcrumb.Item>
             <Breadcrumb.Separator />
 
             <Breadcrumb.Item>
               <Breadcrumb.CurrentLink>
-                <Flex align="center" gap={1}>
+                <Flex align="center" gap={1} direction={isRTL ? 'row-reverse' : 'row'}>
                   <LuChefHat />
-                  Chef Profile
+                  {t('customer.breadcrumb.chefProfile')}
                 </Flex>
               </Breadcrumb.CurrentLink>
             </Breadcrumb.Item>
@@ -53,7 +58,7 @@ const ChefMenuProfile = () => {
       {isLoading ? (
         <ChefProfileCardSkeleton />
       ) : error ? (
-        <div>Error loading cooker data</div>
+        <div>{t('customer.errors.loadCookerData')}</div>
       ) : (
         <ChefProfileCard {...cooker} />
       )}

@@ -184,7 +184,190 @@
   },
   "testimonials": {
     "title": "What Our Customers Say",
-    "customerName": "Sara K.",
-    "customerReview": "I'm so glad I found this website! The food is incredible, and it feels so good to support local cooks. It's like having a home-cooked meal without any of the work"
+    "customerName": "Sarah K.",
+    "customerReview": "I'm so happy I found this site! The food is amazing, and it's great to support local home cooks. It's like having a home-cooked meal without any of the hassle"
+  },
+  "tabs": {
+    "home": "Home",
+    "orders": "Orders",
+    "favourites": "Favourites"
+  },
+  "mealDetails": {
+    "title": "Meal Details",
+    "outOfStock": "Out of Stock",
+    "inStock": "In Stock",
+    "preparedBy": "Prepared by"
+  },
+  "reviews": {
+    "title": "Customer Reviews",
+    "noReviews": "No reviews yet",
+    "anonymous": "Anonymous",
+    "readMore": "Read More",
+    "readLess": "Read Less",
+    "addReview": "Add Review",
+    "yourRating": "Your Rating",
+    "yourReview": "Your Review",
+    "submit": "Submit Review",
+    "updateTitle": "Update Your Review",
+    "addTitle": "Add A Review",
+    "updateButton": "Update Review",
+    "submitButton": "Submit Review",
+    "provideRatingAndReview": "Please provide a rating and review.",
+    "contentCheckFailed": "Content Check Failed",
+    "contentCheckError": "Could not verify content. Please try again.",
+    "updateSuccess": "Review updated successfully",
+    "submitSuccess": "Review submitted successfully",
+    "submitError": "Failed to submit review",
+    "rateExperience": "Rate this meal and let others know your experience",
+    "enterReview": "Enter your review...",
+    "sensitiveContent": "Sensitive Content Detected",
+    "sensitiveContentWarning": "Your review contains sensitive or inappropriate content. Please revise your review to be respectful and appropriate before submitting.",
+    "editReview": "Edit Review"
+  },
+  "months": {
+    "january": "January",
+    "february": "February",
+    "march": "March",
+    "april": "April",
+    "may": "May",
+    "june": "June",
+    "july": "July",
+    "august": "August",
+    "september": "September",
+    "october": "October",
+    "november": "November",
+    "december": "December"
+  },
+  "common": {
+    "cancel": "Cancel",
+    "readMore": "Read More",
+    "readLess": "Read Less",
+    "errorLoading": "Error loading data",
+    "noData": "No data available",
+    "quantity": "Quantity",
+    "remaining": "Remaining",
+    "buyNow": "Buy Now",
+    "chef": "Chef"
+  },
+  "chefProfile": {
+    "available": "Available",
+    "notAvailable": "Not Available",
+    "noName": "No Name",
+    "reviews": "Reviews",
+    "workingHours": "Working Hours",
+    "about": "About",
+    "noBio": "No bio available."
+  },
+  "menu": {
+    "title": "Menu",
+    "noItems": "No menu items available",
+    "inStock": "in stock",
+    "outOfStock": "Out of Stock",
+    "restaurantClosed": "Restaurant is currently closed",
+    "categories": {
+      "all": "All",
+      "allCategories": "All Categories",
+      "mainDishes": "Main Dishes",
+      "drinks": "Drinks",
+      "desserts": "Desserts"
+    }
+  },
+  "cart": {
+    "clearCartTitle": "Clear Cart?",
+    "clearCartDescription": "Adding this item will clear your current cart. Are you sure?",
+    "clearCartConfirm": "Yes, Clear & Add",
+    "addToCart": "Add to Cart",
+    "itemAdded": "Item added to cart"
+  },
+  "customer": {
+    "breadcrumb": {
+      "home": "Home",
+      "chefProfile": "Chef Profile"
+    },
+    "errors": {
+      "loadCookerData": "Error loading chef data"
+    },
+    "allChefs": {
+      "title": "All Chefs",
+      "searchPlaceholder": "Search for chefs...",
+      "noChefsFound": "No chefs found."
+    },
+    "home": {
+      "title": "Top Cookers",
+      "viewAll": "View All",
+      "noChefsAvailable": "No chefs available in your area at the moment.",
+      "seeAllChefs": "See All Chefs"
+    },
+    "chefCard": {
+      "rating": "Rating",
+      "reviews": "reviews",
+      "viewMenu": "View Menu"
+    },
+    "favorites": {
+      "title": "Your Favorites",
+      "noFavorites": "You don't have any favorite chefs yet.",
+      "browseChefs": "Browse Chefs"
+    },
+    "orders": {
+      "title": "Your Orders",
+      "noOrders": "You don't have any orders yet.",
+      "orderId": "Order #",
+      "status": "Status",
+      "date": "Date",
+      "total": "Total",
+      "viewDetails": "View Details"
+    },
+    "orderDetails": {
+      "title": "Order Details",
+      "orderSummary": "Order Summary",
+      "subtotal": "Subtotal",
+      "deliveryFee": "Delivery Fee",
+      "total": "Total",
+      "deliveryAddress": "Delivery Address",
+      "orderStatus": "Order Status",
+      "orderItems": "Order Items",
+      "quantity": "Qty",
+      "backToOrders": "Back to Orders"
+    },
+    "cart": {
+      "title": "Shopping Cart",
+      "emptyCart": "Your cart is empty.",
+      "subtotal": "Subtotal",
+      "deliveryFee": "Delivery Fee",
+      "total": "Total",
+      "checkout": "Proceed to Checkout",
+      "continueShopping": "Continue Shopping",
+      "errors": {
+        "addressRequired": "Address required",
+        "addAddressBeforeCheckout": "Please add your delivery address before checkout.",
+        "paymentUpdateFailed": "Failed to update payment",
+        "contactSupport": "Please contact support",
+        "orderCreationFailed": "Failed to create order"
+      },
+      "messages": {
+        "paymentSuccessful": "Payment successful",
+        "orderPaidSuccessfully": "Order #{{orderId}} paid successfully via PayPal",
+        "orderCreated": "Order created",
+        "orderCreatedSuccessfully": "Order #{{orderId}} created successfully"
+      }
+    },
+    "personalInfo": {
+      "title": "Personal Information",
+      "saveChanges": "Save Changes",
+      "personalDetails": "Personal Details",
+      "contactInfo": "Contact Information",
+      "address": "Address",
+      "fullName": "Full Name",
+      "email": "Email",
+      "phone": "Phone Number",
+      "city": "City",
+      "area": "Area",
+      "street": "Street",
+      "building": "Building",
+      "floor": "Floor",
+      "apartment": "Apartment",
+      "saveSuccess": "Profile updated successfully",
+      "saveError": "Error updating profile"
+    }
   }
 }

@@ -12,6 +12,7 @@ import { RxCross2 } from "react-icons/rx";
 import { useColorMode } from "../../theme/color-mode";
 import colors from "../../theme/color";
 import { useDispatch, useSelector } from "react-redux";
+import { useTranslation } from "react-i18next";
 import {
   addToCart,
   clearCart,
@@ -25,6 +26,8 @@ import { toaster } from "../../components/ui/toaster";
 import { truncateText } from "../../utils";
 
 const MenuItemCard = ({ item, isAvailable }) => {
+  const { t, i18n } = useTranslation();
+  const isRTL = i18n.language === 'ar';
   const { colorMode } = useColorMode();
   const dispatch = useDispatch();
   const { cartItems, cookerId } = useSelector((state) => state.cart);
@@ -98,8 +101,6 @@ const MenuItemCard = ({ item, isAvailable }) => {
         border="none"
         borderRadius="20px"
         p={{ base: 2, md: 3 }}
-        // _hover={{ shadow: "md", transform: "scale(1.02)" }}
-        // transition="0.2s ease"
         justifyContent="center"
         bg={
           colorMode === "light" ? colors.light.bgFourth : colors.dark.bgFourth
@@ -134,10 +135,10 @@ const MenuItemCard = ({ item, isAvailable }) => {
                   : colors.dark.textMain
               }
             >
-              {truncateText(item.title, 20) || "No Title"}
+              {truncateText(item.name, isRTL ? 25 : 30)}
             </Text>
             <Text
-              fontSize={{ base: "xs", md: "sm" }}
+              fontSize="sm"
               fontWeight="light"
               color={
                 colorMode === "light"
@@ -145,11 +146,9 @@ const MenuItemCard = ({ item, isAvailable }) => {
                   : colors.dark.textSub
               }
               noOfLines={2}
-              overflowWrap="anywhere"
-              wordBreak="break-word"
+              textAlign={isRTL ? 'right' : 'left'}
             >
-              {truncateText(item.description, 200) ||
-                "No Description Available"}
+              {truncateText(item.description, isRTL ? 50 : 60)}
             </Text>
             <Flex
               justify="space-between"
@@ -167,7 +166,7 @@ const MenuItemCard = ({ item, isAvailable }) => {
                     : colors.dark.mainFixed
                 }
               >
-                ${item.price?.toFixed(2)}
+                {item.price} {t('common.egp')}
               </Text>
               {currentQuantity > 0 ? (
                 <HStack px={3} py={1} spacing={2} flexShrink={0}>
@@ -336,8 +335,8 @@ const MenuItemCard = ({ item, isAvailable }) => {
                       <Text fontSize={{ base: "2xs", md: "xs" }}>Closed</Text>
                     </HStack>
                   ) : isOutOfStock ? (
-                    <Text fontSize={{ base: "2xs", md: "xs" }}>
-                      Out of Stock
+                    <Text fontSize="xs" color="red.500">
+                      {t('menu.outOfStock')}
                     </Text>
                   ) : isMaxQuantity ? (
                     <Box
@@ -345,7 +344,7 @@ const MenuItemCard = ({ item, isAvailable }) => {
                       p={{ base: 3, md: 5 }}
                       bg="transarent"
                     >
-                      Out of Stock
+                      {t('menu.outOfStock')}
                     </Box>
                   ) : (
                     <FaShoppingCart />
@@ -358,23 +357,17 @@ const MenuItemCard = ({ item, isAvailable }) => {
       </Card.Root>
       <CustomAlertDialog
         dialog={dialog}
-        title={"Replace cart with new restaurant?"}
-        description={
-          "You already have items from another restaurant in your cart. Adding this item will remove your current cart. Do you want to continue?"
-        }
-        cancelTxt={"Cancel"}
-        okTxt={"Yes, Replace"}
-        onOkHandler={async () => {
-          await dispatch(clearCart());
-          await dispatch(addToCart(item));
+        title={t('cart.clearCartTitle')}
+        description={t('cart.clearCartDescription')}
+        confirmText={t('cart.clearCartConfirm')}
+        onConfirm={() => {
+          dispatch(clearCart());
+          dispatch(addToCart(item));
           toaster.create({
-            title: "Cart has been replaced",
-            description:
-              "Cart has been replaced with the new restaurant’s item",
+            title: t('cart.itemAdded'),
             type: "success",
-            duration: 3000,
-            isClosable: true,
-            position: "top",
+            duration: 2000,
+            position: "top"
           });
         }}
       />

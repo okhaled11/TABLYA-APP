@@ -8,7 +8,7 @@
     "sign_in": "تسجيل الدخول",
     "sign_up": "إنشاء حساب",
     "logout_confirm_title": "هل أنت متأكد؟",
-    "logout_confirm_description": "سيتم تسجيل خروجك من التطبيق!",
+    "logout_confirm_description": "سيتم تسجيل خروجك من العملاء",
     "cancel": "إلغاء",
     "ok": "موافق",
     "home": "الرئيسية",
@@ -185,5 +185,209 @@
     "title": "أراء عملاؤنا",
     "customerName": "سارة ك.",
     "customerReview": "أنا سعيدة جدًا لأنني وجدت هذا الموقع! الطعام رائع، ومن الجيد دعم الطهاة المحليين. إنه مثل تناول وجبة منزلية دون أي عناء"
+  },
+  "tabs": {
+    "home": "الرئيسية",
+    "orders": "الطلبات",
+    "favourites": "المفضلة"
+  },
+  "reviews": {
+    "title": "التقييمات",
+    "noReviews": "لا توجد تقييمات بعد",
+    "anonymous": "مجهول",
+    "readMore": "اقرأ المزيد",
+    "readLess": "اقرأ أقل",
+    "addReview": "إضافة تقييم",
+    "yourRating": "تقييمك",
+    "yourReview": "تقييمك",
+    "submit": "إرسال التقييم",
+    "updateTitle": "تحديث تقييمك",
+    "addTitle": "إضافة تقييم",
+    "updateButton": "تحديث التقييم",
+    "submitButton": "إرسال التقييم",
+    "provideRatingAndReview": "الرجاء إدخال التقييم والنص الخاص بك",
+    "contentCheckFailed": "فشل فحص المحتوى",
+    "contentCheckError": "تعذر التحقق من المحتوى. يرجى المحاولة مرة أخرى",
+    "updateSuccess": "تم تحديث التقييم بنجاح",
+    "submitSuccess": "تم إرسال التقييم بنجاح",
+    "submitError": "فشل إرسال التقييم",
+    "rateExperience": "قيم هذه الوجبة وشارك تجربتك مع الآخرين",
+    "enterReview": "اكتب تقييمك هنا...",
+    "sensitiveContent": "تم اكتشاف محتوى حساس",
+    "sensitiveContentWarning": "يحتوي تقييمك على محتوى غير لائق. يرجى مراجعة تقييمك ليكون لائقًا ومحترمًا قبل إرساله.",
+    "editReview": "تعديل التقييم"
+  },
+  "months": {
+    "january": "يناير",
+    "february": "فبراير",
+    "march": "مارس",
+    "april": "أبريل",
+    "may": "مايو",
+    "june": "يونيو",
+    "july": "يوليو",
+    "august": "أغسطس",
+    "september": "سبتمبر",
+    "october": "أكتوبر",
+    "november": "نوفمبر",
+    "december": "ديسمبر"
+  },
+  "common": {
+    "cancel": "إلغاء",
+    "errorLoading": "خطأ في تحميل البيانات",
+    "noData": "لا توجد بيانات متاحة",
+    "quantity": "الكمية",
+    "remaining": "المتبقي",
+    "buyNow": "اشتري الآن",
+    "chef": "طاهي",
+    "ok": "موافق",
+    "readMore": "اقرأ المزيد",
+    "readLess": "اقرأ أقل"
+  },
+  "mealDetails": {
+    "title": "تفاصيل الوجبة",
+    "outOfStock": "غير متوفر",
+    "inStock": "متوفر",
+    "preparedBy": "تم إعداده بواسطة"
+  },
+  "chefProfile": {
+    "available": "متاح",
+    "notAvailable": "غير متاح",
+    "noName": "بدون اسم",
+    "reviews": "تقييمات",
+    "workingHours": "ساعات العمل",
+    "about": "حول",
+    "noBio": "لا توجد سيرة ذاتية متاحة."
+  },
+  "menu": {
+    "title": "قائمة الطعام",
+    "noItems": "لا توجد عناصر في القائمة",
+    "inStock": "متوفر في المخزون",
+    "outOfStock": "غير متوفر",
+    "restaurantClosed": "المطغ مغلق حالياً",
+    "categories": {
+      "all": "الكل",
+      "allCategories": "جميع الفئات",
+      "mainDishes": "الأطباق الرئيسية",
+      "drinks": "المشروبات",
+      "desserts": "الحلويات"
+    }
+  },
+  "cart": {
+    "clearCartTitle": "مسح السلة؟",
+    "clearCartDescription": "إضافة هذا العنصر سيقوم بمسح السلة الحالية. هل أنت متأكد؟",
+    "clearCartConfirm": "نعم، امسح وأضف",
+    "addToCart": "أضف إلى السلة",
+    "itemAdded": "تمت إضافة العنصر إلى السلة",
+    "title": "سلة التسوق",
+    "emptyCart": "سلة التسوق فارغة.",
+    "subtotal": "المجموع الفرعي",
+    "deliveryFee": "رسوم التوصيل",
+    "total": "الإجمالي",
+    "checkout": "إتمام الشراء",
+    "continueShopping": "مواصلة التسوق",
+    "errors": {
+      "addressRequired": "العنوان مطلوب",
+      "addAddressBeforeCheckout": "الرجاء إضافة عنوان التوصيل قبل إتمام الطلب.",
+      "paymentUpdateFailed": "فشل تحديث حالة الدفع",
+      "contactSupport": "الرجاء التواصل مع الدعم الفني",
+      "orderCreationFailed": "فشل إنشاء الطلب"
+    },
+    "messages": {
+      "paymentSuccessful": "تم الدفع بنجاح",
+      "orderPaidSuccessfully": "تم دفع الطلب #{{orderId}} بنجاح عن طريق PayPal",
+      "orderCreated": "تم إنشاء الطلب",
+      "orderCreatedSuccessfully": "تم إنشاء الطلب #{{orderId}} بنجاح"
+    }
+  },
+  "customer": {
+    "breadcrumb": {
+      "home": "الرئيسية",
+      "chefProfile": "الملف الشخصي للشيف"
+    },
+    "errors": {
+      "loadCookerData": "حدث خطأ في تحميل بيانات الشيف"
+    },
+    "allChefs": {
+      "title": "جميع الشيفات",
+      "searchPlaceholder": "ابحث عن الشيفات...",
+      "noChefsFound": "لم يتم العثور على شيفات."
+    },
+    "home": {
+      "title": "  أفضل شيفات",
+      "viewAll": "عرض الكل",
+      "noChefsAvailable": "لا يوجد طهاة متاحين في منطقتك حاليًا.",
+      "seeAllChefs": "عرض جميع الشيفات"
+    },
+    "chefCard": {
+      "rating": "التقييم",
+      "reviews": "تقييم",
+      "viewMenu": "عرض القائمة"
+    },
+    "favorites": {
+      "title": " شيفاتك المفضلة",
+      "noFavorites": "ليس لديك أي طهاة مفضلين بعد.",
+      "browseChefs": "تصفح الطهاة"
+    },
+    "orders": {
+      "title": "طلباتك",
+      "noOrders": "ليس لديك أي طلبات حتى الآن.",
+      "orderId": "طلب رقم ",
+      "status": "الحالة",
+      "date": "التاريخ",
+      "total": "الإجمالي",
+      "viewDetails": "عرض التفاصيل"
+    },
+    "orderDetails": {
+      "title": "تفاصيل الطلب",
+      "orderSummary": "ملخص الطلب",
+      "subtotal": "المجموع الفرعي",
+      "deliveryFee": "رسوم التوصيل",
+      "total": "الإجمالي",
+      "deliveryAddress": "عنوان التوصيل",
+      "orderStatus": "حالة الطلب",
+      "orderItems": "عناصر الطلب",
+      "quantity": "الكمية",
+      "backToOrders": "العودة إلى الطلبات"
+    },
+    "cart": {
+      "title": "سلة التسوق",
+      "emptyCart": "سلة التسوق فارغة.",
+      "subtotal": "المجموع الفرعي",
+      "deliveryFee": "رسوم التوصيل",
+      "total": "الإجمالي",
+      "checkout": "إتمام الشراء",
+      "continueShopping": "مواصلة التسوق",
+      "errors": {
+        "addressRequired": "العنوان مطلوب",
+        "addAddressBeforeCheckout": "الرجاء إضافة عنوان التوصيل قبل إتمام الطلب.",
+        "paymentUpdateFailed": "فشل تحديث حالة الدفع",
+        "contactSupport": "الرجاء التواصل مع الدعم الفني",
+        "orderCreationFailed": "فشل إنشاء الطلب"
+      },
+      "messages": {
+        "paymentSuccessful": "تم الدفع بنجاح",
+        "orderPaidSuccessfully": "تم دفع الطلب #{{orderId}} بنجاح عن طريق PayPal",
+        "orderCreated": "تم إنشاء الطلب",
+        "orderCreatedSuccessfully": "تم إنشاء الطلب #{{orderId}} بنجاح"
+      }
+    },
+    "personalInfo": {
+      "title": "المعلومات الشخصية",
+      "saveChanges": "حفظ التغييرات",
+      "personalDetails": "البيانات الشخصية",
+      "contactInfo": "معلومات الاتصال",
+      "address": "العنوان",
+      "fullName": "الاسم بالكامل",
+      "email": "البريد الإلكتروني",
+      "phone": "رقم الهاتف",
+      "city": "المدينة",
+      "area": "المنطقة",
+      "street": "الشارع",
+      "building": "المبنى",
+      "floor": "الطابق",
+      "apartment": "الشقة",
+      "saveSuccess": "تم تحديث الملف الشخصي بنجاح",
+      "saveError": "حدث خطأ أثناء تحديث الملف الشخصي"
+    }
   }
 }

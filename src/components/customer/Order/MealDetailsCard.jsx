@@ -17,24 +17,29 @@ import { useState, useEffect } from "react";
 import { useColorMode } from "../../../theme/color-mode";
 import colors from "../../../theme/color";
 import imgMeal from "../../../assets/image31.png";
+import { useTranslation } from "react-i18next";
 import { useDispatch, useSelector } from "react-redux";
 import {
   addToCart,
   updateQuantity,
 } from "../../../app/features/Customer/CartSlice";
 import { Link } from "react-router-dom";
+import { useToast } from "@chakra-ui/react";
 
 const MealDetailsCard = ({ mealData, chefData }) => {
   console.log(mealData);
   console.log(chefData);
   console.log(chefData.users.name);
 
+  const { t, i18n } = useTranslation();
+  const isRTL = i18n.language === 'ar';
   const { colorMode } = useColorMode();
   const dispatch = useDispatch();
   const { cartItems } = useSelector((state) => state.cart);
+  const toast = useToast();
 
   if (!mealData || !chefData) {
-    return <div>No data available</div>;
+    return <div>{t('common.noData')}</div>;
   }
 
   const availableStock = mealData.stock || 0;
@@ -123,7 +128,7 @@ const MealDetailsCard = ({ mealData, chefData }) => {
 
   console.log(chefData);
   return (
-    <Container maxW="container.xl" py={{ base: 4, md: 6 }}>
+    <Container maxW="container.xl" py={{ base: 4, md: 6 }} dir={isRTL ? 'rtl' : 'ltr'}>
       <Flex
         direction={{ base: "column", lg: "row" }}
         gap={{ base: 4, lg: 6 }}
@@ -169,7 +174,7 @@ const MealDetailsCard = ({ mealData, chefData }) => {
             colorMode === "light" ? colors.light.bgThird : colors.dark.bgThird
           }
         >
-          <VStack align="stretch" gap={4}>
+          <VStack align="stretch" gap={4} textAlign={isRTL ? 'right' : 'left'}>
             {/* Title */}
             <Heading
               as="h1"
@@ -243,7 +248,7 @@ const MealDetailsCard = ({ mealData, chefData }) => {
                       : colors.dark.textMain
                   }
                 >
-                  Count
+                  {t('common.quantity')}
                 </Text>
                 <HStack gap={3}>
                   <IconButton
@@ -334,7 +339,7 @@ const MealDetailsCard = ({ mealData, chefData }) => {
                       : colors.dark.error
                   }
                 >
-                  Stock: {availableStock} | Remaining: {remainingStock}
+                  {isOutOfStock ? t('mealDetails.outOfStock') : `${t('mealDetails.inStock')} (${availableStock})`} | {t('common.remaining')}: {remainingStock}
                 </Text>
               </Flex>
             </Box>
@@ -359,7 +364,7 @@ const MealDetailsCard = ({ mealData, chefData }) => {
                     : colors.dark.textMain
                 }
               >
-                Prepared By
+                {t('mealDetails.preparedBy')}
               </Text>
               <Flex
                 align="center"
@@ -385,8 +390,8 @@ const MealDetailsCard = ({ mealData, chefData }) => {
                   }
                 >
                   <Image
-                    src={chefData.users.avatar_url || imgMeal}
-                    alt={chefData.kitchen_name || "Chef"}
+                    src={chefData?.users?.profile_img}
+                    alt={chefData?.users?.name || t('common.chef')}
                     w="100%"
                     h="100%"
                     objectFit="cover"
@@ -402,7 +407,7 @@ const MealDetailsCard = ({ mealData, chefData }) => {
                         : colors.dark.textMain
                     }
                   >
-                    {chefData.users.name || "Chef's Kitchen"}
+                    {chefData.users.name || t('common.chef')}
                   </Text>
                   <HStack gap={1} mt={1}>
                     <Icon
@@ -424,8 +429,7 @@ const MealDetailsCard = ({ mealData, chefData }) => {
                     >
                       {chefData.avg_rating
                         ? chefData.avg_rating.toFixed(1)
-                        : "N/A"}{" "}
-                      ({chefData.total_reviews || 0} Reviews)
+                        : "N/A"} ({chefData.total_reviews || 0} {t('reviews.title')})
                     </Text>
                   </HStack>
                 </Box>
@@ -461,7 +465,7 @@ const MealDetailsCard = ({ mealData, chefData }) => {
                 }}
                 transition="all 0.2s"
               >
-                Add To Cart
+                {isOutOfStock ? t('mealDetails.outOfStock') : t('cart.addToCart')}
               </Button>
 
               <Button
@@ -499,7 +503,7 @@ const MealDetailsCard = ({ mealData, chefData }) => {
                 }}
                 transition="all 0.2s"
               >
-                Buy Now
+                {t('common.buyNow')}
               </Button>
             </HStack>
           </VStack>
