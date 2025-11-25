@@ -55,7 +55,7 @@ export default function OrderSummarySection({
               colorMode == "light" ? colors.light.text : colors.dark.textMain
             }
           >
-            {subtotal.toFixed(2)} L.E
+            {subtotal} L.E
           </Text>
         </HStack>
         <HStack justify="space-between">

@@ -26,9 +26,6 @@ import { Link } from "react-router-dom";
 import {truncateText} from "../../../utils/index"
 
 const MealDetailsCard = ({ mealData, chefData }) => {
-  console.log(mealData);
-  console.log(chefData);
-  console.log(chefData.users.name);
 
   const { colorMode } = useColorMode();
   const dispatch = useDispatch();
@@ -108,7 +105,8 @@ const MealDetailsCard = ({ mealData, chefData }) => {
         cooker_id: mealData.cooker_id,
         title: mealData.title,
         description: mealData.description,
-        price: mealData.price,
+        price_for_customer: Number(mealData.price_for_customer),
+        price: Number(mealData.price_for_customer),
         available: mealData.available,
         prep_time_minutes: mealData.prep_time_minutes,
         created_at: mealData.created_at,
@@ -117,7 +115,6 @@ const MealDetailsCard = ({ mealData, chefData }) => {
         quantity: count,
         stock: mealData.stock,
       };
-      console.log(newCartItem);
       dispatch(addToCart(newCartItem));
     }
   };
