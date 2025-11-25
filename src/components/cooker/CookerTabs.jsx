@@ -3,6 +3,7 @@ import { LuHouse } from "react-icons/lu";
 import { RiFileList3Line } from "react-icons/ri";
 import { FaRegHeart } from "react-icons/fa6";
 import colors from "../../theme/color";
+import { useColorMode } from "../../theme/color-mode";
 import { useNavigate, useLocation } from "react-router-dom";
 import { MdRestaurantMenu } from "react-icons/md";
 import { FaRegStar } from "react-icons/fa";
@@ -10,6 +11,7 @@ import { FaRegStar } from "react-icons/fa";
 const CookerTabs = () => {
   const navigate = useNavigate();
   const location = useLocation();
+  const { colorMode } = useColorMode();
   const getActiveTab = () => {
     const path = location.pathname;
     if (path === "/cooker/home") return "Home";
@@ -20,8 +22,8 @@ const CookerTabs = () => {
   };
 
   return (
-    <Tabs.Root value={getActiveTab()}>
-      <Tabs.List>
+    <Tabs.Root value={getActiveTab()} position="sticky" top={{ base: 20, md: 20 }} zIndex="900" bg={colorMode === "light" ? colors.light.bgMain : colors.dark.bgMain}>
+      <Tabs.List >
         <Flex w="100%" justifyContent="center" gap={{ base: 6, md: 6 }}>
           <Tabs.Trigger
             colorPalette={"red"}

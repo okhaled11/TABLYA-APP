@@ -1,7 +1,7 @@
-import { Box, Flex, Text } from "@chakra-ui/react";
+import { Box, Flex, Text, Icon } from "@chakra-ui/react";
 import { Select, Portal, createListCollection } from "@chakra-ui/react";
 import MenuItemCard from "./MenuItemCard";
-import { FiFilter } from "react-icons/fi";
+import { FiFilter, FiInbox } from "react-icons/fi";
 import colors from "../../theme/color";
 import { useColorMode } from "../../theme/color-mode";
 import { useParams } from "react-router-dom";
@@ -46,7 +46,7 @@ const ChefMenuSection = ({ isAvailable }) => {
       overflow="hidden"
       border="none"
       mt={8}
-      maxH="60vh"
+      minH="auto"
       background={
         colorMode == "light" ? colors.light.bgThird : colors.dark.bgThird
       }
@@ -153,9 +153,23 @@ const ChefMenuSection = ({ isAvailable }) => {
             <MenuItemCard key={item.id} item={item} isAvailable={isAvailable} />
           ))
         ) : (
-          <Text mt={8} textAlign="center">
-            No available items.
-          </Text>
+          <Flex mt={8} direction="column" align="center" justify="center" py={6} gap={2}>
+            <Icon
+              as={FiInbox}
+              boxSize={10}
+              color={
+                colorMode == "light" ? colors.light.textSub : colors.dark.textSub
+              }
+            />
+            <Text
+              fontWeight="medium"
+              color={
+                colorMode == "light" ? colors.light.textSub : colors.dark.textSub
+              }
+            >
+              No available items
+            </Text>
+          </Flex>
         )}
       </ScrollAreaComponent>
     </Box>

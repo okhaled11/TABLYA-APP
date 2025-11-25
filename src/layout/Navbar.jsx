@@ -125,13 +125,11 @@ export default function Navbar() {
         .order("created_at", { ascending: false });
 
       if (error) {
-        console.error("❌ Error fetching pending orders count:", error);
         setNotificationCount(0);
         return;
       }
 
       if (!pendingOrders || pendingOrders.length === 0) {
-        console.log("📭 No pending orders found");
         setNotificationCount(0);
         return;
       }
@@ -215,7 +213,6 @@ export default function Navbar() {
       });
 
     return () => {
-      console.log("🧹 Cleaning up realtime subscription");
       supabase.removeChannel(channel);
     };
   }, [user?.id, user?.role]);
@@ -315,7 +312,7 @@ export default function Navbar() {
 
   return (
     <>
-      <Container size={"s"}>
+      <Container size={"s"} border="red">
         <Box
           bg={
             colorMode === "light" ? colors.light.bgFixed : colors.dark.bgFixed
