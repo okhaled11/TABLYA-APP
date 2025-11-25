@@ -91,6 +91,88 @@ export const CookerAcceptOrder = createApi({
         }
       },
       providesTags: ["CookerOrders"],
+      async onCacheEntryAdded(
+        arg,
+        { updateCachedData, cacheDataLoaded, cacheEntryRemoved }
+      ) {
+        let channel;
+        try {
+          await cacheDataLoaded;
+
+          const {
+            data: { user },
+          } = await supabase.auth.getUser();
+          if (!user) return;
+
+          channel = supabase
+            .channel(`cooker-orders-${user.id}`)
+            .on(
+              "postgres_changes",
+              {
+                event: "*",
+                schema: "public",
+                table: "orders",
+                filter: `cooker_id=eq.${user.id}`,
+              },
+              async (payload) => {
+                try {
+                  if (
+                    payload.eventType === "INSERT" ||
+                    payload.eventType === "UPDATE"
+                  ) {
+                    const { data: items } = await supabase
+                      .from("order_items")
+                      .select("*")
+                      .eq("order_id", payload.new.id);
+
+                    let customer = null;
+                    if (payload.new.customer_id) {
+                      const { data: customerUser } = await supabase
+                        .from("users")
+                        .select("*")
+                        .eq("id", payload.new.customer_id)
+                        .single();
+                      customer = customerUser || null;
+                    }
+
+                    const orderWithItems = {
+                      ...payload.new,
+                      order_items: items || [],
+                      customer,
+                    };
+
+                    updateCachedData((draft) => {
+                      const index = draft.findIndex(
+                        (order) => order.id === payload.new.id
+                      );
+                      if (payload.eventType === "INSERT") {
+                        if (index === -1) draft.unshift(orderWithItems);
+                      } else if (payload.eventType === "UPDATE") {
+                        if (index !== -1) draft[index] = orderWithItems;
+                        else draft.unshift(orderWithItems);
+                      }
+                    });
+                  } else if (payload.eventType === "DELETE") {
+                    updateCachedData((draft) => {
+                      const index = draft.findIndex(
+                        (order) => order.id === payload.old.id
+                      );
+                      if (index !== -1) draft.splice(index, 1);
+                    });
+                  }
+                } catch (e) {
+                  console.error("Cooker realtime handler error:", e);
+                }
+              }
+            )
+            .subscribe();
+        } catch (error) {
+          console.error("Cooker orders realtime subscription error:", error);
+        }
+
+        await cacheEntryRemoved;
+        if (channel) supabase.removeChannel(channel);
+      },
     }),
 
     // Update order status

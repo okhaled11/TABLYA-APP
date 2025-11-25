@@ -22,7 +22,9 @@ export default function CartPage() {
 
   // Calculate subtotal from cart items
   const subtotal = cartItems.reduce((total, item) => {
-    return total + item.price_for_customer * item.quantity;
+    const price = Number(item.price_for_customer ?? item.price ?? 0);
+    const qty = Number(item.quantity ?? 0);
+    return total + price * qty;
   }, 0);
 
   // Platform settings: delivery fee and free delivery threshold
