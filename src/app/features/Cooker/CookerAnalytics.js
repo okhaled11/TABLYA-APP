@@ -134,11 +134,58 @@ export const CookerAnalyticsApi = createApi({
 
                     const weeklyOrders = buildWeekBuckets(orders, targetYear, selectedMonth);
 
+                    let weeklyEarnings = [
+                        { week: "week1", earning: 0 },
+                        { week: "week2", earning: 0 },
+                        { week: "week3", earning: 0 },
+                        { week: "week4", earning: 0 },
+                    ];
+
+                    const orderIds = (orders || []).map((o) => o.id);
+                    if (orderIds.length > 0) {
+                        const orderDateMap = new Map((orders || []).map((o) => [o.id, o.created_at]));
+                        const { data: itemsRows, error: itemsError } = await supabase
+                            .from("order_items")
+                            .select(`
+                              order_id,
+                              quantity,
+                              menu_item_id,
+                              menu_items:menu_item_id (
+                                id,
+                                chef_profit
+                              )
+                            `)
+                            .in("order_id", orderIds);
+
+                        if (!itemsError && itemsRows) {
+                            const earnings = [0, 0, 0, 0];
+                            for (const it of itemsRows) {
+                                const createdAt = orderDateMap.get(it.order_id);
+                                if (!createdAt) continue;
+                                const d = new Date(createdAt);
+                                if (Number.isNaN(d.getTime())) continue;
+                                if (
+                                    d.getUTCFullYear() !== targetYear ||
+                                    d.getUTCMonth() !== selectedMonth - 1
+                                ) continue;
+                                const qty = Number(it.quantity || 0);
+                                const profitPer = Number(it?.menu_items?.chef_profit ?? 0);
+                                const weekIdx = Math.min(Math.floor((d.getUTCDate() - 1) / 7), 3);
+                                earnings[weekIdx] += qty * profitPer;
+                            }
+                            weeklyEarnings = earnings.map((val, idx) => ({
+                                week: `week${idx + 1}`,
+                                earning: Math.round(val * 100) / 100,
+                            }));
+                        }
+                    }
+
                     return {
                         data: {
                             month: selectedMonth,
                             year: targetYear,
                             weeklyOrders,
+                            weeklyEarnings,
                             totalOrders: orders?.length || 0,
                         },
                     };

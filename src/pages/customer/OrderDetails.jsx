@@ -196,6 +196,20 @@ function OrderDetails() {
   const discount = orderDetails?.discount;
   const deliveryUser = orderDetails?.delivery_user;
 
+  // Compute prep time from order items (avg and sum weighted by quantity)
+  const orderPrepTimes = (orderDetails?.order_items || [])
+    .map((it) => Number(it?.menu_items?.prep_time_minutes ?? it?.prep_time_minutes ?? 0))
+    .filter((n) => Number.isFinite(n) && n > 0);
+  const avgPrep = orderPrepTimes.length
+    ? Math.round(orderPrepTimes.reduce((a, b) => a + b, 0) / orderPrepTimes.length)
+    : null;
+  const sumPrep = (orderDetails?.order_items || []).reduce((sum, it) => {
+    const t = Number(it?.menu_items?.prep_time_minutes ?? it?.prep_time_minutes ?? 0);
+    const q = Number(it?.quantity ?? 0);
+    return sum + (Number.isFinite(t) && Number.isFinite(q) ? t * q : 0);
+  }, 0);
+  const prepText = orderPrepTimes.length ? `${avgPrep}-${Math.round(sumPrep)} min` : null;
+
   const steps = [
     {
       key: "placed",
@@ -692,7 +706,7 @@ function OrderDetails() {
                       >
                         {orderDetails?.order_delivery?.eta_minutes
                           ? `${orderDetails.order_delivery.eta_minutes} min`
-                          : "30-45 min"}
+                          : (prepText || "—")}
                       </Text>
                     </HStack>
                   </VStack>
@@ -720,7 +734,7 @@ function OrderDetails() {
                   >
                     Delivery Info
                   </Heading>
-                  {orderDetails?.status === "out_for_delivery" &&
+                  {(orderDetails?.status === "out_for_delivery" || orderDetails?.status === "delivered") &&
                   deliveryUser ? (
                     <Flex
                       align="center"

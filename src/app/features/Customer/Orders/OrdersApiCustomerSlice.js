@@ -107,7 +107,8 @@ export const OrdersApiCustomerSlice = createApi({
                     id,
                     title,
                     menu_img,
-                    price
+                    price,
+                    prep_time_minutes
                   )
                 `
                 )
@@ -179,7 +180,8 @@ export const OrdersApiCustomerSlice = createApi({
                           id,
                           title,
                           menu_img,
-                          price
+                          price,
+                          prep_time_minutes
                         )
                       `
                       )
@@ -303,6 +305,7 @@ export const OrdersApiCustomerSlice = createApi({
                 title,
                 description,
                 price,
+                prep_time_minutes,
                 menu_img,
                 category
               )
@@ -354,12 +357,14 @@ export const OrdersApiCustomerSlice = createApi({
         orderId,
         { updateCachedData, cacheDataLoaded, cacheEntryRemoved }
       ) {
-        let channel;
+        let ordersChannel;
+        let deliveryChannel;
         try {
           await cacheDataLoaded;
 
-          channel = supabase
-            .channel(`order-${orderId}`)
+          // Orders status updates
+          ordersChannel = supabase
+            .channel(`order-${orderId}-orders`)
             .on(
               "postgres_changes",
               {
@@ -368,9 +373,62 @@ export const OrdersApiCustomerSlice = createApi({
                 table: "orders",
                 filter: `id=eq.${orderId}`,
               },
+              async (payload) => {
+                try {
+                  const nextStatus = payload?.new?.status;
+                  const nextDeliveryId = payload?.new?.delivery_id;
+                  const prevDeliveryId = payload?.old?.delivery_id;
+                  const nextUpdatedAt = payload?.new?.updated_at;
+
+                  updateCachedData((draft) => {
+                    if (typeof nextStatus !== "undefined") draft.status = nextStatus;
+                    if (typeof nextDeliveryId !== "undefined") draft.delivery_id = nextDeliveryId;
+                    if (typeof nextUpdatedAt !== "undefined") draft.updated_at = nextUpdatedAt;
+                  });
+
+                  if (
+                    typeof nextDeliveryId !== "undefined" &&
+                    nextDeliveryId &&
+                    nextDeliveryId !== prevDeliveryId
+                  ) {
+                    const { data: deliveryUser, error: deliveryUserError } =
+                      await supabase
+                        .from("users")
+                        .select("id, name, avatar_url, email, phone")
+                        .eq("id", nextDeliveryId)
+                        .single();
+
+                    if (!deliveryUserError) {
+                      updateCachedData((draft) => {
+                        draft.delivery_user = deliveryUser || null;
+                      });
+                    }
+                  }
+                } catch (e) {
+                  console.error("Error handling orders realtime payload:", e);
+                }
+              }
+            )
+            .subscribe();
+
+          // Order delivery info (ETA, etc.)
+          deliveryChannel = supabase
+            .channel(`order-${orderId}-delivery`)
+            .on(
+              "postgres_changes",
+              {
+                event: "*",
+                schema: "public",
+                table: "order_delivery",
+                filter: `order_id=eq.${orderId}`,
+              },
               (payload) => {
                 updateCachedData((draft) => {
-                  if (payload.new) Object.assign(draft, payload.new);
+                  if (payload.eventType === "DELETE") {
+                    draft.order_delivery = null;
+                  } else if (payload.new) {
+                    draft.order_delivery = payload.new;
+                  }
                 });
               }
             )
@@ -380,7 +438,8 @@ export const OrdersApiCustomerSlice = createApi({
         }
 
         await cacheEntryRemoved;
-        if (channel) supabase.removeChannel(channel);
+        if (ordersChannel) supabase.removeChannel(ordersChannel);
+        if (deliveryChannel) supabase.removeChannel(deliveryChannel);
       },
     }),
 
