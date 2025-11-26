@@ -29,7 +29,7 @@ const MealDetails = () => {
     { mealId, chefId },
     { skip: !mealId || !chefId }
   );
-  console.log(mealId);
+  console.log(mealId); 
 
   return (
     <>
