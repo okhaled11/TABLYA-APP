@@ -14,7 +14,14 @@ import { Portal } from "@chakra-ui/react";
 import { FaCcVisa, FaMoneyBillWave } from "react-icons/fa";
 import StripeCheckout from "./PayPalCheckout";
 import { useTranslation } from "react-i18next";
-export default function PaymentMethodSelect({ onCheckout = () => {}, total = 0, onValidate = () => true, onCreateOrderForPayPal = null }) {
+import { useGetPlatformSettingsQuery } from "../../app/features/Admin/MariamSettings";
+import { toaster } from "../ui/toaster";
+export default function PaymentMethodSelect({
+  onCheckout = () => {},
+  total = 0,
+  onValidate = () => true,
+  onCreateOrderForPayPal = null,
+}) {
   const { colorMode } = useColorMode();
   const { t } = useTranslation();
 
@@ -30,12 +37,22 @@ export default function PaymentMethodSelect({ onCheckout = () => {}, total = 0, 
   }, [selectedCategory]);
 
   const { data: settings } = useGetPlatformSettingsQuery();
-  const minOrder = Number(settings?.minimum_order_value ?? settings?.min_order_value ?? 0);
+  const minOrder = Number(
+    settings?.minimum_order_value ?? settings?.min_order_value ?? 0
+  );
 
   const paymentMethods = createListCollection({
     items: [
-      { value: "visa", label: t('cart.creditDebitCard', 'Credit/Debit Card'), icon: <FaCcVisa /> },
-      { value: "cash", label: t('cart.cashOnDelivery', 'Cash on Delivery'), icon: <FaMoneyBillWave /> },
+      {
+        value: "visa",
+        label: t("cart.creditDebitCard", "Credit/Debit Card"),
+        icon: <FaCcVisa />,
+      },
+      {
+        value: "cash",
+        label: t("cart.cashOnDelivery", "Cash on Delivery"),
+        icon: <FaMoneyBillWave />,
+      },
     ],
   });
 
@@ -47,7 +64,7 @@ export default function PaymentMethodSelect({ onCheckout = () => {}, total = 0, 
           colorMode == "light" ? colors.light.textMain : colors.dark.textMain
         }
       >
-        {t('cart.paymentMethod', 'Payment Method')}
+        {t("cart.paymentMethod", "Payment Method")}
       </Text>
       <Box>
         <Select.Root
@@ -75,11 +92,14 @@ export default function PaymentMethodSelect({ onCheckout = () => {}, total = 0, 
               w="100%"
             >
               {/* Left Icon */}
-              {paymentMethods.items.find((i) => i.value === selectedCategory)?.icon}
+              {
+                paymentMethods.items.find((i) => i.value === selectedCategory)
+                  ?.icon
+              }
 
               {/* Selected Text */}
               <Select.ValueText
-                placeholder={t('cart.addNotes')}
+                placeholder={t("cart.addNotes")}
                 flex="1"
                 textAlign="left"
               />
@@ -118,10 +138,10 @@ export default function PaymentMethodSelect({ onCheckout = () => {}, total = 0, 
             colorMode == "light" ? colors.light.textMain : colors.dark.textMain
           }
         >
-          {t('cart.notesOptional', 'Notes (optional)')}
+          {t("cart.notesOptional", "Notes (optional)")}
         </Text>
         <Textarea
-          placeholder={t('cart.notesOptional', 'Notes (optional)')}
+          placeholder={t("cart.notesOptional", "Notes (optional)")}
           value={notes}
           onChange={(e) => setNotes(e.target.value)}
           size="sm"
@@ -146,7 +166,9 @@ export default function PaymentMethodSelect({ onCheckout = () => {}, total = 0, 
       {selectedCategory === "cash" ? (
         <Button
           bg={
-            colorMode == "light" ? colors.light.mainFixed : colors.dark.mainFixed
+            colorMode == "light"
+              ? colors.light.mainFixed
+              : colors.dark.mainFixed
           }
           size="lg"
           mt={4}
@@ -157,7 +179,9 @@ export default function PaymentMethodSelect({ onCheckout = () => {}, total = 0, 
             if (Number(total) < minOrder) {
               toaster.create({
                 title: "Minimum order value",
-                description: `You must order at least ${minOrder.toFixed(2)} L.E`,
+                description: `You must order at least ${minOrder.toFixed(
+                  2
+                )} L.E`,
                 type: "warning",
                 duration: 2500,
                 isClosable: true,
@@ -172,7 +196,7 @@ export default function PaymentMethodSelect({ onCheckout = () => {}, total = 0, 
             });
           }}
         >
-          {t('cart.checkout', 'Proceed to Checkout')}
+          {t("cart.checkout", "Proceed to Checkout")}
         </Button>
       ) : (
         <Box mt={2}>
@@ -191,7 +215,9 @@ export default function PaymentMethodSelect({ onCheckout = () => {}, total = 0, 
                 if (Number(total) < minOrder) {
                   toaster.create({
                     title: "Minimum order value",
-                    description: `You must order at least ${minOrder.toFixed(2)} L.E`,
+                    description: `You must order at least ${minOrder.toFixed(
+                      2
+                    )} L.E`,
                     type: "warning",
                     duration: 2500,
                     isClosable: true,
@@ -218,7 +244,7 @@ export default function PaymentMethodSelect({ onCheckout = () => {}, total = 0, 
                 }
               }}
             >
-              {t('cart.proceedToCheckout')}
+              {t("cart.proceedToCheckout")}
             </Button>
           ) : (
             <StripeCheckout

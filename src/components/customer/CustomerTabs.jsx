@@ -11,6 +11,7 @@ const CustomerTabs = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const location = useLocation();
+  const { colorMode } = useColorMode();
   const getActiveTab = () => {
     const path = location.pathname;
     if (path === "/home") return "Home";
