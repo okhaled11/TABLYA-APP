@@ -24,7 +24,7 @@ import { supabase } from "../../services/supabaseClient";
 import {
   useGetCustomerOrdersQuery,
   useCancelOrderMutation,
-} from "../../../app/features/customer/Orders/ordersApiCustomerSlice";
+} from "../../app/features/Customer/Orders/OrdersApiCustomerSlice";
 import { useGetCustomerOrderHistoryQuery } from "../../app/features/Customer/Orders/OrdersHistoryCustomerSlice";
 import { toaster } from "../../components/ui/toaster";
 import {
