@@ -25,7 +25,7 @@ import { personalInfoApi } from "./features/Customer/personalInfoSlice";
 import { addressApi } from "./features/Customer/addressSlice";
 import { OrdersHistoryCustomerSlice } from "./features/Customer/Orders/OrdersHistoryCustomerSlice";
 import { OrdersApiCustomerSlice } from "./features/Customer/Orders/OrdersApiCustomerSlice";
-import { ReportsApiSlice } from "./features/Customer/Reports/ReportsApiSlice";
+import { ReportsApiSlice } from "./features/Customer/Reports/reportsApiSlice";
 import { reviewsApi } from "./features/Customer/reviewsApi";
 import { UserSlice } from "./features/UserSlice";
 import { CookerAcceptOrder } from "./features/Cooker/CookerAcceptOrder";
