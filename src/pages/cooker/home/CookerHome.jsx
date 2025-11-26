@@ -2,7 +2,7 @@ import { Box, Heading } from "@chakra-ui/react";
 import colors from "../../../theme/color";
 import { useColorMode } from "../../../theme/color-mode";
 import CookerStatistics from "../../../components/cooker/CookerStatistics";
-import { CookerAnalytics } from ../../../components/Cooker/CookerAnalytics";
+import { CookerAnalytics } from "../../../components/Cooker/CookerAnalytics";
 const CookerHome = () => {
   const { colorMode } = useColorMode();
   return (
