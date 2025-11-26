@@ -137,7 +137,7 @@ const DeliveryOrders = () => {
 
   const handleRemoveOrder = (orderId) => {
     setHiddenOrderIds((prev) => [...prev, orderId]);
-    // If we removed the last order on a page, go to previous page
+    // If we removed the last order on a page, go to previous page 
     if (paginatedOrders.length === 1 && currentPage > 1) {
       setCurrentPage(currentPage - 1);
     }

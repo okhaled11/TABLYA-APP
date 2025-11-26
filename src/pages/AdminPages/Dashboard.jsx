@@ -1,7 +1,7 @@
 import React from 'react'
 import { Box, Heading, HStack, Text , Flex } from '@chakra-ui/react'
 
-import Kpis from '../../components/Admin/Dashboard_page/kpis';
+import Kpis from '../../components/Admin/Dashboard_page/Kpis';
 import RevenueChart from '../../components/Admin/Dashboard_page/RevenueChart';
 import CuisinesChart from '../../components/Admin/Dashboard_page/CuisinesChart';
 import OrderActivity from '../../components/Admin/Dashboard_page/OrderActivity';

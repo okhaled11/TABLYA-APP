@@ -6,7 +6,7 @@ import colors from "../../../theme/color";
 import { FaPlus } from "react-icons/fa";
 import { FiPlus } from "react-icons/fi";
 import CookerMenuCard from "../../../components/cooker/CookerMenuCard";
-import { useGetMyMenuItemsQuery } from "../../../app/features/cooker/CookerMenuApi";
+import { useGetMyMenuItemsQuery } from "../../../app/features/Cooker/CookerMenuApi";
 import MenuItemCardSkeleton from "../../../components/ui/MenuItemCardSkeleton";
 import { MdRestaurantMenu } from "react-icons/md";
 import AddMealModal from "../../../components/cooker/AddMealModal";
