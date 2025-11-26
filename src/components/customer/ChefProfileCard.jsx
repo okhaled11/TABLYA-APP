@@ -20,7 +20,7 @@ import { useEffect, useMemo, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { supabase } from "../../services/supabaseClient";
 import {toaster} from "../../components/ui/toaster";
-import { MdOutlineFastfood } from "react-icons/md";
+import { useTranslation } from "react-i18next";
 import {
   useAddFavoriteCookerMutation,
   useGetFavoriteCookersByCustomerQuery,
@@ -45,6 +45,8 @@ const ChefProfileCard = ({
   user_id, // optional explicit cooker user_id if provided by parent
 }) => {
   const { colorMode } = useColorMode();
+  const { t, i18n } = useTranslation();
+  const isRTL = i18n.language === 'ar';
   const dispatch = useDispatch();
   const isSmallScreen = useBreakpointValue({ base: true, md: false });
 
@@ -189,7 +191,7 @@ const ChefProfileCard = ({
                   : colors.dark.textMain
               }
             >
-              {kitchen_name || users?.name || "Chef Name"}
+              {kitchen_name || users?.name || t('chefProfile.noName')}
             </Text>
             {/* check status */}
             {is_available ? (
@@ -217,7 +219,7 @@ const ChefProfileCard = ({
                     boxShadow="0 0 12px 2px #2EB200"
                     filter="blur(0.5px)"
                   />
-                  Available Now
+                  {is_available ? t('chefProfile.available') : t('chefProfile.notAvailable')}
                 </Status.Root>
               </Badge>
             ) : (
@@ -264,47 +266,11 @@ const ChefProfileCard = ({
                 >
                   {avg_rating || 0}({total_reviews || "0"} Reviews)
                 </Text>
-                {/* <Icon
-                  as={FaPhoneAlt}
-                  color={
-                    colorMode == "light"
-                      ? colors.light.mainFixed
-                      : colors.dark.mainFixed
-                  }
-                />
-                <Text
-                  fontSize="sm"
-                  fontWeight="light"
-                  color={
-                    colorMode === "light"
-                      ? colors.light.textMain
-                      : colors.dark.textMain
-                  }
-                >
-                  {users?.phone || "no number"}
-                </Text> */}
+              
               </Flex>
 
               <Flex align="center" gap={2}>
-                <Icon
-                  as={MdOutlineFastfood }
-                  color={
-                    colorMode == "light"
-                      ? colors.light.mainFixed
-                      : colors.dark.mainFixed
-                  }
-                />
-                <Text
-                  fontSize="sm"
-                  fontWeight="light"
-                  color={
-                    colorMode === "light"
-                      ? colors.light.textMain
-                      : colors.dark.textMain
-                  }
-                >
-                  {specialty || "no specialty"}
-                </Text>
+              
                 <Icon
                   as={FaClock}
                   color={
@@ -356,46 +322,10 @@ const ChefProfileCard = ({
                 </Text>
               </Flex>
               <Flex align="center" gap={2}>
-                <Icon
-                  as={MdOutlineFastfood }
-                  fontWeight="light"
-                  color={
-                    colorMode === "light"
-                      ? colors.light.mainFixed
-                      : colors.dark.mainFixed
-                  }
-                />
-                <Text
-                  fontWeight="light"
-                  color={
-                    colorMode === "light"
-                      ? colors.light.textMain
-                      : colors.dark.textMain
-                  }
-                >
-                  {specialty || "no specialty"}
-                </Text>
+               
               </Flex>
               <Flex align="center" gap={2}>
-                {/* <Icon
-                  as={FaPhoneAlt}
-                  fontWeight="light"
-                  color={
-                    colorMode === "light"
-                      ? colors.light.mainFixed
-                      : colors.dark.mainFixed
-                  }
-                />
-                <Text
-                  fontWeight="light"
-                  color={
-                    colorMode === "light"
-                      ? colors.light.textMain
-                      : colors.dark.textMain
-                  }
-                >
-                  {users?.phone || "no number"}
-                </Text> */}
+             
               </Flex>
               <Flex align="center" gap={2}>
                 <Icon

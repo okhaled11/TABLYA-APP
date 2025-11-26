@@ -8,9 +8,12 @@ import { useGetReviewsByCookerIdQuery } from "../../app/features/Customer/review
 import ReviewCardSkeleton from "../ui/ReviewCardSkeleton";
 import { FaStar } from "react-icons/fa";
 import AvgCustomerReview from "./AvgCustomerReview";
+import { useTranslation } from "react-i18next";
 
 const CustomerReviewSection = () => {
   const { colorMode } = useColorMode();
+  const { t, i18n } = useTranslation();
+  const isRTL = i18n.language === 'ar';
   const { id } = useParams();
   const { data: reviews, isLoading } = useGetReviewsByCookerIdQuery(id);
 
@@ -37,8 +40,9 @@ const CustomerReviewSection = () => {
           color={
             colorMode === "light" ? colors.light.textMain : colors.dark.textMain
           }
+          textAlign={isRTL ? 'right' : 'left'}
         >
-          Customer Reviews
+          {t('reviews.title')}
         </Text>
       </Flex>
 
@@ -74,8 +78,8 @@ const CustomerReviewSection = () => {
             ) : reviews && reviews.length > 0 ? (
               reviews.map((item) => <ReviewCard key={item.id} {...item} />)
             ) : (
-              <Text mt={8} textAlign="center">
-                No Reviews available.
+              <Text mt={8} textAlign="center" dir={isRTL ? 'rtl' : 'ltr'}>
+                {t('reviews.noReviews')}
               </Text>
             )}
           </ScrollAreaComponent>

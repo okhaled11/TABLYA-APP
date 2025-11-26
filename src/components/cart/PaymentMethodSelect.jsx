@@ -13,10 +13,10 @@ import colors from "../../theme/color";
 import { Portal } from "@chakra-ui/react";
 import { FaCcVisa, FaMoneyBillWave } from "react-icons/fa";
 import StripeCheckout from "./PayPalCheckout";
-import { useGetPlatformSettingsQuery } from "../../app/features/Admin/MariamSettings";
-import { toaster } from "../ui/toaster";
+import { useTranslation } from "react-i18next";
 export default function PaymentMethodSelect({ onCheckout = () => {}, total = 0, onValidate = () => true, onCreateOrderForPayPal = null }) {
   const { colorMode } = useColorMode();
+  const { t } = useTranslation();
 
   const [selectedCategory, setSelectedCategory] = useState("cash");
   const [notes, setNotes] = useState("");
@@ -34,8 +34,8 @@ export default function PaymentMethodSelect({ onCheckout = () => {}, total = 0, 
 
   const paymentMethods = createListCollection({
     items: [
-      { value: "visa", label: "Credit/Debit Card", icon: <FaCcVisa /> },
-      { value: "cash", label: "Cash on Delivery", icon: <FaMoneyBillWave /> },
+      { value: "visa", label: t('cart.creditDebitCard', 'Credit/Debit Card'), icon: <FaCcVisa /> },
+      { value: "cash", label: t('cart.cashOnDelivery', 'Cash on Delivery'), icon: <FaMoneyBillWave /> },
     ],
   });
 
@@ -47,7 +47,7 @@ export default function PaymentMethodSelect({ onCheckout = () => {}, total = 0, 
           colorMode == "light" ? colors.light.textMain : colors.dark.textMain
         }
       >
-        Payment Method
+        {t('cart.paymentMethod', 'Payment Method')}
       </Text>
       <Box>
         <Select.Root
@@ -79,7 +79,7 @@ export default function PaymentMethodSelect({ onCheckout = () => {}, total = 0, 
 
               {/* Selected Text */}
               <Select.ValueText
-                placeholder="Credit/Debit Card"
+                placeholder={t('cart.addNotes')}
                 flex="1"
                 textAlign="left"
               />
@@ -118,16 +118,29 @@ export default function PaymentMethodSelect({ onCheckout = () => {}, total = 0, 
             colorMode == "light" ? colors.light.textMain : colors.dark.textMain
           }
         >
-          Notes (optional)
+          {t('cart.notesOptional', 'Notes (optional)')}
         </Text>
         <Textarea
-          placeholder="Add any instructions for the order"
+          placeholder={t('cart.notesOptional', 'Notes (optional)')}
           value={notes}
           onChange={(e) => setNotes(e.target.value)}
-          bg={colorMode == "light" ? colors.light.bgInput : colors.dark.bgInput}
-          borderRadius="12px"
-          resize="vertical"
-          minH="80px"
+          size="sm"
+          resize="none"
+          rows={3}
+          mt={2}
+          borderColor={
+            colorMode == "light" ? colors.light.border : colors.dark.border
+          }
+          _hover={{
+            borderColor:
+              colorMode == "light"
+                ? colors.light.textMain
+                : colors.dark.textMain,
+          }}
+          _focus={{
+            borderColor: colors.light.mainFixed,
+            boxShadow: `0 0 0 1px ${colors.light.mainFixed}`,
+          }}
         />
       </VStack>
       {selectedCategory === "cash" ? (
@@ -159,7 +172,7 @@ export default function PaymentMethodSelect({ onCheckout = () => {}, total = 0, 
             });
           }}
         >
-          checkout
+          {t('cart.checkout', 'Proceed to Checkout')}
         </Button>
       ) : (
         <Box mt={2}>
@@ -205,7 +218,7 @@ export default function PaymentMethodSelect({ onCheckout = () => {}, total = 0, 
                 }
               }}
             >
-              Proceed to Payment
+              {t('cart.proceedToCheckout')}
             </Button>
           ) : (
             <StripeCheckout

@@ -1,6 +1,7 @@
 import { Box, Container, SimpleGrid } from "@chakra-ui/react";
 import { useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
+import { useTranslation } from "react-i18next";
 import CartSection from "../../components/cart/CartSection";
 import OrderSummarySection from "../../components/cart/OrderSummarySection";
 import { useGetUserDataQuery } from "../../app/features/Auth/authSlice";
@@ -13,6 +14,7 @@ import { clearCart } from "../../app/features/Customer/CartSlice";
 import { useGetPlatformSettingsQuery } from "../../app/features/Admin/MariamSettings";
 
 export default function CartPage() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const { cartItems, cookerId } = useSelector((state) => state.cart);
@@ -55,8 +57,8 @@ export default function CartPage() {
     const address = user?.address?.trim?.() || "";
     if (!address) {
       toaster.create({
-        title: "Address required",
-        description: "Please add your delivery address before checkout.",
+        title: t('cart.errors.addressRequired'),
+        description: t('cart.errors.addAddressBeforeCheckout'),
         type: "warning",
         duration: 2500,
         isClosable: true,
@@ -89,8 +91,8 @@ export default function CartPage() {
         console.log("Payment status updated successfully:", result);
 
         toaster.create({
-          title: "Payment successful",
-          description: `Order #${orderId} paid successfully via PayPal`,
+          title: t('cart.messages.paymentSuccessful'),
+          description: t('cart.messages.orderPaidSuccessfully', { orderId }),
           type: "success",
           duration: 3000,
           isClosable: true,
@@ -101,8 +103,8 @@ export default function CartPage() {
       } catch (e) {
         console.error("Failed to update payment:", e);
         toaster.create({
-          title: "Failed to update payment",
-          description: e?.message || "Please contact support",
+          title: t('cart.errors.paymentUpdateFailed'),
+          description: e?.message || t('cart.errors.contactSupport'),
           type: "error",
           duration: 3000,
           isClosable: true,
@@ -130,8 +132,8 @@ export default function CartPage() {
         items: cartItems,
       }).unwrap();
       toaster.create({
-        title: "Order created",
-        description: `Order #${resp?.id || ""} created successfully`,
+        title: t('cart.messages.orderCreated'),
+        description: t('cart.messages.orderCreatedSuccessfully', { orderId: resp?.id || "" }),
         type: "success",
         duration: 3000,
         isClosable: true,
@@ -141,8 +143,8 @@ export default function CartPage() {
       navigate("/home/order");
     } catch (e) {
       toaster.create({
-        title: "Failed to create order",
-        description: e?.message || "Please try again",
+        title: t('cart.errors.orderCreationFailed'),
+        description: e?.message || t('common.pleaseTryAgain'),
         type: "error",
         duration: 3000,
         isClosable: true,
@@ -178,8 +180,8 @@ export default function CartPage() {
       return resp?.id || null;
     } catch (e) {
       toaster.create({
-        title: "Failed to create order",
-        description: e?.message || "Please try again",
+        title: t('cart.errors.orderCreationFailed'),
+        description: e?.message || t('common.pleaseTryAgain'),
         type: "error",
         duration: 3000,
         isClosable: true,

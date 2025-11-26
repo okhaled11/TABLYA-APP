@@ -11,6 +11,7 @@ import React, { useEffect, useMemo, useState } from "react";
 import colors from "../../theme/color";
 import { useColorMode } from "../../theme/color-mode";
 import { useParams } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 
 import { FaStar } from "react-icons/fa";
 import { useGetCookerByIdQuery } from "../../app/features/Customer/CookersApi";
@@ -23,6 +24,8 @@ import { supabase } from "../../services/supabaseClient";
 const AvgCustomerReview = () => {
   const dialog = useDialog();
   const { colorMode } = useColorMode();
+  const { t, i18n } = useTranslation();
+  const isRTL = i18n.language === 'ar';
   const { id } = useParams();
   const { data: cooker } = useGetCookerByIdQuery(id);
   // console.log("from rating", cooker);
@@ -165,7 +168,7 @@ const AvgCustomerReview = () => {
             dialog.setOpen(true);
           }}
         >
-          {hasReviewed ? "Update Review" : "Add Review"}
+          {hasReviewed ? t('reviews.editReview') : t('reviews.addReview')}
         </Button>
       </Box>
       <ReviewModal dialog={dialog} existingReview={existingReview} />

@@ -4,9 +4,10 @@ import { useGetUserDataQuery } from "../../app/features/Auth/authSlice";
 import { useGetAddressesQuery } from "../../app/features/Customer/addressSlice";
 import { useColorMode } from "../../theme/color-mode";
 import colors from "../../theme/color";
-import { useSelector } from "react-redux";
+import { useTranslation } from "react-i18next";
 export default function DeliveryInfoCard() {
   const { colorMode } = useColorMode();
+  const { t } = useTranslation();
   const { data: user, isLoading, isError } = useGetUserDataQuery(undefined, {
     refetchOnFocus: true,
     refetchOnReconnect: true,
@@ -47,8 +48,8 @@ export default function DeliveryInfoCard() {
       ].filter(Boolean);
       return parts.join(", ");
     })(),
-    phone: user?.phone || "No phone number provided",
-    name: user?.name || "Guest User",
+    phone: user?.phone || t('cart.noPhoneNumber'),
+    name: user?.name || t('cart.guestUser'),
   };
 
   if (isLoading) {
@@ -78,7 +79,7 @@ export default function DeliveryInfoCard() {
         bg="red.50"
         borderColor="red.100"
       >
-        <Text color="red.500">Error loading delivery information</Text>
+        <Text color="red.500">{t('cart.errorLoadingDeliveryInfo')}</Text>
       </Box>
     );
   }
@@ -105,7 +106,7 @@ export default function DeliveryInfoCard() {
                 : colors.dark.textMain
             }
           >
-            Delivery Information
+            {t('cart.deliveryInformation')}
           </Text>
         </HStack>
         <HStack>
@@ -156,7 +157,7 @@ export default function DeliveryInfoCard() {
               fontWeight="medium"
               color={colorMode == "light" ? colors.light.error : colors.dark.error}
             >
-              No address added
+              {t('cart.noAddressAdded')}
             </Text>
           )}
         </HStack>
@@ -199,7 +200,7 @@ export default function DeliveryInfoCard() {
                 : colors.dark.textMain
             }
           >
-            {prepText}
+            {t('cart.deliveryTimeEstimate')}
           </Text>
         </HStack>
       </VStack>
