@@ -178,7 +178,9 @@ function OrderDetails() {
   if (error) {
     return (
       <Box minH="100vh" p={{ base: 3, md: 8 }}>
-        <Text color="red.500">{t('order.error')}: {error}</Text>
+        <Text color="red.500">
+          {t("order.error")}: {error}
+        </Text>
       </Box>
     );
   }
@@ -187,7 +189,7 @@ function OrderDetails() {
   if (!orderDetails) {
     return (
       <Box minH="100vh" p={{ base: 3, md: 8 }}>
-        <Text>{t('order.orderNotFound')}</Text>
+        <Text>{t("order.orderNotFound")}</Text>
       </Box>
     );
   }
@@ -201,22 +203,22 @@ function OrderDetails() {
   const steps = [
     {
       key: "placed",
-      title: t('order.statusSteps.placed'),
+      title: t("order.statusSteps.placed"),
       icon: IoCheckmarkCircle,
     },
     {
       key: "cooking",
-      title: t('order.statusSteps.cooking'),
+      title: t("order.statusSteps.cooking"),
       icon: IoRestaurant,
     },
     {
       key: "out_for_delivery",
-      title: t('order.statusSteps.outForDelivery'),
+      title: t("order.statusSteps.outForDelivery"),
       icon: IoBicycle,
     },
     {
       key: "delivered",
-      title: t('order.statusSteps.delivered'),
+      title: t("order.statusSteps.delivered"),
       icon: IoHome,
     },
   ];
@@ -248,7 +250,7 @@ function OrderDetails() {
             />
           </Button>
           <Heading as="h1" size={{ base: "xl", md: "2xl" }}>
-            {t('order.orderTracking')}
+            {t("order.orderTracking")}
           </Heading>
         </Flex>
 
@@ -269,12 +271,12 @@ function OrderDetails() {
             mb={{ base: 4, md: 8 }}
           >
             {new Date(orderDetails.created_at).toLocaleDateString()}{" "}
-            {t('common.at')}{" "}
+            {t("common.at")}{" "}
             {new Date(orderDetails.created_at).toLocaleTimeString(undefined, {
               hour: "2-digit",
               minute: "2-digit",
             })}{" "}
-            | {t('order.orderId')}: {orderDetails.id.slice(0, 8).toUpperCase()}
+            | {t("order.orderId")}: {orderDetails.id.slice(0, 8).toUpperCase()}
           </Text>
 
           {/* Status Tracker - Always Horizontal */}
@@ -474,13 +476,13 @@ function OrderDetails() {
                             color="gray.400"
                             fontSize={{ base: "xs", md: "sm" }}
                           >
-                            {t('order.price')}:{" "}
+                            {t("order.price")}:{" "}
                             {(
                               item.price_at_order ||
                               item.menu_items?.price ||
                               0
                             ).toFixed(2)}{" "}
-                            {t('common.currency')}
+                            {t("common.currency")}
                           </Text>
                         </Box>
                         <Text
@@ -525,7 +527,7 @@ function OrderDetails() {
                     }
                     mb={{ base: 3, md: 4 }}
                   >
-                    {t('order.billDetails')}
+                    {t("order.billDetails")}
                   </Heading>
                   <VStack gap={2} align="stretch">
                     <Flex justify="space-between" color="gray.300">
@@ -536,7 +538,7 @@ function OrderDetails() {
                             : colors.dark.textSub
                         }
                       >
-                        {t('order.subtotal')}
+                        {t("order.subtotal")}
                       </Text>
                       <Text
                         color={
@@ -545,7 +547,7 @@ function OrderDetails() {
                             : colors.dark.textMain
                         }
                       >
-                        {subtotal?.toFixed(2)} {t('common.currency')}
+                        {subtotal?.toFixed(2)} {t("common.currency")}
                       </Text>
                     </Flex>
 
@@ -557,7 +559,7 @@ function OrderDetails() {
                             : colors.dark.textSub
                         }
                       >
-                        {t('order.deliveryFee')}
+                        {t("order.deliveryFee")}
                       </Text>
                       <Text
                         color={
@@ -566,7 +568,7 @@ function OrderDetails() {
                             : colors.dark.textMain
                         }
                       >
-                        {deliveryFee?.toFixed(2)} {t('common.currency')}
+                        {deliveryFee?.toFixed(2)} {t("common.currency")}
                       </Text>
                     </Flex>
 
@@ -578,7 +580,7 @@ function OrderDetails() {
                             : colors.dark.textSub
                         }
                       >
-                        {t('order.discount')}
+                        {t("order.discount")}
                       </Text>
                       <Text
                         color={
@@ -587,14 +589,14 @@ function OrderDetails() {
                             : colors.dark.error
                         }
                       >
-                        {discount?.toFixed(2)} {t('common.currency')}
+                        {discount?.toFixed(2)} {t("common.currency")}
                       </Text>
                     </Flex>
 
                     <Box borderTop="1px" borderColor="gray.600" my={3} />
 
-                    <Flex 
-                      justify="space-between" 
+                    <Flex
+                      justify="space-between"
                       color={
                         colorMode === "light"
                           ? colors.light.mainFixed
@@ -603,8 +605,10 @@ function OrderDetails() {
                       fontSize="xl"
                       fontWeight="bold"
                     >
-                      <Text>{t('order.total')}</Text>
-                      <Text>{total?.toFixed(2)} {t('common.currency')}</Text>
+                      <Text>{t("order.total")}</Text>
+                      <Text>
+                        {total?.toFixed(2)} {t("common.currency")}
+                      </Text>
                     </Flex>
 
                     <Box mt={4}>
@@ -616,7 +620,7 @@ function OrderDetails() {
                         }
                         mb={2}
                       >
-                        {t('order.notes')}
+                        {t("order.notes")}
                       </Text>
                       <Text
                         color={
@@ -626,7 +630,7 @@ function OrderDetails() {
                         }
                         fontStyle={orderDetails.notes ? "normal" : "italic"}
                       >
-                        {orderDetails.notes || t('order.noNotes')}
+                        {orderDetails.notes || t("order.noNotes")}
                       </Text>
                     </Box>
                   </VStack>
@@ -652,7 +656,7 @@ function OrderDetails() {
                     }
                     mb={{ base: 3, md: 4 }}
                   >
-                    {t('order.deliveryInfo')}
+                    {t("order.deliveryInfo")}
                   </Heading>
                   <VStack gap={2} align="stretch">
                     <HStack gap={3}>
@@ -674,7 +678,10 @@ function OrderDetails() {
                         }
                         fontWeight="light"
                       >
-                        <Text>{orderDetails?.customer?.address || t('common.notAvailable')}</Text>
+                        <Text>
+                          {orderDetails?.customer?.address ||
+                            t("common.notAvailable")}
+                        </Text>
                       </Text>
                     </HStack>
                     <HStack gap={3}>
@@ -696,7 +703,10 @@ function OrderDetails() {
                         }
                         fontWeight="light"
                       >
-                        <Text>{orderDetails?.customer?.phone || t('common.notAvailable')}</Text>
+                        <Text>
+                          {orderDetails?.customer?.phone ||
+                            t("common.notAvailable")}
+                        </Text>
                       </Text>
                     </HStack>
                     <HStack gap={3}>
@@ -719,8 +729,10 @@ function OrderDetails() {
                         fontWeight="light"
                       >
                         {orderDetails?.order_delivery?.eta_minutes
-            ? `${orderDetails.order_delivery.eta_minutes} ${t('common.minutes')}`
-            : t('order.estimatedDeliveryTime')}
+                          ? `${orderDetails.order_delivery.eta_minutes} ${t(
+                              "common.minutes"
+                            )}`
+                          : t("order.estimatedDeliveryTime")}
                       </Text>
                     </HStack>
                   </VStack>
@@ -746,7 +758,7 @@ function OrderDetails() {
                     }
                     mb={{ base: 3, md: 4 }}
                   >
-                    {t('order.deliveryPartner')}
+                    {t("order.deliveryPartner")}
                   </Heading>
                   {orderDetails?.status === "out_for_delivery" &&
                   deliveryUser ? (
@@ -799,7 +811,7 @@ function OrderDetails() {
                           noOfLines={1}
                           fontWeight="light"
                         >
-                          {deliveryUser?.name || "Delivery Partner"}
+                          {deliveryUser?.name || t("order.deliveryPartner")}
                         </Heading>
                         <HStack
                           gap={{ base: 1, md: 2 }}
@@ -838,7 +850,7 @@ function OrderDetails() {
                                   : colors.dark.textSub
                               }
                             >
-                              N/A
+                              {t("common.notAvailable")}
                             </Text>
                           )}
                         </HStack>
@@ -875,7 +887,7 @@ function OrderDetails() {
                               : colors.dark.textMain
                           }
                         >
-                          No delivery assigned yet
+                          {t("order.noDeliveryAssigned")}
                         </Text>
                         <Text
                           fontSize="sm"
@@ -885,8 +897,7 @@ function OrderDetails() {
                               : colors.dark.textSub
                           }
                         >
-                          You'll see your delivery partner here once your order
-                          is on the way.
+                          {t("order.deliveryOnTheWay")}
                         </Text>
                       </Box>
                     </Flex>
@@ -900,7 +911,7 @@ function OrderDetails() {
                     size={{ base: "md", md: "xl" }}
                     mb={{ base: 3, md: 6 }}
                   >
-                    Cooker Information
+                    {t("order.cookerInfo")}
                   </Heading>
                   <Flex
                     align="center"
@@ -948,7 +959,7 @@ function OrderDetails() {
                       >
                         {orderDetails?.cooker?.kitchen_name ||
                           orderDetails?.cooker?.users?.name ||
-                          "N/A"}
+                          t("common.notAvailable")}
                       </Heading>
                       <HStack
                         gap={{ base: 1, md: 2 }}
@@ -961,7 +972,7 @@ function OrderDetails() {
                         />
                         <Text fontWeight="bold" color="orange.400">
                           {orderDetails?.cooker?.avg_rating?.toFixed(1) ||
-                            "N/A"}
+                            t("common.notAvailable")}
                         </Text>
                         <Text
                           color={

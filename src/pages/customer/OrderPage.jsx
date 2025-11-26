@@ -40,7 +40,7 @@ import {
 
 const OrderPage = () => {
   const { t } = useTranslation();
-  
+
   /* --------------------data login id as sub---------------------- */
   const token = CookieService.get("access_token");
   const { data: userData } = useGetUserDataQuery(undefined, {
@@ -289,7 +289,7 @@ const OrderPage = () => {
 
                 // Show success message
                 toaster.create({
-                  title: "Stock Updated",
+                  title: t("order.stockUpdated"),
                   description:
                     "Order confirmed and stock has been reduced automatically!",
                   type: "success",
@@ -402,15 +402,15 @@ const OrderPage = () => {
       console.log("🚀 Calling cancelOrder mutation with:", { orderId });
       await cancelOrder({ orderId }).unwrap();
       toaster.create({
-        title: "Order Cancelled",
-        description: "Your order has been cancelled successfully.",
+        title: t("order.orderCancelled"),
+        description: t("order.orderCancelledMessage"),
         type: "success",
         duration: 3000,
       });
     } catch (error) {
       toaster.create({
-        title: "Error",
-        description: error.message || "Failed to cancel order",
+        title: t("order.error"),
+        description: error.message || t("order.failedToCancelOrder"),
         type: "error",
         duration: 3000,
       });
@@ -433,9 +433,8 @@ const OrderPage = () => {
   const handleSendReport = async () => {
     if (!reportReason || !reportDetails) {
       toaster.create({
-        title: "Missing Information",
-        description:
-          "Please select a complaint category and provide a description.",
+        title: t("order.missingInfo"),
+        description: t("order.selectCategoryAndDescription"),
         type: "warning",
         duration: 3000,
       });
@@ -453,27 +452,24 @@ const OrderPage = () => {
       });
       if (res && !res.error) {
         toaster.create({
-          title: "Report Submitted Successfully",
-          description:
-            "Your report has been sent to our team for review. We'll investigate the issue promptly.",
+          title: t("order.reportSubmittedSuccess"),
+          description: t("order.reportSubmittedMessage"),
           type: "success",
           duration: 5000,
         });
         closeReportModal();
       } else {
         toaster.create({
-          title: "Failed to Submit Report",
-          description:
-            res.error || "Something went wrong. Please try again later.",
+          title: t("order.failedToSubmit"),
+          description: res.error || t("order.somethingWentWrong"),
           type: "error",
           duration: 4000,
         });
       }
     } catch (e) {
       toaster.create({
-        title: "Unexpected Error",
-        description:
-          "Something went wrong while sending your report. Please try again.",
+        title: t("order.unexpectedError"),
+        description: t("order.errorSendingReport"),
         type: "error",
         duration: 4000,
       });
@@ -535,7 +531,7 @@ const OrderPage = () => {
                 }
                 mt={{ base: 2, sm: 0 }}
               >
-                {t('order.total')}: {total} LE
+                {t("order.total")}: {total} {t("common.currency")}
               </Text>
             </Flex>
 
@@ -593,7 +589,9 @@ const OrderPage = () => {
                         fontSize={{ base: "12px", md: "14px" }}
                         color={colors.light.textSub}
                       >
-                        {t('order.price')}: {item.price_at_order || item.menu_items?.price} LE
+                        {t("order.price")}:{" "}
+                        {item.price_at_order || item.menu_items?.price}{" "}
+                        {t("common.currency")}
                       </Text>
                     </Box>
                     <Text
@@ -646,7 +644,7 @@ const OrderPage = () => {
                       : colors.dark.mainFixedActive,
                 }}
               >
-                {t('order.orderDetails')}
+                {t("order.orderDetails")}
               </Button>
             </Flex>
           </Box>
@@ -702,13 +700,13 @@ const OrderPage = () => {
                       : colors.dark.textMain
                   }
                 >
-                  {t('order.waitForConfirmation')}
+                  {t("order.waitForConfirmation")}
                 </Text>
 
                 <Button
                   onClick={() => handleCancelOrder(id)}
                   isLoading={cancelLoading}
-                  loadingText={t('order.cancelling')}
+                  loadingText={t("order.cancelling")}
                   variant="solid"
                   bg={
                     colorMode === "light"
@@ -736,7 +734,7 @@ const OrderPage = () => {
                     transform: "translateY(0px)",
                   }}
                 >
-                  {t('order.cancelOrder')}
+                  {t("order.cancelOrder")}
                 </Button>
               </VStack>
             </Box>
@@ -750,7 +748,7 @@ const OrderPage = () => {
     <>
       <Box>
         <Text fontSize={{ base: "20px", md: "40px" }} fontWeight={"700"} my={6}>
-          {t('order.activeOrderNow')}
+          {t("order.activeOrderNow")}
         </Text>
         {ordersLoading ? (
           <>
@@ -786,7 +784,7 @@ const OrderPage = () => {
                 fontSize={{ base: "16px", md: "20px" }}
                 color={colors.light.textSub}
               >
-                {t('order.noActiveOrdersMessage')}
+                {t("order.noActiveOrdersMessage")}
               </Text>
             </VStack>
           </Box>
@@ -896,7 +894,7 @@ const OrderPage = () => {
 
       <Box>
         <Text fontSize={{ base: "20px", md: "40px" }} fontWeight={"700"}>
-          {t('order.orderHistory')}
+          {t("order.orderHistory")}
         </Text>
         {orderHistoryLoading ? (
           <>
@@ -954,7 +952,8 @@ const OrderPage = () => {
                           : colors.dark.textMain
                       }
                     >
-                      {t('order.total')}: {orderDetails?.total || 0} LE
+                      {t("order.total")}: {orderDetails?.total || 0}{" "}
+                      {t("common.currency")}
                     </Text>
                   </Box>
                 </Flex>
@@ -1013,8 +1012,9 @@ const OrderPage = () => {
                               fontSize={{ base: "11px", md: "13px" }}
                               color={colors.light.textSub}
                             >
-                              Price:{" "}
-                              {item.price_at_order || item.menu_items?.price} LE
+                              {t("order.price")}:{" "}
+                              {item.price_at_order || item.menu_items?.price}{" "}
+                              {t("common.currency")}
                             </Text>
                           </Box>
                           <Text
@@ -1046,28 +1046,36 @@ const OrderPage = () => {
 
                 <Flex direction="column" gap={2}>
                   <Flex justify="space-between">
-                    <Text color={colors.light.textSub}>{t('order.subtotal')}:</Text>
+                    <Text color={colors.light.textSub}>
+                      {t("order.subtotal")}:
+                    </Text>
                     <Text fontWeight={500}>
-                      {orderDetails?.subtotal || 0} LE
+                      {orderDetails?.subtotal || 0} {t("common.currency")}
                     </Text>
                   </Flex>
                   <Flex justify="space-between">
-                    <Text color={colors.light.textSub}>{t('order.deliveryFee')}:</Text>
+                    <Text color={colors.light.textSub}>
+                      {t("order.deliveryFee")}:
+                    </Text>
                     <Text fontWeight={500}>
-                      {orderDetails?.delivery_fee || 0} LE
+                      {orderDetails?.delivery_fee || 0} {t("common.currency")}
                     </Text>
                   </Flex>
                   {orderDetails?.discount > 0 && (
                     <Flex justify="space-between">
-                      <Text color={colors.light.textSub}>{t('order.discount')}:</Text>
+                      <Text color={colors.light.textSub}>
+                        {t("order.discount")}:
+                      </Text>
                       <Text fontWeight={500} color="green.500">
-                        -{orderDetails?.discount} LE
+                        -{orderDetails?.discount} {t("common.currency")}
                       </Text>
                     </Flex>
                   )}
                   {orderDetails?.notes && (
                     <Flex direction="column" mt={2}>
-                      <Text color={colors.light.textSub}>{t('order.notes')}:</Text>
+                      <Text color={colors.light.textSub}>
+                        {t("order.notes")}:
+                      </Text>
                       <Text fontWeight={400}>{orderDetails.notes}</Text>
                     </Flex>
                   )}
@@ -1103,7 +1111,7 @@ const OrderPage = () => {
                           colorMode === "light" ? "red.600" : "red.300",
                       }}
                     >
-                      Report
+                      {t("order.reportProblem")}
                     </Button>
                   </Flex>
                 )}
@@ -1114,7 +1122,7 @@ const OrderPage = () => {
                       color={colorMode === "light" ? "green.600" : "green.400"}
                       fontWeight={500}
                     >
-                      ✓ {t('order.reportSubmitted')}
+                      ✓ {t("order.reportSubmitted")}
                     </Text>
                   </Flex>
                 )}
@@ -1148,7 +1156,7 @@ const OrderPage = () => {
                 fontSize={{ base: "16px", md: "20px" }}
                 color={colors.light.textSub}
               >
-                {t('order.noOrders')}
+                {t("order.noOrders")}
               </Text>
             </VStack>
           </Box>
@@ -1295,7 +1303,7 @@ const OrderPage = () => {
                     : colors.dark.textMain
                 }
               >
-                {t('order.reportProblem')}
+                {t("order.reportProblem")}
               </Text>
               <Text
                 fontSize={{ base: "14px", md: "14px" }}
@@ -1306,19 +1314,19 @@ const OrderPage = () => {
                     : colors.dark.textSub
                 }
               >
-                {t('order.reportDescription')}
+                {t("order.reportDescription")}
               </Text>
             </Flex>
             <hr margin />
             <VStack align="stretch" marginTop={4} gap={4}>
               <Box>
                 <Text mb={2} color={colors.light.textSub}>
-                  {t('order.complaintTitle')}
+                  {t("order.complaintTitle")}
                 </Text>
                 <Box
                   as="input"
                   type="text"
-                  placeholder={t('order.complaintTitlePlaceholder')}
+                  placeholder={t("order.complaintTitlePlaceholder")}
                   value={reportTitle}
                   onChange={(e) => setReportTitle(e.target.value)}
                   bg={
@@ -1345,7 +1353,7 @@ const OrderPage = () => {
               </Box>
               <Box>
                 <Text mb={2} color={colors.light.textSub}>
-                  {t('order.complaintCategory')}
+                  {t("order.complaintCategory")}
                 </Text>
                 <Box
                   as="select"
@@ -1390,19 +1398,23 @@ const OrderPage = () => {
                     },
                   }}
                 >
-                  <option value="">{t('order.selectCategory')}</option>
-                  <option value="food_problem">{t('order.foodIssue')}</option>
-                  <option value="delivery_problem">{t('order.deliveryIssue')}</option>
-                  <option value="money_problem">{t('order.paymentIssue')}</option>
+                  <option value="">{t("order.selectCategory")}</option>
+                  <option value="food_problem">{t("order.foodIssue")}</option>
+                  <option value="delivery_problem">
+                    {t("order.deliveryIssue")}
+                  </option>
+                  <option value="money_problem">
+                    {t("order.paymentIssue")}
+                  </option>
                 </Box>
               </Box>
               <Box>
                 <Text mb={2} color={colors.light.textSub}>
-                  {t('order.complaintDetails')}
+                  {t("order.complaintDetails")}
                 </Text>
                 <Box
                   as="textarea"
-                  placeholder={t('order.complaintDetailsPlaceholder')}
+                  placeholder={t("order.complaintDetailsPlaceholder")}
                   value={reportDetails}
                   onChange={(e) => setReportDetails(e.target.value)}
                   rows={5}
@@ -1449,7 +1461,7 @@ const OrderPage = () => {
                       : colors.dark.mainFixedActive,
                 }}
               >
-                {t('order.sendReport')}
+                {t("order.sendReport")}
               </Button>
               <Button
                 variant="outline"
@@ -1458,7 +1470,7 @@ const OrderPage = () => {
                 rounded="xl"
                 onClick={closeReportModal}
               >
-                Cancel
+                {t("common.cancel")}
               </Button>
             </HStack>
           </Box>

@@ -242,6 +242,7 @@
     "currency": "LE",
     "at": "at",
     "cancel": "Cancel",
+    "notAvailable": "Not Available",
     "readMore": "Read More",
     "readLess": "Read Less",
     "errorLoading": "Error loading data",
@@ -434,6 +435,8 @@
     "noNotes": "No notes provided",
     "deliveryInfo": "Delivery Information",
     "orderTracking": "Order Tracking",
+    "estimatedDeliveryTime": "Estimated Delivery Time",
+    "cookerInfo": "Chef Information",
     "statusSteps": {
       "placed": "Order Placed",
       "cooking": "Cooking",
@@ -468,6 +471,7 @@
       "delivered": "Delivered"
     },
     "reportProblem": "Report a Problem",
+    "reportDescription": "Please describe the issue you encountered with this order.",
     "complaintTitle": "Complaint Title",
     "complaintTitlePlaceholder": "Brief description of the issue",
     "complaintCategory": "Complaint Category",
@@ -501,6 +505,7 @@
     "errorSendingReport": "Something went wrong while sending your report. Please try again.",
     "sendReport": "Send Report",
     "orderCancelled": "Order Cancelled",
+    "stockUpdated": "Stock Updated",
     "orderCancelledMessage": "Your order has been cancelled successfully.",
     "error": "Error",
     "failedToCancelOrder": "Failed to cancel order"
