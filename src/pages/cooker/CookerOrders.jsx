@@ -840,7 +840,7 @@ const CookerOrders = () => {
         cancelTxt={"No, go back"}
         okTxt={"Yes, cancel it"}
         onOkHandler={() => handleDeleteOrder(deleteId)}
-      />
+      /> 
     </>
   );
 };
