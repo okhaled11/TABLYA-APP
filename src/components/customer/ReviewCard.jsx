@@ -4,8 +4,11 @@ import { useColorMode } from "../../theme/color-mode";
 import colors from "../../theme/color";
 import { formatDate } from "../../utils";
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 
 const ReviewCard = ({ rating = 0, comment, updated_at, customers }) => {
+  const { t, i18n } = useTranslation();
+  const isRTL = i18n.language === 'ar';
   const { colorMode } = useColorMode();
   const [isExpanded, setIsExpanded] = useState(false);
   const MAX_LENGTH = 75; // Maximum characters before showing "Read More"
@@ -27,6 +30,10 @@ const ReviewCard = ({ rating = 0, comment, updated_at, customers }) => {
     if (isExpanded) return comment;
     return comment.substring(0, MAX_LENGTH) + "...";
   };
+  
+  const formattedDate = isRTL 
+    ? `${year} ${t(`months.${month.toLowerCase()}`, { month })} ${day}`
+    : `${day} ${month} ${year}`;
   return (
     <Card.Root
       direction="column"
@@ -61,7 +68,7 @@ const ReviewCard = ({ rating = 0, comment, updated_at, customers }) => {
             h="auto"
             _hover={{ textDecoration: "underline" }}
           >
-            {isExpanded ? "Read Less" : "Read More"}
+            {isExpanded ? t('common.readLess') : t('common.readMore')}
           </Button>
         )}
       </Box>
@@ -88,7 +95,7 @@ const ReviewCard = ({ rating = 0, comment, updated_at, customers }) => {
               }
             />
           </Avatar.Root>
-          <Flex direction="column" alignItems="flex-start">
+          <Flex direction="column" alignItems={isRTL ? 'flex-end' : 'flex-start'} textAlign={isRTL ? 'right' : 'left'}>
             <Text
               fontSize="sm"
               fontWeight="medium"
@@ -98,7 +105,7 @@ const ReviewCard = ({ rating = 0, comment, updated_at, customers }) => {
                   : colors.dark.textMain
               }
             >
-              {customers?.user?.name}
+              {customers?.user?.name || t('reviews.anonymous')}
             </Text>
 
             <Text
@@ -110,7 +117,7 @@ const ReviewCard = ({ rating = 0, comment, updated_at, customers }) => {
                   : colors.dark.textSub
               }
             >
-              {day}/{month}/{year}
+              {formattedDate}
             </Text>
           </Flex>
         </Flex>

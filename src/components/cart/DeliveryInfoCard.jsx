@@ -2,11 +2,18 @@ import { Box, VStack, HStack, Text, Icon, Skeleton } from "@chakra-ui/react";
 import { FiMapPin, FiClock, FiPhone, FiUser } from "react-icons/fi";
 import { useGetUserDataQuery } from "../../app/features/Auth/authSlice";
 import { useGetAddressesQuery } from "../../app/features/Customer/addressSlice";
+import { useSelector } from "react-redux";
 import { useColorMode } from "../../theme/color-mode";
 import colors from "../../theme/color";
+import { useTranslation } from "react-i18next";
 export default function DeliveryInfoCard() {
   const { colorMode } = useColorMode();
-  const { data: user, isLoading, isError } = useGetUserDataQuery(undefined, {
+  const { t } = useTranslation();
+  const {
+    data: user,
+    isLoading,
+    isError,
+  } = useGetUserDataQuery(undefined, {
     refetchOnFocus: true,
     refetchOnReconnect: true,
   });
@@ -14,7 +21,23 @@ export default function DeliveryInfoCard() {
     refetchOnFocus: true,
     refetchOnReconnect: true,
   });
-  console.log ("from deleviery",user)
+  console.log("from deleviery", user);
+
+  const cartItems = useSelector((state) => state.cart.cartItems);
+  const prepTimes = (cartItems || [])
+    .map((it) => Number(it?.prep_time_minutes ?? 0))
+    .filter((n) => Number.isFinite(n) && n > 0);
+  const avgPrep = prepTimes.length
+    ? Math.round(prepTimes.reduce((a, b) => a + b, 0) / prepTimes.length)
+    : null;
+  const sumPrep = (cartItems || []).reduce((sum, it) => {
+    const t = Number(it?.prep_time_minutes ?? 0);
+    const q = Number(it?.quantity ?? 0);
+    return sum + (Number.isFinite(t) && Number.isFinite(q) ? t * q : 0);
+  }, 0);
+  const prepText = prepTimes.length
+    ? `${avgPrep}-${Math.round(sumPrep)} min`
+    : "—";
 
   // Default values in case user data is not available
   const deliveryInfo = {
@@ -32,8 +55,8 @@ export default function DeliveryInfoCard() {
       ].filter(Boolean);
       return parts.join(", ");
     })(),
-    phone: user?.phone || "No phone number provided",
-    name: user?.name || "Guest User",
+    phone: user?.phone || t("cart.noPhoneNumber"),
+    name: user?.name || t("cart.guestUser"),
   };
 
   if (isLoading) {
@@ -63,7 +86,7 @@ export default function DeliveryInfoCard() {
         bg="red.50"
         borderColor="red.100"
       >
-        <Text color="red.500">Error loading delivery information</Text>
+        <Text color="red.500">{t("cart.errorLoadingDeliveryInfo")}</Text>
       </Box>
     );
   }
@@ -90,7 +113,7 @@ export default function DeliveryInfoCard() {
                 : colors.dark.textMain
             }
           >
-            Delivery Information
+            {t("cart.deliveryInformation")}
           </Text>
         </HStack>
         <HStack>
@@ -139,9 +162,11 @@ export default function DeliveryInfoCard() {
             <Text
               fontSize="sm"
               fontWeight="medium"
-              color={colorMode == "light" ? colors.light.error : colors.dark.error}
+              color={
+                colorMode == "light" ? colors.light.error : colors.dark.error
+              }
             >
-              No address added
+              {t("cart.noAddressAdded")}
             </Text>
           )}
         </HStack>
@@ -184,7 +209,7 @@ export default function DeliveryInfoCard() {
                 : colors.dark.textMain
             }
           >
-            30-45 min
+            {t("cart.deliveryTimeEstimate")}
           </Text>
         </HStack>
       </VStack>

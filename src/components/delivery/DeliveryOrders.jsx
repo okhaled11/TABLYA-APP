@@ -19,7 +19,7 @@ import testColor from "../../theme/color";
 import { IoCheckmarkDoneSharp, IoPerson } from "react-icons/io5";
 import {  FaLocationDot } from "react-icons/fa6";
 import { FaPhone } from "react-icons/fa6";
-import { BsFillCreditCardFill } from "react-icons/bs";
+import { BsFillCreditCardFill, BsBoxSeam } from "react-icons/bs";
 import srcLoadingImg from "../../assets/Transparent Version.gif";
 import {
   useGetOrdersForDeliveryCityQuery,
@@ -266,16 +266,57 @@ const DeliveryOrders = () => {
           )}
 
           {!orders || filteredOrders.length === 0 ? (
-            <Text
-              color={
-                colorMode === "light"
-                  ? colors.light.textSub
-                  : colors.dark.textSub
+            <Box
+              bg={
+                colorMode === "light" ? colors.light.bgThird : colors.dark.bgThird
               }
-              fontSize={{ base: "14px", md: "15px" }}
+              rounded="20px"
+              p={{ base: 6, md: 8 }}
+              my={4}
+              textAlign="center"
             >
-              No orders available in your city
-            </Text>
+              <Flex direction="column" align="center" gap={3}>
+                <Box
+                  p={3}
+                  rounded="full"
+                  bg={
+                    colorMode === "light"
+                      ? colors.light.warning10a
+                      : colors.dark.warning10a
+                  }
+                >
+                  <BsBoxSeam
+                    size={40}
+                    color={
+                      colorMode === "light"
+                        ? colors.light.mainFixed
+                        : colors.dark.mainFixed
+                    }
+                  />
+                </Box>
+                <Text
+                  fontSize={{ base: "16px", md: "18px" }}
+                  color={
+                    colorMode === "light"
+                      ? colors.light.textSub
+                      : colors.dark.textSub
+                  }
+                >
+                  No orders available in your city
+                </Text>
+                <Text
+                  fontSize={{ base: "12px", md: "14px" }}
+                  color={
+                    colorMode === "light"
+                      ? colors.light.textSub
+                      : colors.dark.textSub
+                  }
+                  opacity={0.8}
+                >
+                  New orders will appear here automatically.
+                </Text>
+              </Flex>
+            </Box>
           ) : (
             paginatedOrders.map((order) => {
               const dt = new Date(order.created_at);
@@ -320,7 +361,7 @@ const DeliveryOrders = () => {
                       {order.id.slice(0, 8).toUpperCase()}
                     </Text>
                     <Text
-                      color={colors.mainFixed}
+                      color={colors.light.mainFixed}
                       fontSize={{ base: "20px", md: "24px" }}
                       fontWeight="bold"
                     >

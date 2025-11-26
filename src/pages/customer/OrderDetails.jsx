@@ -32,6 +32,7 @@ import {
 import { motion, AnimatePresence } from "framer-motion";
 import { useColorMode } from "../../theme/color-mode";
 import colors from "../../theme/color";
+import { useTranslation } from "react-i18next";
 import imgChef from "../../assets/image 17.png";
 import { useNavigate, useParams } from "react-router-dom";
 import { useGetOrderDetailsQuery } from "../../app/features/Customer/Orders/ordersApiCustomerSlice";
@@ -42,6 +43,7 @@ function OrderDetails() {
   const { colorMode } = useColorMode();
   const [currentStep, setCurrentStep] = useState(1);
   const navigate = useNavigate();
+  const { t } = useTranslation();
 
   /* ----------------------DATA FETCHING------------------ */
   const {
@@ -176,7 +178,9 @@ function OrderDetails() {
   if (error) {
     return (
       <Box minH="100vh" p={{ base: 3, md: 8 }}>
-        <Text color="red.500">Error loading order: {error}</Text>
+        <Text color="red.500">
+          {t("order.error")}: {error}
+        </Text>
       </Box>
     );
   }
@@ -185,7 +189,7 @@ function OrderDetails() {
   if (!orderDetails) {
     return (
       <Box minH="100vh" p={{ base: 3, md: 8 }}>
-        <Text>Order not found</Text>
+        <Text>{t("order.orderNotFound")}</Text>
       </Box>
     );
   }
@@ -196,25 +200,39 @@ function OrderDetails() {
   const discount = orderDetails?.discount;
   const deliveryUser = orderDetails?.delivery_user;
 
+  // Compute prep time from order items (avg and sum weighted by quantity)
+  const orderPrepTimes = (orderDetails?.order_items || [])
+    .map((it) => Number(it?.menu_items?.prep_time_minutes ?? it?.prep_time_minutes ?? 0))
+    .filter((n) => Number.isFinite(n) && n > 0);
+  const avgPrep = orderPrepTimes.length
+    ? Math.round(orderPrepTimes.reduce((a, b) => a + b, 0) / orderPrepTimes.length)
+    : null;
+  const sumPrep = (orderDetails?.order_items || []).reduce((sum, it) => {
+    const t = Number(it?.menu_items?.prep_time_minutes ?? it?.prep_time_minutes ?? 0);
+    const q = Number(it?.quantity ?? 0);
+    return sum + (Number.isFinite(t) && Number.isFinite(q) ? t * q : 0);
+  }, 0);
+  const prepText = orderPrepTimes.length ? `${avgPrep}-${Math.round(sumPrep)} min` : null;
+
   const steps = [
     {
       key: "placed",
-      title: "Confirmed",
+      title: t("order.statusSteps.placed"),
       icon: IoCheckmarkCircle,
     },
     {
       key: "cooking",
-      title: "Preparing",
+      title: t("order.statusSteps.cooking"),
       icon: IoRestaurant,
     },
     {
       key: "out_for_delivery",
-      title: "Out for Delivery",
+      title: t("order.statusSteps.outForDelivery"),
       icon: IoBicycle,
     },
     {
       key: "delivered",
-      title: "Delivered",
+      title: t("order.statusSteps.delivered"),
       icon: IoHome,
     },
   ];
@@ -246,7 +264,7 @@ function OrderDetails() {
             />
           </Button>
           <Heading as="h1" size={{ base: "xl", md: "2xl" }}>
-            Order Tracking
+            {t("order.orderTracking")}
           </Heading>
         </Flex>
 
@@ -266,12 +284,13 @@ function OrderDetails() {
             fontSize={{ base: "xs", md: "sm" }}
             mb={{ base: 4, md: 8 }}
           >
-            {new Date(orderDetails.created_at).toLocaleDateString("en-GB")} |{" "}
-            {new Date(orderDetails.created_at).toLocaleTimeString("en-GB", {
+            {new Date(orderDetails.created_at).toLocaleDateString()}{" "}
+            {t("common.at")}{" "}
+            {new Date(orderDetails.created_at).toLocaleTimeString(undefined, {
               hour: "2-digit",
               minute: "2-digit",
             })}{" "}
-            | #ORD-{orderDetails.id.slice(0, 8).toUpperCase()}
+            | {t("order.orderId")}: {orderDetails.id.slice(0, 8).toUpperCase()}
           </Text>
 
           {/* Status Tracker - Always Horizontal */}
@@ -471,13 +490,13 @@ function OrderDetails() {
                             color="gray.400"
                             fontSize={{ base: "xs", md: "sm" }}
                           >
-                            Price:{" "}
+                            {t("order.price")}:{" "}
                             {(
                               item.price_at_order ||
                               item.menu_items?.price ||
                               0
                             ).toFixed(2)}{" "}
-                            LE
+                            {t("common.currency")}
                           </Text>
                         </Box>
                         <Text
@@ -522,7 +541,7 @@ function OrderDetails() {
                     }
                     mb={{ base: 3, md: 4 }}
                   >
-                    Bill Details
+                    {t("order.billDetails")}
                   </Heading>
                   <VStack gap={2} align="stretch">
                     <Flex justify="space-between" color="gray.300">
@@ -533,7 +552,7 @@ function OrderDetails() {
                             : colors.dark.textSub
                         }
                       >
-                        Subtotal
+                        {t("order.subtotal")}
                       </Text>
                       <Text
                         color={
@@ -542,7 +561,7 @@ function OrderDetails() {
                             : colors.dark.textMain
                         }
                       >
-                        {subtotal.toFixed(2)} LE
+                        {subtotal?.toFixed(2)} {t("common.currency")}
                       </Text>
                     </Flex>
 
@@ -554,7 +573,7 @@ function OrderDetails() {
                             : colors.dark.textSub
                         }
                       >
-                        Delivery Fee
+                        {t("order.deliveryFee")}
                       </Text>
                       <Text
                         color={
@@ -563,9 +582,10 @@ function OrderDetails() {
                             : colors.dark.textMain
                         }
                       >
-                        {deliveryFee.toFixed(2)} LE
+                        {deliveryFee?.toFixed(2)} {t("common.currency")}
                       </Text>
                     </Flex>
+
                     <Flex justify="space-between" color="gray.300">
                       <Text
                         color={
@@ -574,20 +594,21 @@ function OrderDetails() {
                             : colors.dark.textSub
                         }
                       >
-                        discount
+                        {t("order.discount")}
                       </Text>
                       <Text
                         color={
                           colorMode === "light"
-                            ? colors.light.textMain
-                            : colors.dark.textMain
+                            ? colors.light.error
+                            : colors.dark.error
                         }
                       >
-                        {discount.toFixed(2)} LE
+                        {discount?.toFixed(2)} {t("common.currency")}
                       </Text>
                     </Flex>
 
-                    <Box borderTop="1px" borderColor="red.800" my={3} />
+                    <Box borderTop="1px" borderColor="gray.600" my={3} />
+
                     <Flex
                       justify="space-between"
                       color={
@@ -598,9 +619,34 @@ function OrderDetails() {
                       fontSize="xl"
                       fontWeight="bold"
                     >
-                      <Text>Total</Text>
-                      <Text>{total?.toFixed(2)} LE</Text>
+                      <Text>{t("order.total")}</Text>
+                      <Text>
+                        {total?.toFixed(2)} {t("common.currency")}
+                      </Text>
                     </Flex>
+
+                    <Box mt={4}>
+                      <Text
+                        color={
+                          colorMode === "light"
+                            ? colors.light.textSub
+                            : colors.dark.textSub
+                        }
+                        mb={2}
+                      >
+                        {t("order.notes")}
+                      </Text>
+                      <Text
+                        color={
+                          colorMode === "light"
+                            ? colors.light.textMain
+                            : colors.dark.textMain
+                        }
+                        fontStyle={orderDetails.notes ? "normal" : "italic"}
+                      >
+                        {orderDetails.notes || t("order.noNotes")}
+                      </Text>
+                    </Box>
                   </VStack>
                 </Box>
 
@@ -624,7 +670,7 @@ function OrderDetails() {
                     }
                     mb={{ base: 3, md: 4 }}
                   >
-                    Delivery Information
+                    {t("order.deliveryInfo")}
                   </Heading>
                   <VStack gap={2} align="stretch">
                     <HStack gap={3}>
@@ -646,7 +692,10 @@ function OrderDetails() {
                         }
                         fontWeight="light"
                       >
-                        {orderDetails?.customer?.address || "N/A"}
+                        <Text>
+                          {orderDetails?.customer?.address ||
+                            t("common.notAvailable")}
+                        </Text>
                       </Text>
                     </HStack>
                     <HStack gap={3}>
@@ -668,7 +717,10 @@ function OrderDetails() {
                         }
                         fontWeight="light"
                       >
-                        {orderDetails?.customer?.phone || "N/A"}
+                        <Text>
+                          {orderDetails?.customer?.phone ||
+                            t("common.notAvailable")}
+                        </Text>
                       </Text>
                     </HStack>
                     <HStack gap={3}>
@@ -691,8 +743,10 @@ function OrderDetails() {
                         fontWeight="light"
                       >
                         {orderDetails?.order_delivery?.eta_minutes
-                          ? `${orderDetails.order_delivery.eta_minutes} min`
-                          : "30-45 min"}
+                          ? `${orderDetails.order_delivery.eta_minutes} ${t(
+                              "common.minutes"
+                            )}`
+                          : t("order.estimatedDeliveryTime")}
                       </Text>
                     </HStack>
                   </VStack>
@@ -718,9 +772,9 @@ function OrderDetails() {
                     }
                     mb={{ base: 3, md: 4 }}
                   >
-                    Delivery Info
+                    {t("order.deliveryPartner")}
                   </Heading>
-                  {orderDetails?.status === "out_for_delivery" &&
+                  {(orderDetails?.status === "out_for_delivery" || orderDetails?.status === "delivered") &&
                   deliveryUser ? (
                     <Flex
                       align="center"
@@ -771,7 +825,7 @@ function OrderDetails() {
                           noOfLines={1}
                           fontWeight="light"
                         >
-                          {deliveryUser?.name || "Delivery Partner"}
+                          {deliveryUser?.name || t("order.deliveryPartner")}
                         </Heading>
                         <HStack
                           gap={{ base: 1, md: 2 }}
@@ -810,7 +864,7 @@ function OrderDetails() {
                                   : colors.dark.textSub
                               }
                             >
-                              N/A
+                              {t("common.notAvailable")}
                             </Text>
                           )}
                         </HStack>
@@ -847,7 +901,7 @@ function OrderDetails() {
                               : colors.dark.textMain
                           }
                         >
-                          No delivery assigned yet
+                          {t("order.noDeliveryAssigned")}
                         </Text>
                         <Text
                           fontSize="sm"
@@ -857,8 +911,7 @@ function OrderDetails() {
                               : colors.dark.textSub
                           }
                         >
-                          You'll see your delivery partner here once your order
-                          is on the way.
+                          {t("order.deliveryOnTheWay")}
                         </Text>
                       </Box>
                     </Flex>
@@ -872,7 +925,7 @@ function OrderDetails() {
                     size={{ base: "md", md: "xl" }}
                     mb={{ base: 3, md: 6 }}
                   >
-                    Cooker Information
+                    {t("order.cookerInfo")}
                   </Heading>
                   <Flex
                     align="center"
@@ -920,7 +973,7 @@ function OrderDetails() {
                       >
                         {orderDetails?.cooker?.kitchen_name ||
                           orderDetails?.cooker?.users?.name ||
-                          "N/A"}
+                          t("common.notAvailable")}
                       </Heading>
                       <HStack
                         gap={{ base: 1, md: 2 }}
@@ -933,7 +986,7 @@ function OrderDetails() {
                         />
                         <Text fontWeight="bold" color="orange.400">
                           {orderDetails?.cooker?.avg_rating?.toFixed(1) ||
-                            "N/A"}
+                            t("common.notAvailable")}
                         </Text>
                         <Text
                           color={

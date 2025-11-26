@@ -93,6 +93,8 @@ export const detectLang = (text) => {
 
 // truncate text
 export const truncateText = (text, maxLength) => {
-  if (text.length <= maxLength) return text;
-  return text.substring(0, maxLength) + "...";
+  if (!text) return ''; 
+  const str = String(text); 
+  if (str.length <= maxLength) return str;
+  return str.substring(0, maxLength) + "...";
 };

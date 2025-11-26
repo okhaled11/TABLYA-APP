@@ -14,6 +14,7 @@ import { useColorMode } from "../../theme/color-mode";
 import colors from "../../theme/color";
 import { Link } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
+import { useTranslation } from "react-i18next";
 import { supabase } from "../../services/supabaseClient";
 import { toaster } from "../../components/ui/toaster";
 import {
@@ -34,6 +35,7 @@ const ChefCard = ({
   total_reviews,
   kitchen_name,
 }) => {
+  const { t } = useTranslation();
   const { colorMode } = useColorMode();
 
   const dispatch = useDispatch();
@@ -88,7 +90,7 @@ const ChefCard = ({
         activeCustomerId = fetchedId;
       } else {
         toaster.create({
-          title: "Please login to favorite chefs",
+          title: t('customer.chefCard.loginToFavorite'),
           type: "warning",
           duration: 2000,
           isClosable: true,
@@ -107,7 +109,7 @@ const ChefCard = ({
         });
         if (res.error) throw res.error;
         toaster.create({
-          title: "Added to favorites ❤️",
+          title: t('customer.chefCard.addedToFavorites'),
           type: "success",
           duration: 1500,
         });
@@ -119,7 +121,7 @@ const ChefCard = ({
         });
         if (res.error) throw res.error;
         toaster.create({
-          title: "Removed from favorites 💔",
+          title: t('customer.chefCard.removedFromFavorites'),
           type: "success",
           duration: 1500,
         });
@@ -132,7 +134,7 @@ const ChefCard = ({
       } else {
         dispatch(addFavoriteCooker(user_id));
       }
-      toaster.create({ title: "Action failed", type: "error", duration: 1800 });
+      toaster.create({ title: t('customer.chefCard.actionFailed'), type: "error", duration: 1800 });
     }
   };
   return (
@@ -231,15 +233,6 @@ const ChefCard = ({
           >
             {avg_rating ? avg_rating.toFixed(1) : "0"}
           </Text>
-          <Text
-            fontSize="lg"
-            fontWeight="light"
-            color={
-              colorMode == "light" ? colors.light.textSub : colors.dark.textSub
-            }
-          >
-            ( {total_reviews || "0"} Reviews )
-          </Text>
         </Flex>
 
         {/* <Text fontSize="sm" color="gray.600" mb="3">
@@ -264,7 +257,7 @@ const ChefCard = ({
           borderRadius="12px"
           _hover={{ bg: colors.light.mainHover }}
         >
-          View Menu
+          {t('customer.chefCard.viewMenu')}
         </Button>
       </Box>
     </Card.Root>

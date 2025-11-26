@@ -6,11 +6,14 @@ import colors from "../../theme/color";
 import { useColorMode } from "../../theme/color-mode";
 import { useParams } from "react-router-dom";
 import { useGetMenuItemsByCookerIdQuery } from "../../app/features/Customer/CookersApi";
+import { useTranslation } from "react-i18next";
 import MenuItemCardSkeleton from "../ui/MenuItemCardSkeleton";
 import { useState } from "react";
 import ScrollAreaComponent from "../ui/ScrollAreaComponent";
 
 const ChefMenuSection = ({ isAvailable }) => {
+  const { t, i18n } = useTranslation();
+  const isRTL = i18n.language === 'ar';
   const { colorMode } = useColorMode();
   const { id } = useParams();
   const { data: menuItems, isLoading: menuLoading } =
@@ -30,10 +33,10 @@ const ChefMenuSection = ({ isAvailable }) => {
 
   const frameworks = createListCollection({
     items: [
-      { label: "All", value: "all" },
-      { label: "main dishes", value: "main dishes" },
-      { label: "Drinks", value: "drinks" },
-      { label: "Desserts", value: "desserts" },
+      { label: t('menu.categories.all'), value: "all" },
+      { label: t('menu.categories.mainDishes'), value: "main dishes" },
+      { label: t('menu.categories.drinks'), value: "drinks" },
+      { label: t('menu.categories.desserts'), value: "desserts" },
     ],
   });
 
@@ -59,13 +62,11 @@ const ChefMenuSection = ({ isAvailable }) => {
         mb={3}
       >
         <Text
-          fontSize="2xl"
+          fontSize="lg"
           fontWeight="bold"
-          color={
-            colorMode == "light" ? colors.light.textMain : colors.dark.textMain
-          }
+          mb={4}
         >
-          Avilable Menu
+          {t('menu.title')}
         </Text>
         <Box>
           <Select.Root
@@ -97,9 +98,9 @@ const ChefMenuSection = ({ isAvailable }) => {
 
                 {/* Selected Text */}
                 <Select.ValueText
-                  placeholder="All Categories"
+                  placeholder={t('menu.categories.allCategories')}
                   flex="1"
-                  textAlign="left"
+                  textAlign={isRTL ? 'right' : 'left'}
                 />
 
                 <Select.Indicator />
@@ -153,23 +154,9 @@ const ChefMenuSection = ({ isAvailable }) => {
             <MenuItemCard key={item.id} item={item} isAvailable={isAvailable} />
           ))
         ) : (
-          <Flex mt={8} direction="column" align="center" justify="center" py={6} gap={2}>
-            <Icon
-              as={FiInbox}
-              boxSize={10}
-              color={
-                colorMode == "light" ? colors.light.textSub : colors.dark.textSub
-              }
-            />
-            <Text
-              fontWeight="medium"
-              color={
-                colorMode == "light" ? colors.light.textSub : colors.dark.textSub
-              }
-            >
-              No available items
+            <Text color="gray.500" fontSize="sm">
+              {t('menu.noItems')}
             </Text>
-          </Flex>
         )}
       </ScrollAreaComponent>
     </Box>

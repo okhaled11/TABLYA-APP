@@ -56,9 +56,11 @@ export const deleveryOrder = createApi({
               id,
               status,
               total,
+              delivery_fee,
               notes,
               payment_method,
               created_at,
+              updated_at,
               customer_id,
               cooker_id,
               address,
@@ -89,9 +91,11 @@ export const deleveryOrder = createApi({
                 id,
                 status,
                 total,
+                delivery_fee,
                 notes,
                 payment_method,
                 created_at,
+                updated_at,
                 customer_id,
                 cooker_id,
                 address,
@@ -373,34 +377,133 @@ export const deleveryOrder = createApi({
 
           const channel = supabase
             .channel(`delivery-orders-${userId || "all"}`)
-            .on("postgres_changes", { ...baseConfig, event: "INSERT" }, () => {
-              // A new order may match our city/address rules; safest is to refetch
-              refetch();
+            .on("postgres_changes", { ...baseConfig, event: "INSERT" }, async (payload) => {
+              const row = payload.new;
+              if (!row) return;
+              if (!allowedStatuses.includes(row.status)) return;
+              if (deliveryCity && row.city && row.city !== deliveryCity) return;
+              if (row.delivery_id && userId && row.delivery_id !== userId) return;
+
+              const [
+                { data: itemsRows },
+                { data: userRow },
+                { data: custAddrRows },
+                { data: cookerAddrRows },
+              ] = await Promise.all([
+                supabase
+                  .from("order_items")
+                  .select("order_id, quantity, title, price_at_order")
+                  .eq("order_id", row.id),
+                supabase
+                  .from("users")
+                  .select("id, name, phone, avatar_url")
+                  .eq("id", row.customer_id)
+                  .single(),
+                supabase
+                  .from("addresses")
+                  .select("user_id, latitude, longitude, is_default")
+                  .eq("user_id", row.customer_id),
+                supabase
+                  .from("addresses")
+                  .select("user_id, city, area, street, is_default")
+                  .eq("user_id", row.cooker_id),
+              ]);
+
+              const defaultAddress = (custAddrRows || []).find((a) => a.is_default) || (custAddrRows || [])[0] || null;
+              const cookerAddresses = cookerAddrRows || [];
+              const defaultCookerAddress =
+                cookerAddresses.find((a) => a.is_default) || cookerAddresses[0] || null;
+              const cooker_address = defaultCookerAddress
+                ? [defaultCookerAddress.city, defaultCookerAddress.area, defaultCookerAddress.street]
+                    .filter(Boolean)
+                    .join(", ")
+                : null;
+
+              updateCachedData((draft) => {
+                const exists = draft.some((o) => o.id === row.id);
+                if (!exists) {
+                  draft.unshift({
+                    ...row,
+                    order_items: itemsRows || [],
+                    customer: userRow || null,
+                    latitude: defaultAddress?.latitude ?? null,
+                    longitude: defaultAddress?.longitude ?? null,
+                    cooker_address,
+                  });
+                }
+              });
             })
             .on(
               "postgres_changes",
               { ...baseConfig, event: "UPDATE" },
-              (payload) => {
+              async (payload) => {
                 const row = payload.new;
                 if (!row) return;
-                if (
-                  ![
-                    "ready_for_pickup",
-                    "out_for_delivery",
-                    "delivered",
-                  ].includes(row.status)
-                )
-                  return;
-                if (row.delivery_id && userId && row.delivery_id !== userId)
-                  return;
 
+                if (!allowedStatuses.includes(row.status)) return;
+                if (deliveryCity && row.city && row.city !== deliveryCity) return;
+                if (row.delivery_id && userId && row.delivery_id !== userId) return;
+
+                let handled = false;
                 updateCachedData((draft) => {
                   const idx = draft.findIndex((o) => o.id === row.id);
                   if (idx !== -1) {
+                    handled = true;
                     draft[idx].status = row.status;
                     draft[idx].delivery_id = row.delivery_id ?? null;
                   }
                 });
+
+                if (!handled) {
+                  const [
+                    { data: itemsRows },
+                    { data: userRow },
+                    { data: custAddrRows },
+                    { data: cookerAddrRows },
+                  ] = await Promise.all([
+                    supabase
+                      .from("order_items")
+                      .select("order_id, quantity, title, price_at_order")
+                      .eq("order_id", row.id),
+                    supabase
+                      .from("users")
+                      .select("id, name, phone, avatar_url")
+                      .eq("id", row.customer_id)
+                      .single(),
+                    supabase
+                      .from("addresses")
+                      .select("user_id, latitude, longitude, is_default")
+                      .eq("user_id", row.customer_id),
+                    supabase
+                      .from("addresses")
+                      .select("user_id, city, area, street, is_default")
+                      .eq("user_id", row.cooker_id),
+                  ]);
+
+                  const defaultAddress = (custAddrRows || []).find((a) => a.is_default) || (custAddrRows || [])[0] || null;
+                  const cookerAddresses = cookerAddrRows || [];
+                  const defaultCookerAddress =
+                    cookerAddresses.find((a) => a.is_default) || cookerAddresses[0] || null;
+                  const cooker_address = defaultCookerAddress
+                    ? [defaultCookerAddress.city, defaultCookerAddress.area, defaultCookerAddress.street]
+                        .filter(Boolean)
+                        .join(", ")
+                    : null;
+
+                  updateCachedData((draft) => {
+                    const exists = draft.some((o) => o.id === row.id);
+                    if (!exists) {
+                      draft.unshift({
+                        ...row,
+                        order_items: itemsRows || [],
+                        customer: userRow || null,
+                        latitude: defaultAddress?.latitude ?? null,
+                        longitude: defaultAddress?.longitude ?? null,
+                        cooker_address,
+                      });
+                    }
+                  });
+                }
               }
             )
             .on(
@@ -440,7 +543,7 @@ export const deleveryOrder = createApi({
             };
           }
 
-          let updatePayload = { status };
+          let updatePayload = { status, updated_at: new Date().toISOString() };
 
           // When claiming or completing an order, attach it to this delivery user
           if (status === "out_for_delivery" || status === "delivered") {
