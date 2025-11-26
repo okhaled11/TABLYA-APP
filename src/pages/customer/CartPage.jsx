@@ -11,6 +11,7 @@ import {
   useUpdateOrderPaymentStatusMutation,
 } from "../../app/features/Customer/ordersSlice";
 import { clearCart } from "../../app/features/Customer/CartSlice";
+import { useGetPlatformSettingsQuery } from "../../app/features/Admin/MariamSettings";
 
 export default function CartPage() {
   const { t } = useTranslation();
@@ -23,8 +24,30 @@ export default function CartPage() {
 
   // Calculate subtotal from cart items
   const subtotal = cartItems.reduce((total, item) => {
-    return total + item.price * item.quantity;
+    const price = Number(item.price_for_customer ?? item.price ?? 0);
+    const qty = Number(item.quantity ?? 0);
+    return total + price * qty;
   }, 0);
+
+  // Platform settings: delivery fee and free delivery threshold
+  const { data: platformSettings } = useGetPlatformSettingsQuery();
+  const defaultDeliveryFee = Number(
+    platformSettings?.default_delivery_fee ?? 0
+  );
+  const freeDeliveryThreshold = Number.isFinite(
+    Number(platformSettings?.free_delivery_threshold)
+  )
+    ? Number(platformSettings?.free_delivery_threshold)
+    : Number.POSITIVE_INFINITY;
+
+  // Compute delivery fee: if preliminary total >= threshold, delivery is free
+  const candidateDelivery = defaultDeliveryFee;
+  const preliminaryTotal = subtotal + candidateDelivery;
+  const deliveryFee =
+    preliminaryTotal >= freeDeliveryThreshold ? 0 : candidateDelivery;
+
+  // Final total (no discounts yet)
+  const total = subtotal + deliveryFee;
 
   const handleContinueShopping = () => {
     navigate("/home");
@@ -94,7 +117,7 @@ export default function CartPage() {
     // Otherwise, create new order (for cash payment)
     if (!validateBeforeCheckout()) return;
     try {
-      const delivery_fee = 0;
+      const delivery_fee = deliveryFee;
       const discount = 0;
       const total = subtotal + delivery_fee - discount;
       const resp = await createOrder({
@@ -140,7 +163,7 @@ export default function CartPage() {
     if (!validateBeforeCheckout()) return null;
 
     try {
-      const delivery_fee = 0;
+      const delivery_fee = deliveryFee;
       const discount = 0;
       const resp = await createOrder({
         cooker_id: cookerId,
@@ -178,7 +201,9 @@ export default function CartPage() {
         gap={4}
         alignItems="flex-start"
       >
-        <Box gridColumn={{ base: "1 / -1", lg: isCartEmpty ? "1 / -1" : "1 / 3" }}>
+        <Box
+          gridColumn={{ base: "1 / -1", lg: isCartEmpty ? "1 / -1" : "1 / 3" }}
+        >
           <CartSection />
         </Box>
 
@@ -186,6 +211,8 @@ export default function CartPage() {
           <Box>
             <OrderSummarySection
               subtotal={subtotal}
+              deliveryFee={deliveryFee}
+              total={total}
               onContinueShopping={handleContinueShopping}
               onCheckout={handleCheckout}
               onValidate={validateBeforeCheckout}

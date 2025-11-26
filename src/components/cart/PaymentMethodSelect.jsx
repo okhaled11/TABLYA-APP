@@ -18,7 +18,7 @@ export default function PaymentMethodSelect({ onCheckout = () => {}, total = 0, 
   const { colorMode } = useColorMode();
   const { t } = useTranslation();
 
-  const [selectedCategory, setSelectedCategory] = useState("visa");
+  const [selectedCategory, setSelectedCategory] = useState("cash");
   const [notes, setNotes] = useState("");
   const [stripeReady, setStripeReady] = useState(false);
   const [pendingOrderId, setPendingOrderId] = useState(null);
@@ -28,6 +28,9 @@ export default function PaymentMethodSelect({ onCheckout = () => {}, total = 0, 
       setStripeReady(false);
     }
   }, [selectedCategory]);
+
+  const { data: settings } = useGetPlatformSettingsQuery();
+  const minOrder = Number(settings?.minimum_order_value ?? settings?.min_order_value ?? 0);
 
   const paymentMethods = createListCollection({
     items: [
@@ -150,13 +153,24 @@ export default function PaymentMethodSelect({ onCheckout = () => {}, total = 0, 
           color="white"
           borderRadius="12px"
           w="full"
-          onClick={() =>
+          onClick={() => {
+            if (Number(total) < minOrder) {
+              toaster.create({
+                title: "Minimum order value",
+                description: `You must order at least ${minOrder.toFixed(2)} L.E`,
+                type: "warning",
+                duration: 2500,
+                isClosable: true,
+                position: "top",
+              });
+              return;
+            }
             onCheckout({
               notes,
               payment_method: "cash",
               payment_status: "pending",
-            })
-          }
+            });
+          }}
         >
           {t('cart.checkout', 'Proceed to Checkout')}
         </Button>
@@ -174,6 +188,18 @@ export default function PaymentMethodSelect({ onCheckout = () => {}, total = 0, 
               borderRadius="12px"
               w="full"
               onClick={async () => {
+                if (Number(total) < minOrder) {
+                  toaster.create({
+                    title: "Minimum order value",
+                    description: `You must order at least ${minOrder.toFixed(2)} L.E`,
+                    type: "warning",
+                    duration: 2500,
+                    isClosable: true,
+                    position: "top",
+                  });
+                  return;
+                }
+
                 if (onValidate()) {
                   // Create order first with pending payment status
                   if (onCreateOrderForPayPal) {

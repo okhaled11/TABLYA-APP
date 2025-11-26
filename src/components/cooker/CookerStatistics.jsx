@@ -36,9 +36,19 @@ const CookerStatistics = () => {
 
   const monthlyEarning = useMemo(() => {
     if (!orders || orders.length === 0) return 0;
+
     const now = new Date();
     const currentMonth = now.getMonth();
     const currentYear = now.getFullYear();
+
+    // Build quick lookup for chef_profit by menu item id (and title as fallback)
+    const profitById = new Map(
+      (menuItems || []).map((m) => [m.id, Number(m.chef_profit || 0)])
+    );
+    const profitByTitle = new Map(
+      (menuItems || []).map((m) => [m.title, Number(m.chef_profit || 0)])
+    );
+
     let sum = 0;
     for (const order of orders) {
       const created = order?.created_at ? new Date(order.created_at) : null;
@@ -50,13 +60,14 @@ const CookerStatistics = () => {
         const items = order?.order_items || [];
         for (const it of items) {
           const qty = Number(it.quantity || 0);
-          const price = Number(it.price_at_order || it.price || 0);
-          sum += qty * price;
+          const profitPer =
+            profitById.get(it.menu_item_id) ?? profitByTitle.get(it.title) ?? 0;
+          sum += qty * profitPer;
         }
       }
     }
     return Math.round(sum);
-  }, [orders]);
+  }, [orders, menuItems]);
 
   const activeMeals = useMemo(
     () =>

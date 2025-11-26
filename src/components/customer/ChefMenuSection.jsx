@@ -1,7 +1,7 @@
-import { Box, Flex, Text } from "@chakra-ui/react";
+import { Box, Flex, Text, Icon } from "@chakra-ui/react";
 import { Select, Portal, createListCollection } from "@chakra-ui/react";
 import MenuItemCard from "./MenuItemCard";
-import { FiFilter } from "react-icons/fi";
+import { FiFilter, FiInbox } from "react-icons/fi";
 import colors from "../../theme/color";
 import { useColorMode } from "../../theme/color-mode";
 import { useParams } from "react-router-dom";
@@ -49,7 +49,7 @@ const ChefMenuSection = ({ isAvailable }) => {
       overflow="hidden"
       border="none"
       mt={8}
-      maxH="60vh"
+      minH="auto"
       background={
         colorMode == "light" ? colors.light.bgThird : colors.dark.bgThird
       }

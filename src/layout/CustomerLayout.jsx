@@ -69,11 +69,10 @@ export default function CustomerLayout({ tabs, lockToAddressTab = false }) {
     }
 
     if (newIndex !== activeTab) setActiveTab(newIndex);
-  }, [location.pathname, lockToAddressTab, activeTab]);
+  }, [location.pathname, lockToAddressTab]);
 
   const goToTab = (index) => {
     if (lockToAddressTab && index !== 1) return;
-    setActiveTab(index);
     const seg = segments[index];
     const to = seg ? `/personal-info/${seg}` : "/personal-info";
     navigate(to);

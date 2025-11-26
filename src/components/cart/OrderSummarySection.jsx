@@ -8,6 +8,8 @@ import { useTranslation } from "react-i18next";
 
 export default function OrderSummarySection({
   subtotal = 0,
+  deliveryFee: deliveryFeeProp = null,
+  total: totalProp = null,
   onCheckout = () => {},
   onValidate = () => true,
   onCreateOrderForPayPal = null,
@@ -55,7 +57,7 @@ export default function OrderSummarySection({
               colorMode == "light" ? colors.light.text : colors.dark.textMain
             }
           >
-            {subtotal.toFixed(2)} L.E
+            {subtotal} L.E
           </Text>
         </HStack>
         <HStack justify="space-between">

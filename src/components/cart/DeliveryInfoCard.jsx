@@ -18,6 +18,20 @@ export default function DeliveryInfoCard() {
   });
   console.log ("from deleviery",user)
 
+  const cartItems = useSelector((state) => state.cart.cartItems);
+  const prepTimes = (cartItems || [])
+    .map((it) => Number(it?.prep_time_minutes ?? 0))
+    .filter((n) => Number.isFinite(n) && n > 0);
+  const avgPrep = prepTimes.length
+    ? Math.round(prepTimes.reduce((a, b) => a + b, 0) / prepTimes.length)
+    : null;
+  const sumPrep = (cartItems || []).reduce((sum, it) => {
+    const t = Number(it?.prep_time_minutes ?? 0);
+    const q = Number(it?.quantity ?? 0);
+    return sum + (Number.isFinite(t) && Number.isFinite(q) ? t * q : 0);
+  }, 0);
+  const prepText = prepTimes.length ? `${avgPrep}-${Math.round(sumPrep)} min` : "—";
+
   // Default values in case user data is not available
   const deliveryInfo = {
     // Prefer primary address from addresses slice

@@ -135,7 +135,7 @@ const CookerMenuCard = ({ item }) => {
                     : colors.dark.mainFixed
                 }
               >
-                {item?.price ?? 0} L.E
+                {item?.price?? 0} L.E
               </Text>
               <Flex gap={4}>
                 <FaPen

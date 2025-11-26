@@ -3,6 +3,7 @@ import { LuHouse } from "react-icons/lu";
 import { RiFileList3Line } from "react-icons/ri";
 import { FaRegHeart } from "react-icons/fa6";
 import colors from "../../theme/color";
+import { useColorMode } from "../../theme/color-mode";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 
@@ -19,8 +20,8 @@ const CustomerTabs = () => {
   };
 
   return (
-    <Tabs.Root value={getActiveTab()}>
-      <Tabs.List>
+    <Tabs.Root value={getActiveTab()} position="sticky" top={{ base: 20, md: 20 }} zIndex="900" bg={colorMode === "light" ? colors.light.bgMain : colors.dark.bgMain}>
+      <Tabs.List >
         <Flex w="100%" justifyContent="center" gap={6}>
           <Tabs.Trigger
             colorPalette={"red"}

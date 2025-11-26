@@ -6,9 +6,56 @@ import { RiFileList3Fill } from "react-icons/ri";
 import { TbTruckDelivery } from "react-icons/tb";
 import { BsFillBoxSeamFill } from "react-icons/bs";
 import { PiMoneyWavyFill } from "react-icons/pi";
+import { useState, useEffect, useMemo } from "react";
+import { useGetOrdersForDeliveryCityQuery } from "../../app/features/delivery/deleveryOrder";
+import { supabase } from "../../services/supabaseClient";
 
 const DeliveryStatistics = () => {
   const { colorMode } = useColorMode();
+  const [userId, setUserId] = useState(null);
+  useEffect(() => {
+    supabase.auth.getUser().then(({ data: { user } }) => {
+      setUserId(user?.id || null);
+    });
+  }, []);
+  const { data: orders = [], isLoading } = useGetOrdersForDeliveryCityQuery();
+  const isToday = (d) => {
+    if (!d) return false;
+    const t = new Date();
+    return (
+      d.getFullYear() === t.getFullYear() &&
+      d.getMonth() === t.getMonth() &&
+      d.getDate() === t.getDate()
+    );
+  };
+  const activeDeliveries = useMemo(
+    () => (orders || []).filter((o) => o.status === "ready_for_pickup").length,
+    [orders]
+  );
+  const completedToday = useMemo(
+    () =>
+      (orders || []).filter(
+        (o) =>
+          o.status === "delivered" &&
+          o.delivery_id === userId &&
+          isToday(new Date(o.updated_at || o.created_at))
+      ).length,
+    [orders, userId]
+  );
+  const earningsToday = useMemo(() => {
+    return (orders || []).reduce((sum, o) => {
+      if (
+        o.status === "delivered" &&
+        o.delivery_id === userId &&
+        isToday(new Date(o.updated_at || o.created_at))
+      ) {
+        const fee = Number(o.delivery_fee ?? 0);
+        return sum + (Number.isFinite(fee) ? fee : 0);
+      }
+      return sum;
+    }, 0);
+  }, [orders, userId]);
+  const fmt = (n) => new Intl.NumberFormat("en-EG").format(Number(n || 0));
 
   return (
     <>
@@ -27,9 +74,8 @@ const DeliveryStatistics = () => {
         <SimpleGrid columns={{ base: 1, md: 2, lg: 3 }} gap={4}>
           <CookerStaticsCard
             title="Active Deliveries"
-            value={"3"}
+            value={activeDeliveries}
             icon={TbTruckDelivery}
-            // subtext={`Currently assigned`}
             iconBg={
               colorMode === "light"
                 ? colors.light.warning10a
@@ -41,7 +87,7 @@ const DeliveryStatistics = () => {
           />
           <CookerStaticsCard
             title="Completed Today"
-            value={"34"}
+            value={completedToday}
             icon={BsFillBoxSeamFill}
             iconBg={
               colorMode === "light"
@@ -54,7 +100,7 @@ const DeliveryStatistics = () => {
           />
           <CookerStaticsCard
             title="Earnings Today"
-            value={"345"}
+            value={fmt(earningsToday)}
             icon={PiMoneyWavyFill}
             iconBg={
               colorMode === "light" ? colors.light.info10a : colors.dark.info10a

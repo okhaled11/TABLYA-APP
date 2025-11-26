@@ -71,7 +71,20 @@ import { createApi, fakeBaseQuery } from "@reduxjs/toolkit/query/react";
 
        providesTags: ["settings"],
      }),
+
+     getPlatformSettings: builder.query({
+       async queryFn() {
+         const { data, error } = await supabase
+           .from("platform_settings")
+           .select("*")
+           .eq("id", "b63fcd43-7207-4ddf-a735-24467a0293dc")
+           .single();
+         if (error) return { error };
+         return { data };
+       },
+       providesTags: ["settings"],
+     }),
    }),
  });
 
- export const { useGetPlatformProfitQuery, useUpdateSettingsMutation } = MariamSettingsApi;
+ export const { useGetPlatformProfitQuery, useUpdateSettingsMutation, useGetPlatformSettingsQuery } = MariamSettingsApi;

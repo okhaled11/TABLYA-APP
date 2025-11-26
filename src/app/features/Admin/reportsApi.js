@@ -23,13 +23,18 @@ export const reportsApi = createApi({
             assigned_to_admin,
             created_at,
 
+            
+
             reporter:users!reports_reporter_user_id_fkey (
               id,
               name,
               email,
               role,
-              avatar_url
+              avatar_url,
+              phone
             ),
+
+           
 
             admin:admins!reports_assigned_to_admin_fkey (
               user_id,
@@ -39,7 +44,19 @@ export const reportsApi = createApi({
                 email,
                 avatar_url
               )
-            )
+            ),
+             report_actions:report_actions!report_actions_report_id_fkey (
+          id,
+          action,
+          note,
+          amount,
+          at,
+          by_user_id,
+          admin:by_user_id (
+            user_id,
+            users(name, email)
+          )
+        )
           `
           )
           .order("created_at", { ascending: false });

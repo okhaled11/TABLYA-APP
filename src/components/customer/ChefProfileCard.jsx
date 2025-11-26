@@ -40,6 +40,7 @@ const ChefProfileCard = ({
   end_time,
   is_available,
   kitchen_name,
+  specialty,
   total_reviews,
   user_id, // optional explicit cooker user_id if provided by parent
 }) => {
