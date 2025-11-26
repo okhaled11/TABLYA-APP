@@ -16,11 +16,12 @@ import { Link, useNavigate } from "react-router-dom";
 import { useParams } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import MealDetailsCard from "../../../components/customer/Order/MealDetailsCard";
-import { useGetMealAndChefDetailsQuery } from "../../../../app/features/Customer/Orders/OrdersApiCustomerSlice";
+import { useGetMealAndChefDetailsQuery } from "../../../app/features/Customer/Orders/ordersApiCustomerSlice";
+
 const MealDetails = () => {
   /* ---------------------hooks-------------------- */
   const { t, i18n } = useTranslation();
-  const isRTL = i18n.language === 'ar';
+  const isRTL = i18n.language === "ar";
   const { chefId, mealId } = useParams();
   const navigate = useNavigate();
 
@@ -33,7 +34,7 @@ const MealDetails = () => {
   return (
     <>
       <Breadcrumb.Root>
-        <Flex mb={4} align="center" dir={isRTL ? 'rtl' : 'ltr'}>
+        <Flex mb={4} align="center" dir={isRTL ? "rtl" : "ltr"}>
           <IconButton
             onClick={() => navigate(-1)}
             variant="ghost"
@@ -48,7 +49,7 @@ const MealDetails = () => {
             <Breadcrumb.Item>
               <Breadcrumb.Link as={Link} to="/home">
                 <LuHouse />
-                {t('customer.breadcrumb.home')}
+                {t("customer.breadcrumb.home")}
               </Breadcrumb.Link>
             </Breadcrumb.Item>
             <Breadcrumb.Separator />
@@ -57,7 +58,7 @@ const MealDetails = () => {
               <Breadcrumb.CurrentLink>
                 <Flex align="center" gap={1}>
                   <LuChefHat />
-                  {t('mealDetails.title')}
+                  {t("mealDetails.title")}
                 </Flex>
               </Breadcrumb.CurrentLink>
             </Breadcrumb.Item>
@@ -101,7 +102,7 @@ const MealDetails = () => {
           </Flex>
         </Container>
       ) : error ? (
-        <div>{t('common.errorLoading')}</div>
+        <div>{t("common.errorLoading")}</div>
       ) : data ? (
         <MealDetailsCard mealData={data.meal} chefData={data.chef} />
       ) : null}
