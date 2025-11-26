@@ -24,7 +24,6 @@ import {
   updateQuantity,
 } from "../../../app/features/Customer/CartSlice";
 import { Link } from "react-router-dom";
-import { useToast } from "@chakra-ui/react";
 
 const MealDetailsCard = ({ mealData, chefData }) => {
   console.log(mealData);
@@ -36,7 +35,6 @@ const MealDetailsCard = ({ mealData, chefData }) => {
   const { colorMode } = useColorMode();
   const dispatch = useDispatch();
   const { cartItems } = useSelector((state) => state.cart);
-  const toast = useToast();
 
   if (!mealData || !chefData) {
     return <div>{t('common.noData')}</div>;
@@ -45,7 +43,7 @@ const MealDetailsCard = ({ mealData, chefData }) => {
   const availableStock = mealData.stock || 0;
 
   // Local state for count when item is not in cart
-  const [localCount, setLocalCount] = useState (availableStock === 0 ? 0 : 1);
+  const [localCount, setLocalCount] = useState(availableStock === 0 ? 0 : 1);
 
   // Get current quantity from cart or use local state
   const cartItem = cartItems.find((item) => item.id === mealData.id);
@@ -213,18 +211,6 @@ const MealDetailsCard = ({ mealData, chefData }) => {
             >
               {totalPrice} LE
             </Text>
-            {/* {count > 1 && (
-              <Text
-                fontSize="sm"
-                color={
-                  colorMode === "light"
-                    ? colors.light.textSub
-                    : colors.dark.textSub
-                }
-              >
-                ({mealData.price.toFixed(2)} LE × {count})
-              </Text>
-            )} */}
 
             {/* Separator */}
             <Box
@@ -316,16 +302,6 @@ const MealDetailsCard = ({ mealData, chefData }) => {
 
               {/* Stock Information */}
               <Flex gap={4} mt={2} flexWrap="wrap">
-                {/* <Text
-                  fontSize={{ base: "sm", md: "md" }}
-                  color={
-                    colorMode === "light"
-                      ? colors.light.textSub
-                      : colors.dark.textSub
-                  }
-                >
-                  Available: {mealData.available ? "Yes" : "No"}
-                </Text> */}
                 <Text
                   fontSize={{ base: "sm", md: "md" }}
                   fontWeight="600"
@@ -335,8 +311,8 @@ const MealDetailsCard = ({ mealData, chefData }) => {
                         ? colors.light.success
                         : colors.dark.success
                       : colorMode === "light"
-                      ? colors.light.error
-                      : colors.dark.error
+                        ? colors.light.error
+                        : colors.dark.error
                   }
                 >
                   {isOutOfStock ? t('mealDetails.outOfStock') : `${t('mealDetails.inStock')} (${availableStock})`} | {t('common.remaining')}: {remainingStock}
@@ -390,11 +366,17 @@ const MealDetailsCard = ({ mealData, chefData }) => {
                   }
                 >
                   <Image
-                    src={chefData?.users?.profile_img}
+                    src={chefData?.users?.
+                      avatar_url
+                      || '/images/default-chef.jpg'}
                     alt={chefData?.users?.name || t('common.chef')}
                     w="100%"
                     h="100%"
                     objectFit="cover"
+                    onError={(e) => {
+                      e.target.onerror = null;
+                      e.target.src = '/images/default-chef.jpg';
+                    }}
                   />
                 </Box>
                 <Box flex="1">

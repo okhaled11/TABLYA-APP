@@ -15,6 +15,7 @@ import {
 } from "@chakra-ui/react";
 import { useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
+import { useTranslation } from "react-i18next";
 import { useColorMode } from "../../theme/color-mode";
 import colors from "../../theme/color";
 import CookieService from "../../services/cookies";
@@ -38,6 +39,8 @@ import {
 } from "../../app/features/Customer/Reports/reportsApiSlice";
 
 const OrderPage = () => {
+  const { t } = useTranslation();
+  
   /* --------------------data login id as sub---------------------- */
   const token = CookieService.get("access_token");
   const { data: userData } = useGetUserDataQuery(undefined, {
@@ -311,16 +314,7 @@ const OrderPage = () => {
   /* -----------------HANDLER---------------------------- */
   // Status name mapping
   const getStatusDisplayName = (status) => {
-    const statusMap = {
-      confirmed: "Order Placed",
-      preparing: "Preparing",
-      ready_for_pickup: "Ready for Pickup",
-      out_for_delivery: "Out for Delivery",
-      delivered: "Delivered",
-      cancelled: "Cancelled",
-      created: "Created",
-    };
-    return statusMap[status] || status;
+    return t(`order.status.${status}`, { defaultValue: status });
   };
 
   const getStatusBadgeStyles = (status) => {
@@ -541,7 +535,7 @@ const OrderPage = () => {
                 }
                 mt={{ base: 2, sm: 0 }}
               >
-                Total: {total} LE
+                {t('order.total')}: {total} LE
               </Text>
             </Flex>
 
@@ -599,8 +593,7 @@ const OrderPage = () => {
                         fontSize={{ base: "12px", md: "14px" }}
                         color={colors.light.textSub}
                       >
-                        Price: {item.price_at_order || item.menu_items?.price}{" "}
-                        LE
+                        {t('order.price')}: {item.price_at_order || item.menu_items?.price} LE
                       </Text>
                     </Box>
                     <Text
@@ -653,7 +646,7 @@ const OrderPage = () => {
                       : colors.dark.mainFixedActive,
                 }}
               >
-                Order Details
+                {t('order.orderDetails')}
               </Button>
             </Flex>
           </Box>
@@ -709,13 +702,13 @@ const OrderPage = () => {
                       : colors.dark.textMain
                   }
                 >
-                  Wait for the chef to confirm your order!
+                  {t('order.waitForConfirmation')}
                 </Text>
 
                 <Button
                   onClick={() => handleCancelOrder(id)}
                   isLoading={cancelLoading}
-                  loadingText="Cancelling..."
+                  loadingText={t('order.cancelling')}
                   variant="solid"
                   bg={
                     colorMode === "light"
@@ -743,7 +736,7 @@ const OrderPage = () => {
                     transform: "translateY(0px)",
                   }}
                 >
-                  Cancel Order
+                  {t('order.cancelOrder')}
                 </Button>
               </VStack>
             </Box>
@@ -757,7 +750,7 @@ const OrderPage = () => {
     <>
       <Box>
         <Text fontSize={{ base: "20px", md: "40px" }} fontWeight={"700"} my={6}>
-          Active Order Now
+          {t('order.activeOrderNow')}
         </Text>
         {ordersLoading ? (
           <>
@@ -793,7 +786,7 @@ const OrderPage = () => {
                 fontSize={{ base: "16px", md: "20px" }}
                 color={colors.light.textSub}
               >
-                You currently have no active orders
+                {t('order.noActiveOrdersMessage')}
               </Text>
             </VStack>
           </Box>
@@ -903,7 +896,7 @@ const OrderPage = () => {
 
       <Box>
         <Text fontSize={{ base: "20px", md: "40px" }} fontWeight={"700"}>
-          Order History
+          {t('order.orderHistory')}
         </Text>
         {orderHistoryLoading ? (
           <>
@@ -961,7 +954,7 @@ const OrderPage = () => {
                           : colors.dark.textMain
                       }
                     >
-                      Total: {orderDetails?.total || 0} LE
+                      {t('order.total')}: {orderDetails?.total || 0} LE
                     </Text>
                   </Box>
                 </Flex>
@@ -1053,20 +1046,20 @@ const OrderPage = () => {
 
                 <Flex direction="column" gap={2}>
                   <Flex justify="space-between">
-                    <Text color={colors.light.textSub}>Subtotal:</Text>
+                    <Text color={colors.light.textSub}>{t('order.subtotal')}:</Text>
                     <Text fontWeight={500}>
                       {orderDetails?.subtotal || 0} LE
                     </Text>
                   </Flex>
                   <Flex justify="space-between">
-                    <Text color={colors.light.textSub}>Delivery Fee:</Text>
+                    <Text color={colors.light.textSub}>{t('order.deliveryFee')}:</Text>
                     <Text fontWeight={500}>
                       {orderDetails?.delivery_fee || 0} LE
                     </Text>
                   </Flex>
                   {orderDetails?.discount > 0 && (
                     <Flex justify="space-between">
-                      <Text color={colors.light.textSub}>Discount:</Text>
+                      <Text color={colors.light.textSub}>{t('order.discount')}:</Text>
                       <Text fontWeight={500} color="green.500">
                         -{orderDetails?.discount} LE
                       </Text>
@@ -1074,7 +1067,7 @@ const OrderPage = () => {
                   )}
                   {orderDetails?.notes && (
                     <Flex direction="column" mt={2}>
-                      <Text color={colors.light.textSub}>Notes:</Text>
+                      <Text color={colors.light.textSub}>{t('order.notes')}:</Text>
                       <Text fontWeight={400}>{orderDetails.notes}</Text>
                     </Flex>
                   )}
@@ -1121,7 +1114,7 @@ const OrderPage = () => {
                       color={colorMode === "light" ? "green.600" : "green.400"}
                       fontWeight={500}
                     >
-                      ✓ Report Submitted
+                      ✓ {t('order.reportSubmitted')}
                     </Text>
                   </Flex>
                 )}
@@ -1155,7 +1148,7 @@ const OrderPage = () => {
                 fontSize={{ base: "16px", md: "20px" }}
                 color={colors.light.textSub}
               >
-                You currently have no orders in your order history
+                {t('order.noOrders')}
               </Text>
             </VStack>
           </Box>
@@ -1302,7 +1295,7 @@ const OrderPage = () => {
                     : colors.dark.textMain
                 }
               >
-                Report a Problem
+                {t('order.reportProblem')}
               </Text>
               <Text
                 fontSize={{ base: "14px", md: "14px" }}
@@ -1313,19 +1306,19 @@ const OrderPage = () => {
                     : colors.dark.textSub
                 }
               >
-                Report any issues you’ve encountered.
+                {t('order.reportDescription')}
               </Text>
             </Flex>
             <hr margin />
             <VStack align="stretch" marginTop={4} gap={4}>
               <Box>
                 <Text mb={2} color={colors.light.textSub}>
-                  Complaint Title
+                  {t('order.complaintTitle')}
                 </Text>
                 <Box
                   as="input"
                   type="text"
-                  placeholder="Brief description of the issue"
+                  placeholder={t('order.complaintTitlePlaceholder')}
                   value={reportTitle}
                   onChange={(e) => setReportTitle(e.target.value)}
                   bg={
@@ -1352,7 +1345,7 @@ const OrderPage = () => {
               </Box>
               <Box>
                 <Text mb={2} color={colors.light.textSub}>
-                  Complaint Category
+                  {t('order.complaintCategory')}
                 </Text>
                 <Box
                   as="select"
@@ -1397,19 +1390,19 @@ const OrderPage = () => {
                     },
                   }}
                 >
-                  <option value="">Select a complaint category</option>
-                  <option value="food_problem">Food problem</option>
-                  <option value="delivery_problem">Delivery problem</option>
-                  <option value="money_problem">Money problem</option>
+                  <option value="">{t('order.selectCategory')}</option>
+                  <option value="food_problem">{t('order.foodIssue')}</option>
+                  <option value="delivery_problem">{t('order.deliveryIssue')}</option>
+                  <option value="money_problem">{t('order.paymentIssue')}</option>
                 </Box>
               </Box>
               <Box>
                 <Text mb={2} color={colors.light.textSub}>
-                  Complaint Description
+                  {t('order.complaintDetails')}
                 </Text>
                 <Box
                   as="textarea"
-                  placeholder="Please provide detailed information about your complaint..."
+                  placeholder={t('order.complaintDetailsPlaceholder')}
                   value={reportDetails}
                   onChange={(e) => setReportDetails(e.target.value)}
                   rows={5}
@@ -1456,7 +1449,7 @@ const OrderPage = () => {
                       : colors.dark.mainFixedActive,
                 }}
               >
-                Send Report
+                {t('order.sendReport')}
               </Button>
               <Button
                 variant="outline"

@@ -49,7 +49,7 @@ const MealDetails = () => {
             <Breadcrumb.Item>
               <Breadcrumb.Link as={Link} to="/home">
                 <LuHouse />
-                {t('breadcrumb.home')}
+                {t('customer.breadcrumb.home')}
               </Breadcrumb.Link>
             </Breadcrumb.Item>
             <Breadcrumb.Separator />
