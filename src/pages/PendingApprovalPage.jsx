@@ -7,16 +7,18 @@ import {
   Button,
   Container,
   Input,
-  InputGroup,
   Stack,
   Spinner,
+  Icon,
+  HStack,
+  Badge,
 } from "@chakra-ui/react";
 import { Field } from "@chakra-ui/react";
 import { useNavigate } from "react-router-dom";
 import { useColorMode } from "../theme/color-mode";
 import colors from "../theme/color";
-import { FaClock, FaEnvelope, FaHome, FaUpload } from "react-icons/fa";
-import { MdPendingActions, MdError } from "react-icons/md";
+import { FaClock, FaEnvelope, FaHome, FaCloudUploadAlt, FaCheckCircle, FaFileImage } from "react-icons/fa";
+import { MdPendingActions, MdError, MdTimer } from "react-icons/md";
 import Navbar from "../layout/Navbar";
 import Footer from "../shared/Footer";
 import { useTranslation } from "react-i18next";
@@ -25,6 +27,67 @@ import { supabase } from "../services/supabaseClient";
 import { uploadImageToImgBB } from "../services/uploadImageToImageBB";
 import { convertImageToWebP } from "../services/imageToWebp";
 import { toaster } from "../components/ui/toaster";
+import { motion } from "framer-motion";
+
+const MotionBox = motion(Box);
+const MotionFlex = motion(Flex);
+
+const FileUploadBox = ({ label, onChange, file, isRTL, bgInput, borderColor, hoverBorderColor }) => {
+  return (
+    <Box>
+      <Text fontSize="sm" fontWeight="semibold" mb={2} align={isRTL ? "right" : "left"}>
+        {label}
+      </Text>
+      <Box
+        position="relative"
+        border="2px dashed"
+        borderColor={file ? "green.400" : borderColor}
+        borderRadius="xl"
+        bg={file ? "green.50" : bgInput}
+        p={4}
+        transition="all 0.2s"
+        _hover={{ borderColor: hoverBorderColor, bg: "orange.50" }}
+        cursor="pointer"
+        role="group"
+      >
+        <Input
+          type="file"
+          accept="image/*"
+          position="absolute"
+          top={0}
+          left={0}
+          w="full"
+          h="full"
+          opacity={0}
+          cursor="pointer"
+          onChange={onChange}
+          zIndex={2}
+        />
+        <VStack spacing={2}>
+          {file ? (
+             <Icon as={FaCheckCircle} boxSize={8} color="green.500" />
+          ) : (
+             <Icon 
+               as={FaCloudUploadAlt} 
+               boxSize={8} 
+               color="gray.400" 
+               _groupHover={{ color: "orange.500", transform: "scale(1.1)" }} 
+               transition="all 0.2s"
+             />
+          )}
+          <Text fontSize="sm" color={file ? "green.600" : "gray.500"} fontWeight="medium">
+            {file ? file.name : "Click to upload or drag and drop"}
+          </Text>
+          {!file && (
+            <Text fontSize="xs" color="gray.400">
+              SVG, PNG, JPG or GIF (max. 5MB)
+            </Text>
+          )}
+        </VStack>
+      </Box>
+    </Box>
+  );
+};
 
 const PendingApprovalPage = () => {
   const { t, i18n } = useTranslation();
@@ -42,8 +105,13 @@ const PendingApprovalPage = () => {
     selfie: null,
   });
 
-  const bgInput =
-    colorMode === "light" ? colors.light.bgInput : colors.dark.bgInput;
+  const bgMain = colorMode === "light" ? "gray.50" : "gray.900";
+  const bgCard = colorMode === "light" ? "white" : "gray.800";
+  const textColor = colorMode === "light" ? "gray.800" : "white";
+  const subTextColor = colorMode === "light" ? "gray.500" : "gray.400";
+  const bgInput = colorMode === "light" ? "gray.50" : "gray.700";
+  const borderColor = colorMode === "light" ? "gray.200" : "gray.600";
+  const hoverBorderColor = "orange.400";
 
   useEffect(() => {
     const fetchStatus = async () => {
@@ -57,7 +125,6 @@ const PendingApprovalPage = () => {
           return;
         }
 
-        // Check cooker_approvals for notes and status
         const { data: approvalData, error } = await supabase
           .from("cooker_approvals")
           .select("*")
@@ -103,10 +170,9 @@ const PendingApprovalPage = () => {
     setUploading(true);
     try {
       const updates = {
-        status: "pending", // Reset status to pending so admin sees it
+        status: "pending",
       };
 
-      // Upload images if selected
       if (files.frontId) {
         const webp = await convertImageToWebP(files.frontId);
         updates.id_card_front_url = await uploadImageToImgBB(webp);
@@ -138,8 +204,8 @@ const PendingApprovalPage = () => {
         duration: 3000,
       });
       
-      // Clear files
       setFiles({ frontId: null, backId: null, selfie: null });
+      setNote(null); // Hide note after submission until next review
       
     } catch (error) {
       console.error("Error updating documents:", error);
@@ -156,8 +222,8 @@ const PendingApprovalPage = () => {
 
   if (loading) {
     return (
-      <Flex minH="100vh" align="center" justify="center">
-        <Spinner size="xl" color="orange.500" />
+      <Flex minH="100vh" align="center" justify="center" bg={bgMain}>
+        <Spinner size="xl" color="orange.500" thickness="4px" />
       </Flex>
     );
   }
@@ -169,294 +235,227 @@ const PendingApprovalPage = () => {
         minH="100vh"
         align="center"
         justify="center"
-        bg={colorMode === "light" ? colors.light.bgMain : colors.dark.bgMain}
+        // bg={bgMain}
         px={4}
         py={10}
       >
         <Container maxW="2xl">
-          <Box
-            bg={
-              colorMode === "light" ? colors.light.bgThird : colors.dark.bgFixed
-            }
+          <MotionBox
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5 }}
+            bg={bgCard}
             borderRadius="2xl"
-            p={{ base: 8, md: 12 }}
-            boxShadow="2xl"
+            p={{ base: 6, md: 10 }}
+            boxShadow="lg"
             textAlign="center"
           >
             <VStack gap={6}>
-              {/* Icon Animation */}
-              <Box
-                position="relative"
-                w="120px"
-                h="120px"
-                display="flex"
-                alignItems="center"
-                justifyContent="center"
-              >
-                <Box
-                  position="absolute"
-                  w="100%"
-                  h="100%"
-                  borderRadius="full"
-                  bg={colorMode === "light" ? "orange.100" : "orange.900"}
-                  opacity={0.3}
-                  animation="pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite"
-                />
-                <Box
-                  position="relative"
-                  w="80px"
-                  h="80px"
-                  borderRadius="full"
-                  bg={colorMode === "light" ? "orange.200" : "orange.800"}
-                  display="flex"
-                  alignItems="center"
-                  justifyContent="center"
+              {/* Illustration Area */}
+              <Box position="relative" mb={2}>
+                <MotionBox
+                  animate={{ 
+                    y: [0, -5, 0],
+                  }}
+                  transition={{ 
+                    duration: 4,
+                    repeat: Infinity,
+                    ease: "easeInOut"
+                  }}
                 >
-                  <MdPendingActions
-                    size={48}
-                    color={colorMode === "light" ? "#C05621" : "#FBD38D"}
-                  />
-                </Box>
+                  <Box
+                    w="120px"
+                    h="120px"
+                    bg="orange.50"
+                    borderRadius="full"
+                    display="flex"
+                    alignItems="center"
+                    justifyContent="center"
+                    position="relative"
+                  >
+                     {/* Clock Hands Animation */}
+                    <Box
+                      position="absolute"
+                      w="100px"
+                      h="100px"
+                      borderRadius="full"
+                      border="2px dashed"
+                      borderColor="orange.200"
+                      animation="spin 10s linear infinite"
+                    />
+                    
+                    <Icon as={MdTimer} boxSize={16} color="orange.500" />
+                    
+                    <Box
+                        position="absolute"
+                        bottom="-2px"
+                        right="-2px"
+                        bg="white"
+                        p={2}
+                        borderRadius="full"
+                        boxShadow="sm"
+                        border="1px solid"
+                        borderColor="gray.100"
+                    >
+                        <Icon as={MdPendingActions} boxSize={5} color="orange.500" />
+                    </Box>
+                  </Box>
+                </MotionBox>
               </Box>
 
-              {/* Title */}
-              <Heading
-                fontSize={{ base: "2xl", md: "3xl" }}
-                fontWeight="bold"
-                color={
-                  colorMode === "light"
-                    ? colors.light.textMain
-                    : colors.dark.textMain
-                }
-              >
-                {t("pendingApproval.title")}
-              </Heading>
-
-              {/* Description */}
-              <VStack gap={3} maxW="md">
+              {/* Title & Description */}
+              <VStack gap={2}>
+                <Heading
+                  fontSize={{ base: "2xl", md: "3xl" }}
+                  fontWeight="bold"
+                  color={textColor}
+                >
+                  {t("pendingApproval.title")}
+                </Heading>
                 <Text
-                  fontSize={{ base: "md", md: "lg" }}
-                  color={colorMode === "light" ? "gray.600" : "gray.400"}
+                  fontSize="md"
+                  color={subTextColor}
+                  maxW="md"
                   lineHeight="tall"
                   dir={isRTL ? "rtl" : "ltr"}
                 >
                   {t("pendingApproval.description")}
                 </Text>
+              </VStack>
 
-                {/* Note Section - Only show if there is a note */}
-                {note && (
-                  <Box
-                    w="full"
-                    p={4}
-                    bg="red.50"
-                    borderRadius="lg"
-                    borderLeft="4px solid"
-                    borderColor="red.500"
-                    textAlign="left"
-                  >
-                    <Flex align="center" gap={3} mb={2}>
-                      <MdError size={20} color="#E53E3E" />
-                      <Text fontWeight="semibold" color="red.800">
-                        Admin Note:
-                      </Text>
-                    </Flex>
-                    <Text fontSize="sm" color="red.700">
+              {/* Note Section */}
+              {note && (
+                <MotionBox
+                  initial={{ opacity: 0, scale: 0.98 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  w="full"
+                  bg="red.50"
+                  p={4}
+                  borderRadius="lg"
+                  border="1px solid"
+                  borderColor="red.100"
+                >
+                  <VStack align="start" spacing={2}>
+                    <HStack color="red.500" spacing={2}>
+                      <MdError size={20} />
+                      <Text fontWeight="bold" fontSize="md">Action Required</Text>
+                    </HStack>
+                    <Text color="red.700" textAlign="left" fontSize="sm" w="full">
                       {note}
                     </Text>
-                  </Box>
-                )}
+                  </VStack>
+                </MotionBox>
+              )}
 
-                {/* Re-upload Section - Only show if there is a note (implying rejection/changes needed) */}
-                {note && (
-                  <Box w="full" mt={4}>
-                    <Text
-                      fontWeight="bold"
-                      mb={4}
-                      align={isRTL ? "right" : "left"}
-                    >
+              {/* Re-upload Section */}
+              {note && (
+                <VStack w="full" spacing={4} align="stretch" mt={2}>
+                   <Text fontWeight="semibold" fontSize="lg" align={isRTL ? "right" : "left"} color={textColor}>
                       Update Documents
-                    </Text>
-                    <Stack spacing={4}>
-                      <Box>
-                        <Text
-                          fontSize="sm"
-                          mb={1}
-                          align={isRTL ? "right" : "left"}
-                        >
-                          National ID (Front)
-                        </Text>
-                        <Input
-                          type="file"
-                          accept="image/*"
-                          pt={1}
-                          onChange={(e) => handleFileChange(e, "frontId")}
-                          bg={bgInput}
-                        />
-                      </Box>
-                      <Box>
-                        <Text
-                          fontSize="sm"
-                          mb={1}
-                          align={isRTL ? "right" : "left"}
-                        >
-                          National ID (Back)
-                        </Text>
-                        <Input
-                          type="file"
-                          accept="image/*"
-                          pt={1}
-                          onChange={(e) => handleFileChange(e, "backId")}
-                          bg={bgInput}
-                        />
-                      </Box>
-                      <Box>
-                        <Text
-                          fontSize="sm"
-                          mb={1}
-                          align={isRTL ? "right" : "left"}
-                        >
-                          Selfie with ID
-                        </Text>
-                        <Input
-                          type="file"
-                          accept="image/*"
-                          pt={1}
-                          onChange={(e) => handleFileChange(e, "selfie")}
-                          bg={bgInput}
-                        />
-                      </Box>
-                      <Button
-                        colorScheme="orange"
-                        bg="#FA2c23"
-                        color="white"
-                        _hover={{ bg: "#d91f17" }}
-                        onClick={handleResubmit}
-                        isLoading={uploading}
-                        loadingText="Uploading..."
-                        leftIcon={<FaUpload />}
-                      >
-                        Resubmit Documents
-                      </Button>
-                    </Stack>
-                  </Box>
-                )}
+                   </Text>
+                   
+                   <Stack direction={{ base: "column", md: "row" }} spacing={3}>
+                      <FileUploadBox 
+                        label="National ID (Front)" 
+                        onChange={(e) => handleFileChange(e, "frontId")}
+                        file={files.frontId}
+                        isRTL={isRTL}
+                        bgInput={bgInput}
+                        borderColor={borderColor}
+                        hoverBorderColor={hoverBorderColor}
+                      />
+                      <FileUploadBox 
+                        label="National ID (Back)" 
+                        onChange={(e) => handleFileChange(e, "backId")}
+                        file={files.backId}
+                        isRTL={isRTL}
+                        bgInput={bgInput}
+                        borderColor={borderColor}
+                        hoverBorderColor={hoverBorderColor}
+                      />
+                   </Stack>
+                   <FileUploadBox 
+                        label="Selfie with ID" 
+                        onChange={(e) => handleFileChange(e, "selfie")}
+                        file={files.selfie}
+                        isRTL={isRTL}
+                        bgInput={bgInput}
+                        borderColor={borderColor}
+                        hoverBorderColor={hoverBorderColor}
+                      />
 
+                   <Button
+                      size="lg"
+                      bg="#FA2c23"
+                      color="white"
+                      _hover={{
+                        bg: "#d91f17",
+                        transform: "translateY(-1px)",
+                      }}
+                      _active={{ transform: "translateY(0)" }}
+                      onClick={handleResubmit}
+                      isLoading={uploading}
+                      loadingText="Uploading..."
+                      leftIcon={<FaCloudUploadAlt />}
+                      fontSize="md"
+                      borderRadius="lg"
+                      mt={2}
+                   >
+                      Resubmit Documents
+                   </Button>
+                </VStack>
+              )}
+
+              {/* Info Box */}
+              {!note && (
                 <Box
                   w="full"
-                  p={4}
-                  bg={colorMode === "light" ? "orange.50" : "orange.900"}
+                  p={5}
+                  bg={colorMode === "light" ? "orange.50" : "rgba(237, 137, 54, 0.1)"}
                   borderRadius="lg"
-                  borderLeft="4px solid"
-                  borderColor={
-                    colorMode === "light" ? "orange.400" : "orange.600"
-                  }
-                  mt={4}
                 >
-                  <Flex align="center" gap={3} mb={2}>
-                    <FaClock
-                      size={20}
-                      color={colorMode === "light" ? "#C05621" : "#FBD38D"}
-                    />
-                    <Text
-                      fontWeight="semibold"
-                      color={
-                        colorMode === "light" ? "orange.800" : "orange.200"
-                      }
+                  <HStack align="start" spacing={3}>
+                    <Box
+                      mt={1}
+                      color="orange.500"
                     >
-                      {t("pendingApproval.whatNext")}
-                    </Text>
-                  </Flex>
-                  <Text
-                    fontSize="sm"
-                    color={colorMode === "light" ? "orange.700" : "orange.300"}
-                    textAlign={isRTL ? "right" : "left"}
-                    dir={isRTL ? "rtl" : "ltr"}
-                  >
-                    {t("pendingApproval.whatNextDescription")}
-                  </Text>
+                      <FaClock size={18} />
+                    </Box>
+                    <VStack align="start" spacing={1}>
+                      <Text fontWeight="semibold" fontSize="md" color={textColor}>
+                        {t("pendingApproval.whatNext")}
+                      </Text>
+                      <Text fontSize="sm" color={subTextColor} textAlign="left" lineHeight="relaxed">
+                        {t("pendingApproval.whatNextDescription")}
+                      </Text>
+                    </VStack>
+                  </HStack>
                 </Box>
-              </VStack>
+              )}
 
               {/* Action Buttons */}
-              <VStack gap={3} w="full" maxW="sm" mt={4}>
-                <Button
-                  leftIcon={<FaHome />}
-                  bg={
-                    colorMode === "light"
-                      ? colors.light.mainFixed
-                      : colors.dark.mainFixed
-                  }
-                  color="white"
-                  size="lg"
-                  w="full"
-                  borderRadius="lg"
-                  onClick={() => navigate("/")}
-                  _hover={{
-                    transform: "translateY(-2px)",
-                    boxShadow: "lg",
-                  }}
-                  transition="all 0.2s"
-                >
-                  {t("pendingApproval.goHome")}
-                </Button>
-
-                <Button
-                  leftIcon={<FaEnvelope />}
-                  variant="outline"
-                  borderColor={
-                    colorMode === "light"
-                      ? colors.light.mainFixed
-                      : colors.dark.mainFixed
-                  }
-                  color={
-                    colorMode === "light"
-                      ? colors.light.mainFixed
-                      : colors.dark.mainFixed
-                  }
-                  size="lg"
-                  w="full"
-                  borderRadius="lg"
-                  onClick={() =>
-                    (window.location.href = "mailto:support@tablya.com")
-                  }
-                  _hover={{
-                    bg:
-                      colorMode === "light"
-                        ? "orange.50"
-                        : "rgba(251, 211, 141, 0.1)",
-                  }}
-                >
-                  {t("pendingApproval.contactSupport")}
-                </Button>
-              </VStack>
-
-              {/* Footer Note */}
-              <Text
-                fontSize="xs"
-                color={colorMode === "light" ? "gray.500" : "gray.500"}
-                mt={4}
-                dir={isRTL ? "rtl" : "ltr"}
+              <Button
+                variant="ghost"
+                size="md"
+                onClick={() => navigate("/")}
+                color={subTextColor}
+                leftIcon={<FaHome />}
+                _hover={{ bg: colorMode === "light" ? "gray.100" : "gray.700", color: textColor }}
               >
-                {t("pendingApproval.needHelp")}
-              </Text>
+                {t("pendingApproval.goHome")}
+              </Button>
+
             </VStack>
-          </Box>
+          </MotionBox>
         </Container>
       </Flex>
       <Footer />
 
-      {/* CSS Animation */}
       <style>
         {`
-          @keyframes pulse {
-            0%, 100% {
-              transform: scale(1);
-              opacity: 0.3;
-            }
-            50% {
-              transform: scale(1.1);
-              opacity: 0.5;
-            }
+          @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
           }
         `}
       </style>

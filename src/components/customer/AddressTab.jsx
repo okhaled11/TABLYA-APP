@@ -87,11 +87,12 @@ export default function AddressTab() {
 
   // API hooks
   const { data: addresses = [], refetch, isLoading } = useGetAddressesQuery();
-  const [addAddress] = useAddAddressMutation();
-  const [updateAddress] = useUpdateAddressMutation();
+  const [addAddress, { isLoading: isAdding }] = useAddAddressMutation();
+  const [updateAddress, { isLoading: isUpdating }] = useUpdateAddressMutation();
   const [deleteAddress] = useDeleteAddressMutation();
   const [setPrimaryAddress] = useSetPrimaryAddressMutation();
-  const [updateDeliveryLocation] = useUpdateDeliveryLocationMutation();
+  const [updateDeliveryLocation, { isLoading: isUpdatingDelivery }] =
+    useUpdateDeliveryLocationMutation();
 
   // Realtime subscription for addresses
   useEffect(() => {
@@ -514,6 +515,17 @@ export default function AddressTab() {
   };
 
   const handleDeleteAddress = async (id) => {
+    const addressToDelete = addresses.find((addr) => addr.id === id);
+    if (addressToDelete?.is_default) {
+      toaster.create({
+        title: "Cannot Delete Primary Address",
+        description: "Please set another address as primary before deleting this one.",
+        type: "error",
+        duration: 3000,
+      });
+      return;
+    }
+
     try {
       await deleteAddress(id).unwrap();
       toaster.create({
@@ -854,7 +866,7 @@ export default function AddressTab() {
                               >
                                 <Pen size={18} />
                               </IconButton>
-                              <IconButton
+                                <IconButton
                                 size="xl"
                                 variant="ghost"
                                 color={
@@ -863,6 +875,7 @@ export default function AddressTab() {
                                     : colors.dark.error
                                 }
                                 onClick={() => handleDeleteAddress(addr.id)}
+                                isDisabled={addr.is_default}
                                 _hover={{
                                   bg:
                                     colorMode === "light"
@@ -906,39 +919,41 @@ export default function AddressTab() {
                     </VStack>
                   )}
 
-                  {/* Add New Address Button */}
-                  {(!isSingleAddressRole || addresses.length === 0) && (
-                    <Button
-                      width={"60%"}
-                      alignSelf="center"
-                      variant="outline"
-                      borderColor={
-                        colorMode === "light"
-                          ? colors.light.mainFixed
-                          : colors.dark.mainFixed
-                      }
-                      bg="transparent"
-                      color={
-                        colorMode === "light"
-                          ? colors.light.mainFixed
-                          : colors.dark.mainFixed
-                      }
-                      borderRadius="12px"
-                      size="lg"
-                      borderWidth="2px"
-                      leftIcon={<Plus size={20} weight="bold" />}
-                      onClick={() => setIsAddressDialogOpen(true)}
-                      _hover={{
-                        bg:
-                          colorMode === "light"
-                            ? colors.light.mainFixed10a
-                            : colors.dark.mainFixed10a,
-                      }}
-                    >
-                      + Add Address
-                    </Button>
-                  )}
                 </>
+              )}
+
+              {/* Add New Address Button - Always visible for better UX */}
+              {(!isSingleAddressRole || addresses.length === 0) && (
+                <Button
+                  width={"60%"}
+                  alignSelf="center"
+                  variant="outline"
+                  borderColor={
+                    colorMode === "light"
+                      ? colors.light.mainFixed
+                      : colors.dark.mainFixed
+                  }
+                  bg="transparent"
+                  color={
+                    colorMode === "light"
+                      ? colors.light.mainFixed
+                      : colors.dark.mainFixed
+                  }
+                  borderRadius="12px"
+                  size="lg"
+                  borderWidth="2px"
+                  leftIcon={<Plus size={20} weight="bold" />}
+                  onClick={() => setIsAddressDialogOpen(true)}
+                  _hover={{
+                    bg:
+                      colorMode === "light"
+                        ? colors.light.mainFixed10a
+                        : colors.dark.mainFixed10a,
+                  }}
+                  mt={4}
+                >
+                  + Add Address
+                </Button>
               )}
             </>
           )}
@@ -1269,6 +1284,8 @@ export default function AddressTab() {
                   </VStack>
                 </GridItem>
 
+
+
                 {/* City Input */}
                 <GridItem colSpan={{ base: 1, md: 1 }}>
                   <VStack align="stretch" spacing={2}>
@@ -1283,43 +1300,79 @@ export default function AddressTab() {
                     >
                       City
                     </Text>
-                    <Input
-                      placeholder="Auto-filled from current location"
-                      value={city}
-                      onChange={(e) => {
-                        setCity(e.target.value);
-                        if (addressErrors.city) {
-                          setAddressErrors({ ...addressErrors, city: "" });
-                        }
-                      }}
-                      bg={
-                        colorMode === "light"
-                          ? colors.light.bgInput
-                          : colors.dark.bgInput
-                      }
-                      border={
-                        addressErrors.city
-                          ? `1px solid ${
-                              colorMode === "light"
-                                ? colors.light.error
-                                : colors.dark.error
-                            }`
-                          : "none"
-                      }
-                      borderRadius="12px"
-                      color={
-                        colorMode === "light"
-                          ? colors.light.textMain
-                          : colors.dark.textMain
-                      }
-                      _placeholder={{
-                        color:
+                    <Box position="relative">
+                      <Input
+                        placeholder="Auto-filled from current location"
+                        value={city}
+                        onChange={(e) => {
+                          setCity(e.target.value);
+                          if (addressErrors.city) {
+                            setAddressErrors({ ...addressErrors, city: "" });
+                          }
+                        }}
+                        bg={
                           colorMode === "light"
-                            ? colors.light.textSub
-                            : colors.dark.textSub,
-                      }}
-                      isDisabled
-                    />
+                            ? colors.light.bgInput
+                            : colors.dark.bgInput
+                        }
+                        border={
+                          addressErrors.city
+                            ? `1px solid ${
+                                colorMode === "light"
+                                  ? colors.light.error
+                                  : colors.dark.error
+                              }`
+                            : "none"
+                        }
+                        borderRadius="12px"
+                        color={
+                          colorMode === "light"
+                            ? colors.light.textMain
+                            : colors.dark.textMain
+                        }
+                        _placeholder={{
+                          color:
+                            colorMode === "light"
+                              ? colors.light.textSub
+                              : colors.dark.textSub,
+                        }}
+                        readOnly
+                        _readOnly={{
+                          opacity: 0.7,
+                          cursor: "not-allowed",
+                          bg: colorMode === "light" ? "gray.100" : "whiteAlpha.200",
+                          pointerEvents: "none"
+                        }}
+                        pr="3rem"
+                      />
+                      <Box
+                        position="absolute"
+                        right="0"
+                        top="0"
+                        h="100%"
+                        display="flex"
+                        alignItems="center"
+                        px={2}
+                        zIndex={2}
+                      >
+                        <IconButton
+                          h="2rem"
+                          size="sm"
+                          onClick={handleGetCurrentLocation}
+                          isLoading={isGettingLocation}
+                          aria-label="Get Location"
+                          bg="transparent"
+                          color={
+                            colorMode === "light"
+                              ? colors.light.mainFixed
+                              : colors.dark.mainFixed
+                          }
+                          _hover={{ bg: "transparent", transform: "scale(1.1)" }}
+                        >
+                          <MapTrifold weight="fill" size={20} />
+                        </IconButton>
+                      </Box>
+                    </Box>
                     {addressErrors.city && (
                       <Text
                         fontSize="sm"
@@ -1383,6 +1436,13 @@ export default function AddressTab() {
                           colorMode === "light"
                             ? colors.light.textSub
                             : colors.dark.textSub,
+                      }}
+                      readOnly
+                      _readOnly={{
+                        opacity: 0.7,
+                        cursor: "not-allowed",
+                        bg: colorMode === "light" ? "gray.100" : "whiteAlpha.200",
+                        pointerEvents: "none"
                       }}
                     />
                     {addressErrors.area && (
@@ -1863,6 +1923,8 @@ export default function AddressTab() {
                       : colors.dark.mainFixed70a,
                 }}
                 onClick={handleSaveAddress}
+                isLoading={isAdding || isUpdating || isUpdatingDelivery}
+                loadingText={editingAddressId ? "Updating..." : "Saving..."}
               >
                 {editingAddressId ? "Update" : "Save"}
               </Button>

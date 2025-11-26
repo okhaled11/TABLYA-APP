@@ -422,7 +422,7 @@ export default function PersonalInfoTab({ user: authUser }) {
                   color={styles.textMain}
                   mb={2}
                 >
-                  Chef Description
+                  Chef bio
                 </Text>
                 <Textarea
                   placeholder="Add your description"
