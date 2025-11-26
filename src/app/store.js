@@ -38,7 +38,7 @@ import { favoritesApi } from "./features/Customer/favoritesApi";
 import { adminAuthApi } from "./features/Admin/adminData";
 
 import { MariamSettingsApi } from "./features/Admin/MariamSettings";
-import { landingReviews } from "./features/Landing/landingReviews";
+import { landingReviews } from "./features/Landing/LandingReviews";
 import { deliveryApi } from "./features/delivery/deliveryApi";
 import { deleveryOrder } from "./features/delivery/deleveryOrder";
 
@@ -140,4 +140,5 @@ export const store = configureStore({
 });
 
 export const persistor = persistStore(store);
+
 
