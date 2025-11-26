@@ -24,8 +24,8 @@ import { passwordApi } from "./features/Customer/passwordSlice";
 import { personalInfoApi } from "./features/Customer/personalInfoSlice";
 import { addressApi } from "./features/Customer/addressSlice";
 import { OrdersHistoryCustomerSlice } from "./features/Customer/Orders/OrdersHistoryCustomerSlice";
-import { OrdersApiCustomerSlice } from "./features/Customer/Orders/ordersApiCustomerSlice";
-import { ReportsApiSlice } from "./features/Customer/Reports/reportsApiSlice";
+import { OrdersApiCustomerSlice } from "./features/Customer/Orders/OrdersApiCustomerSlice";
+import { ReportsApiSlice } from "./features/Customer/Reports/ReportsApiSlice";
 import { reviewsApi } from "./features/Customer/reviewsApi";
 import { UserSlice } from "./features/UserSlice";
 import { CookerAcceptOrder } from "./features/Cooker/CookerAcceptOrder";
@@ -38,7 +38,7 @@ import { favoritesApi } from "./features/Customer/favoritesApi";
 import { adminAuthApi } from "./features/Admin/adminData";
 
 import { MariamSettingsApi } from "./features/Admin/MariamSettings";
-import { landingReviews } from "./features/Landing/LandingReviews";
+import { landingReviews } from "./features/Landing/landingReviews";
 import { deliveryApi } from "./features/delivery/deliveryApi";
 import { deleveryOrder } from "./features/delivery/deleveryOrder";
 
