@@ -15,10 +15,12 @@ import colors from "../../../theme/color.js";
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
 import { FiArrowLeft, FiSearch } from "react-icons/fi";
+import { useTranslation } from "react-i18next";
 import { useGetAllCookersQuery, useGetCustomerCityQuery } from "../../../app/features/Customer/CookersApi.js";
 import ChefCardSkelaton from "../../../components/ui/ChefCardSkelaton.jsx";
 
 const AllCookers = () => {
+  const { t } = useTranslation();
   const { colorMode } = useColorMode();
   const navigate = useNavigate();
 
@@ -94,7 +96,7 @@ const AllCookers = () => {
               }
             >
               <Input
-                placeholder="Search"
+                placeholder={t('customer.allChefs.searchPlaceholder')}
                 bg={
                   colorMode == "light"
                     ? colors.light.white10a
@@ -111,16 +113,8 @@ const AllCookers = () => {
             </InputGroup>
           </Flex>
 
-          <Text
-            fontSize={{ base: "2xl", md: "4xl" }}
-            fontWeight="bold"
-            color={
-              colorMode === "light"
-                ? colors.light.textMain
-                : colors.dark.textMain
-            }
-          >
-            All Cookers
+          <Text fontSize="xl" fontWeight="bold">
+            {t('customer.allChefs.title')}
           </Text>
 
           {/* <Box w={{ base: "0", md: "70px" }} /> */}
@@ -167,10 +161,8 @@ const AllCookers = () => {
                 : [];
               if (list.length === 0) {
                 return (
-                  <Text gridColumn={{ base: "1 / -1" }} textAlign="center">
-                    {customerCity 
-                      ? `No cookers found in ${customerCity}` 
-                      : "No results found"}
+                  <Text textAlign="center" fontSize="lg" color="gray.500">
+                    {t('customer.allChefs.noChefsFound')}
                   </Text>
                 );
               }

@@ -22,7 +22,10 @@ import { useGetUserDataQuery } from "../../app/features/Auth/authSlice";
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import { useColorMode } from "../../theme/color-mode";
 import colors from "../../theme/color";
+import { useTranslation } from "react-i18next";
 const ReviewModal = ({ dialog, existingReview }) => {
+  const { t, i18n } = useTranslation();
+  const isRTL = i18n.language === 'ar';
   const { colorMode } = useColorMode();
   const [rating, setRating] = useState(0);
   const [hoverRating, setHoverRating] = useState(0);
@@ -97,8 +100,8 @@ const ReviewModal = ({ dialog, existingReview }) => {
     // Check for empty input first
     if (!rating || !review) {
       toaster.create({
-        title: "Review",
-        description: "Please provide a rating and review.",
+        title: t('reviews.title'),
+        description: t('reviews.provideRatingAndReview'),
         type: "error",
         duration: 3000,
         isClosable: true,
@@ -120,9 +123,8 @@ const ReviewModal = ({ dialog, existingReview }) => {
     } catch (err) {
       setCheckingText(false);
       toaster.create({
-        title: "Content Check Failed",
-        description:
-          err?.message || "Could not verify content. Please try again.",
+        title: t('reviews.contentCheckFailed'),
+        description: err?.message || t('reviews.contentCheckError'),
         type: "error",
         duration: 3000,
         isClosable: true,
@@ -141,8 +143,8 @@ const ReviewModal = ({ dialog, existingReview }) => {
           updates: { rating, comment: review },
         }).unwrap();
         toaster.create({
-          title: "Review",
-          description: "Review updated successfully",
+          title: t('reviews.title'),
+          description: t('reviews.updateSuccess'),
           type: "success",
           duration: 3000,
           isClosable: true,
@@ -157,8 +159,8 @@ const ReviewModal = ({ dialog, existingReview }) => {
         };
         await addReview(reviewData).unwrap();
         toaster.create({
-          title: "Review",
-          description: "Review submitted successfully",
+          title: t('reviews.title'),
+          description: t('reviews.submitSuccess'),
           type: "success",
           duration: 3000,
           isClosable: true,
@@ -173,8 +175,8 @@ const ReviewModal = ({ dialog, existingReview }) => {
       return true;
     } catch (err) {
       toaster.create({
-        title: "Review",
-        description: err?.message || "Failed to submit review",
+        title: t('reviews.title'),
+        description: err?.message || t('reviews.submitError'),
         type: "error",
         duration: 3000,
         isClosable: true,
@@ -188,16 +190,16 @@ const ReviewModal = ({ dialog, existingReview }) => {
     <>
       <CustomModal
         dialog={dialog}
-        description="Rate this meal and let others know your experience"
-        title={existingReview ? "Update Your Review" : "Add A Review"}
-        okTxt={existingReview ? "Update Review" : "Submit Review"}
-        cancelTxt="Cancel"
+        description={t('reviews.rateExperience')}
+        title={existingReview ? t('reviews.updateTitle') : t('reviews.addTitle')}
+        okTxt={existingReview ? t('reviews.updateButton') : t('reviews.submitButton')}
+        cancelTxt={t('common.cancel')}
         onOkHandler={handleSubmit}
         isLoading={isLoading || isUpdating || checkingText}
       >
         <Box mb={4}>
-          <Text fontWeight="bold" mb={2}>
-            Your Rating
+          <Text fontWeight="bold" mb={2} textAlign={isRTL ? 'right' : 'left'}>
+            {t('reviews.yourRating')}
           </Text>
           <Flex>
             {[1, 2, 3, 4, 5].map((star) => (
@@ -219,13 +221,14 @@ const ReviewModal = ({ dialog, existingReview }) => {
         </Box>
 
         <Box mb={4}>
-          <Text fontWeight="bold" mb={2}>
-            Your Review
+          <Text fontWeight="bold" mb={2} textAlign={isRTL ? 'right' : 'left'}>
+            {t('reviews.yourReview')}
           </Text>
           <Textarea
-            placeholder="Enter your review..."
+            placeholder={t('reviews.enterReview')}
             value={review}
             onChange={(e) => setReview(e.target.value)}
+            dir={isRTL ? 'rtl' : 'ltr'}
           />
         </Box>
       </CustomModal>
@@ -262,8 +265,8 @@ const ReviewModal = ({ dialog, existingReview }) => {
                   >
                     <IoWarningOutline size={28} />
                   </Box>
-                  <Dialog.Title fontSize="xl" fontWeight="bold" color="red.600">
-                    Sensitive Content Detected
+                  <Dialog.Title fontSize="xl" fontWeight="bold" color="red.600" textAlign={isRTL ? 'right' : 'left'}>
+                    {t('reviews.sensitiveContent')}
                   </Dialog.Title>
                 </Flex>
               </Dialog.Header>
@@ -278,9 +281,7 @@ const ReviewModal = ({ dialog, existingReview }) => {
                   }
                   lineHeight="1.6"
                 >
-                  Your review contains sensitive or inappropriate content.
-                  Please revise your review to be respectful and appropriate
-                  before submitting.
+                  {t('reviews.sensitiveContentWarning')}
                 </Text>
               </Dialog.Body>
 
@@ -292,7 +293,7 @@ const ReviewModal = ({ dialog, existingReview }) => {
                   size="lg"
                   borderRadius="12px"
                 >
-                  Edit Review
+                  {t('reviews.editReview')}
                 </Button>
               </Dialog.Footer>
 

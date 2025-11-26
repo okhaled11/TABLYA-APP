@@ -11,11 +11,12 @@ import colors from "../../theme/color";
 import ScrollAreaComponent from "../ui/ScrollAreaComponent";
 import EmptyCartStatus from "./EmptyCartStatus";
 import { MdOutlineKeyboardArrowLeft } from "react-icons/md";
+import { useTranslation } from "react-i18next";
 
 export default function CartSection() {
+  const { t, i18n } = useTranslation();
   const { colorMode } = useColorMode();
   const { cartItems } = useSelector((state) => state.cart);
-  console.log(cartItems);
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
@@ -33,6 +34,13 @@ export default function CartSection() {
     navigate(-1);
   };
 
+  // Direct Arabic translations
+  const translations = {
+    title: i18n.language === 'ar' ? 'سلة التسوق' : 'Shopping Cart',
+    items: i18n.language === 'ar' ? 'عناصر' : 'items',
+    continueShopping: i18n.language === 'ar' ? 'متابعة التسوق' : 'Continue Shopping'
+  };
+
   return (
     <Box
       bg="white"
@@ -45,8 +53,8 @@ export default function CartSection() {
       background={
         colorMode == "light" ? colors.light.bgThird : colors.dark.bgThird
       }
+      dir={i18n.language === 'ar' ? 'rtl' : 'ltr'}
     >
-      {/* Header with category selector */}
       <Flex
         direction="row"
         justifyContent="space-between"
@@ -60,7 +68,7 @@ export default function CartSection() {
             colorMode == "light" ? colors.light.textMain : colors.dark.textMain
           }
         >
-          Cart
+          {translations.title}
         </Text>
         <Box>
           <Text
@@ -69,11 +77,10 @@ export default function CartSection() {
               colorMode == "light" ? colors.light.textSub : colors.dark.textSub
             }
           >
-            {cartItems?.length || 0} items
+            {cartItems?.length || 0} {translations.items}
           </Text>
         </Box>
       </Flex>
-      {/* divider */}
       <Box
         w="100%"
         h="2px"
@@ -86,7 +93,6 @@ export default function CartSection() {
         mb={5}
       />
 
-      {/* Scrollable content */}
       <ScrollAreaComponent>
         {cartItems?.map((item) => (
           <CartItemCard
@@ -108,12 +114,13 @@ export default function CartSection() {
           variant={"ghost"}
           size="lg"
           mt={4}
-          w="180px"
+          w={i18n.language === 'ar' ? '200px' : '180px'}
           onClick={handleContinueShopping}
           bg={"transparent"}
+          leftIcon={i18n.language === 'en' ? <MdOutlineKeyboardArrowLeft /> : null}
+          rightIcon={i18n.language === 'ar' ? <MdOutlineKeyboardArrowLeft style={{ transform: 'rotate(180deg)' }} /> : null}
         >
-          <MdOutlineKeyboardArrowLeft />
-          Continue Shopping
+          {translations.continueShopping}
         </Button>
       </Box>
     </Box>

@@ -17,7 +17,9 @@ import ChefCard from "../../components/customer/ChefCard";
 import { useColorMode } from "../../theme/color-mode";
 import colors from "../../theme/color";
 import { FaHeart } from "react-icons/fa";
+import { useTranslation } from "react-i18next";
 const CustomerFavourite = () => {
+  const { t } = useTranslation();
   const { colorMode } = useColorMode();
   const customerIdFromRedux = useSelector((s) => s.auth?.userData?.user?.id);
   const [customerIdFromSupabase, setCustomerIdFromSupabase] = useState(null);
@@ -76,7 +78,7 @@ const CustomerFavourite = () => {
           colorMode === "light" ? colors.light.textMain : colors.dark.textMain
         }
       >
-        My Favourite Chefs
+        {t('customer.favorites.title')}
       </Text>
 
       {isPending && (
@@ -133,17 +135,9 @@ const CustomerFavourite = () => {
             >
               <FaHeart size={40} />
             </Box>
-            <Text
-              fontSize={{ base: "lg", md: "xl" }}
-              fontWeight="bold"
-              color={
-                colorMode === "light"
-                  ? colors.light.textMain
-                  : colors.dark.textMain
-              }
-            >
-              No Favourite Chefs Yet
-            </Text>
+            <Heading as="h1" size="xl" mb={4}>
+              {t('customer.favorites.noFavorites')}
+            </Heading>
             <Text
               fontSize={{ base: "sm", md: "md" }}
               color={

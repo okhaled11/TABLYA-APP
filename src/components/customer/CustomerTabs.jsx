@@ -5,9 +5,10 @@ import { FaRegHeart } from "react-icons/fa6";
 import colors from "../../theme/color";
 import { useColorMode } from "../../theme/color-mode";
 import { useNavigate, useLocation } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 
 const CustomerTabs = () => {
-  const {colorMode} = useColorMode();
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const location = useLocation();
   const getActiveTab = () => {
@@ -31,7 +32,7 @@ const CustomerTabs = () => {
           >
             <Flex alignItems="center" gap={1} onClick={() => navigate("/home")}>
               <LuHouse size={20} />
-              Home
+              {t('tabs.home')}
             </Flex>
           </Tabs.Trigger>
 
@@ -48,7 +49,7 @@ const CustomerTabs = () => {
               onClick={() => navigate("/home/order")}
             >
               <RiFileList3Line size={20} />
-              Orders
+              {t('tabs.orders')}
             </Flex>
           </Tabs.Trigger>
 
@@ -65,7 +66,7 @@ const CustomerTabs = () => {
               onClick={() => navigate("/home/favourities")}
             >
               <FaRegHeart size={20} />
-              Favourites
+              {t('tabs.favourites')}
             </Flex>
           </Tabs.Trigger>
         </Flex>
