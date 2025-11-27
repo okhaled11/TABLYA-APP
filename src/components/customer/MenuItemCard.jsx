@@ -383,3 +383,4 @@ const MenuItemCard = ({ item, isAvailable }) => {
 };
 
 export default MenuItemCard;
+ 
