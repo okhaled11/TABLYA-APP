@@ -11,6 +11,7 @@ import {
   Pagination,
   ButtonGroup,
   IconButton,
+  Badge,
 } from "@chakra-ui/react";
 import { useState, useEffect, useMemo } from "react";
 import colors from "../../theme/color";
@@ -19,7 +20,6 @@ import { toaster } from "../../components/ui/toaster";
 import {
   useGetCookerOrdersQuery,
   useUpdateOrderStatusMutation,
-  useDeleteOrderMutation,
 } from "../../app/features/Cooker/CookerAcceptOrder";
 import { IoPerson } from "react-icons/io5";
 import { FaLocationDot } from "react-icons/fa6";
@@ -40,7 +40,7 @@ const CookerOrders = () => {
   const { colorMode } = useColorMode();
 
   /* ---------------state----------------- */
-  const [selectedStatus, setSelectedStatus] = useState("Default");
+  const [selectedStatus, setSelectedStatus] = useState("active");
   const [deleteId, setDeleteId] = useState([]);
   const [allOrder, setAllOrder] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
@@ -50,7 +50,6 @@ const CookerOrders = () => {
   const { data: orders, isLoading, error } = useGetCookerOrdersQuery();
   const [updateOrderStatus, { isLoading: isUpdating }] =
     useUpdateOrderStatusMutation();
-  const [deleteOrder, { isLoading: isDeleting }] = useDeleteOrderMutation();
 
   /* ---------------useEffect----------------- */
   useEffect(() => {
@@ -59,13 +58,29 @@ const CookerOrders = () => {
       return;
     }
 
-    if (selectedStatus === "Default") {
-      setAllOrder(orders);
+    if (selectedStatus === "active") {
+      const filtered = orders.filter(
+        (order) => (order.status || "").toLowerCase() === "created"
+      );
+      setAllOrder(filtered);
+      // Reset to page 1 when filter changes
+      setCurrentPage(1);
+      return;
+    }
+
+    if (selectedStatus === "out_for_delivery") {
+      const filtered = orders.filter((order) => {
+        const s = (order.status || "").toLowerCase();
+        return s === "out_for_delivery" || s === "delivered";
+      });
+      setAllOrder(filtered);
+      setCurrentPage(1);
       return;
     }
 
     const filteredOrders = orders.filter(
-      (order) => order.status?.toLowerCase() === selectedStatus.toLowerCase()
+      (order) =>
+        (order.status || "").toLowerCase() === selectedStatus.toLowerCase()
     );
 
     setAllOrder(filteredOrders);
@@ -88,6 +103,13 @@ const CookerOrders = () => {
 
   /* ---------------HANDLER----------------- */
   const canTransitionStatus = (currentStatus, nextStatus) => {
+    if (
+      currentStatus === "out_for_delivery" ||
+      currentStatus === "delivered" ||
+      currentStatus === "cancelled"
+    ) {
+      return false;
+    }
     switch (nextStatus) {
       case "confirmed":
         return (
@@ -126,15 +148,11 @@ const CookerOrders = () => {
     }
   };
 
-  const handleDeleteOrder = async (orderId) => {
+  const handleCancelOrder = async (orderId) => {
     try {
-      await deleteOrder(orderId).unwrap();
-      // If we deleted the last order on a page, go to previous page
-      if (paginatedOrders.length === 1 && currentPage > 1) {
-        setCurrentPage(currentPage - 1);
-      }
+      await updateOrderStatus({ orderId, status: "cancelled" }).unwrap();
     } catch (err) {
-      console.error("Failed to delete order:", err);
+      console.error("Failed to cancel order:", err);
     }
   };
 
@@ -145,10 +163,11 @@ const CookerOrders = () => {
   };
 
   const statusTabs = [
-    { label: "All", value: "Default" },
+    { label: "Active", value: "active" },
     { label: "Confirmed", value: "confirmed" },
     { label: "Preparing", value: "preparing" },
-    { label: "Ready", value: "ready_for_pickup" },
+    { label: "Out for Delivery", value: "out_for_delivery" },
+    { label: "Cancelled", value: "cancelled" },
   ];
 
   return (
@@ -284,8 +303,12 @@ const CookerOrders = () => {
             const isConfirmed = normalizedStatus === "confirmed";
             const isPreparing = normalizedStatus === "preparing";
             const isReadyForPickup = normalizedStatus === "ready_for_pickup";
+            const isCancelled = normalizedStatus === "cancelled";
+            const isOutForDelivery = normalizedStatus === "out_for_delivery";
+            const isDelivered = normalizedStatus === "delivered";
+            const isTerminal = isCancelled || isOutForDelivery || isDelivered;
             const canClickConfirm =
-              !isConfirmed && !isPreparing && !isReadyForPickup;
+              !isConfirmed && !isPreparing && !isReadyForPickup && !isTerminal;
             const canClickPreparing = isConfirmed;
             const canClickReadyForPickup = isPreparing;
 
@@ -598,66 +621,55 @@ const CookerOrders = () => {
                 </Grid>
 
                 {/* Action Buttons */}
-                <Flex
-                  direction={{ base: "column", md: "row" }}
-                  justifyContent={"space-between"}
-                  gap={3}
-                  mt={4}
-                >
-                  <Flex
-                    gap={2}
-                    direction={{ base: "column", sm: "row" }}
-                    flex={1}
-                  >
-                    <Button
-                      size={{ base: "sm", md: "md" }}
-                      variant="outline"
-                      py={2}
-                      rounded={"16px"}
+                {isCancelled || isOutForDelivery || isDelivered ? (
+                  <Flex justifyContent={"flex-end"} gap={2} mt={4}>
+                    <Badge
                       bg={
-                        isConfirmed
-                          ? colors.light.mainFixed
-                          : colors.light.bgFourth
+                        isCancelled
+                          ? "red.300"
+                          : isOutForDelivery
+                          ? "blue.200"
+                          : "green.200"
                       }
-                      color={isConfirmed ? "white" : colors.light.textSub}
-                      fontSize={{ base: "13px", md: "14px" }}
-                      onClick={() => handleStatusUpdate(order, "confirmed")}
-                      isDisabled={isUpdating || !canClickConfirm}
-                      _hover={{
-                        bg: isConfirmed
-                          ? colors.light.mainFixed
-                          : colors.light.bgThird,
-                      }}
-                      _disabled={{
-                        opacity: 0.5,
-                        cursor: "not-allowed",
-                        bg: colors.light.bgThird,
-                        color: colors.light.textSub,
-                      }}
+                      rounded="full"
+                      px={3}
+                      py={1}
+                    >
+                      {isCancelled
+                        ? "Cancelled"
+                        : isOutForDelivery
+                        ? "Out for Delivery"
+                        : "Delivered"}
+                    </Badge>
+                  </Flex>
+                ) : (
+                  <Flex
+                    direction={{ base: "column", md: "row" }}
+                    justifyContent={"space-between"}
+                    gap={3}
+                    mt={4}
+                  >
+                    <Flex
+                      gap={2}
+                      direction={{ base: "column", sm: "row" }}
                       flex={1}
                     >
-                      <MdOutlineDoneOutline size={16} />
-                      <Box as="span" ml={1}>
-                        Confirmed
-                      </Box>
-                    </Button>
-                    {!canClickConfirm && (
                       <Button
-                        py={2}
                         size={{ base: "sm", md: "md" }}
                         variant="outline"
+                        py={2}
                         rounded={"16px"}
                         bg={
-                          isPreparing
+                          isConfirmed
                             ? colors.light.mainFixed
                             : colors.light.bgFourth
                         }
-                        color={isPreparing ? "white" : colors.light.textSub}
+                        color={isConfirmed ? "white" : colors.light.textSub}
                         fontSize={{ base: "13px", md: "14px" }}
-                        onClick={() => handleStatusUpdate(order, "preparing")}
-                        isDisabled={isUpdating || !canClickPreparing}
+                        onClick={() => handleStatusUpdate(order, "confirmed")}
+                        isDisabled={isUpdating || !canClickConfirm}
                         _hover={{
-                          bg: isPreparing
+                          bg: isConfirmed
                             ? colors.light.mainFixed
                             : colors.light.bgThird,
                         }}
@@ -669,92 +681,126 @@ const CookerOrders = () => {
                         }}
                         flex={1}
                       >
-                        <PiCookingPot size={16} />
+                        <MdOutlineDoneOutline size={16} />
                         <Box as="span" ml={1}>
-                          Preparing
+                          Confirmed
                         </Box>
                       </Button>
-                    )}
-                    {!canClickConfirm && (
+                      {!canClickConfirm && (
+                        <Button
+                          py={2}
+                          size={{ base: "sm", md: "md" }}
+                          variant="outline"
+                          rounded={"16px"}
+                          bg={
+                            isPreparing
+                              ? colors.light.mainFixed
+                              : colors.light.bgFourth
+                          }
+                          color={isPreparing ? "white" : colors.light.textSub}
+                          fontSize={{ base: "13px", md: "14px" }}
+                          onClick={() => handleStatusUpdate(order, "preparing")}
+                          isDisabled={isUpdating || !canClickPreparing}
+                          _hover={{
+                            bg: isPreparing
+                              ? colors.light.mainFixed
+                              : colors.light.bgThird,
+                          }}
+                          _disabled={{
+                            opacity: 0.5,
+                            cursor: "not-allowed",
+                            bg: colors.light.bgThird,
+                            color: colors.light.textSub,
+                          }}
+                          flex={1}
+                        >
+                          <PiCookingPot size={16} />
+                          <Box as="span" ml={1}>
+                            Preparing
+                          </Box>
+                        </Button>
+                      )}
+                      {!canClickConfirm && (
+                        <Button
+                          py={2}
+                          size={{ base: "sm", md: "md" }}
+                          variant="outline"
+                          rounded={"16px"}
+                          bg={
+                            isReadyForPickup
+                              ? colors.light.mainFixed
+                              : colors.light.bgFourth
+                          }
+                          color={
+                            isReadyForPickup ? "white" : colors.light.textSub
+                          }
+                          fontSize={{ base: "13px", md: "14px" }}
+                          onClick={() =>
+                            handleStatusUpdate(order, "ready_for_pickup")
+                          }
+                          isDisabled={isUpdating || !canClickReadyForPickup}
+                          _hover={{
+                            bg: isReadyForPickup
+                              ? colors.light.mainFixed
+                              : colors.light.bgThird,
+                          }}
+                          _disabled={{
+                            opacity: 0.5,
+                            cursor: "not-allowed",
+                            bg: colors.light.bgThird,
+                            color: colors.light.textSub,
+                          }}
+                          flex={1}
+                        >
+                          <MdOutlineDeliveryDining size={16} />
+                          <Box
+                            as="span"
+                            ml={1}
+                            display={{ base: "none", sm: "inline" }}
+                          >
+                            ready for Pickup
+                          </Box>
+                          <Box
+                            as="span"
+                            ml={1}
+                            display={{ base: "inline", sm: "none" }}
+                          >
+                            Delivery
+                          </Box>
+                        </Button>
+                      )}
+                    </Flex>
+                    {canClickConfirm && (
                       <Button
                         py={2}
                         size={{ base: "sm", md: "md" }}
                         variant="outline"
                         rounded={"16px"}
-                        bg={
-                          isReadyForPickup
-                            ? colors.light.mainFixed
-                            : colors.light.bgFourth
-                        }
-                        color={
-                          isReadyForPickup ? "white" : colors.light.textSub
-                        }
+                        bg={colors.light.bgThird}
+                        color={colors.light.mainFixed}
                         fontSize={{ base: "13px", md: "14px" }}
-                        onClick={() =>
-                          handleStatusUpdate(order, "ready_for_pickup")
-                        }
-                        isDisabled={isUpdating || !canClickReadyForPickup}
-                        _hover={{
-                          bg: isReadyForPickup
-                            ? colors.light.mainFixed
-                            : colors.light.bgThird,
+                        onClick={() => {
+                          dialog.setOpen(true);
+                          setDeleteId(order.id);
                         }}
+                        isDisabled={isUpdating}
+                        _hover={{ bg: colors.light.bgFourth }}
                         _disabled={{
                           opacity: 0.5,
                           cursor: "not-allowed",
                           bg: colors.light.bgThird,
                           color: colors.light.textSub,
                         }}
-                        flex={1}
+                        w={{ base: "100%", md: "auto" }}
                       >
-                        <MdOutlineDeliveryDining size={16} />
-                        <Box
-                          as="span"
-                          ml={1}
-                          display={{ base: "none", sm: "inline" }}
-                        >
-                          ready for Pickup
-                        </Box>
-                        <Box
-                          as="span"
-                          ml={1}
-                          display={{ base: "inline", sm: "none" }}
-                        >
-                          Delivery
+                        <MdOutlineCancel size={16} />
+                        <Box as="span" ml={1}>
+                          Cancel
                         </Box>
                       </Button>
                     )}
                   </Flex>
-                  {canClickConfirm && (
-                    <Button
-                      py={2}
-                      size={{ base: "sm", md: "md" }}
-                      variant="outline"
-                      rounded={"16px"}
-                      bg={colors.light.bgThird}
-                      color={colors.light.mainFixed}
-                      fontSize={{ base: "13px", md: "14px" }}
-                      onClick={() => {
-                        dialog.setOpen(true);
-                        setDeleteId(order.id);
-                      }}
-                      isDisabled={isDeleting}
-                      _hover={{ bg: colors.light.bgFourth }}
-                      _disabled={{
-                        opacity: 0.5,
-                        cursor: "not-allowed",
-                        bg: colors.light.bgThird,
-                        color: colors.light.textSub,
-                      }}
-                      w={{ base: "100%", md: "auto" }}
-                    >
-                      <MdOutlineCancel size={16} />
-                      <Box as="span" ml={1}>
-                        Cancel
-                      </Box>
-                    </Button>
-                  )}
-                </Flex>
+                )}
               </Box>
             );
           })}
@@ -839,7 +885,7 @@ const CookerOrders = () => {
         }
         cancelTxt={"No, go back"}
         okTxt={"Yes, cancel it"}
-        onOkHandler={() => handleDeleteOrder(deleteId)}
+        onOkHandler={() => handleCancelOrder(deleteId)}
       />
     </>
   );

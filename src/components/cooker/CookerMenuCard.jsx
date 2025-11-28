@@ -108,7 +108,7 @@ const CookerMenuCard = ({ item }) => {
             </Text>
             <Text
               fontSize={{ base: "xs", md: "sm" }}
-              fontWeight={{ base: "light", md: "medium" }}
+              fontWeight={{ base: "light", md: "light" }}
               color={
                 colorMode === "light"
                   ? colors.light.textSub
