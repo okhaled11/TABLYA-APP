@@ -99,7 +99,8 @@ const MenuItemCard = ({ item, isAvailable }) => {
         borderRadius="20px"
         p={{ base: 2, md: 3 }}
         // _hover={{ shadow: "md", transform: "scale(1.02)" }}
-        // transition="0.2s ease"
+        // transition="0.2s ease 
+        // in-out"
         justifyContent="center"
         bg={
           colorMode === "light" ? colors.light.bgFourth : colors.dark.bgFourth
@@ -352,6 +353,7 @@ const MenuItemCard = ({ item, isAvailable }) => {
                   )}
                 </IconButton>
               )}
+              
             </Flex>
           </Flex>
         </Flex>
@@ -376,8 +378,10 @@ const MenuItemCard = ({ item, isAvailable }) => {
             isClosable: true,
             position: "top",
           });
+
         }}
       />
+
     </>
   );
 };
