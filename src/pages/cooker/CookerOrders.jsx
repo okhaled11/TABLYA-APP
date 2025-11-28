@@ -626,10 +626,10 @@ const CookerOrders = () => {
                     <Badge
                       bg={
                         isCancelled
-                          ? "red.300"
+                          ? "green.600"
                           : isOutForDelivery
                           ? "blue.200"
-                          : "green.200"
+                          : "green.600"
                       }
                       rounded="full"
                       px={3}
