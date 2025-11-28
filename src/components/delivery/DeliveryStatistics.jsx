@@ -99,7 +99,7 @@ const DeliveryStatistics = () => {
             }
           />
           <CookerStaticsCard
-            title="Earnings Today"
+            title="Earnings Today (LE)"
             value={fmt(earningsToday)}
             icon={PiMoneyWavyFill}
             iconBg={
