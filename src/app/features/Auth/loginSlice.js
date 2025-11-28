@@ -44,7 +44,7 @@ export const loginUser = createAsyncThunk(
 
         if (!cookerData || cookerData.is_approved === false) {
           // لو مش approved
-          await supabase.auth.signOut(); // signout immediately
+          // Do NOT sign out here. Let them stay logged in to see the pending page.
           return rejectWithValue({
             type: "pending",
             message:
