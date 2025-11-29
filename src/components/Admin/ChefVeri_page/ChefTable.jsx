@@ -205,6 +205,10 @@ export default function ChefTable() {
                 </HStack>
 
 
+
+
+
+
                 <Table.Root size="lg" interactive >
                     <Table.Header stickyHeader>
                         <Table.Row bg={colorMode === "light" ? "rgb(255, 234, 233)" : colors.dark.bgSecond}>
