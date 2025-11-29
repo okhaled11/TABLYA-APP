@@ -5,13 +5,16 @@ import {
   Image,
   Text,
   Button,
-  Group,
   useDialog,
-  Grid,
   Pagination,
   ButtonGroup,
   IconButton,
   Badge,
+  Table,
+  HStack,
+  VStack,
+  Drawer,
+  Grid,
 } from "@chakra-ui/react";
 import { useState, useEffect, useMemo } from "react";
 import colors from "../../theme/color";
@@ -22,36 +25,31 @@ import {
   useUpdateOrderStatusMutation,
 } from "../../app/features/Cooker/CookerAcceptOrder";
 import { IoPerson } from "react-icons/io5";
-import { FaLocationDot } from "react-icons/fa6";
-import { FaPhone } from "react-icons/fa6";
+import { FaLocationDot, FaPhone } from "react-icons/fa6";
 import { BsFillCreditCardFill } from "react-icons/bs";
-import { MdOutlineDoneOutline } from "react-icons/md";
+import { MdOutlineDoneOutline, MdOutlineCancel, MdClose } from "react-icons/md";
 import { PiCookingPot } from "react-icons/pi";
 import { MdOutlineDeliveryDining } from "react-icons/md";
-import { MdOutlineCancel } from "react-icons/md";
 import { LuChevronLeft, LuChevronRight } from "react-icons/lu";
 import srcLoadingImg from "../../assets/Transparent Version.gif";
 import CustomAlertDialog from "../../shared/CustomAlertDailog";
 
-const ORDERS_PER_PAGE = 2;
+const ORDERS_PER_PAGE = 10;
 
 const CookerOrders = () => {
-  /* ---------------variable----------------- */
   const { colorMode } = useColorMode();
-
-  /* ---------------state----------------- */
   const [selectedStatus, setSelectedStatus] = useState("active");
   const [deleteId, setDeleteId] = useState([]);
   const [allOrder, setAllOrder] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
+  const [selectedOrder, setSelectedOrder] = useState(null);
+  const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const dialog = useDialog();
 
-  /* ---------------Redux Query----------------- */
   const { data: orders, isLoading, error } = useGetCookerOrdersQuery();
   const [updateOrderStatus, { isLoading: isUpdating }] =
     useUpdateOrderStatusMutation();
 
-  /* ---------------useEffect----------------- */
   useEffect(() => {
     if (!orders) {
       setAllOrder([]);
@@ -63,7 +61,6 @@ const CookerOrders = () => {
         (order) => (order.status || "").toLowerCase() === "created"
       );
       setAllOrder(filtered);
-      // Reset to page 1 when filter changes
       setCurrentPage(1);
       return;
     }
@@ -84,24 +81,19 @@ const CookerOrders = () => {
     );
 
     setAllOrder(filteredOrders);
-    // Reset to page 1 when filter changes
     setCurrentPage(1);
   }, [orders, selectedStatus]);
 
-  /* ---------------Pagination Logic----------------- */
   const { paginatedOrders } = useMemo(() => {
     const startIndex = (currentPage - 1) * ORDERS_PER_PAGE;
     const endIndex = startIndex + ORDERS_PER_PAGE;
     const paginated = allOrder.slice(startIndex, endIndex);
-    const pages = Math.ceil(allOrder.length / ORDERS_PER_PAGE);
 
     return {
       paginatedOrders: paginated,
-      totalPages: pages,
     };
   }, [allOrder, currentPage]);
 
-  /* ---------------HANDLER----------------- */
   const canTransitionStatus = (currentStatus, nextStatus) => {
     if (
       currentStatus === "out_for_delivery" ||
@@ -143,6 +135,7 @@ const CookerOrders = () => {
 
     try {
       await updateOrderStatus({ orderId: order.id, status }).unwrap();
+      setIsDrawerOpen(false);
     } catch (err) {
       console.error("Failed to update order status:", err);
     }
@@ -151,6 +144,7 @@ const CookerOrders = () => {
   const handleCancelOrder = async (orderId) => {
     try {
       await updateOrderStatus({ orderId, status: "cancelled" }).unwrap();
+      setIsDrawerOpen(false);
     } catch (err) {
       console.error("Failed to cancel order:", err);
     }
@@ -158,8 +152,41 @@ const CookerOrders = () => {
 
   const handlePageChange = (details) => {
     setCurrentPage(details.page);
-    // Scroll to top when page changes
     window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
+  const handleRowClick = (order) => {
+    setSelectedOrder(order);
+    setIsDrawerOpen(true);
+  };
+
+  const getStatusBadge = (status) => {
+    const statusColors = {
+      created: { bg: "#F3F4F6", color: "#374151", label: "New" },
+      confirmed: { bg: "#DBEAFE", color: "#1E40AF", label: "Confirmed" },
+      preparing: { bg: "#FEF3C7", color: "#B45309", label: "Preparing" },
+      ready_for_pickup: { bg: "#D1FAE5", color: "#065F46", label: "Ready" },
+      out_for_delivery: { bg: "#DBEAFE", color: "#1E40AF", label: "Out" },
+      delivered: { bg: "#D1FAE5", color: "#065F46", label: "Delivered" },
+      cancelled: { bg: "#FEE2E2", color: "#991B1B", label: "Cancelled" },
+    };
+
+    const normalizedStatus = (status || "created").toLowerCase();
+    const config = statusColors[normalizedStatus] || statusColors.created;
+
+    return (
+      <Badge
+        bg={config.bg}
+        color={config.color}
+        px={3}
+        py={1}
+        borderRadius="full"
+        fontSize="xs"
+        fontWeight="bold"
+      >
+        {config.label}
+      </Badge>
+    );
   };
 
   const statusTabs = [
@@ -173,7 +200,7 @@ const CookerOrders = () => {
   return (
     <>
       <Box py={6}>
-        {/* name order and select */}
+        {/* Header */}
         <Flex
           my={4}
           justifyContent="space-between"
@@ -182,16 +209,11 @@ const CookerOrders = () => {
           gap={{ base: 3, md: 0 }}
           w="100%"
         >
-          {/* order */}
-          <Heading
-            fontSize={{ base: "25px", lg: "45px" }}
-            fontWeight={700}
-            mb={4}
-          >
+          <Heading fontSize={{ base: "25px", lg: "45px" }} fontWeight={700}>
             Orders
           </Heading>
 
-          {/* select menu */}
+          {/* Status Filter */}
           <Flex
             bg={
               colorMode === "light" ? colors.light.bgThird : colors.dark.bgThird
@@ -202,14 +224,6 @@ const CookerOrders = () => {
             gap={1}
             w={{ base: "100%", md: "auto" }}
             overflowX={{ base: "auto", md: "visible" }}
-            flexWrap={{ base: "nowrap", md: "nowrap" }}
-            justifyContent={{ base: "flex-start", md: "flex-start" }}
-            sx={{
-              scrollSnapType: "x mandatory",
-              "::-webkit-scrollbar": { display: "none" },
-              msOverflowStyle: "none",
-              scrollbarWidth: "none",
-            }}
           >
             {statusTabs.map((tab) => {
               const isActive = selectedStatus === tab.value;
@@ -229,9 +243,8 @@ const CookerOrders = () => {
                   fontSize={{ base: "13px", md: "14px" }}
                   onClick={() => setSelectedStatus(tab.value)}
                   flexShrink={0}
-                  sx={{ scrollSnapAlign: "center" }}
                   _hover={{
-                    bg: isActive ? "white" : colors.bgFourth,
+                    bg: isActive ? "white" : colors.light.bgFourth,
                   }}
                 >
                   {tab.label}
@@ -256,23 +269,21 @@ const CookerOrders = () => {
           </Text>
         )}
 
-        {/* content order */}
+        {/* Loading */}
         {isLoading && (
-          <Image
-            boxSize={40}
-            mx={"auto"}
-            rounded="md"
-            src={srcLoadingImg}
-            alt="Loading"
-          />
+          <Flex justify="center" py={10}>
+            <Image boxSize={40} src={srcLoadingImg} alt="Loading" />
+          </Flex>
         )}
 
+        {/* Error */}
         {error && (
           <Text color="red.500" textAlign="center" my={6}>
             Error: {error.message || "Failed to load orders"}
           </Text>
         )}
 
+        {/* Empty State */}
         {!isLoading && !error && orders && allOrder.length === 0 && (
           <Text
             color={
@@ -281,553 +292,139 @@ const CookerOrders = () => {
             textAlign="center"
             my={6}
           >
-            {selectedStatus === "Default"
-              ? "No orders found"
-              : "No orders with the selected status"}
+            No orders with the selected status
           </Text>
         )}
 
-        {!isLoading &&
-          !error &&
-          orders &&
-          paginatedOrders.map((order) => {
-            const orderDate = new Date(order.created_at);
-            const formattedDate = orderDate.toLocaleDateString("en-GB");
-            const formattedTime = orderDate.toLocaleTimeString("en-US", {
-              hour: "2-digit",
-              minute: "2-digit",
-              hour12: true,
-            });
-
-            const normalizedStatus = (order.status || "").toLowerCase();
-            const isConfirmed = normalizedStatus === "confirmed";
-            const isPreparing = normalizedStatus === "preparing";
-            const isReadyForPickup = normalizedStatus === "ready_for_pickup";
-            const isCancelled = normalizedStatus === "cancelled";
-            const isOutForDelivery = normalizedStatus === "out_for_delivery";
-            const isDelivered = normalizedStatus === "delivered";
-            const isTerminal = isCancelled || isOutForDelivery || isDelivered;
-            const canClickConfirm =
-              !isConfirmed && !isPreparing && !isReadyForPickup && !isTerminal;
-            const canClickPreparing = isConfirmed;
-            const canClickReadyForPickup = isPreparing;
-
-            return (
-              <Box
-                key={order.id}
-                bg={
-                  colorMode === "light"
-                    ? colors.light.bgThird
-                    : colors.dark.bgThird
-                }
-                rounded={{ base: "24px", md: "32px" }}
-                p={{ base: 4, md: 5 }}
-                my={4}
-              >
-                {/* Header: date, time, id and total */}
-                <Flex
-                  justifyContent={"space-between"}
-                  alignItems={{ base: "flex-start", md: "center" }}
-                  direction={{ base: "column", md: "row" }}
-                  gap={{ base: 2, md: 0 }}
-                  mb={4}
-                  pb={3}
-                  borderBottom={`1px solid ${
-                    colorMode === "light"
-                      ? colors.light.bgFourth
-                      : colors.dark.bgFourth
-                  }`}
-                >
-                  <Text
-                    color={
-                      colorMode === "light"
-                        ? colors.light.textSub
-                        : colors.dark.textSub
-                    }
-                    fontSize={{ base: "13px", md: "14px" }}
-                    fontWeight={"medium"}
-                  >
-                    {formattedDate} | {formattedTime} | #ORD-
-                    {order.id.slice(0, 8).toUpperCase()}
-                  </Text>
-                  <Text
-                    color={
-                      colorMode === "light"
-                        ? colors.light.mainFixed
-                        : colors.dark.mainFixed
-                    }
-                    fontSize={{ base: "20px", md: "24px" }}
-                    fontWeight={"bold"}
-                  >
-                    {order.total?.toFixed(2) || "0.00"} LE
-                  </Text>
-                </Flex>
-
-                {/* Main Content: order items and customer details */}
-                <Grid
-                  templateColumns={{ base: "1fr", md: "1fr 1fr" }}
-                  gap={{ base: 4, md: 5 }}
-                  mb={4}
-                >
-                  {/* Order Items */}
-                  <Box
+        {/* Orders Table */}
+        {!isLoading && !error && paginatedOrders.length > 0 && (
+          <Box
+            bg={
+              colorMode === "light" ? colors.light.bgThird : colors.dark.bgThird
+            }
+            borderRadius="16px"
+            overflow="hidden"
+            boxShadow="lg"
+          >
+            <Box overflowX="auto">
+              <Table.Root size="md">
+                <Table.Header>
+                  <Table.Row
                     bg={
                       colorMode === "light"
                         ? colors.light.bgFourth
                         : colors.dark.bgFourth
                     }
-                    rounded={"20px"}
-                    p={{ base: 4, md: 5 }}
                   >
-                    <Heading
-                      as={"h3"}
-                      fontSize={{ base: "16px", md: "18px" }}
-                      fontWeight={600}
-                      mb={3}
-                      color={
-                        colorMode === "light"
-                          ? colors.light.textMain
-                          : colors.dark.textMain
+                    <Table.ColumnHeader minW="120px" fontWeight="bold">
+                      Order ID
+                    </Table.ColumnHeader>
+                    <Table.ColumnHeader minW="150px" fontWeight="bold">
+                      Date & Time
+                    </Table.ColumnHeader>
+                    <Table.ColumnHeader minW="180px" fontWeight="bold">
+                      Customer
+                    </Table.ColumnHeader>
+                    <Table.ColumnHeader
+                      minW="100px"
+                      fontWeight="bold"
+                      textAlign="right"
+                    >
+                      Total
+                    </Table.ColumnHeader>
+                    <Table.ColumnHeader minW="100px" fontWeight="bold">
+                      Status
+                    </Table.ColumnHeader>
+                  </Table.Row>
+                </Table.Header>
+                <Table.Body>
+                  {paginatedOrders.map((order) => {
+                    const orderDate = new Date(order.created_at);
+                    const formattedDate = orderDate.toLocaleDateString("en-GB");
+                    const formattedTime = orderDate.toLocaleTimeString(
+                      "en-US",
+                      {
+                        hour: "2-digit",
+                        minute: "2-digit",
+                        hour12: true,
                       }
-                    >
-                      Order Items
-                    </Heading>
-                    <Box maxH="120px" overflowY="auto">
-                      {order.order_items && order.order_items.length > 0 ? (
-                        order.order_items.map((item, index) => (
-                          <Text
-                            key={index}
-                            mb={1.5}
-                            color={
-                              colorMode === "light"
-                                ? colors.light.textSub
-                                : colors.dark.textSub
-                            }
-                            fontSize={{ base: "14px", md: "15px" }}
-                          >
-                            {item.quantity}x {item.title}
-                          </Text>
-                        ))
-                      ) : (
-                        <Text
-                          color={
-                            colorMode === "light"
-                              ? colors.light.textSub
-                              : colors.dark.textSub
-                          }
-                          fontSize="14px"
-                        >
-                          No items
-                        </Text>
-                      )}
-                    </Box>
+                    );
 
-                    {/* Notes */}
-                    {order.notes && (
-                      <Box
-                        mt={3}
-                        pt={3}
-                        borderTop={`1px solid ${
-                          colorMode === "light"
-                            ? colors.light.bgThird
-                            : colors.dark.bgThird
-                        }`}
-                      >
-                        <Heading
-                          as={"h4"}
-                          fontSize={{ base: "14px", md: "16px" }}
-                          fontWeight={600}
-                          mb={1}
-                          color={
-                            colorMode === "light"
-                              ? colors.light.textMain
-                              : colors.dark.textMain
-                          }
-                        >
-                          Notes
-                        </Heading>
-                        <Text
-                          color={
-                            colorMode === "light"
-                              ? colors.light.textSub
-                              : colors.dark.textSub
-                          }
-                          fontSize="13px"
-                          noOfLines={2}
-                        >
-                          {order.notes}
-                        </Text>
-                      </Box>
-                    )}
-                  </Box>
-
-                  {/* Customer Details */}
-                  <Box
-                    bg={
-                      colorMode === "light"
-                        ? colors.light.info10a
-                        : colors.dark.info10a
-                    }
-                    rounded={"20px"}
-                    p={{ base: 4, md: 5 }}
-                  >
-                    <Heading
-                      as={"h3"}
-                      fontSize={{ base: "16px", md: "18px" }}
-                      fontWeight={"bold"}
-                      mb={3}
-                      color={
-                        colorMode === "light"
-                          ? colors.light.textMain
-                          : colors.dark.textMain
-                      }
-                    >
-                      Customer Details
-                    </Heading>
-
-                    {order.customer ? (
-                      <Box>
-                        <Flex
-                          mb={2}
-                          color={
-                            colorMode === "light"
-                              ? colors.light.textSub
-                              : colors.dark.textSub
-                          }
-                          alignItems={"center"}
-                          gap={2}
-                        >
-                          <IoPerson
-                            size={16}
-                            color={
-                              colorMode === "light"
-                                ? colors.light.info
-                                : colors.dark.info
-                            }
-                          />
-                          <Text
-                            fontSize={{ base: "14px", md: "15px" }}
-                            noOfLines={1}
-                          >
-                            {order.customer.name || "No name"}
-                          </Text>
-                        </Flex>
-                        <Flex
-                          mb={2}
-                          color={
-                            colorMode === "light"
-                              ? colors.light.textSub
-                              : colors.dark.textSub
-                          }
-                          alignItems={"flex-start"}
-                          gap={2}
-                        >
-                          <Box mt={0.5}>
-                            <FaLocationDot
-                              size={16}
-                              color={
-                                colorMode === "light"
-                                  ? colors.light.info
-                                  : colors.dark.info
-                              }
-                            />
-                          </Box>
-                          <Text
-                            fontSize={{ base: "14px", md: "15px" }}
-                            noOfLines={2}
-                          >
-                            {order.address || "No address"}
-                          </Text>
-                        </Flex>
-                        <Flex
-                          mb={3}
-                          color={
-                            colorMode === "light"
-                              ? colors.light.textSub
-                              : colors.dark.textSub
-                          }
-                          alignItems={"center"}
-                          gap={2}
-                        >
-                          <FaPhone
-                            size={14}
-                            color={
-                              colorMode === "light"
-                                ? colors.light.info
-                                : colors.dark.info
-                            }
-                          />
-                          <Text fontSize={{ base: "14px", md: "15px" }}>
-                            {order.customer.phone || "No phone"}
-                          </Text>
-                        </Flex>
-
-                        {/* Payment Method */}
-                        <Box
-                          pt={2}
-                          borderTop={`1px solid ${
-                            colorMode === "light"
-                              ? colors.light.bgThird
-                              : colors.dark.bgThird
-                          }`}
-                        >
-                          <Text
-                            fontSize={{ base: "13px", md: "14px" }}
-                            fontWeight={"bold"}
-                            mb={1}
-                            color={
-                              colorMode === "light"
-                                ? colors.light.textMain
-                                : colors.dark.textMain
-                            }
-                          >
-                            Payment
-                          </Text>
-                          <Flex alignItems={"center"} gap={1.5}>
-                            <BsFillCreditCardFill
-                              size={14}
-                              color={
-                                colorMode === "light"
-                                  ? colors.light.info
-                                  : colors.dark.info
-                              }
-                            />
-                            <Text
-                              fontSize="13px"
-                              color={
-                                colorMode === "light"
-                                  ? colors.light.textSub
-                                  : colors.dark.textSub
-                              }
-                            >
-                              {order.payment_method || "Not specified"}
-                            </Text>
-                          </Flex>
-                        </Box>
-                      </Box>
-                    ) : (
-                      <Text
-                        color={
-                          colorMode === "light"
-                            ? colors.light.textSub
-                            : colors.dark.textSub
-                        }
-                        fontSize="14px"
-                      >
-                        No customer information
-                      </Text>
-                    )}
-                  </Box>
-                </Grid>
-
-                {/* Action Buttons */}
-                {isCancelled || isOutForDelivery || isDelivered ? (
-                  <Flex justifyContent={"flex-end"} gap={2} mt={4}>
-                    <Badge
-                      bg={
-                        isCancelled
-                          ? "green.600"
-                          : isOutForDelivery
-                          ? "blue.200"
-                          : "green.600"
-                      }
-                      rounded="full"
-                      px={3}
-                      py={1}
-                    >
-                      {isCancelled
-                        ? "Cancelled"
-                        : isOutForDelivery
-                        ? "Out for Delivery"
-                        : "Delivered"}
-                    </Badge>
-                  </Flex>
-                ) : (
-                  <Flex
-                    direction={{ base: "column", md: "row" }}
-                    justifyContent={"space-between"}
-                    gap={3}
-                    mt={4}
-                  >
-                    <Flex
-                      gap={2}
-                      direction={{ base: "column", sm: "row" }}
-                      flex={1}
-                    >
-                      <Button
-                        size={{ base: "sm", md: "md" }}
-                        variant="outline"
-                        py={2}
-                        rounded={"16px"}
-                        bg={
-                          isConfirmed
-                            ? colors.light.mainFixed
-                            : colors.light.bgFourth
-                        }
-                        color={isConfirmed ? "white" : colors.light.textSub}
-                        fontSize={{ base: "13px", md: "14px" }}
-                        onClick={() => handleStatusUpdate(order, "confirmed")}
-                        isDisabled={isUpdating || !canClickConfirm}
+                    return (
+                      <Table.Row
+                        key={order.id}
+                        cursor="pointer"
+                        onClick={() => handleRowClick(order)}
                         _hover={{
-                          bg: isConfirmed
-                            ? colors.light.mainFixed
-                            : colors.light.bgThird,
+                          bg:
+                            colorMode === "light"
+                              ? colors.light.bgFourth
+                              : colors.dark.bgFourth,
                         }}
-                        _disabled={{
-                          opacity: 0.5,
-                          cursor: "not-allowed",
-                          bg: colors.light.bgThird,
-                          color: colors.light.textSub,
-                        }}
-                        flex={1}
+                        transition="all 0.2s"
                       >
-                        <MdOutlineDoneOutline size={16} />
-                        <Box as="span" ml={1}>
-                          Confirmed
-                        </Box>
-                      </Button>
-                      {!canClickConfirm && (
-                        <Button
-                          py={2}
-                          size={{ base: "sm", md: "md" }}
-                          variant="outline"
-                          rounded={"16px"}
-                          bg={
-                            isPreparing
-                              ? colors.light.mainFixed
-                              : colors.light.bgFourth
-                          }
-                          color={isPreparing ? "white" : colors.light.textSub}
-                          fontSize={{ base: "13px", md: "14px" }}
-                          onClick={() => handleStatusUpdate(order, "preparing")}
-                          isDisabled={isUpdating || !canClickPreparing}
-                          _hover={{
-                            bg: isPreparing
-                              ? colors.light.mainFixed
-                              : colors.light.bgThird,
-                          }}
-                          _disabled={{
-                            opacity: 0.5,
-                            cursor: "not-allowed",
-                            bg: colors.light.bgThird,
-                            color: colors.light.textSub,
-                          }}
-                          flex={1}
-                        >
-                          <PiCookingPot size={16} />
-                          <Box as="span" ml={1}>
-                            Preparing
-                          </Box>
-                        </Button>
-                      )}
-                      {!canClickConfirm && (
-                        <Button
-                          py={2}
-                          size={{ base: "sm", md: "md" }}
-                          variant="outline"
-                          rounded={"16px"}
-                          bg={
-                            isReadyForPickup
-                              ? colors.light.mainFixed
-                              : colors.light.bgFourth
-                          }
-                          color={
-                            isReadyForPickup ? "white" : colors.light.textSub
-                          }
-                          fontSize={{ base: "13px", md: "14px" }}
-                          onClick={() =>
-                            handleStatusUpdate(order, "ready_for_pickup")
-                          }
-                          isDisabled={isUpdating || !canClickReadyForPickup}
-                          _hover={{
-                            bg: isReadyForPickup
-                              ? colors.light.mainFixed
-                              : colors.light.bgThird,
-                          }}
-                          _disabled={{
-                            opacity: 0.5,
-                            cursor: "not-allowed",
-                            bg: colors.light.bgThird,
-                            color: colors.light.textSub,
-                          }}
-                          flex={1}
-                        >
-                          <MdOutlineDeliveryDining size={16} />
-                          <Box
-                            as="span"
-                            ml={1}
-                            display={{ base: "none", sm: "inline" }}
+                        <Table.Cell>
+                          <Text
+                            fontSize="sm"
+                            fontWeight="bold"
+                            color={colors.light.mainFixed}
                           >
-                            ready for Pickup
-                          </Box>
-                          <Box
-                            as="span"
-                            ml={1}
-                            display={{ base: "inline", sm: "none" }}
+                            #ORD-{order.id.slice(0, 8).toUpperCase()}
+                          </Text>
+                        </Table.Cell>
+
+                        <Table.Cell>
+                          <VStack align="start" gap={0}>
+                            <Text fontSize="sm">{formattedDate}</Text>
+                            <Text fontSize="xs" color={colors.light.textSub}>
+                              {formattedTime}
+                            </Text>
+                          </VStack>
+                        </Table.Cell>
+
+                        <Table.Cell>
+                          <VStack align="start" gap={0.5}>
+                            <Text fontSize="sm" noOfLines={1}>
+                              {order.customer?.name || "No name"}
+                            </Text>
+                          </VStack>
+                        </Table.Cell>
+
+                        <Table.Cell textAlign="right">
+                          <Text
+                            fontSize="md"
+                            fontWeight="bold"
+                            color={colors.light.mainFixed}
                           >
-                            Delivery
-                          </Box>
-                        </Button>
-                      )}
-                    </Flex>
-                    {canClickConfirm && (
-                      <Button
-                        py={2}
-                        size={{ base: "sm", md: "md" }}
-                        variant="outline"
-                        rounded={"16px"}
-                        bg={colors.light.bgThird}
-                        color={colors.light.mainFixed}
-                        fontSize={{ base: "13px", md: "14px" }}
-                        onClick={() => {
-                          dialog.setOpen(true);
-                          setDeleteId(order.id);
-                        }}
-                        isDisabled={isUpdating}
-                        _hover={{ bg: colors.light.bgFourth }}
-                        _disabled={{
-                          opacity: 0.5,
-                          cursor: "not-allowed",
-                          bg: colors.light.bgThird,
-                          color: colors.light.textSub,
-                        }}
-                        w={{ base: "100%", md: "auto" }}
-                      >
-                        <MdOutlineCancel size={16} />
-                        <Box as="span" ml={1}>
-                          Cancel
-                        </Box>
-                      </Button>
-                    )}
-                  </Flex>
-                )}
-              </Box>
-            );
-          })}
+                            {order.total?.toFixed(2) || "0.00"} LE
+                          </Text>
+                        </Table.Cell>
+
+                        <Table.Cell>{getStatusBadge(order.status)}</Table.Cell>
+                      </Table.Row>
+                    );
+                  })}
+                </Table.Body>
+              </Table.Root>
+            </Box>
+          </Box>
+        )}
 
         {/* Pagination */}
         {!isLoading && !error && allOrder.length > ORDERS_PER_PAGE && (
-          <Flex justifyContent="center" mt={8} mb={4}>
+          <Flex justifyContent="center" mt={6}>
             <Pagination.Root
               count={allOrder.length}
               pageSize={ORDERS_PER_PAGE}
               page={currentPage}
               onPageChange={handlePageChange}
             >
-              <ButtonGroup
-                variant="ghost"
-                size={{ base: "sm", md: "md" }}
-                gap={1}
-              >
+              <ButtonGroup size="sm" gap={1}>
                 <Pagination.PrevTrigger asChild>
                   <IconButton
                     bg={colors.light.bgThird}
                     color={colors.light.textSub}
                     _hover={{ bg: colors.light.bgFourth }}
-                    _disabled={{
-                      opacity: 0.4,
-                      cursor: "not-allowed",
-                    }}
                   >
                     <LuChevronLeft />
                   </IconButton>
@@ -846,12 +443,6 @@ const CookerOrders = () => {
                           ? "white"
                           : colors.light.textSub
                       }
-                      _hover={{
-                        bg:
-                          page.type === "page" && page.value === currentPage
-                            ? colors.light.mainFixed
-                            : colors.light.bgFourth,
-                      }}
                     >
                       {page.value}
                     </IconButton>
@@ -863,10 +454,6 @@ const CookerOrders = () => {
                     bg={colors.light.bgThird}
                     color={colors.light.textSub}
                     _hover={{ bg: colors.light.bgFourth }}
-                    _disabled={{
-                      opacity: 0.4,
-                      cursor: "not-allowed",
-                    }}
                   >
                     <LuChevronRight />
                   </IconButton>
@@ -876,6 +463,494 @@ const CookerOrders = () => {
           </Flex>
         )}
       </Box>
+
+      {/* Order Details Drawer */}
+      <Drawer.Root
+        open={isDrawerOpen}
+        onOpenChange={(e) => setIsDrawerOpen(e.open)}
+        placement="end"
+        size="md"
+      >
+        <Drawer.Backdrop />
+        <Drawer.Positioner>
+          <Drawer.Content
+            bg={
+              colorMode === "light"
+                ? colors.light.bgSecond
+                : colors.dark.bgSecond
+            }
+          >
+            <Drawer.Header borderBottomWidth="1px">
+              <Flex justify="space-between" w={"full"} align="center">
+                <Heading size="md">
+                  Order #{selectedOrder?.id.slice(0, 8).toUpperCase()}
+                </Heading>
+                <IconButton
+                  variant="ghost"
+                  onClick={() => setIsDrawerOpen(false)}
+                  size="sm"
+                >
+                  <MdClose size={20} />
+                </IconButton>
+              </Flex>
+            </Drawer.Header>
+
+            <Drawer.Body p={0}>
+              {selectedOrder &&
+                (() => {
+                  const orderDate = new Date(selectedOrder.created_at);
+                  const formattedDate = orderDate.toLocaleDateString("en-GB");
+                  const formattedTime = orderDate.toLocaleTimeString("en-US", {
+                    hour: "2-digit",
+                    minute: "2-digit",
+                    hour12: true,
+                  });
+
+                  const normalizedStatus = (
+                    selectedOrder.status || ""
+                  ).toLowerCase();
+                  const isConfirmed = normalizedStatus === "confirmed";
+                  const isPreparing = normalizedStatus === "preparing";
+                  const isReadyForPickup =
+                    normalizedStatus === "ready_for_pickup";
+                  const isCancelled = normalizedStatus === "cancelled";
+                  const isOutForDelivery =
+                    normalizedStatus === "out_for_delivery";
+                  const isDelivered = normalizedStatus === "delivered";
+                  const isTerminal =
+                    isCancelled || isOutForDelivery || isDelivered;
+                  const canClickConfirm =
+                    !isConfirmed &&
+                    !isPreparing &&
+                    !isReadyForPickup &&
+                    !isTerminal;
+                  const canClickPreparing = isConfirmed;
+                  const canClickReadyForPickup = isPreparing;
+
+                  return (
+                    <Box>
+                      {/* Order Header Section */}
+                      <Box
+                        bg={colors.light.bgFourth}
+                        p={6}
+                        borderBottom={`1px solid ${colors.light.bgThird}`}
+                      >
+                        <Flex justify="space-between" align="start" mb={4}>
+                          <Box>
+                            <Text
+                              fontSize="xs"
+                              color={colors.light.textSub}
+                              mb={1}
+                            >
+                              {formattedDate} • {formattedTime}
+                            </Text>
+                            <Text
+                              fontSize="3xl"
+                              fontWeight="bold"
+                              color={colors.light.mainFixed}
+                              mt={4}
+                            >
+                              {selectedOrder.total?.toFixed(2) || "0.00"} LE
+                            </Text>
+                          </Box>
+                          {getStatusBadge(selectedOrder.status)}
+                        </Flex>
+                      </Box>
+
+                      {/* Order Content */}
+                      <VStack
+                        align="stretch"
+                        gap={0}
+                        divideY={`1px solid ${colors.light.bgFourth}`}
+                      >
+                        {/* Order Items Section */}
+                        <Box p={6}>
+                          <Text
+                            fontSize="xs"
+                            fontWeight="bold"
+                            color={colors.light.textSub}
+                            mb={3}
+                            textTransform="uppercase"
+                            letterSpacing="wider"
+                          >
+                            Order Items
+                          </Text>
+                          <VStack align="stretch" gap={3}>
+                            {selectedOrder.order_items &&
+                            selectedOrder.order_items.length > 0 ? (
+                              selectedOrder.order_items.map((item, index) => (
+                                <Flex
+                                  key={index}
+                                  justify="space-between"
+                                  align="center"
+                                >
+                                  <HStack gap={3}>
+                                    <Box
+                                      bg={colors.light.mainFixed}
+                                      color="white"
+                                      rounded="md"
+                                      w="32px"
+                                      h="32px"
+                                      display="flex"
+                                      alignItems="center"
+                                      justifyContent="center"
+                                      fontSize="sm"
+                                      fontWeight="bold"
+                                    >
+                                      {item.quantity}x
+                                    </Box>
+                                    <Text fontSize="md" fontWeight="medium">
+                                      {item.title}
+                                    </Text>
+                                  </HStack>
+                                </Flex>
+                              ))
+                            ) : (
+                              <Text fontSize="sm" color={colors.light.textSub}>
+                                No items
+                              </Text>
+                            )}
+                          </VStack>
+
+                          {selectedOrder.notes && (
+                            <Box
+                              mt={4}
+                              p={3}
+                              bg={colors.light.bgFourth}
+                              rounded="lg"
+                            >
+                              <Text fontSize="xs" fontWeight="bold" mb={1}>
+                                Special Instructions
+                              </Text>
+                              <Text fontSize="sm" color={colors.light.textSub}>
+                                {selectedOrder.notes}
+                              </Text>
+                            </Box>
+                          )}
+                        </Box>
+
+                        {/* Customer Details Section */}
+                        <Box p={6}>
+                          <Text
+                            fontSize="xs"
+                            fontWeight="bold"
+                            color={colors.light.textSub}
+                            mb={3}
+                            textTransform="uppercase"
+                            letterSpacing="wider"
+                          >
+                            Customer Information
+                          </Text>
+                          {selectedOrder.customer ? (
+                            <VStack align="stretch" gap={3}>
+                              <HStack gap={3}>
+                                <Box
+                                  bg={colors.light.info10a}
+                                  rounded="full"
+                                  w="40px"
+                                  h="40px"
+                                  display="flex"
+                                  alignItems="center"
+                                  justifyContent="center"
+                                >
+                                  <IoPerson
+                                    size={20}
+                                    color={colors.light.info}
+                                  />
+                                </Box>
+                                <Box>
+                                  <Text
+                                    fontSize="xs"
+                                    color={colors.light.textSub}
+                                  >
+                                    Name
+                                  </Text>
+                                  <Text fontSize="md" fontWeight="medium">
+                                    {selectedOrder.customer.name || "No name"}
+                                  </Text>
+                                </Box>
+                              </HStack>
+
+                              <HStack gap={3} align="start">
+                                <Box
+                                  bg={colors.light.info10a}
+                                  rounded="full"
+                                  w="40px"
+                                  h="40px"
+                                  display="flex"
+                                  alignItems="center"
+                                  justifyContent="center"
+                                  flexShrink={0}
+                                >
+                                  <FaLocationDot
+                                    size={18}
+                                    color={colors.light.info}
+                                  />
+                                </Box>
+                                <Box>
+                                  <Text
+                                    fontSize="xs"
+                                    color={colors.light.textSub}
+                                  >
+                                    Delivery Address
+                                  </Text>
+                                  <Text fontSize="sm">
+                                    {selectedOrder.address || "No address"}
+                                  </Text>
+                                </Box>
+                              </HStack>
+
+                              <HStack gap={3}>
+                                <Box
+                                  bg={colors.light.info10a}
+                                  rounded="full"
+                                  w="40px"
+                                  h="40px"
+                                  display="flex"
+                                  alignItems="center"
+                                  justifyContent="center"
+                                >
+                                  <BsFillCreditCardFill
+                                    size={18}
+                                    color={colors.light.info}
+                                  />
+                                </Box>
+                                <Box>
+                                  <Text
+                                    fontSize="xs"
+                                    color={colors.light.textSub}
+                                  >
+                                    Payment Method
+                                  </Text>
+                                  <Text fontSize="sm" fontWeight="medium">
+                                    {selectedOrder.payment_method ||
+                                      "Not specified"}
+                                  </Text>
+                                </Box>
+                              </HStack>
+                            </VStack>
+                          ) : (
+                            <Text fontSize="sm" color={colors.light.textSub}>
+                              No customer information
+                            </Text>
+                          )}
+                        </Box>
+
+                        {/* Actions Section */}
+                        <Box
+                          p={6}
+                          bg={
+                            colorMode === "light"
+                              ? colors.light.bgFourth
+                              : colors.dark.bgFourth
+                          }
+                        >
+                          {isTerminal ? (
+                            <Flex justify="center" p={4}>
+                              <Badge
+                                bg={
+                                  isCancelled
+                                    ? "red.100"
+                                    : isOutForDelivery
+                                    ? "blue.100"
+                                    : "green.100"
+                                }
+                                color={
+                                  isCancelled
+                                    ? "red.700"
+                                    : isOutForDelivery
+                                    ? "blue.700"
+                                    : "green.700"
+                                }
+                                rounded="full"
+                                px={6}
+                                py={3}
+                                fontSize="md"
+                                fontWeight="bold"
+                              >
+                                {isCancelled
+                                  ? "Order Cancelled"
+                                  : isOutForDelivery
+                                  ? "Out for Delivery"
+                                  : "Order Delivered"}
+                              </Badge>
+                            </Flex>
+                          ) : (
+                            <VStack align="stretch" gap={3}>
+                              <Text
+                                fontSize="xs"
+                                fontWeight="bold"
+                                color={
+                                  colorMode === "light"
+                                    ? colors.light.textSub
+                                    : colors.dark.textSub
+                                }
+                                mb={1}
+                                textTransform="uppercase"
+                                letterSpacing="wider"
+                              >
+                                Update Order Status
+                              </Text>
+
+                              <Button
+                                size="lg"
+                                rounded="xl"
+                                bg={isConfirmed ? "green.500" : "green.600"}
+                                color="white"
+                                border="none"
+                                onClick={() =>
+                                  handleStatusUpdate(selectedOrder, "confirmed")
+                                }
+                                isDisabled={isUpdating || !canClickConfirm}
+                                _hover={{
+                                  bg: isConfirmed ? "green.500" : "green.700",
+                                }}
+                                _disabled={{
+                                  opacity: 0.5,
+                                  cursor: "not-allowed",
+                                }}
+                                leftIcon={<MdOutlineDoneOutline size={22} />}
+                              >
+                                Confirm Order
+                              </Button>
+
+                              {!canClickConfirm && (
+                                <Button
+                                  size="lg"
+                                  rounded="xl"
+                                  bg={
+                                    isPreparing
+                                      ? colorMode === "light"
+                                        ? colors.light.mainFixed
+                                        : colors.dark.mainFixed
+                                      : "transparent"
+                                  }
+                                  color={
+                                    isPreparing
+                                      ? "white"
+                                      : colorMode === "light"
+                                      ? colors.light.textMain
+                                      : colors.dark.textMain
+                                  }
+                                  border={
+                                    isPreparing
+                                      ? "none"
+                                      : `2px solid ${
+                                          colorMode === "light"
+                                            ? colors.light.bgThird
+                                            : colors.dark.bgThird
+                                        }`
+                                  }
+                                  onClick={() =>
+                                    handleStatusUpdate(
+                                      selectedOrder,
+                                      "preparing"
+                                    )
+                                  }
+                                  isDisabled={isUpdating || !canClickPreparing}
+                                  _hover={{
+                                    bg: isPreparing
+                                      ? colorMode === "light"
+                                        ? colors.light.mainFixed
+                                        : colors.dark.mainFixed
+                                      : colorMode === "light"
+                                      ? colors.light.bgFourth
+                                      : colors.dark.bgFourth,
+                                  }}
+                                  _disabled={{
+                                    opacity: 0.5,
+                                    cursor: "not-allowed",
+                                  }}
+                                  leftIcon={<PiCookingPot size={22} />}
+                                >
+                                  Mark as Preparing
+                                </Button>
+                              )}
+
+                              {!canClickConfirm && (
+                                <Button
+                                  size="lg"
+                                  rounded="xl"
+                                  bg={
+                                    isReadyForPickup
+                                      ? colorMode === "light"
+                                        ? colors.light.mainFixed
+                                        : colors.dark.mainFixed
+                                      : "transparent"
+                                  }
+                                  color={
+                                    isReadyForPickup
+                                      ? "white"
+                                      : colorMode === "light"
+                                      ? colors.light.textMain
+                                      : colors.dark.textMain
+                                  }
+                                  border={
+                                    isReadyForPickup
+                                      ? "none"
+                                      : `2px solid ${
+                                          colorMode === "light"
+                                            ? colors.light.bgThird
+                                            : colors.dark.bgThird
+                                        }`
+                                  }
+                                  onClick={() =>
+                                    handleStatusUpdate(
+                                      selectedOrder,
+                                      "ready_for_pickup"
+                                    )
+                                  }
+                                  isDisabled={
+                                    isUpdating || !canClickReadyForPickup
+                                  }
+                                  _hover={{
+                                    bg: isReadyForPickup
+                                      ? colorMode === "light"
+                                        ? colors.light.mainFixed
+                                        : colors.dark.mainFixed
+                                      : colorMode === "light"
+                                      ? colors.light.bgFourth
+                                      : colors.dark.bgFourth,
+                                  }}
+                                  _disabled={{
+                                    opacity: 0.5,
+                                    cursor: "not-allowed",
+                                  }}
+                                  leftIcon={
+                                    <MdOutlineDeliveryDining size={22} />
+                                  }
+                                >
+                                  Ready for Pickup
+                                </Button>
+                              )}
+
+                              {canClickConfirm && (
+                                <Button
+                                  size="lg"
+                                  rounded="xl"
+                                  variant="outline"
+                                  colorScheme="red"
+                                  onClick={() => {
+                                    dialog.setOpen(true);
+                                    setDeleteId(selectedOrder.id);
+                                  }}
+                                  isDisabled={isUpdating}
+                                  leftIcon={<MdOutlineCancel size={22} />}
+                                >
+                                  Cancel Order
+                                </Button>
+                              )}
+                            </VStack>
+                          )}
+                        </Box>
+                      </VStack>
+                    </Box>
+                  );
+                })()}
+            </Drawer.Body>
+          </Drawer.Content>
+        </Drawer.Positioner>
+      </Drawer.Root>
 
       <CustomAlertDialog
         dialog={dialog}
