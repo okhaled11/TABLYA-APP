@@ -100,7 +100,8 @@ const MenuItemCard = ({ item, isAvailable }) => {
         p={{ base: 2, md: 3 }}
         // _hover={{ shadow: "md", transform: "scale(1.02)" }}
         // transition="0.2s ease 
-        // in-out"
+        // in-out "
+        // test
         justifyContent="center"
         bg={
           colorMode === "light" ? colors.light.bgFourth : colors.dark.bgFourth
