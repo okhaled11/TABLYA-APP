@@ -10,6 +10,7 @@ const CustomModal = ({
   onOkHandler,
   isLoading = false,
   children,
+  showFooter = true,
 }) => {
   const { colorMode } = useColorMode();
 
@@ -46,36 +47,38 @@ const CustomModal = ({
             </Dialog.Header>
             <Box w="90%" m="1px auto" h="1px" bg={"gray.300"} mb={5} />
             <Dialog.Body>{children}</Dialog.Body>
-            <Dialog.Footer>
-              <Dialog.ActionTrigger
-                asChild
-                flex="1"
-                borderColor="red"
-                color="red"
-                borderRadius="12px"
-              >
-                <Button variant="outline">{cancelTxt}</Button>
-              </Dialog.ActionTrigger>
-              <Button
-                colorPalette="red"
-                flex="1"
-                borderRadius="12px"
-                ml={3}
-                onClick={async () => {
-                  try {
-                    const ok = await onOkHandler();
-                    if (ok === true) {
-                      dialog.setOpen(false);
+            {showFooter && (
+              <Dialog.Footer>
+                <Dialog.ActionTrigger
+                  asChild
+                  flex="1"
+                  borderColor="red"
+                  color="red"
+                  borderRadius="12px"
+                >
+                  <Button variant="outline">{cancelTxt}</Button>
+                </Dialog.ActionTrigger>
+                <Button
+                  colorPalette="red"
+                  flex="1"
+                  borderRadius="12px"
+                  ml={3}
+                  onClick={async () => {
+                    try {
+                      const ok = await onOkHandler();
+                      if (ok === true) {
+                        dialog.setOpen(false);
+                      }
+                    } catch (_) {
+                      // keep modal open on errors
                     }
-                  } catch (_) {
-                    // keep modal open on errors
-                  }
-                }}
-                loading={isLoading}
-              >
-                {okTxt}
-              </Button>
-            </Dialog.Footer>
+                  }}
+                  loading={isLoading}
+                >
+                  {okTxt}
+                </Button>
+              </Dialog.Footer>
+            )}
             <Dialog.CloseTrigger asChild>
               <CloseButton size="sm" />
             </Dialog.CloseTrigger>

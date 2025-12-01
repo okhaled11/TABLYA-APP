@@ -1,4 +1,5 @@
-import { Box, Button, Flex, Heading, Text } from "@chakra-ui/react";
+import { Box, Button, Flex, Heading, Text, SimpleGrid } from "@chakra-ui/react";
+import { useState } from "react";
 
 import { useDialog } from "@chakra-ui/react";
 import { useColorMode } from "../../../theme/color-mode";
@@ -14,6 +15,14 @@ const CookerMenu = () => {
   const { colorMode } = useColorMode();
   const { data: items = [], isLoading, isError } = useGetMyMenuItemsQuery();
   const addMealDialog = useDialog();
+  const [filterStatus, setFilterStatus] = useState("all");
+
+  const filteredItems = items.filter((item) => {
+    if (filterStatus === "all") return true;
+    if (filterStatus === "in-stock") return item.available;
+    if (filterStatus === "out-of-stock") return !item.available;
+    return true;
+  });
 
   return (
     <>
@@ -44,16 +53,71 @@ const CookerMenu = () => {
           Add Meal
         </Button>
       </Flex>
-      <Flex direction="column" gap={4}>
+
+      <Flex
+        mb={6}
+        justify="center"
+        bg={colorMode === "light" ? colors.light.bgThird: colors.dark.bgThird}
+        p={1}
+        borderRadius="full"
+        width="fit-content"
+        mx="auto"
+      >
+        {["all", "in-stock", "out-of-stock"].map((status) => (
+          <Button
+            key={status}
+            onClick={() => setFilterStatus(status)}
+            size="sm"
+            variant={filterStatus === status ? "solid" : "ghost"}
+            bg={
+              filterStatus === status
+                ? colorMode === "light"
+                  ? colors.light.bgThird
+                  : colors.dark.bgThird
+                : "transparent"
+            }
+            color={
+              filterStatus === status
+                ? colorMode === "light"
+                  ? colors.light.mainFixed
+                  : colors.dark.mainFixed
+                : colorMode === "light"
+                ? "gray.500"
+                : "gray.400"
+            }
+            borderRadius="full"
+            px={6}
+            _hover={{
+              bg:
+                filterStatus === status
+                  ? colorMode === "light"
+                    ? "white"
+                    : "gray.700"
+                  : colorMode === "light"
+                  ? "gray.200"
+                  : "gray.700",
+            }}
+            // boxShadow={filterStatus === status ? "sm" : "none"}
+          >
+            {status === "all"
+              ? "All"
+              : status === "in-stock"
+              ? "In Stock"
+              : "Out of Stock"}
+          </Button>
+        ))}
+      </Flex>
+
+      <SimpleGrid columns={{ base: 1, md: 2, lg: 3 }} gap={10} spacing={10}>
         {isLoading && (
           <>
-            {Array.from({ length: 4 }).map((_, index) => (
+            {Array.from({ length: 6 }).map((_, index) => (
               <MenuItemCardSkeleton key={index} />
             ))}
           </>
         )}
         {isError && <Text color="red.400">Failed to load menu items.</Text>}
-        {!isLoading && !isError && items.length === 0 && (
+        {!isLoading && !isError && filteredItems.length === 0 && (
           <Flex
             direction="column"
             align="center"
@@ -69,6 +133,7 @@ const CookerMenu = () => {
               colorMode == "light" ? colors.light.textSub : colors.dark.textSub
             }
             gap={3}
+            gridColumn={{ base: "1 / -1" }}
           >
             <Text fontSize={{ base: "4xl", md: "5xl" }} aria-hidden>
               <MdRestaurantMenu />
@@ -81,15 +146,21 @@ const CookerMenu = () => {
                   : colors.dark.textMain
               }
             >
-              No items yet
+              No items found
             </Heading>
-            <Text fontSize="sm">Add your first meal to start your menu.</Text>
+            <Text fontSize="sm">
+              {filterStatus === "all"
+                ? "Add your first meal to start your menu."
+                : `No items found for ${filterStatus.replace("-", " ")}.`}
+            </Text>
           </Flex>
         )}
         {!isLoading &&
           !isError &&
-          items.map((item) => <CookerMenuCard key={item.id} item={item} />)}
-      </Flex>
+          filteredItems.map((item) => (
+            <CookerMenuCard key={item.id} item={item} />
+          ))}
+      </SimpleGrid>
 
       <AddMealModal dialog={addMealDialog} />
     </>

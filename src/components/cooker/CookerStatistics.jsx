@@ -32,7 +32,22 @@ const CookerStatistics = () => {
   const { data: cookerDetails, isLoading: cookerLoading } =
     useGetCookerByIdQuery(userId, { skip: !userId });
 
-  const totalOrders = orders?.length || 0;
+  const totalOrders = useMemo(() => {
+    if (!orders || orders.length === 0) return 0;
+
+    const now = new Date();
+    const currentMonth = now.getMonth();
+    const currentYear = now.getFullYear();
+
+    return orders.filter((order) => {
+      const created = order?.created_at ? new Date(order.created_at) : null;
+      if (!created) return false;
+      return (
+        created.getMonth() === currentMonth &&
+        created.getFullYear() === currentYear
+      );
+    }).length;
+  }, [orders]);
 
   const monthlyEarning = useMemo(() => {
     if (!orders || orders.length === 0) return 0;
