@@ -14,23 +14,27 @@ import { createApi, fakeBaseQuery } from "@reduxjs/toolkit/query/react";
      updateSettings: builder.mutation({
        async queryFn({
          platform_commission_pct,
-         chef_commission_pct,
-         service_fee_amount,
+         chef_fee_pct,
+         customer_fee_pct,
+        //  service_fee_amount,
          default_delivery_fee,
          sales_tax_pct,
          minimum_order_value,
          free_delivery_threshold,
+        
        }) {
          const { data, error } = await supabase
            .from("platform_settings")
            .update({
              platform_commission_pct,
-             chef_commission_pct,
-             service_fee_amount,
+             chef_fee_pct,
+             customer_fee_pct,
+            //  service_fee_amount,
              default_delivery_fee,
              sales_tax_pct,
              minimum_order_value,
              free_delivery_threshold,
+             
            })
            .eq("id", "b63fcd43-7207-4ddf-a735-24467a0293dc")
            .single();
@@ -64,7 +68,7 @@ import { createApi, fakeBaseQuery } from "@reduxjs/toolkit/query/react";
 
          const platformProfit =
            totalRevenue * (settings.platform_commission_pct || 0);
-         const chefProfit = totalRevenue * (settings.chef_commission_pct || 0);
+         const chefProfit = totalRevenue * (settings.chef_fee_pct || 0);
 
          return { data: { totalRevenue, platformProfit, chefProfit } };
        },
@@ -72,7 +76,9 @@ import { createApi, fakeBaseQuery } from "@reduxjs/toolkit/query/react";
        providesTags: ["settings"],
      }),
 
-     getPlatformSettings: builder.query({
+
+
+ getPlatformSettings: builder.query({
        async queryFn() {
          const { data, error } = await supabase
            .from("platform_settings")
@@ -84,7 +90,10 @@ import { createApi, fakeBaseQuery } from "@reduxjs/toolkit/query/react";
        },
        providesTags: ["settings"],
      }),
+
+
    }),
  });
 
+ 
  export const { useGetPlatformProfitQuery, useUpdateSettingsMutation, useGetPlatformSettingsQuery } = MariamSettingsApi;

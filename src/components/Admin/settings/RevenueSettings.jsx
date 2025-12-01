@@ -28,7 +28,7 @@ export default function RevenueSettings() {
   const { colorMode } = useColorMode();
   const [platformComm, setPlatformComm] = useState(0);
   const [chefcomm, setChefComm] = useState(0);
-  const [servicefee, setservice] = useState(0);
+  const [customerfee, setcustomerfee ] = useState(0);
 
   //state for confirmation Modal
   const [isConfirmOpen, setIsConfirmOpen] = useState(false);
@@ -55,8 +55,8 @@ export default function RevenueSettings() {
 
     const response = await updateSettings({
       platform_commission_pct: Number(platformComm) || 0,
-      chef_commission_pct: Number(chefcomm) || 0,
-      service_fee_amount: Number(servicefee) || 0,
+      chef_fee_pct: Number(chefcomm) || 0,
+      customer_fee_pct: Number(customerfee) || 0,
       default_delivery_fee: Number(deliveryFee) || 0,
 
       //-----------------------------------------------
@@ -86,8 +86,8 @@ export default function RevenueSettings() {
   const handleReset = async () => {
     const newValues = {
       platform_commission_pct: 10,
-      chef_commission_pct: 80,
-      service_fee_amount: 10,
+      chef_fee_pct: 80,
+      customer_fee_pct: 10,
       
 
       //-----------------------------------------------
@@ -99,8 +99,8 @@ export default function RevenueSettings() {
 
     // update UI
     setPlatformComm(newValues.platform_commission_pct);
-    setChefComm(newValues.chef_commission_pct);
-    setservice(newValues.service_fee_amount);
+    setChefComm(newValues.chef_fee_pct);
+    setcustomerfee(newValues.customer_fee_pct);
 
     setSalesTax(newValues.sales_tax_pct);
     setDeliveryFee(newValues.default_delivery_fee);
@@ -131,9 +131,9 @@ export default function RevenueSettings() {
 
   useEffect(() => {
     const progressPercentage =
-      Number(platformComm) + Number(chefcomm) + Number(servicefee);
+      Number(platformComm) + Number(chefcomm) + Number(customerfee);
     setprogress(progressPercentage);
-  }, [platformComm, chefcomm, servicefee]);
+  }, [platformComm, chefcomm, customerfee]);
 
   //handling values in inputs during mounting
   useEffect(() => {
@@ -145,13 +145,13 @@ export default function RevenueSettings() {
         .single();
 
       setPlatformComm(data.platform_commission_pct);
-      setChefComm(data.chef_commission_pct);
+      setChefComm(data.chef_fee_pct);
       setservice(data.service_fee_amount);
       setSalesTax(data.sales_tax_pct);
       setDeliveryFee(data.default_delivery_fee);
       setMinOrder(data.minimum_order_value);
       setFreeDeliveryThreshold(data.free_delivery_threshold);
-      console.log(data);
+      // console.log(data);
     }
 
     fetchSettings();
@@ -173,7 +173,7 @@ export default function RevenueSettings() {
         <Card.Body color="fg.muted">
           {/* percentages */}
           <HStack gap={"20"}>
-            <Box>
+            <Box flex={1}>
               <HStack>
                 <Heading my={"10px"} size={"md"}>
                   Platform Commission (%)
@@ -187,19 +187,23 @@ export default function RevenueSettings() {
 
               <NumberInput.Root
                 value={platformComm}
-                width="300px"
+                // width="300px"
+                width={"100%"}
                 min={1}
                 max={100}
                 size={"lg"}
-                borderRadius={"30px"}
+                colorPalette={"orange"}
+                // borderRadius={"30px"}
                 onValueChange={(e) => setPlatformComm(e.value || 0)}
               >
                 <NumberInput.Control />
-                <NumberInput.Input />
+                <NumberInput.Input borderRadius={"10px"} />
               </NumberInput.Root>
             </Box>
+
+
             {/* chef commesion */}
-            <Box>
+            <Box flex={1}>
               <HStack>
                 <Heading my={"10px"} size={"md"}>
                   Chef Share (%){" "}
@@ -212,25 +216,36 @@ export default function RevenueSettings() {
               </HStack>
 
               <NumberInput.Root
-                width="300px"
+                // width="300px"
+                width={"100%"}
                 min={1}
                 max={100}
                 size={"lg"}
-                borderRadius={"30px"}
+                // borderRadius={"30px"}
                 onValueChange={(e) => setChefComm(e.value)}
                 value={chefcomm}
+                colorPalette={"orange"}
               >
                 <NumberInput.Control />
-                <NumberInput.Input />
+                <NumberInput.Input borderRadius={"10px"}/>
               </NumberInput.Root>
+
+
+
+
+
+
+
+
+
             </Box>
 
-            <Box>
+            <Box flex={1}>
               <HStack>
                 <Heading my={"10px"} size={"md"}>
-                  Service Fee (%)
+                  Customer Fee (%)
                 </Heading>
-                <ToggleTip content="System maintenance and support fee">
+                <ToggleTip content="A small charge added to the customer's order.">
                   <Button size="xs" variant="ghost">
                     <LuInfo />
                   </Button>
@@ -238,16 +253,18 @@ export default function RevenueSettings() {
               </HStack>
 
               <NumberInput.Root
-                value={servicefee}
-                width="300px"
+                value={customerfee}
+                // width="300px"
+                width={"100%"}
                 min={1}
                 max={100}
                 size={"lg"}
                 borderRadius={"30px"}
-                onValueChange={(e) => setservice(e.value)}
+                onValueChange={(e) => setcustomerfee(e.value)}
+                colorPalette={"orange"}
               >
                 <NumberInput.Control />
-                <NumberInput.Input />
+                <NumberInput.Input borderRadius={"10px"}/>
               </NumberInput.Root>
             </Box>
           </HStack>
@@ -283,7 +300,7 @@ export default function RevenueSettings() {
             </Status.Root>
             <Status.Root size={"lg"} colorPalette="yellow">
               <Status.Indicator />
-              Service: {servicefee}%
+              Customer: {customerfee}%
             </Status.Root>
           </HStack>
 

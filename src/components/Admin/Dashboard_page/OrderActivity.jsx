@@ -54,7 +54,7 @@ export default function OrderActivity() {
                                 axisLine={false}
                                 tickLine={false}
                                 domain={[0, 100]}
-                                tickFormatter={(value) => `${value}%`}
+                                tickFormatter={(value) => `${value}`}
                             />
                             <Tooltip />
                             {chart.series.map((item) => (
