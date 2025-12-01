@@ -33,7 +33,17 @@ export const dashboardApi = createApi({
         if (error) return { error };
 
         const totalRevenue = data.reduce((acc, cur) => acc + Number(cur.total || 0), 0);
-        return { data: totalRevenue };
+        //convert number to k format 
+
+        function formatnumber (num){
+        if (num >= 1000){
+
+          return (num /1000).toFixed(1) + "k";
+        }
+        return num; 
+        }
+
+        return { data: formatnumber(totalRevenue) };
       },
     }),
 
@@ -158,8 +168,18 @@ export const dashboardApi = createApi({
         const totalRevenue = data.reduce((acc, cur) => acc + Number(cur.total || 0), 0);
         const platformSetting = settings[0];
         const profit = Number((totalRevenue * (platformSetting?.platform_commission_pct || 0) / 100).toFixed(2));
+         //to convert number to k format 
+        function format (num){
 
-        return { data: profit };
+          if (num >= 1000){
+          return (num /1000).toFixed(1)+ "k";
+
+          }
+          return num;
+
+        }
+
+        return { data: format (profit) };
       },
     }),
 
@@ -200,6 +220,45 @@ export const dashboardApi = createApi({
         return { data: growthRate };
       },
     }),
+
+    //orders growth rate 
+
+    getOrdersGrowthRate :builder.query ({
+
+    async queryFn (){
+
+      const now = new Date ();
+      const firstDayThisMonth = new Date( now.getFullYear (), now.getMonth() , 1).toISOString ();
+      const firstDayLastMonth =  new Date (now.getUTCFullYear (), now.getMonth () -1 , 1 ).toISOString ();
+      const firstDayThisMonthNext = new Date (now.getFullYear() , now.getMonth ()+ 1 , 1).toISOString();
+
+
+      const {data :current , error : e1 }= await supabase
+      .from ("orders")
+      .select("id, created_at")
+      .gte("created_at" , firstDayThisMonth)
+      .lt ("created_at" , firstDayThisMonthNext)
+      if (e1) return {error : e1};
+
+
+      const {data : prev , error: e2 } = await supabase 
+      .from ("orders")
+      .select ("id, created_at")
+      .gte ("created_at" , firstDayLastMonth)
+      .lt ("created_at" , firstDayThisMonth)
+      
+      if (e2)return {error : e2}; 
+
+
+     const growthRate = prev.length > 0 ?  ((current.length - prev.length)/ prev.length)* 100 : 0 ;
+        return {data : growthRate};
+
+    }
+
+    }),
+
+
+
 
     //******************************************************** */
     // Sales Trend (This Month)>> revenue of every day in month 
@@ -269,28 +328,58 @@ export const dashboardApi = createApi({
     // -------------------------------
     // Weekly Order Activity //orders quantity for every day
     // -------------------------------
-    getWeeklyOrderActivity: builder.query({
-      async queryFn() {
-        const { data, error } = await supabase.from("orders").select("id, created_at");
-        if (error) return { error };
+    
+getWeeklyOrderActivity: builder.query({
+  async queryFn() {
+    const today = new Date(); //current day
+    const days = ["Saturday", "Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday"];
 
-        const days = ["Saturday", "Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday"];
-        const weeklyCount = Object.fromEntries(days.map((d) => [d, 0]));
+   //determine start of current week in utc 
+    const todayUTC = new Date(Date.UTC(today.getUTCFullYear(), today.getUTCMonth(), today.getUTCDate()));
+    const day = todayUTC.getUTCDay(); // 0 = Sunday, 6 = Saturday
+    const diffToSaturday = (day === 6 ? 0 : day + 1); //difference number of days to saturday 
+    const startOfWeekUTC = new Date(todayUTC);
+    startOfWeekUTC.setUTCDate(todayUTC.getUTCDate() - diffToSaturday);
+    startOfWeekUTC.setUTCHours(0, 0, 0, 0);
 
-        data.forEach((order) => {
-          const day = days[new Date(order.created_at).getDay()];
-          weeklyCount[day]++;
-        });
+    
+    const endOfTodayUTC = new Date(todayUTC);
+    endOfTodayUTC.setUTCHours(23, 59, 59, 999);
 
-        const formatted = days.map((day) => ({
-          day,
-          orders: weeklyCount[day],
-        }));
+   
+    const { data, error } = await supabase
+      .from("orders")
+      .select("id, created_at")
+      .gte("created_at", startOfWeekUTC.toISOString())
+      .lte("created_at", endOfTodayUTC.toISOString());
 
-        return { data: formatted };
-      },
-    }),
+    if (error) return { error };
 
+    
+    const weeklyCount = Object.fromEntries(days.map((d) => [d, 0]));
+
+    data.forEach((order) => {
+      const orderDate = new Date(order.created_at);
+      const orderDayUTC = orderDate.getUTCDay(); // 0=Sun .. 6=Sat
+      const dayName = days[(orderDayUTC + 1) % 7]; //array start with saturday 
+      weeklyCount[dayName]++;
+    });
+
+  //sort days
+    const formatted = days.map((day) => ({
+      day,
+      orders: weeklyCount[day],
+    }));
+
+    return { data: formatted };
+  },
+}),
+
+
+
+
+    
+   
     //if i want to replace growth by month instead of day (data doesn't help now to draw chart actuallly)
 
     // getUserGrowthByType: builder.query({
@@ -377,5 +466,6 @@ export const {
   useGetTopPerformingCuisinesQuery,
   useGetWeeklyOrderActivityQuery,
   useGetRevenueTrendQuery,
-  useGetUserGrowthByTypeQuery
+  useGetUserGrowthByTypeQuery,
+  useGetOrdersGrowthRateQuery,
 } = dashboardApi;
