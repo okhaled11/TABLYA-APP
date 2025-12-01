@@ -32,6 +32,7 @@ import {
   ShoppingBagIcon,
   ShoppingCartSimple,
   Bell,
+  Flag,
 } from "@phosphor-icons/react";
 import { FiSearch } from "react-icons/fi";
 import { useColorMode } from "../theme/color-mode";
@@ -54,6 +55,7 @@ import {
   useGetDeliveryByUserIdQuery,
   useUpdateDeliveryAvailabilityMutation,
 } from "../app/features/delivery/deliveryApi";
+import { useGetOrdersForDeliveryCityQuery } from "../app/features/delivery/deleveryOrder";
 
 export default function Navbar() {
   const { t, i18n } = useTranslation();
@@ -81,6 +83,11 @@ export default function Navbar() {
 
   // Update delivery availability mutation
   const [updateDeliveryAvailability] = useUpdateDeliveryAvailabilityMutation();
+
+  // Fetch orders for delivery to check for active orders
+  const { data: deliveryOrders } = useGetOrdersForDeliveryCityQuery(undefined, {
+    skip: user?.role !== "delivery",
+  });
 
   // Fetch availability status for cooker or delivery
   useEffect(() => {
@@ -234,6 +241,24 @@ export default function Navbar() {
         type: "error",
       });
       return;
+    }
+
+    // Check for active orders before allowing availability change (only for delivery)
+    if (user?.role === "delivery" && !newAvailability) {
+      const hasActiveOrders = deliveryOrders?.some(
+        (order) =>
+          order.delivery_id === user.id && order.status === "out_for_delivery"
+      );
+
+      if (hasActiveOrders) {
+        toaster.create({
+          title: "Cannot change availability",
+          description: "You have active orders. Please complete them first.",
+          type: "warning",
+          duration: 3000,
+        });
+        return;
+      }
     }
 
     // Optimistic update
@@ -535,6 +560,15 @@ export default function Navbar() {
                                   </HStack>
                                 </Link>
                               </Menu.Item>
+                              {/* <Separator /> */}
+                              <Menu.Item value="Report-System" asChild>
+                                <Link to="/personal-info/report">
+                                  <HStack spacing={3}>
+                                    <Icon as={Flag} boxSize={4} />
+                                    <Text>Report System</Text>
+                                  </HStack>
+                                </Link>
+                              </Menu.Item>
                               <Separator />
 
                               {/* Dark Mode with Switch */}
@@ -562,7 +596,7 @@ export default function Navbar() {
                                 </HStack>
                               </Menu.Item>
                               {/* Language Switch */}
-                              <Menu.Item value="lang">
+                              {/* <Menu.Item value="lang">
                                 <HStack justify="space-between" w="full">
                                   <HStack spacing={3}>
                                     <Icon as={Globe} boxSize={4} />
@@ -586,7 +620,7 @@ export default function Navbar() {
                                     </Switch.Root>
                                   </HStack>
                                 </HStack>
-                              </Menu.Item>
+                              </Menu.Item> */}
                               <Separator />
                               <Menu.Item
                                 value="logout"

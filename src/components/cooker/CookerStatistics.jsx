@@ -43,6 +43,7 @@ const CookerStatistics = () => {
       const created = order?.created_at ? new Date(order.created_at) : null;
       if (!created) return false;
       return (
+        order.status === "delivered" &&
         created.getMonth() === currentMonth &&
         created.getFullYear() === currentYear
       );
@@ -69,6 +70,7 @@ const CookerStatistics = () => {
       const created = order?.created_at ? new Date(order.created_at) : null;
       if (!created) continue;
       if (
+        order.status === "delivered" &&
         created.getMonth() === currentMonth &&
         created.getFullYear() === currentYear
       ) {
