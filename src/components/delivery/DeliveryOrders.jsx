@@ -17,7 +17,7 @@ import { RiFileList3Fill } from "react-icons/ri";
 import { LuChevronLeft, LuChevronRight } from "react-icons/lu";
 import testColor from "../../theme/color";
 import { IoCheckmarkDoneSharp, IoPerson } from "react-icons/io5";
-import {  FaLocationDot } from "react-icons/fa6";
+import { FaLocationDot } from "react-icons/fa6";
 import { FaPhone } from "react-icons/fa6";
 import { BsFillCreditCardFill, BsBoxSeam } from "react-icons/bs";
 import srcLoadingImg from "../../assets/Transparent Version.gif";
@@ -92,19 +92,34 @@ const DeliveryOrders = () => {
       });
   }, [orders]);
 
-
   // Filter out hidden orders
   const ordersAfterHidden = useMemo(() => {
     if (!orders) return [];
     return orders.filter((order) => !hiddenOrderIds.includes(order.id));
   }, [orders, hiddenOrderIds]);
 
+  const isToday = (dateString) => {
+    if (!dateString) return false;
+    const date = new Date(dateString);
+    const today = new Date();
+    return (
+      date.getDate() === today.getDate() &&
+      date.getMonth() === today.getMonth() &&
+      date.getFullYear() === today.getFullYear()
+    );
+  };
+
   const filteredOrders = useMemo(() => {
+    // First filter by today's activity (updated_at or created_at)
+    const todayOrders = ordersAfterHidden.filter((order) =>
+      isToday(order.updated_at || order.created_at)
+    );
+
     if (selectedStatus === "Default") {
-      return ordersAfterHidden;
+      return todayOrders;
     }
 
-    return ordersAfterHidden.filter((order) => order.status === selectedStatus);
+    return todayOrders.filter((order) => order.status === selectedStatus);
   }, [ordersAfterHidden, selectedStatus]);
 
   // Pagination logic
@@ -268,7 +283,9 @@ const DeliveryOrders = () => {
           {!orders || filteredOrders.length === 0 ? (
             <Box
               bg={
-                colorMode === "light" ? colors.light.bgThird : colors.dark.bgThird
+                colorMode === "light"
+                  ? colors.light.bgThird
+                  : colors.dark.bgThird
               }
               rounded="20px"
               p={{ base: 6, md: 8 }}

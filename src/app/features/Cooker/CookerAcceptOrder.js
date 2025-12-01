@@ -17,7 +17,9 @@ export const CookerAcceptOrder = createApi({
           } = await supabase.auth.getUser();
 
           if (userError || !user) {
-            return { error: { message: userError?.message || "User not found" } };
+            return {
+              error: { message: userError?.message || "User not found" },
+            };
           }
 
           // Get orders where cooker_id matches the logged-in user's ID
@@ -36,9 +38,14 @@ export const CookerAcceptOrder = createApi({
             return { data: [] };
           }
 
-          // Get all order IDs and customer IDs
+          // Get all order IDs, customer IDs, and delivery IDs
           const orderIds = ordersData.map((order) => order.id);
-          const customerIds = ordersData.map((order) => order.customer_id).filter(Boolean);
+          const customerIds = ordersData
+            .map((order) => order.customer_id)
+            .filter(Boolean);
+          const deliveryIds = ordersData
+            .map((order) => order.delivery_id)
+            .filter(Boolean);
 
           // Fetch order items for all orders
           const { data: orderItemsData, error: itemsError } = await supabase
@@ -50,13 +57,15 @@ export const CookerAcceptOrder = createApi({
             console.error("Error fetching order items:", itemsError);
           }
 
-          // Fetch users data for customers
+          // Fetch users data for customers and delivery
           let usersData = [];
-          if (customerIds.length > 0) {
+          const allUserIds = [...new Set([...customerIds, ...deliveryIds])];
+
+          if (allUserIds.length > 0) {
             const { data: users, error: usersError } = await supabase
               .from("users")
               .select("*")
-              .in("id", customerIds);
+              .in("id", allUserIds);
 
             if (usersError) {
               console.error("Error fetching users:", usersError);
@@ -65,20 +74,21 @@ export const CookerAcceptOrder = createApi({
             }
           }
 
-          // Combine orders with their items and customer data
+          // Combine orders with their items, customer data, and delivery data
           const ordersWithItems = ordersData.map((order) => {
-            const items = orderItemsData ? orderItemsData.filter(
-              (item) => item.order_id === order.id
-            ) : [];
+            const items = orderItemsData
+              ? orderItemsData.filter((item) => item.order_id === order.id)
+              : [];
 
-            const user = usersData.find(
-              (u) => u.id === order.customer_id
-            );
+            const customer = usersData.find((u) => u.id === order.customer_id);
+
+            const delivery = usersData.find((u) => u.id === order.delivery_id);
 
             return {
               ...order,
               order_items: items,
-              customer: user || null
+              customer: customer || null,
+              delivery: delivery || null,
             };
           });
 
@@ -135,10 +145,21 @@ export const CookerAcceptOrder = createApi({
                       customer = customerUser || null;
                     }
 
+                    let delivery = null;
+                    if (payload.new.delivery_id) {
+                      const { data: deliveryUser } = await supabase
+                        .from("users")
+                        .select("*")
+                        .eq("id", payload.new.delivery_id)
+                        .single();
+                      delivery = deliveryUser || null;
+                    }
+
                     const orderWithItems = {
                       ...payload.new,
                       order_items: items || [],
                       customer,
+                      delivery,
                     };
 
                     updateCachedData((draft) => {
@@ -192,7 +213,9 @@ export const CookerAcceptOrder = createApi({
           return { data: data[0] };
         } catch (error) {
           return {
-            error: { message: error.message || "Failed to update order status" },
+            error: {
+              message: error.message || "Failed to update order status",
+            },
           };
         }
       },
@@ -236,8 +259,8 @@ export const CookerAcceptOrder = createApi({
   }),
 });
 
-export const { 
-  useGetCookerOrdersQuery, 
+export const {
+  useGetCookerOrdersQuery,
   useUpdateOrderStatusMutation,
-  useDeleteOrderMutation 
+  useDeleteOrderMutation,
 } = CookerAcceptOrder;
