@@ -2,7 +2,6 @@ import { Box, Heading, SimpleGrid } from "@chakra-ui/react";
 import colors from "../../theme/color";
 import { useColorMode } from "../../theme/color-mode";
 import CookerStaticsCard from "../cooker/CookerStaticsCard";
-import { RiFileList3Fill } from "react-icons/ri";
 import { TbTruckDelivery } from "react-icons/tb";
 import { BsFillBoxSeamFill } from "react-icons/bs";
 import { PiMoneyWavyFill } from "react-icons/pi";

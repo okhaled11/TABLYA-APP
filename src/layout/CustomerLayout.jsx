@@ -3,7 +3,7 @@ import { useColorMode } from "../theme/color-mode";
 import colors from "../theme/color";
 import Navbar from "./Navbar";
 import { useState, useRef, useEffect } from "react";
-import { User, MapPin, Lock, ArrowLeft } from "@phosphor-icons/react";
+import { User, MapPin, Lock, ArrowLeft, Warning } from "@phosphor-icons/react";
 import Footer from "../shared/Footer";
 import { useLocation, useNavigate } from "react-router-dom";
 
@@ -51,10 +51,14 @@ export default function CustomerLayout({ tabs, lockToAddressTab = false }) {
       title: "Security",
       icon: Lock,
     },
+    {
+      title: "Report System",
+      icon: Warning,
+    },
   ];
 
   // Map URL segment to tab index and vice versa
-  const segments = ["", "address", "security"]; // '' => personal-info root
+  const segments = ["", "address", "security", "report"]; // '' => personal-info root
 
   // Sync active tab when URL changes, but keep it locked on Address when required
   useEffect(() => {
@@ -95,7 +99,7 @@ export default function CustomerLayout({ tabs, lockToAddressTab = false }) {
             cursor="pointer"
             onClick={() => {
               if (lockToAddressTab) return;
-              navigate("/home");
+              navigate(-1);
             }}
             _hover={{
               color:

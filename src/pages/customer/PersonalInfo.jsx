@@ -4,6 +4,7 @@ import CookieService from "../../services/cookies";
 import PersonalInfoTab from "../../components/customer/PersonalInfoTab";
 import SecurityTab from "../../components/customer/SecurityTab";
 import AddressTab from "../../components/customer/AddressTab";
+import ReportSystemTab from "../../components/customer/ReportSystemTab";
 import { useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useGetDeliveryByUserIdQuery } from "../../app/features/delivery/deliveryApi";
@@ -40,6 +41,7 @@ export default function PersonalInfo() {
     <PersonalInfoTab user={user} />,
     <AddressTab />,
     <SecurityTab user={user} />,
+    <ReportSystemTab />,
   ];
 
   return <CustomerLayout tabs={tabs} lockToAddressTab={lockToAddressTab} />;
