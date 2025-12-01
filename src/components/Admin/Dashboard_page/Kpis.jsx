@@ -6,9 +6,9 @@ import { FaArrowTrendUp } from "react-icons/fa6";
 import { FiUsers } from "react-icons/fi";
 import { FiShoppingCart } from "react-icons/fi";
 import { useGetUsersQuery } from '../../../app/features/UserSlice';
-import { useGetAverageOrderValueQuery } from '../../../app/features/Admin/dashboardApi';
+import { useGetAverageOrderValueQuery, useGetOrdersGrowthRateQuery } from '../../../app/features/Admin/dashboardApi';
 import { useGetGrowthRateQuery } from '../../../app/features/Admin/dashboardApi';
-import { useGetTotalOrdersQuery } from '../../../app/features/Admin/dashboardApi';
+
 export default function Kpis() {
 
     const { colorMode } = useColorMode();
@@ -18,7 +18,7 @@ export default function Kpis() {
     const { data: avgOrder } = useGetAverageOrderValueQuery();
     
     const { data: growth } = useGetGrowthRateQuery();
-    const { data: totalOrders } = useGetTotalOrdersQuery();
+    const { data: OrdersGrowthRate } = useGetOrdersGrowthRateQuery();
    
     return (
         <Container my={"30px"} mx="0px">
@@ -79,11 +79,11 @@ export default function Kpis() {
                         <VStack align="start" spacing={2}>
 
                             {/* Title */}
-                            <Text color="gray.500" fontSize="15px">Growth Rate</Text>
+                            <Text color="gray.500" fontSize="15px"> Revenue Growth Rate</Text>
 
                             {/* Value + Icon */}
                             <Flex justifyContent="space-between" w="100%" align="center">
-                                <Text fontWeight="bold" fontSize="20px">{growth?.toFixed(2)}%</Text>
+                                <Text fontWeight="bold" fontSize="20px">{growth?.toFixed(1)}%</Text>
                                 <Box bg="rgb(231, 245, 236)" w="40px" h="40px" display="flex"
                                     justifyContent="center" alignItems="center" borderRadius="10px">
                                     <FaArrowTrendUp size="30px" color="rgb(22, 162, 73)" />
@@ -156,11 +156,11 @@ export default function Kpis() {
                         <VStack align="start" spacing={2}>
 
                             {/* Title */}
-                            <Text color="gray.500" fontSize="15px">Total Orders</Text>
+                            <Text color="gray.500" fontSize="15px">Orders Growth Rate </Text>
 
                             {/* Value + Icon */}
                             <Flex justifyContent="space-between" w="100%" align="center">
-                                <Text fontWeight="bold" fontSize="20px">{totalOrders}</Text>
+                                <Text fontWeight="bold" fontSize="20px">{OrdersGrowthRate?.toFixed(1) } %</Text>
                                 <Box bg="rgb(231, 245, 236)" w="40px" h="40px" display="flex"
                                     justifyContent="center" alignItems="center" borderRadius="10px">
                                     <FiShoppingCart

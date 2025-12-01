@@ -43,7 +43,7 @@ export default function CuisinesChart() {
         >
             <CardHeader>
                 <Heading fontSize="18px" fontWeight="semibold">
-                    Top Performing Cuisines
+                   Top 5 Best-Selling Dishes
                 </Heading>
             </CardHeader>
 

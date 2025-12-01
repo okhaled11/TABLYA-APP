@@ -1,5 +1,5 @@
 //mariam's Api 
-import { createApi, fakeBaseQuery } from '@reduxjs/toolkit/query/react';
+import { createApi, fakeBaseQuery, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
 import { supabase } from "../../../services/supabaseClient";
 
 const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbweSse7fRAIWyrX7oxdgvCGew0czAInkhrTnOfLed5g-hNvqqVdUAc1tC9o28fLcwsk9w/exec";
@@ -7,8 +7,8 @@ const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbweSse7fRAIWy
 const sendStatusEmail = async (email, name, status, note = "") => {
   console.log("Attempting to send email:", { email, name, status, note });
   if (!email) {
-      console.warn("No email provided to sendStatusEmail. Skipping.");
-      return;
+    console.warn("No email provided to sendStatusEmail. Skipping.");
+    return;
   }
   try {
     await fetch(GOOGLE_SCRIPT_URL, {
@@ -27,43 +27,104 @@ const sendStatusEmail = async (email, name, status, note = "") => {
 
 export const cookersApprovalsApi = createApi({
   reducerPath: 'cookersApprovalsApi',
-  baseQuery: fakeBaseQuery(),
+  // baseQuery: fakeBaseQuery(),
+  baseQuery: fetchBaseQuery({ baseUrl: '' }),
+
   tagTypes: ['CookerApprovals', 'Cookers'],
   endpoints: (builder) => ({
 
     //  Get all cooker approvals with cooker info
+    // getCookerApprovals: builder.query({
+    //   async queryFn() {
+    //     try {
+    //       const { data: approvals, error: approvalsError } = await supabase
+    //         .from("cooker_approvals")
+    //         .select("*");
+    //       if (approvalsError) return { error: approvalsError };
+
+    //       const { data: cookers, error: cookersError } = await supabase
+    //         .from("cookers")
+    //         .select("*");
+    //       if (cookersError) return { error: cookersError };
+
+    //       // fetch user info from authentication table 
+
+    //       const {data : authUsers , error :authError } = await supabase.auth.admin.listUsers ({
+    //         filter : { in : {column : "id" , values : approvals.map (app => app.cooker_id) } }
+
+
+    //       });
+    //       if (authError) return {error: authError};
+    //       const users = authUsers.users;
+    //       //merge data 
+    //       const data = approvals.map((app) => {
+    //         const cooker = cookers.find(c => c.user_id === app.cooker_id) || null;
+    //         const authuser = users.find(u => u.id === app.cooker_id) || null;
+
+    //         return { ...app, cooker, user: authuser? {
+    //           name : authuser.user_metadata?.name ||"",
+    //           email : authuser.email || "",
+    //           id : authuser.id,
+    //           avatar_url : authuser.user_metadata?.avatar_url || "",
+    //           metadata : authuser.user_metadata || {},
+    //         }: null
+
+
+
+
+    //         } ;
+    //       });
+
+    //       return { data };
+    //     } catch (err) {
+    //       return { error: err };
+    //     }
+    //   },
+    //   providesTags: ['CookerApprovals'],
+    // }),
+
+
+
+
+
+    //get data of cookers from cookers_approvals and authentication and users by fetching edge function on supabase
+
     getCookerApprovals: builder.query({
       async queryFn() {
         try {
-          const { data: approvals, error: approvalsError } = await supabase
-            .from("cooker_approvals")
-            .select("*");
-          if (approvalsError) return { error: approvalsError };
+          const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+          const supabaseKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
 
-          const { data: cookers, error: cookersError } = await supabase
-            .from("cookers")
-            .select("*");
-          if (cookersError) return { error: cookersError };
 
-          const { data: users, error: usersError } = await supabase
-            .from("users")
-            .select("id, name, email, phone, avatar_url");
-          if (usersError) return { error: usersError };
+          const res = await fetch(`${supabaseUrl}/functions/v1/get-cooker-approvals`, {
+            headers: {
+              "Content-Type": "application/json",
 
-          const data = approvals.map((app) => {
-            const cooker = cookers.find(c => c.user_id === app.cooker_id) || null;
-            const user = users.find(u => u.id === app.cooker_id) || null;
-
-            return { ...app, cooker, user };
+              "apikey": supabaseKey,
+              "Authorization": `Bearer ${supabaseKey}`,
+            },
           });
 
-          return { data };
+
+          const json = await res.json();
+
+          if (!res.ok) {
+            return { error: { message: "Failed to fetch data", status: res.status, details: json } };
+          }
+
+          return { data: json.data || [] };
         } catch (err) {
-          return { error: err };
+          console.error("Fetch error:", err);
+          return { error: { message: err.message || "Unknown error" } };
         }
       },
-      providesTags: ['CookerApprovals'],
+
+      providesTags: ['CookerApprovals', 'Cookers']
     }),
+
+
+
+
 
     //  Approve cooker
     approveCooker: builder.mutation({
@@ -80,9 +141,9 @@ export const cookersApprovalsApi = createApi({
           //update to aproved
           const { data: updatedApproval, error: updateError } = await supabase
             .from('cooker_approvals')
-            .update({ status: 'approved', approved_at: new Date().toISOString(), approved_by: null})
+            .update({ status: 'approved', approved_at: new Date().toISOString(), approved_by: null })
             .eq('id', id);
-            
+
           if (updateError) return { error: updateError };
 
           //add cooker to table if not existed
@@ -112,7 +173,7 @@ export const cookersApprovalsApi = createApi({
           if (approval.email) {
             await sendStatusEmail(approval.email, approval.name || "Chef", 'approved');
           } else {
-             console.warn("No email found in cooker_approvals table for this request.");
+            console.warn("No email found in cooker_approvals table for this request.");
           }
 
           return { data: updatedApproval };
@@ -125,7 +186,7 @@ export const cookersApprovalsApi = createApi({
 
     //  Delete cooker approval
     deleteCookerApproval: builder.mutation({
-      async queryFn({id}) {
+      async queryFn({ id }) {
         try {
           const { data: approval, error: fetchError } = await supabase
             .from('cooker_approvals')
@@ -136,7 +197,7 @@ export const cookersApprovalsApi = createApi({
 
           const cookerId = approval.cooker_id;
 
-         //delete approval
+          //delete approval
           const { data: deletedApproval, error: deleteApprovalError } = await supabase
             .from('cooker_approvals')
             .delete()
@@ -157,49 +218,51 @@ export const cookersApprovalsApi = createApi({
               .eq('user_id', cookerId);
             if (deleteCookerError) return { error: deleteCookerError };
           }
-          
-             const { error: deleteUserError } = await supabase
-             .from('users')
-             .delete()
-             .eq('id', cookerId);
 
-            if (deleteUserError) return { error: deleteUserError };
+          const { error: deleteUserError } = await supabase
+            .from('users')
+            .delete()
+            .eq('id', cookerId);
 
-      return { data: { message: "Cooker approval, cooker, and user deleted successfully" } };
-    } catch (err) {
-      return { error: err };
-    }
+          if (deleteUserError) return { error: deleteUserError };
+
+          return { data: { message: "Cooker approval, cooker, and user deleted successfully" } };
+        } catch (err) {
+          return { error: err };
+        }
       },
       invalidatesTags: ['CookerApprovals', 'Cookers'],
     }),
-    
-  //reject cooker approval 
+
+    //reject cooker approval 
+
+    //   Reject a cooker
     rejectCookerApproval: builder.mutation({
       async queryFn({ id }) {
         console.log("rejectCookerApproval called for id:", id);
-        
+
         // Fetch approval first to get email
         const { data: approval } = await supabase
-            .from('cooker_approvals')
-            .select('*')
-            .eq('id', id)
-            .single();
+          .from('cooker_approvals')
+          .select('*')
+          .eq('id', id)
+          .single();
 
         const { data, error } = await supabase
           .from('cooker_approvals')
-          .update({ status: 'rejected'})
+          .update({ status: 'rejected' })
           .eq('id', id);
-        
+
         if (error) {
-            console.error("Error rejecting approval:", error);
-            return { error :error };
+          console.error("Error rejecting approval:", error);
+          return { error: error };
         }
 
         // Send email notification
         if (approval && approval.email) {
-             await sendStatusEmail(approval.email, approval.name || "Chef", 'rejected');
+          await sendStatusEmail(approval.email, approval.name || "Chef", 'rejected');
         } else {
-             console.warn("No email found in cooker_approvals for rejection.");
+          console.warn("No email found in cooker_approvals for rejection.");
         }
 
         return { data };
@@ -207,48 +270,49 @@ export const cookersApprovalsApi = createApi({
       invalidatesTags: ['CookerApprovals'],
     }),
 
-//send notes 
+    //send notes 
 
-sendNotes : builder.mutation ({
-async queryFn ({id , notes}){
-     console.log("sendNotes mutation called with:", { id, notes });
+      sendNotes: builder.mutation({
+        async queryFn({ id, notes }) {
+          console.log("sendNotes mutation called with:", { id, notes });
 
-     const {data , error}= await supabase 
-     .from ('cooker_approvals')
-     .update({notes})
-     .eq ('id' , id);
-     
-     if (error) {
-        console.error("Error updating notes in Supabase:", error);
-        return {error: error};
-     }
+          const { data, error } = await supabase
+            .from('cooker_approvals')
+            .update({ notes, status: 'pending' })
+            .eq('id', id);
 
-     // Fetch approval to get email
-     const { data: approval } = await supabase
-        .from('cooker_approvals')
-        .select('*')
-        .eq('id', id)
-        .maybeSingle();
+          if (error) {
+            console.error("Error updating notes in Supabase:", error);
+            return { error: error };
+          }
 
-     if (approval && approval.email) {
-        await sendStatusEmail(approval.email, approval.name || "Chef", 'note', notes);
-     } else {
-        console.warn("No email found in cooker_approvals for sending note.");
-     }
+          // Fetch approval to get email
+          const { data: approval } = await supabase
+            .from('cooker_approvals')
+            .select('*')
+            .eq('id', id)
+            .maybeSingle();
 
-     return {data}
+          if (approval && approval.email) {
+            await sendStatusEmail(approval.email, approval.name || "Chef", 'note', notes);
+          } else {
+            console.warn("No email found in cooker_approvals for sending note.");
+          }
 
-}, invalidatesTags: [ 'CookerApprovals'], 
+          return { data }
 
-  }),
-})
+        }, invalidatesTags: ['CookerApprovals'],
 
-});
+      }),
+    })
 
-export const {
-  useGetCookerApprovalsQuery: useGetAllCookerApprovalsQuery,
-  useApproveCookerMutation,
-  useDeleteCookerApprovalMutation,
-  useRejectCookerApprovalMutation,
-  useSendNotesMutation
-} = cookersApprovalsApi;
+  });
+
+  export const {
+    useGetCookerApprovalsQuery: useGetAllCookerApprovalsQuery,
+
+    useApproveCookerMutation,
+    useDeleteCookerApprovalMutation,
+    useRejectCookerApprovalMutation,
+    useSendNotesMutation
+  } = cookersApprovalsApi;
