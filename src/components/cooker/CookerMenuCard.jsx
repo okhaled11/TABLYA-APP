@@ -6,6 +6,8 @@ import {
   Badge,
   Switch,
   Status,
+  Button,
+  Box,
 } from "@chakra-ui/react";
 import { FaPen } from "react-icons/fa";
 import AddMealModal from "./AddMealModal";
@@ -14,6 +16,7 @@ import colors from "../../theme/color";
 // import { useDispatch } from "react-redux";
 import { useDialog } from "@chakra-ui/react";
 import CustomAlertDialog from "../../shared/CustomAlertDailog";
+import CustomModal from "../../shared/Modal";
 import { toaster } from "../../components/ui/toaster";
 import { BsFillTrash3Fill } from "react-icons/bs";
 import {
@@ -27,32 +30,10 @@ const CookerMenuCard = ({ item }) => {
   // const dispatch = useDispatch();
   const dialog = useDialog(); // delete dialog
   const editDialog = useDialog(); // edit modal dialog
+  const viewDialog = useDialog(); // view modal dialog
   // const [updateAvailability, { isLoading: isToggling }] =
   //   useUpdateMenuItemAvailabilityMutation();
   const [deleteItem, { isLoading: isDeleting }] = useDeleteMenuItemMutation();
-
-  // const handleAvailabilityChange = async (checked) => {
-  //   const value = typeof checked === "object" && checked ? checked.checked : checked;
-  //   try {
-  //     await updateAvailability({ id: item.id, available: !!value }).unwrap();
-  //     toaster.create({
-  //       title: value ? "Meal enabled" : "Meal disabled",
-  //       type: "success",
-  //       duration: 2000,
-  //       isClosable: true,
-  //       position: "top",
-  //     });
-  //   } catch (e) {
-  //     toaster.create({
-  //       title: "Failed to update availability",
-  //       description: e?.data?.message || e?.message,
-  //       type: "error",
-  //       duration: 3000,
-  //       isClosable: true,
-  //       position: "top",
-  //     });
-  //   }
-  // };
 
   return (
     <>
@@ -62,155 +43,168 @@ const CookerMenuCard = ({ item }) => {
         maxW="100%"
         w="100%"
         border="none"
-        borderRadius="20px"
-        p={{ base: 3, md: 3 }}
-        // _hover={{ shadow: "md", transform: "scale(1.02)" }}
-        // transition="0.2s ease"
-        justifyContent="center"
+        borderRadius="2xl"
+        boxShadow="md"
+        _hover={{
+          transform: "translateY(-4px)",
+          boxShadow: "xl",
+          cursor: "pointer",
+        }}
+        transition="all 0.3s ease"
         bg={
           colorMode === "light" ? colors.light.bgFourth : colors.dark.bgFourth
         }
+        onClick={() => viewDialog.setOpen(true)}
       >
-        <Flex
-          flex="1"
-          direction={{ base: "column", md: "row" }}
-          gap={{ base: 3, md: 4 }}
-          alignItems={{ base: "stretch", md: "center" }}
-        >
+        <Box position="relative" w="100%" h="200px">
           <Image
             src={item?.menu_img || ""}
             alt="item-img"
-            boxSize={{ base: "80px", md: "90px", lg: "110px" }}
-            objectFit="cover"
-            borderRadius="12px"
-            flexShrink={0}
-          />
-          <Flex
-            flex="1"
-            direction="column"
-            gap={2}
-            minW={0}
             w="100%"
-            ml={{ base: 0, md: 4 }}
+            h="100%"
+            objectFit="cover"
+          />
+          <Badge
+            position="absolute"
+            top={3}
+            right={3}
+            bg={
+              item?.available
+                ? colorMode === "light"
+                  ? "green.100"
+                  : "green.900"
+                : colorMode === "light"
+                ? "red.100"
+                : "red.900"
+            }
+            color={
+              item?.available
+                ? colorMode === "light"
+                  ? "green.700"
+                  : "green.200"
+                : colorMode === "light"
+                ? "red.700"
+                : "red.200"
+            }
+            borderRadius="full"
+            px={3}
+            py={1}
+            boxShadow="sm"
           >
+            <Flex gap={1.5} alignItems="center">
+              <Box
+                w="8px"
+                h="8px"
+                borderRadius="full"
+                bg={item?.available ? "green.500" : "red.500"}
+              />
+              <Text fontSize="xs" fontWeight="bold">
+                {item?.available ? "In Stock" : "Out of Stock"}
+              </Text>
+            </Flex>
+          </Badge>
+        </Box>
+
+        <Flex direction="column" p={4} gap={3}>
+          <Flex justify="space-between" align="start" gap={2}>
             <Text
-              fontWeight="medium"
-              fontSize={{ base: "md", md: "lg", lg: "xl" }}
+              fontWeight="bold"
+              fontSize="lg"
               color={
                 colorMode === "light"
                   ? colors.light.textMain
                   : colors.dark.textMain
               }
               noOfLines={1}
-              wordBreak="break-word"
             >
-              {truncateText(item?.title, 25) || "No Title"}
+              {truncateText(item?.title, 15) || "No Title"}
             </Text>
             <Text
-              fontSize={{ base: "xs", md: "sm" }}
-              fontWeight={{ base: "light", md: "light" }}
+              fontWeight="bold"
+              fontSize="lg"
               color={
                 colorMode === "light"
-                  ? colors.light.textSub
-                  : colors.dark.textSub
+                  ? colors.light.mainFixed
+                  : colors.dark.mainFixed
               }
-              noOfLines={{ base: 2, md: 3 }}
-              wordBreak="break-word"
+              whiteSpace="nowrap"
             >
-              {truncateText(item?.description, 220) ||
-                "No Description Available"}
+              {item?.price ?? 0} L.E
             </Text>
-            <Flex
-              mt={{ base: 1, md: 2 }}
-              justifyContent="space-between"
-              alignItems="center"
-              w="100%"
-            >
-              <Text
-                fontWeight="semibold"
-                fontSize={{ base: "sm", md: "md", lg: "lg" }}
-                color={
+          </Flex>
+
+          <Text
+            fontSize="sm"
+            color={
+              colorMode === "light" ? colors.light.textSub : colors.dark.textSub
+            }
+            noOfLines={2}
+            minH="40px"
+          >
+            {truncateText(item?.description, 80) || "No Description Available"}
+          </Text>
+
+          <Flex gap={3} mt={3}>
+            <Button
+              flex={1}
+              size="md"
+              variant="solid"
+              bg={
+                colorMode === "light"
+                  ? colors.light.mainFixed
+                  : colors.dark.mainFixed
+              }
+              color="white"
+              borderRadius="xl"
+              fontWeight="semibold"
+              _hover={{
+                bg:
                   colorMode === "light"
                     ? colors.light.mainFixed
-                    : colors.dark.mainFixed
-                }
-              >
-                {item?.price?? 0} L.E
-              </Text>
-              <Flex gap={4}>
-                <FaPen
-                  style={{ cursor: "pointer" }}
-                  onClick={() => editDialog.setOpen(true)}
-                />
-                <BsFillTrash3Fill
-                  fill="red"
-                  style={{ cursor: "pointer" }}
-                  onClick={() => dialog.setOpen(true)}
-                />
-              </Flex>
-            </Flex>
+                    : colors.dark.mainFixed,
+                opacity: 0.9,
+                transform: "translateY(-2px)",
+                boxShadow: "md",
+              }}
+              _active={{
+                transform: "translateY(0)",
+              }}
+              transition="all 0.2s"
+              onClick={(e) => {
+                e.stopPropagation();
+                editDialog.setOpen(true);
+              }}
+            >
+              <FaPen size={14} style={{ marginRight: "8px" }} /> Edit Meal
+            </Button>
+            <Button
+              size="md"
+              variant="subtle"
+              colorPalette="red"
+              bg={colorMode === "light" ? "red.50" : "red.900"}
+              color="red.500"
+              borderRadius="xl"
+              px={4}
+              _hover={{
+                bg: "red.100",
+                color: "red.600",
+                transform: "translateY(-2px)",
+                boxShadow: "sm",
+              }}
+              _active={{
+                transform: "translateY(0)",
+              }}
+              transition="all 0.2s"
+              onClick={(e) => {
+                e.stopPropagation();
+                dialog.setOpen(true);
+              }}
+              aria-label="Delete meal"
+            >
+              <BsFillTrash3Fill size={18} />
+            </Button>
           </Flex>
         </Flex>
-
-        <Badge
-          position="absolute"
-          top={{ base: 2, md: 3 }}
-          right={{ base: 2, md: 3 }}
-          bg={
-            item?.available
-              ? colorMode === "light"
-                ? colors.light.success20a
-                : colors.dark.success20a
-              : colorMode === "light"
-              ? "#FFE5E5"
-              : "#4A2626"
-          }
-          borderRadius="8px"
-          fontSize={{ base: "10px", md: "sm" }}
-          px={{ base: 2, md: 3 }}
-          py={{ base: 0.5, md: 1 }}
-          transition="all 0.3s ease"
-        >
-          <Flex gap={2} alignItems="center">
-            <Status.Root
-              display="flex"
-              colorPalette={item?.available ? "green" : "red"}
-              color={
-                item?.available
-                  ? colorMode === "light"
-                    ? colors.light.success
-                    : colors.dark.success
-                  : colorMode === "light"
-                  ? "#DC2626"
-                  : "#EF4444"
-              }
-            >
-              <Status.Indicator
-                bg={item?.available ? "green.400" : "red.400"}
-                boxShadow={
-                  item?.available
-                    ? "0 0 12px 2px #2EB200"
-                    : "0 0 12px 2px #DC2626"
-                }
-                filter="blur(0.5px)"
-              />
-              {item?.available ? "in Stock" : "Out of Stock"}
-            </Status.Root>
-
-            {/* <Switch.Root
-             colorPalette={item?.available ? "green" : "green"}
-              checked={!!item?.available}
-              onCheckedChange={handleAvailabilityChange}
-              disabled={isToggling}
-              size="sm"
-            >
-              <Switch.HiddenInput />
-              <Switch.Control>
-                <Switch.Thumb />
-              </Switch.Control>
-            </Switch.Root> */}
-          </Flex>
-        </Badge>
       </Card.Root>
 
       <CustomAlertDialog
@@ -244,6 +238,72 @@ const CookerMenuCard = ({ item }) => {
       />
 
       <AddMealModal dialog={editDialog} item={item} mode="edit" />
+
+      {/* Show details */}
+      <CustomModal
+        dialog={viewDialog}
+        title={item?.title || "Meal Details"}
+        description="View meal details"
+        showFooter={false}
+      >
+        <Flex direction="column" gap={4}>
+          <Image
+            src={item?.menu_img || ""}
+            alt="item-img"
+            w="100%"
+            h="180px"
+            objectFit="cover"
+            borderRadius="xl"
+          />
+          {/* <Flex justify="space-between" align="center" > */}
+            <Text
+              fontWeight="semibold"
+              fontSize="xl"
+              noOfLines={2}
+              color={
+                colorMode === "light"
+                  ? colors.light.textMain
+                  : colors.dark.textMain
+              }
+            >
+              {item?.title}
+            </Text>
+            <Text
+              fontWeight="bold"
+              fontSize="lg"
+              color={
+                colorMode === "light"
+                  ? colors.light.mainFixed
+                  : colors.dark.mainFixed
+              }
+            >
+              {item?.price ?? 0} L.E
+            </Text>
+          {/* </Flex> */}
+          <Flex gap={2} align="center">
+            <Badge
+              colorPalette={item?.available ? "green" : "red"}
+              variant="solid"
+              size="md"
+            >
+              {item?.available ? "In Stock" : "Out of Stock"}
+            </Badge>
+            {item?.stock !== undefined && (
+              <Text fontSize="sm" color="gray.500">
+                ({item.stock} left)
+              </Text>
+            )}
+          </Flex>
+          <Text
+            fontSize="sm"
+            color={
+              colorMode === "light" ? colors.light.textSub : colors.dark.textSub
+            }
+          >
+            {item?.description || "No description available."}
+          </Text>
+        </Flex>
+      </CustomModal>
     </>
   );
 };
