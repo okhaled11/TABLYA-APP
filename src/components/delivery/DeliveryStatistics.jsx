@@ -28,7 +28,12 @@ const DeliveryStatistics = () => {
     );
   };
   const activeDeliveries = useMemo(
-    () => (orders || []).filter((o) => o.status === "ready_for_pickup").length,
+    () =>
+      (orders || []).filter(
+        (o) =>
+          o.status === "ready_for_pickup" &&
+          isToday(new Date(o.created_at || o.updated_at))
+      ).length,
     [orders]
   );
   const completedToday = useMemo(
