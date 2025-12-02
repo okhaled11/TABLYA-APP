@@ -29,6 +29,8 @@ import { LuSearch } from "react-icons/lu"
 import { Tooltip } from '../../ui/tooltip';
 import { MdMailOutline } from "react-icons/md";
 import { MdMarkEmailRead } from "react-icons/md";
+import { IoDocumentTextOutline } from "react-icons/io5";
+import { HiOutlineSearchCircle } from "react-icons/hi";
 
 import colors from '../../../theme/color';
 // import { useGetAdminIdQuery } from '../../../app/features/Admin/adminData';
@@ -207,11 +209,14 @@ export default function ChefTable() {
     const filteredCookers = useMemo(() => {
         return localCookers
             .filter(cooker => statusFilter === "all" || cooker.status === statusFilter)
-            .filter(cooker =>
-                cooker.user?.user_metadata?.name
-                    ?.toLowerCase()
-                    .includes(searchQuery.toLowerCase())
-            );
+            .filter(cooker => {
+                // لو مفيش search query، ارجع كل الـ cookers
+                if (!searchQuery || searchQuery.trim() === "") return true;
+                
+                // لو فيه search query، دور في الـ name
+                const name = cooker.user?.name || "";
+                return name.toLowerCase().includes(searchQuery.toLowerCase());
+            });
     }, [localCookers, statusFilter, searchQuery]);
 
 
@@ -219,7 +224,7 @@ export default function ChefTable() {
     //******************************************************************** */
 
     //pagination handling
-    const itemsPerPage = 3;
+    const itemsPerPage = 10;
     const [currentPage, setCurrentPage] = useState(1);
 
     const indexOfLastItem = currentPage * itemsPerPage;
@@ -301,13 +306,60 @@ export default function ChefTable() {
 
 
                         {isLoading ? (
-
-
                             <Table.Row bg={colorMode === "dark" ? colors.dark.bgMain : ""} >
                                 <Table.Cell colSpan={7} textAlign="center">
-                                    <VStack colorPalette="teal">
-                                        <Spinner color="colorPalette.600" />
-                                        <Text color="colorPalette.600">Loading Cookers...</Text>
+                                    <VStack colorPalette="teal" py={10}>
+                                        <Spinner color="colorPalette.600" size="xl" />
+                                        <Text color="colorPalette.600" fontSize="lg" fontWeight="medium">Loading Sellers...</Text>
+                                        <Text color="gray.500" fontSize="sm">Please wait while we fetch the data</Text>
+                                    </VStack>
+                                </Table.Cell>
+                            </Table.Row>
+
+                        ) : cooker_approvals.length === 0 ? (
+                            <Table.Row bg={colorMode === "dark" ? colors.dark.bgMain : ""}>
+                                <Table.Cell colSpan={7} textAlign="center">
+                                    <VStack py={16} gap={4}>
+                                        <Box color={colorMode === "light" ? "gray.400" : "gray.500"}>
+                                            <IoDocumentTextOutline size={100} />
+                                        </Box>
+                                        <Text fontSize="xl" fontWeight="semibold" color={colorMode === "light" ? "gray.700" : "gray.300"}>
+                                            No Seller Applications Yet
+                                        </Text>
+                                        <Text fontSize="md" color="gray.500" maxW="400px">
+                                            There are no seller applications in the system. New applications will appear here.
+                                        </Text>
+                                    </VStack>
+                                </Table.Cell>
+                            </Table.Row>
+
+                        ) : currentItems.length === 0 ? (
+                            <Table.Row bg={colorMode === "dark" ? colors.dark.bgMain : ""}>
+                                <Table.Cell colSpan={7} textAlign="center">
+                                    <VStack py={16} gap={4}>
+                                        <Box color={colorMode === "light" ? "gray.400" : "gray.500"}>
+                                            <HiOutlineSearchCircle size={100} />
+                                        </Box>
+                                        <Text fontSize="xl" fontWeight="semibold" color={colorMode === "light" ? "gray.700" : "gray.300"}>
+                                            No Results Found
+                                        </Text>
+                                        <Text fontSize="md" color="gray.500" maxW="400px">
+                                            {searchQuery 
+                                                ? `No sellers found matching "${searchQuery}"`
+                                                : `No ${statusFilter} applications found`
+                                            }
+                                        </Text>
+                                        <Button 
+                                            size="sm" 
+                                            variant="outline" 
+                                            colorScheme="gray"
+                                            onClick={() => {
+                                                setSearchQuery("");
+                                                setStatusFilter("all");
+                                            }}
+                                        >
+                                            Clear Filters
+                                        </Button>
                                     </VStack>
                                 </Table.Cell>
                             </Table.Row>
@@ -326,14 +378,14 @@ export default function ChefTable() {
                                             overflow="hidden"
                                             colorPalette={"red"}>
 
-                                            <Avatar.Image src={cooker.user?.user_metadata?.avatar_url} />
+                                            <Avatar.Image src={cooker.user?.avatar_url} />
                                             <Avatar.Fallback name={cooker.user?.name} />
                                         </Avatar.Root>
 
                                     </Table.Cell>
-                                    <Table.Cell>{cooker.user?.user_metadata?.name}</Table.Cell>
+                                    <Table.Cell>{cooker.user?.name}</Table.Cell>
                                     <Table.Cell>{cooker.specialty || "—"}</Table.Cell>
-                                    <Table.Cell>{cooker.user?.user_metadata?.KitchenName || "—"}</Table.Cell>
+                                    <Table.Cell>{cooker.name || "—"}</Table.Cell>
                                     <Table.Cell>{new Intl.DateTimeFormat("en-US", {
                                         year: "numeric",
                                         month: "short",
