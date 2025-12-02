@@ -359,6 +359,8 @@ export default function ChefTable() {
                                             }}
                                         >
                                             Clear Filters
+                                            {/* TODO: add clear filters functionality */}
+                                            
                                         </Button>
                                     </VStack>
                                 </Table.Cell>
