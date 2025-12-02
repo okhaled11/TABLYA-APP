@@ -1,8 +1,8 @@
 
 import React from "react";
 import {
-  Dialog, Portal, Button, CloseButton, Avatar,
-  DataList,
+  Dialog, Portal, Button, Avatar,
+
 } from "@chakra-ui/react";
 import colors from "../../../theme/color";
 import { useState } from "react";
@@ -10,6 +10,14 @@ import { Textarea } from "@chakra-ui/react";
 import { HStack, VStack } from "@chakra-ui/react";
 import { Text } from "@chakra-ui/react";
 import { ButtonGroup } from "@chakra-ui/react"
+import {
+
+  Badge,
+
+  CloseButton,
+  DataList,
+
+} from "@chakra-ui/react"
 
 const MariamCustomModal = ({
   isOpen,
@@ -22,7 +30,7 @@ const MariamCustomModal = ({
   notes,
   setNotes,
   isApproving,
-  message, 
+  message,
   sendNotes
 }) => {
   if (!isOpen || !cooker || !type) return null;
@@ -51,7 +59,7 @@ const MariamCustomModal = ({
                     ? "Reject Cooker"
                     : isDelete
                       ? "Delete Cooker"
-                       : isDetails ?  "Cooker Details" : "Send Notes to the Cooker " }
+                      : isDetails ? "Cooker Details" : cooker.notes && cooker.status === "pending" ? ("Note sent ") : "Send notes to cooker"}
               </Dialog.Title>
             </Dialog.Header>
 
@@ -65,7 +73,7 @@ const MariamCustomModal = ({
                       message
                     ) : (
                       <>
-                        Are you sure you want to approve <b>{cooker.user?.name}</b> to be part of our community?
+                        Are you sure you want to approve <b>{cooker.name}</b> to be part of our community?
                       </>
                     )}
                   </Text>
@@ -77,42 +85,122 @@ const MariamCustomModal = ({
                 <>
                   <VStack align="stretch" spacing={4} mt={4}>
                     <Text fontSize={"md"} >
-                      Are you sure you want to reject <b>{cooker.user?.name}</b> from joining our community?
+                      Are you sure you want to reject <b>{cooker.name}</b> from joining our community?
                     </Text>
 
-                    {/* <Textarea
-                      placeholder="Enter rejection notes..."
-                      value={notes}
-                      onChange={(e) => setNotes(e.target.value)}
-                      size="lg"
-                      minH="120px"
-                      resize="vertical"
-                      mt={"30px"}
-                    /> */}
+
                   </VStack>
                 </>
               )}
 
-             {/* send notes or message to the cooker */}
+              {/* send notes or message to the cooker */}
 
-           {sendnotes && (
-           
-            <Textarea
-                      placeholder="Enter notes..."
+              {sendnotes && (
+
+
+                <VStack align="start" spacing={4}>
+
+
+                  {/* Status + previous note */}
+                  <DataList.Root orientation="horizontal">
+
+
+                    <DataList.Item>
+                      <DataList.ItemLabel>Assigned to</DataList.ItemLabel>
+                      <DataList.ItemValue>
+                        <HStack>
+                          <Avatar.Root size="xs">
+                            <Avatar.Image src={cooker.user?.user_metadata?.avatar_url} />
+                            <Avatar.Fallback />
+                          </Avatar.Root>
+                          {cooker.user?.user_metadata?.name}
+                        </HStack>
+                      </DataList.ItemValue>
+                    </DataList.Item>
+
+
+                    <DataList.Item>
+                      <DataList.ItemLabel>Status</DataList.ItemLabel>
+                      <DataList.ItemValue>
+                        <Badge colorPalette={cooker.status === "pending" ? "yellow" : "purple"}>
+                          {cooker.status}
+                        </Badge>
+                      </DataList.ItemValue>
+                    </DataList.Item>
+
+                    {cooker.notes && (
+
+                      <DataList.Item>
+                        <DataList.ItemLabel> {(cooker.notes && cooker.status === "pending") ? "Sent at" : "Updated at"} </DataList.ItemLabel>
+                        <DataList.ItemValue>{new Intl.DateTimeFormat("en-US", {
+                          year: "numeric",
+                          month: "short",
+                          day: "2-digit",
+                          timeZone: "UTC",
+
+                        }).format(new Date(cooker.updated_at))}</DataList.ItemValue>
+                      </DataList.Item>
+
+
+                    )}
+
+                    {(cooker.notes || cooker.status === "pending") && (
+                      <>
+                        {cooker.notes && (<DataList.Item >
+                          <DataList.ItemLabel>{(cooker.notes && cooker.status === "pending") ? "Note" : "Previous Note"}</DataList.ItemLabel>
+                          <DataList.ItemValue whiteSpace="normal"
+
+                            wordBreak="break-word"
+                            display={"inline-block"}
+                            maxW="300px">
+                            <Text colorPalette="orange">{cooker.notes}</Text>
+                          </DataList.ItemValue>
+                        </DataList.Item>)}
+
+
+                        {cooker.status !== "updated" && cooker.notes && (
+
+
+                          <DataList.Item>
+                            <DataList.ItemLabel>Note Status</DataList.ItemLabel>
+                            <DataList.ItemValue>
+                              <Badge colorPalette="red">Waiting for updates</Badge>
+                            </DataList.ItemValue>
+                          </DataList.Item>
+
+
+                        )}
+
+
+                      </>
+
+
+                    )}
+                  </DataList.Root>
+
+
+                  {(!cooker.notes || cooker.status === "updated") && (
+                    <Textarea
+                      placeholder="Add a note..."
                       value={notes}
                       onChange={(e) => setNotes(e.target.value)}
                       size="lg"
                       minH="120px"
+                      mt={8}
                       resize="vertical"
-                      mt={"20px"}
+                      isRequired
                     />
-
-           )
-
-
+                  )}
+                </VStack>
 
 
-           }
+
+              )
+
+
+
+
+              }
 
 
 
@@ -139,13 +227,13 @@ const MariamCustomModal = ({
                     <DataList.Item>
                       <DataList.ItemLabel>Avatar</DataList.ItemLabel>
                       <DataList.ItemValue>
-                        <Avatar.Root 
-                        width={"100px"}
-                         height="100px"
+                        <Avatar.Root
+                          width={"100px"}
+                          height="100px"
                           borderRadius="full"
                           overflow="hidden">
-                          <Avatar.Image src={cooker.user?.avatar_url}  />
-                          <Avatar.Fallback name={cooker.user?.name} />
+                          <Avatar.Image src={cooker.user?.avatar_url} />
+                          <Avatar.Fallback name={cooker?.name} />
                         </Avatar.Root>
                       </DataList.ItemValue>
                     </DataList.Item>
@@ -162,12 +250,17 @@ const MariamCustomModal = ({
 
                     <DataList.Item>
                       <DataList.ItemLabel>Phone</DataList.ItemLabel>
-                      <DataList.ItemValue>{cooker.user?.phone || "—"}</DataList.ItemValue>
+                      <DataList.ItemValue>{cooker.user?.user_metadata?.phone || "—"}</DataList.ItemValue>
                     </DataList.Item>
 
                     <DataList.Item>
                       <DataList.ItemLabel>Specialty</DataList.ItemLabel>
-                      <DataList.ItemValue>{cooker.cooker?.specialty || "—"}</DataList.ItemValue>
+                      <DataList.ItemValue>{cooker?.specialty || "—"}</DataList.ItemValue>
+                    </DataList.Item>
+
+                    <DataList.Item>
+                      <DataList.ItemLabel>Address</DataList.ItemLabel>
+                      <DataList.ItemValue>{cooker.user?.user_metadata?.address?.city || "—"}</DataList.ItemValue>
                     </DataList.Item>
 
                     <DataList.Item>
@@ -319,7 +412,7 @@ const MariamCustomModal = ({
                   Delete
                 </Button>
               )}
-              {sendnotes&& (
+              {sendnotes && (!cooker.notes || cooker.status === "updated") && (
                 <Button onClick={sendNotes} background={colors.light.success}>
                   Send
                 </Button>

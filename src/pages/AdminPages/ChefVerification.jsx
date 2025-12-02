@@ -9,6 +9,7 @@ import { MdCancel } from "react-icons/md";
 import { Flex } from '@chakra-ui/react'
 import { useColorMode } from '../../theme/color-mode'
 import colors from '../../theme/color'
+import { IoIosRefreshCircle } from "react-icons/io";
 
 export default function ChefVerification() {
 
@@ -18,11 +19,15 @@ const {colorMode}=useColorMode();
  
   const pending = cooker_approvals.filter(cooker => cooker.status === "pending").length;
   const approved = cooker_approvals.filter(cooker => cooker.status === "approved").length;
-  const rejected = cooker_approvals.filter(cooker => cooker.status === "rejected").length;
+  const updated = cooker_approvals.filter(cooker => cooker.status === "updated").length;
+  // const rejected = cooker_approvals.filter(cooker => cooker.status === "rejected").length;
   const kpis = [
     { title: "Pending Applications", number: pending, color: "rgb(244, 192, 37)", icon: <FiAlertTriangle /> },
-    { title: "approved Sellers", number: approved, color: "rgb(22, 162, 73)", icon: <FaCheckCircle /> },
-    { title: "Rejected Sellers", number: rejected, color: "rgb(239, 67, 67)", icon: <MdCancel /> }]
+    { title: "Approved Sellers", number: approved, color: "rgb(22, 162, 73)", icon: <FaCheckCircle /> },
+    { title: "Updated Applications ", number: updated, color: "rgba(188, 32, 202, 1)", icon: <IoIosRefreshCircle />},
+    // { title: "Rejected Sellers", number: rejected, color: "rgb(239, 67, 67)", icon: <MdCancel /> }
+  
+  ]
 
 
   return (

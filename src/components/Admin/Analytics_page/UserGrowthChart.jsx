@@ -11,7 +11,7 @@ import { useColorMode } from '../../../theme/color-mode';
 import colors from '../../../theme/color';
 
 export default function UserGrowthChart() {
-    const {colorMode}= useColorMode();
+    const { colorMode } = useColorMode();
     const { data: userGrowth } = useGetUserGrowthByTypeQuery();
     console.log(userGrowth);
 
@@ -33,7 +33,7 @@ export default function UserGrowthChart() {
         >
             <CardHeader>
                 <Heading fontSize="18px" fontWeight="semibold">
-                    User Growth by Type
+                    User Growth by Type (This Month)
                 </Heading>
             </CardHeader>
 
@@ -47,10 +47,19 @@ export default function UserGrowthChart() {
                                 axisLine={false}
                                 dataKey={chart.key("day")}
                                 // tickFormatter={(value) => value.slice(0, 3)} // if i turned to usergrowth monthly instead of daily to slice month name
+                                // tickFormatter={(value) => {
+                                //     const date = new Date(value);
+                                //     return `${date.getMonth() + 1}/${date.getDate()}`; 
+                                // }}
                                 tickFormatter={(value) => {
-                                    const date = new Date(value);
-                                    return `${date.getMonth() + 1}/${date.getDate()}`; 
+                                    if (!value) return "";
+
+                                    // value = "04/11/2025"
+                                    const [day, month, year] = value.split("/");
+
+                                    return `${month}/${day}`; // mm/dd
                                 }}
+
 
                                 stroke={chart.color("border")}
                             />
