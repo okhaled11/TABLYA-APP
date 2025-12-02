@@ -1,6 +1,8 @@
-import React from "react";
-import { IconButton, Box, Menu, Portal, Text, Icon } from "@chakra-ui/react";
-import { MdSupportAgent } from "react-icons/md";
+import { useState } from "react";
+import { Box, Menu, Portal, Text, Icon, HStack } from "@chakra-ui/react";
+import { MdHeadsetMic } from "react-icons/md";
+import { RiAlarmWarningFill } from "react-icons/ri";
+import { motion } from "framer-motion";
 import {
   FaRoad,
   FaCarCrash,
@@ -60,6 +62,7 @@ const supportIssues = [
 
 const SupportButton = () => {
   const { colorMode } = useColorMode();
+  const [isOpen, setIsOpen] = useState(false);
 
   // Get current user data
   const token = CookieService.get("access_token");
@@ -83,45 +86,98 @@ const SupportButton = () => {
 
   return (
     <Box position="fixed" bottom="20px" right="20px" zIndex="9999">
-      <Menu.Root positioning={{ placement: "top-end" }}>
+      <Menu.Root
+        positioning={{ placement: "top-end" }}
+        onOpenChange={(details) => setIsOpen(details.open)}
+      >
         <Menu.Trigger asChild>
-          <IconButton
-            aria-label="Customer Support"
-            borderRadius="full"
-            size="lg"
-            bg={`linear-gradient(135deg,${
-              colorMode === "light"
-                ? colors.light.mainFixed
-                : colors.dark.mainFixed
-            } 0%, #764ba2 100%)`}
-            color="white"
-            _hover={{
-              bg: "linear-gradient(135deg, #764ba2 0%, #667eea 100%)",
-              transform: "scale(1.15)",
+          <motion.div
+            style={{
+              cursor: "pointer",
+              background:
+                colorMode === "light"
+                  ? colors.light.mainFixed
+                  : colors.dark.mainFixed,
+              borderRadius: "50%",
+              padding: "16px",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              width: "60px",
+              height: "60px",
             }}
-            _active={{
-              transform: "scale(0.95)",
+            animate={
+              isOpen
+                ? {
+                    // Pulse blur effect when open
+                    scale: [1, 1.08, 1],
+                    boxShadow: [
+                      `0px 0px 20px 5px ${
+                        colorMode === "light"
+                          ? "rgba(255, 107, 0, 0.4)"
+                          : "rgba(255, 107, 0, 0.5)"
+                      }`,
+                      `0px 0px 35px 10px ${
+                        colorMode === "light"
+                          ? "rgba(255, 107, 0, 0.6)"
+                          : "rgba(255, 107, 0, 0.7)"
+                      }`,
+                      `0px 0px 20px 5px ${
+                        colorMode === "light"
+                          ? "rgba(255, 107, 0, 0.4)"
+                          : "rgba(255, 107, 0, 0.5)"
+                      }`,
+                    ],
+                  }
+                : {
+                    // Floating effect when closed
+                    y: [0, -10, 0],
+                    boxShadow: [
+                      `0px 4px 20px ${
+                        colorMode === "light"
+                          ? "rgba(0, 0, 0, 0.1)"
+                          : "rgba(0, 0, 0, 0.3)"
+                      }`,
+                      `0px 8px 30px ${
+                        colorMode === "light"
+                          ? "rgba(0, 0, 0, 0.2)"
+                          : "rgba(0, 0, 0, 0.4)"
+                      }`,
+                      `0px 4px 20px ${
+                        colorMode === "light"
+                          ? "rgba(0, 0, 0, 0.1)"
+                          : "rgba(0, 0, 0, 0.3)"
+                      }`,
+                    ],
+                  }
+            }
+            transition={{
+              duration: isOpen ? 1.5 : 2.5,
+              repeat: Infinity,
+              ease: "easeInOut",
             }}
-            boxShadow="0px 8px 20px rgba(102, 126, 234, 0.4)"
-            width="65px"
-            height="65px"
-            transition="all 0.3s cubic-bezier(0.4, 0, 0.2, 1)"
-            css={{
-              "@keyframes pulse": {
-                "0%, 100%": {
-                  boxShadow: "0px 8px 20px rgba(102, 126, 234, 0.4)",
-                  transform: "scale(1)",
-                },
-                "50%": {
-                  boxShadow: "0px 8px 30px rgba(102, 126, 234, 0.6)",
-                  transform: "scale(1.08)",
-                },
-              },
-              animation: "pulse 2s ease-in-out infinite",
+            whileHover={{
+              scale: 1.15,
+              rotate: [0, -10, 10, -10, 0],
+              transition: { duration: 0.5 },
+            }}
+            whileTap={{
+              scale: 0.95,
             }}
           >
-            <MdSupportAgent size={35} />
-          </IconButton>
+            <motion.div
+              animate={{
+                rotate: isOpen ? 0 : [0, 15, -15, 0],
+              }}
+              transition={{
+                duration: 3,
+                repeat: isOpen ? 0 : Infinity,
+                ease: "easeInOut",
+              }}
+            >
+              <MdHeadsetMic size={32} color="white" />
+            </motion.div>
+          </motion.div>
         </Menu.Trigger>
 
         <Portal>
@@ -136,14 +192,16 @@ const SupportButton = () => {
               borderColor={colorMode === "light" ? "gray.200" : "gray.700"}
             >
               <Box p={2} pb={1}>
-                <Text
-                  fontSize="sm"
-                  fontWeight="bold"
-                  color={colorMode === "light" ? "gray.700" : "gray.200"}
-                  mb={1}
-                >
-                  🚨 Report an Issue
-                </Text>
+                <HStack gap={2} mb={1}>
+                  <Icon as={RiAlarmWarningFill} boxSize={5} color="red.500" />
+                  <Text
+                    fontSize="sm"
+                    fontWeight="bold"
+                    color={colorMode === "light" ? "gray.700" : "gray.200"}
+                  >
+                    Report an Issue
+                  </Text>
+                </HStack>
                 <Text
                   fontSize="xs"
                   color={colorMode === "light" ? "gray.500" : "gray.400"}
@@ -162,13 +220,20 @@ const SupportButton = () => {
                   borderRadius="8px"
                   p={3}
                   _hover={{
-                    bg: colorMode === "light" ? "purple.50" : "purple.900",
+                    bg:
+                      colorMode === "light"
+                        ? colors.light.bgFourth
+                        : colors.dark.bgFourth,
                   }}
                   transition="all 0.2s"
                 >
                   <Box display="flex" alignItems="center" gap={3}>
                     <Box
-                      bg={colorMode === "light" ? "purple.100" : "purple.800"}
+                      bg={
+                        colorMode === "light"
+                          ? colors.light.bgFourth
+                          : colors.dark.bgFourth
+                      }
                       p={2}
                       borderRadius="8px"
                       display="flex"
@@ -179,7 +244,9 @@ const SupportButton = () => {
                         as={issue.icon}
                         boxSize={5}
                         color={
-                          colorMode === "light" ? "purple.600" : "purple.300"
+                          colorMode === "light"
+                            ? colors.light.mainFixed
+                            : colors.dark.mainFixed
                         }
                       />
                     </Box>
