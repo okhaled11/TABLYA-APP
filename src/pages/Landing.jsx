@@ -11,6 +11,7 @@ import Testimonials from "../components/Landingpage/Testimonials";
 import Footer from "../shared/Footer";
 import { Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
+import MenuCards from "../components/Landingpage/MenuCards";
 
 export default function Landing() {
   const { t } = useTranslation();
@@ -208,7 +209,9 @@ export default function Landing() {
       <Box py={{base :10 , md:16}}  bg={colorMode === "light" ? "white" : colors.dark.bgMain}  id ="features">
         <Cards />
       </Box>
+    
 
+    <Box> <MenuCards/> </Box>
 
        {/* Testimonials section */}
       <Box pt={{ base: 20, md: 10 }}  bg={colorMode === "light" ? "white" : colors.dark. bgSecond} id= "reviews">

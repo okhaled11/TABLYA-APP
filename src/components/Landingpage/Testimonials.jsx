@@ -12,7 +12,7 @@ import { Avatar } from "@chakra-ui/react"
 
 import {
   Box, Text, Heading, Flex, Image, Container,
-  Button,
+  Button,HStack , Stack
 } from "@chakra-ui/react";
 import { FaQuoteLeft, FaStar, FaArrowLeft, FaArrowRight } from "react-icons/fa";
 import { Card } from "@chakra-ui/react";
@@ -24,7 +24,7 @@ import { useGetLandingReviewsQuery } from "../../app/features/Landing/LandingRev
 
 export default function Testimonials() {
   const { data: reviews, isLoading } = useGetLandingReviewsQuery();
-  //  console.log(reviews);
+  console.log(reviews);
   const filteredReviews = reviews?.filter(item => item.rating === 5);
 
 
@@ -150,8 +150,23 @@ export default function Testimonials() {
                         >
 
 
+                          <Flex justifyContent={"space-between"}>
 
-                          <FaQuoteLeft color="#f44336" size="28px" />
+
+
+                            <FaQuoteLeft color="#f44336" size="28px" />
+                            
+                            <HStack gap="1">
+                              <Text fontSize={"small"}>For Chef:</Text>
+                              <Avatar.Root style={{ width: "28px", height: "28px" }}>
+                                <Avatar.Fallback />
+                                <Avatar.Image src={item.cooker?.avatar_url} />
+                              </Avatar.Root>
+                              <Stack gap="0">
+                                <Text fontWeight="medium" fontSize={"small"}>{item?.cooker?.name?`${item.cooker.name.split (" ")[0]} ${item.cooker.name.split(" ")[1]?.[0]|| ""}.` :""}</Text>
+                              </Stack>
+                            </HStack>
+                          </Flex>
                           <Text
                             mt={4}
                             fontSize="sm"
@@ -251,39 +266,7 @@ export default function Testimonials() {
 
       <Flex justify="center" align="center" mt={-10} gap={5}>
 
-        {/* <Button
-            className="prev-button"
-
-            aria-label="Previous"
-            cursor={"pointer"}
-            bg="#f44336"
-            color="white"
-            rounded="full"
-            px="10px"
-            _hover={{ bg: "red.500" }}
-            size="sm">
-
-            <FaArrowLeft />
-
-          </Button> */}
-
         <Box className="custom-pagination" />
-
-        {/* <Button
-            className="next-button"
-            aria-label="Next"
-            cursor={"pointer"}
-            px="10px"
-            bg="#f44336"
-            color="white"
-            rounded="full"
-            _hover={{ bg: "red.500" }}
-            size="sm"
-          >
-
-            <FaArrowRight />
-
-          </Button> */}
 
       </Flex>
 

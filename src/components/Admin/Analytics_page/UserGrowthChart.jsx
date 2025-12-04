@@ -33,7 +33,7 @@ export default function UserGrowthChart() {
         >
             <CardHeader>
                 <Heading fontSize="18px" fontWeight="semibold">
-                    User Growth by Type (This Month)
+                    User Growth by Type
                 </Heading>
             </CardHeader>
 
@@ -44,23 +44,11 @@ export default function UserGrowthChart() {
                         <LineChart data={chart.data}>
                             <CartesianGrid stroke={chart.color("border")} vertical={false} />
                             <XAxis
+                               
+                                dataKey="month"
+
                                 axisLine={false}
-                                dataKey={chart.key("day")}
-                                // tickFormatter={(value) => value.slice(0, 3)} // if i turned to usergrowth monthly instead of daily to slice month name
-                                // tickFormatter={(value) => {
-                                //     const date = new Date(value);
-                                //     return `${date.getMonth() + 1}/${date.getDate()}`; 
-                                // }}
-                                tickFormatter={(value) => {
-                                    if (!value) return "";
-
-                                    // value = "04/11/2025"
-                                    const [day, month, year] = value.split("/");
-
-                                    return `${month}/${day}`; // mm/dd
-                                }}
-
-
+                                tickLine={false}
                                 stroke={chart.color("border")}
                             />
                             <YAxis

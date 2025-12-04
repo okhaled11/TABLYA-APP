@@ -219,7 +219,7 @@ export default function ChefTable() {
     //******************************************************************** */
 
     //pagination handling
-    const itemsPerPage = 3;
+    const itemsPerPage = 4;
     const [currentPage, setCurrentPage] = useState(1);
 
     const indexOfLastItem = currentPage * itemsPerPage;
