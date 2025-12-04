@@ -80,6 +80,15 @@ const CookerOrders = () => {
       return;
     }
 
+    if (selectedStatus === "ready_for_pickup") {
+      const filtered = monthlyOrders.filter(
+        (order) => (order.status || "").toLowerCase() === "ready_for_pickup"
+      );
+      setAllOrder(filtered);
+      setCurrentPage(1);
+      return;
+    }
+
     if (selectedStatus === "out_for_delivery") {
       const filtered = monthlyOrders.filter((order) => {
         const s = (order.status || "").toLowerCase();
@@ -151,6 +160,9 @@ const CookerOrders = () => {
     try {
       await updateOrderStatus({ orderId: order.id, status }).unwrap();
       setIsDrawerOpen(false);
+      
+      // Automatically switch to the appropriate tab based on new status
+      setSelectedStatus(status);
     } catch (err) {
       console.error("Failed to update order status:", err);
     }
@@ -160,6 +172,9 @@ const CookerOrders = () => {
     try {
       await updateOrderStatus({ orderId, status: "cancelled" }).unwrap();
       setIsDrawerOpen(false);
+      
+      // Automatically switch to cancelled tab
+      setSelectedStatus("cancelled");
     } catch (err) {
       console.error("Failed to cancel order:", err);
     }
@@ -208,6 +223,7 @@ const CookerOrders = () => {
     { label: "Active", value: "active" },
     { label: "Confirmed", value: "confirmed" },
     { label: "Preparing", value: "preparing" },
+    { label: "Ready for Pickup", value: "ready_for_pickup" },
     { label: "Out for Delivery", value: "out_for_delivery" },
     { label: "Cancelled", value: "cancelled" },
   ];
@@ -550,7 +566,7 @@ const CookerOrders = () => {
                     normalizedStatus === "out_for_delivery";
                   const isDelivered = normalizedStatus === "delivered";
                   const isTerminal =
-                    isCancelled || isOutForDelivery || isDelivered;
+                    isCancelled || isOutForDelivery || isDelivered || isReadyForPickup;
                   const canClickConfirm =
                     !isConfirmed &&
                     !isPreparing &&
@@ -876,6 +892,8 @@ const CookerOrders = () => {
                                 bg={
                                   isCancelled
                                     ? "red.100"
+                                    : isReadyForPickup
+                                    ? "green.100"
                                     : isOutForDelivery
                                     ? "blue.100"
                                     : "green.100"
@@ -883,6 +901,8 @@ const CookerOrders = () => {
                                 color={
                                   isCancelled
                                     ? "red.700"
+                                    : isReadyForPickup
+                                    ? "green.700"
                                     : isOutForDelivery
                                     ? "blue.700"
                                     : "green.700"
@@ -895,6 +915,8 @@ const CookerOrders = () => {
                               >
                                 {isCancelled
                                   ? "Order Cancelled"
+                                  : isReadyForPickup
+                                  ? "Ready - Waiting for Delivery"
                                   : isOutForDelivery
                                   ? "Out for Delivery"
                                   : "Order Delivered"}
