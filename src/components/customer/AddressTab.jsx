@@ -193,7 +193,7 @@ export default function AddressTab() {
             // Otherwise, use standard area fields
             else {
               areaName =
-                address.suburb || address.district || address.hamlet || "";
+                address.suburb || address.district || address.hamlet || city;
               console.log("🏘️ Using standard area:", areaName);
             }
             setArea(areaName);
