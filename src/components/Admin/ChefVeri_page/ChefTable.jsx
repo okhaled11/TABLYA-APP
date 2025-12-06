@@ -1,5 +1,4 @@
 
-
 import React, { useEffect, useState } from 'react';
 import { supabase } from "../../../services/supabaseClient";
 import { FaRegCheckCircle } from "react-icons/fa";
@@ -29,6 +28,9 @@ import { LuSearch } from "react-icons/lu"
 import { Tooltip } from '../../ui/tooltip';
 import { MdMailOutline } from "react-icons/md";
 import { MdMarkEmailRead } from "react-icons/md";
+import { IoDocumentTextOutline } from "react-icons/io5";
+import { HiOutlineSearchCircle } from "react-icons/hi";
+
 
 import colors from '../../../theme/color';
 // import { useGetAdminIdQuery } from '../../../app/features/Admin/adminData';
@@ -52,11 +54,7 @@ export default function ChefTable() {
 
     //handling remove rejectef cooker from the table after rejection
     const [localCookers, setLocalCookers] = useState([]);
-    // useEffect(() => {
-    //     if (localCookers.length ===0 ){
-    //         setLocalCookers(cooker_approvals);
-    //     }}, [cooker_approvals]);
-
+    
     useEffect(() => {
         if (cooker_approvals.length > 0 && localCookers.length === 0) {
             setLocalCookers([...cooker_approvals]);
@@ -86,14 +84,20 @@ export default function ChefTable() {
 
             setIsApproving(true);
             await approveCooker({ id: selectedCooker.id }).unwrap();  //if there's an admin we have to write approve_by : adminEmail 
-
+             
+            toaster.create({
+                
+                description: `  Email of approval sent to ${selectedCooker.name}successfully   `,
+                type: "success",
+            });
             // await refetch();
             toaster.create({
                 title: "Update successful",
-                description: `Cooker is added successfully `,
+                description: `${selectedCooker.name}is added successfully `,
                 type: "success",
             });
-
+            
+            
             //update local state to change cooker status to approved
             setLocalCookers((prev) => prev.map(cooker => cooker.id === selectedCooker.id ? { ...cooker, status: "approved" } : cooker));
 
@@ -147,6 +151,12 @@ export default function ChefTable() {
                 description: `${selectedCooker.name} has been rejected successfully`,
                 type: "success",
             });
+
+             toaster.create({
+                
+                description: `  Email of rejection sent to ${selectedCooker.name}successfully   `,
+                type: "success",
+            });
             setLocalCookers((prev) => prev.filter(cooker => cooker.id !== selectedCooker.id));
 
         } catch (err) {
@@ -171,7 +181,13 @@ export default function ChefTable() {
             await sendNotes({ id: selectedCooker.id, notes }).unwrap();
             toaster.create({
                 title: "Message sent",
-                description: ` Notes have been sent to ${selectedCooker.name} successfully`,
+                description: ` Notes have been sent to ${selectedCooker.name} successfully `,
+                type: "success",
+            });
+
+             toaster.create({
+                
+                description: `Email sent to ${selectedCooker.name}successfully`,
                 type: "success",
             });
 
@@ -214,6 +230,10 @@ export default function ChefTable() {
             );
     }, [localCookers, statusFilter, searchQuery]);
 
+    // reset page to 1 when filter/search changes
+    useEffect(() => {
+        setCurrentPage(1);
+    }, [statusFilter, searchQuery, localCookers]);
 
 
     //******************************************************************** */
@@ -308,6 +328,56 @@ export default function ChefTable() {
                                     <VStack colorPalette="teal">
                                         <Spinner color="colorPalette.600" />
                                         <Text color="colorPalette.600">Loading Cookers...</Text>
+                                    </VStack>
+                                </Table.Cell>
+                            </Table.Row>
+
+                        ) : cooker_approvals.length === 0 ? (
+                            <Table.Row bg={colorMode === "dark" ? colors.dark.bgMain : ""}>
+                                <Table.Cell colSpan={7} textAlign="center">
+                                    <VStack py={16} gap={4}>
+                                        <Box color={colorMode === "light" ? "gray.400" : "gray.500"}>
+                                            <IoDocumentTextOutline size={100} />
+                                        </Box>
+                                        <Text fontSize="xl" fontWeight="semibold" color={colorMode === "light" ? "gray.700" : "gray.300"}>
+                                            No Seller Applications Yet
+                                        </Text>
+                                        <Text fontSize="md" color="gray.500" maxW="400px">
+                                            There are no seller applications in the system. New applications will appear here.
+                                        </Text>
+                                    </VStack>
+                                </Table.Cell>
+                            </Table.Row>
+
+                        ) : currentItems.length === 0 ? (
+                            <Table.Row bg={colorMode === "dark" ? colors.dark.bgMain : ""}>
+                                <Table.Cell colSpan={7} textAlign="center">
+                                    <VStack py={16} gap={4}>
+                                        <Box color={colorMode === "light" ? "gray.400" : "gray.500"}>
+                                            <HiOutlineSearchCircle size={100} />
+                                        </Box>
+                                        <Text fontSize="xl" fontWeight="semibold" color={colorMode === "light" ? "gray.700" : "gray.300"}>
+                                            No Results Found
+                                        </Text>
+                                        <Text fontSize="md" color="gray.500" maxW="400px">
+                                            {searchQuery
+                                                ? `No sellers found matching "${searchQuery}"`
+                                                : `No ${statusFilter} applications found`
+                                            }
+                                        </Text>
+                                        <Button
+                                            size="sm"
+                                            variant="outline"
+                                            colorScheme="gray"
+                                            onClick={() => {
+                                                setSearchQuery("");
+                                                setStatusFilter("all");
+                                            }}
+                                        >
+                                            Clear Filters
+                                            {/* TODO: add clear filters functionality */}
+
+                                        </Button>
                                     </VStack>
                                 </Table.Cell>
                             </Table.Row>
@@ -539,6 +609,13 @@ export default function ChefTable() {
 
     );
 }
+
+
+
+
+
+
+
 
 
 

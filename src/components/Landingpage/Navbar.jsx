@@ -98,6 +98,21 @@ export default function Navbar() {
             >
               {t("navbar.reviews")}
             </Link>
+
+              <Link
+              href='#menu'
+              px={3}
+              py={1}
+              fontSize={"lg"}
+              color={"white"}
+              _hover={{
+                bg: "rgb(43, 28, 26)",
+                textDecoration: "none",
+                borderRadius: "md",
+              }}
+            >
+             Menu
+            </Link>
           </HStack>
         </Box>
 
@@ -223,6 +238,20 @@ export default function Navbar() {
             >
               {t("navbar.reviews")}
             </Link>
+            
+             <Link
+              px={3}
+              py={1}
+              href={"#menu"}
+              fontSize={"lg"}
+              color={"white"}
+              _hover={{ textDecoration: "none", color: "gray.300" }}
+              onClick={() => setIsOpen(false)}
+            >
+             Menu
+            </Link>
+
+
           </VStack>
         </Box>
       )}

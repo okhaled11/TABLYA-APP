@@ -23,7 +23,7 @@ export default function CuisinesChart() {
             color: colors[index % colors.length],
         }));
     }, [topCuisine]);
-    console.log(chartData);
+    
 
     const chart = useChart({ data: chartData });
 
@@ -44,7 +44,7 @@ export default function CuisinesChart() {
         >
             <CardHeader>
                 <Heading fontSize="18px" fontWeight="semibold">
-                    Top 5 Best-Selling Dishes
+                    Top 5 Best-Selling Dishes (This Month)
                 </Heading>
             </CardHeader>
 

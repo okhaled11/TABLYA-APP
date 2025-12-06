@@ -1,8 +1,11 @@
+
 //mariam's Api 
 import { createApi, fakeBaseQuery, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
 import { supabase } from "../../../services/supabaseClient";
 
-const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbweSse7fRAIWyrX7oxdgvCGew0czAInkhrTnOfLed5g-hNvqqVdUAc1tC9o28fLcwsk9w/exec";
+const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyL2REpwX4XmSH5vhQG-cDHvzHG3MF0gn9CgFZ6nw6l8G1_zHJ_xMdw_QyyuQVa89jA/exec";
+// handle send email by google script 
+
 
 const sendStatusEmail = async (email, name, status, note = "") => {
   console.log("Attempting to send email:", { email, name, status, note });
@@ -25,6 +28,8 @@ const sendStatusEmail = async (email, name, status, note = "") => {
   }
 };
 
+
+
 export const cookersApprovalsApi = createApi({
   reducerPath: 'cookersApprovalsApi',
   // baseQuery: fakeBaseQuery(),
@@ -33,60 +38,7 @@ export const cookersApprovalsApi = createApi({
   tagTypes: ['CookerApprovals', 'Cookers'],
   endpoints: (builder) => ({
 
-    //  Get all cooker approvals with cooker info
-    // getCookerApprovals: builder.query({
-    //   async queryFn() {
-    //     try {
-    //       const { data: approvals, error: approvalsError } = await supabase
-    //         .from("cooker_approvals")
-    //         .select("*");
-    //       if (approvalsError) return { error: approvalsError };
-
-    //       const { data: cookers, error: cookersError } = await supabase
-    //         .from("cookers")
-    //         .select("*");
-    //       if (cookersError) return { error: cookersError };
-
-    //       // fetch user info from authentication table 
-
-    //       const {data : authUsers , error :authError } = await supabase.auth.admin.listUsers ({
-    //         filter : { in : {column : "id" , values : approvals.map (app => app.cooker_id) } }
-
-
-    //       });
-    //       if (authError) return {error: authError};
-    //       const users = authUsers.users;
-    //       //merge data 
-    //       const data = approvals.map((app) => {
-    //         const cooker = cookers.find(c => c.user_id === app.cooker_id) || null;
-    //         const authuser = users.find(u => u.id === app.cooker_id) || null;
-
-    //         return { ...app, cooker, user: authuser? {
-    //           name : authuser.user_metadata?.name ||"",
-    //           email : authuser.email || "",
-    //           id : authuser.id,
-    //           avatar_url : authuser.user_metadata?.avatar_url || "",
-    //           metadata : authuser.user_metadata || {},
-    //         }: null
-
-
-
-
-    //         } ;
-    //       });
-
-    //       return { data };
-    //     } catch (err) {
-    //       return { error: err };
-    //     }
-    //   },
-    //   providesTags: ['CookerApprovals'],
-    // }),
-
-
-
-
-
+   
     //get data of cookers from cookers_approvals and authentication and users by fetching edge function on supabase
 
     getCookerApprovals: builder.query({
@@ -170,7 +122,7 @@ export const cookersApprovalsApi = createApi({
           }
 
           // Send email notification using the email column in cooker_approvals
-          if (approval.email) {
+           if (approval.email) {
             await sendStatusEmail(approval.email, approval.name || "Chef", 'approved');
           } else {
             console.warn("No email found in cooker_approvals table for this request.");
@@ -316,3 +268,9 @@ export const cookersApprovalsApi = createApi({
     useRejectCookerApprovalMutation,
     useSendNotesMutation
   } = cookersApprovalsApi;
+
+
+
+
+
+

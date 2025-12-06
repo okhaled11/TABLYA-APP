@@ -8,17 +8,19 @@ import { Provider } from "react-redux";
 import { store } from "./app/store.js";
 import { BrowserRouter } from "react-router-dom";
 import "./i18n";
-
+import InternetConnectionProvider from "./shared/InternetConnectionProvider.jsx";
 createRoot(document.getElementById("root")).render(
   <StrictMode>
     <Provider store={store}>
-      <BrowserRouter>
-        <ChakraProvider value={defaultSystem}>
-          <ColorModeProvider>
-            <App />
-          </ColorModeProvider>
-        </ChakraProvider>
-      </BrowserRouter>
+      <InternetConnectionProvider>
+        <BrowserRouter>
+          <ChakraProvider value={defaultSystem}>
+            <ColorModeProvider>
+              <App />
+            </ColorModeProvider>
+          </ChakraProvider>
+        </BrowserRouter>
+      </InternetConnectionProvider>
     </Provider>
   </StrictMode>
 );

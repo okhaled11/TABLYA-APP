@@ -114,7 +114,7 @@ export default function Landing() {
             <g clip-path="url(#clip0_217_374)">
               <path
                 d="M1920 150.82V489.5H0V150.46C265.5 56.12 598.28 0 959.5 0C1320.72 0 1654.34 56.26 1920 150.82Z"
-                fill={colorMode === "light" ? "white" : colors.dark.bgMain}
+                fill={colorMode === "light" ? "rgb(255, 247, 240)" : colors.dark.bgMain}
               />
             </g>
             <defs>
@@ -206,7 +206,7 @@ export default function Landing() {
 
       {/* Cards section contains 3 Cards */}
 
-      <Box py={{base :10 , md:16}}  bg={colorMode === "light" ? "white" : colors.dark.bgMain}  id ="features">
+      <Box py={{base :10 , md:16}}  bg={colorMode === "light" ? "rgb(255, 247, 240)" : colors.dark.bgMain}  id ="features">
         <Cards />
       </Box>
     
@@ -214,7 +214,7 @@ export default function Landing() {
     <Box> <MenuCards/> </Box>
 
        {/* Testimonials section */}
-      <Box pt={{ base: 20, md: 10 }}  bg={colorMode === "light" ? "white" : colors.dark. bgSecond} id= "reviews">
+      <Box  bg={colorMode === "light" ? "white" : colors.dark. bgSecond} id= "reviews">
         <Testimonials />
       </Box>
 

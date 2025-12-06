@@ -24,7 +24,7 @@ import { useGetLandingReviewsQuery } from "../../app/features/Landing/LandingRev
 
 export default function Testimonials() {
   const { data: reviews, isLoading } = useGetLandingReviewsQuery();
-  console.log(reviews);
+ 
   const filteredReviews = reviews?.filter(item => item.rating === 5);
 
 

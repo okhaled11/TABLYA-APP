@@ -2,7 +2,6 @@ import { Box, Heading, SimpleGrid } from "@chakra-ui/react";
 import colors from "../../theme/color";
 import { useColorMode } from "../../theme/color-mode";
 import CookerStaticsCard from "../cooker/CookerStaticsCard";
-import { RiFileList3Fill } from "react-icons/ri";
 import { TbTruckDelivery } from "react-icons/tb";
 import { BsFillBoxSeamFill } from "react-icons/bs";
 import { PiMoneyWavyFill } from "react-icons/pi";
@@ -29,7 +28,12 @@ const DeliveryStatistics = () => {
     );
   };
   const activeDeliveries = useMemo(
-    () => (orders || []).filter((o) => o.status === "ready_for_pickup").length,
+    () =>
+      (orders || []).filter(
+        (o) =>
+          o.status === "ready_for_pickup" &&
+          isToday(new Date(o.created_at || o.updated_at))
+      ).length,
     [orders]
   );
   const completedToday = useMemo(

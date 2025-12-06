@@ -15,6 +15,7 @@ import {
   VStack,
   Drawer,
   Grid,
+  Avatar,
 } from "@chakra-ui/react";
 import { useState, useEffect, useMemo } from "react";
 import colors from "../../theme/color";
@@ -24,9 +25,9 @@ import {
   useGetCookerOrdersQuery,
   useUpdateOrderStatusMutation,
 } from "../../app/features/Cooker/CookerAcceptOrder";
-import { IoPerson } from "react-icons/io5";
+import { IoPerson, IoCall } from "react-icons/io5";
 import { FaLocationDot, FaPhone } from "react-icons/fa6";
-import { BsFillCreditCardFill } from "react-icons/bs";
+import { BsBoxSeamFill, BsFillCreditCardFill } from "react-icons/bs";
 import { MdOutlineDoneOutline, MdOutlineCancel, MdClose } from "react-icons/md";
 import { PiCookingPot } from "react-icons/pi";
 import { MdOutlineDeliveryDining } from "react-icons/md";
@@ -56,8 +57,22 @@ const CookerOrders = () => {
       return;
     }
 
+    // Filter for current month first
+    const now = new Date();
+    const currentMonth = now.getMonth();
+    const currentYear = now.getFullYear();
+
+    const monthlyOrders = orders.filter((order) => {
+      const created = order?.created_at ? new Date(order.created_at) : null;
+      if (!created) return false;
+      return (
+        created.getMonth() === currentMonth &&
+        created.getFullYear() === currentYear
+      );
+    });
+
     if (selectedStatus === "active") {
-      const filtered = orders.filter(
+      const filtered = monthlyOrders.filter(
         (order) => (order.status || "").toLowerCase() === "created"
       );
       setAllOrder(filtered);
@@ -66,7 +81,7 @@ const CookerOrders = () => {
     }
 
     if (selectedStatus === "out_for_delivery") {
-      const filtered = orders.filter((order) => {
+      const filtered = monthlyOrders.filter((order) => {
         const s = (order.status || "").toLowerCase();
         return s === "out_for_delivery" || s === "delivered";
       });
@@ -75,7 +90,7 @@ const CookerOrders = () => {
       return;
     }
 
-    const filteredOrders = orders.filter(
+    const filteredOrders = monthlyOrders.filter(
       (order) =>
         (order.status || "").toLowerCase() === selectedStatus.toLowerCase()
     );
@@ -285,15 +300,27 @@ const CookerOrders = () => {
 
         {/* Empty State */}
         {!isLoading && !error && orders && allOrder.length === 0 && (
-          <Text
-            color={
-              colorMode === "light" ? colors.light.textSub : colors.dark.textSub
-            }
-            textAlign="center"
-            my={6}
-          >
-            No orders with the selected status
-          </Text>
+          <Flex justify="center" py={10} direction="column" alignItems="center">
+            <BsBoxSeamFill
+              size={40}
+              color={
+                colorMode === "light"
+                  ? colors.light.mainFixed
+                  : colors.dark.mainFixed
+              }
+            />
+            <Text
+              color={
+                colorMode === "light"
+                  ? colors.light.textSub
+                  : colors.dark.textSub
+              }
+              textAlign="center"
+              my={6}
+            >
+              No orders with the selected status
+            </Text>
+          </Flex>
         )}
 
         {/* Orders Table */}
@@ -358,9 +385,14 @@ const CookerOrders = () => {
                         _hover={{
                           bg:
                             colorMode === "light"
-                              ? colors.light.bgFourth
-                              : colors.dark.bgFourth,
+                              ? colors.light.bgThird
+                              : colors.dark.bgThird,
                         }}
+                        bg={
+                          colorMode === "light"
+                            ? colors.light.bgMain
+                            : colors.dark.bgMain
+                        }
                         transition="all 0.2s"
                       >
                         <Table.Cell>
@@ -736,6 +768,99 @@ const CookerOrders = () => {
                           )}
                         </Box>
 
+                        {/* Delivery Information Section - Only show when assigned and in delivery/delivered status */}
+                        {selectedOrder.delivery &&
+                          (isOutForDelivery || isDelivered) && (
+                            <Box p={6}>
+                              <Text
+                                fontSize="xs"
+                                fontWeight="bold"
+                                color={colors.light.textSub}
+                                mb={3}
+                                textTransform="uppercase"
+                                letterSpacing="wider"
+                              >
+                                Delivery Information
+                              </Text>
+                              <VStack align="stretch" gap={3}>
+                                <HStack gap={3}>
+                                  <Avatar.Root
+                                    size="md"
+                                    name={
+                                      selectedOrder.delivery?.name || "Delivery"
+                                    }
+                                    colorPalette="purple"
+                                  >
+                                    {selectedOrder.delivery?.avatar_url ? (
+                                      <Avatar.Image
+                                        src={selectedOrder.delivery.avatar_url}
+                                      />
+                                    ) : (
+                                      <Avatar.Fallback>
+                                        {(selectedOrder.delivery?.name || "D")
+                                          .charAt(0)
+                                          .toUpperCase()}
+                                      </Avatar.Fallback>
+                                    )}
+                                  </Avatar.Root>
+                                  <Box>
+                                    <Text
+                                      fontSize="xs"
+                                      color={colors.light.textSub}
+                                    >
+                                      Delivery Person
+                                    </Text>
+                                    <Text fontSize="md" fontWeight="medium">
+                                      {selectedOrder.delivery?.name ||
+                                        "Not assigned"}
+                                    </Text>
+                                  </Box>
+                                </HStack>
+
+                                {selectedOrder.delivery?.phone && (
+                                  <HStack gap={3}>
+                                    <Box
+                                      bg={colors.light.info10a}
+                                      rounded="full"
+                                      w="40px"
+                                      h="40px"
+                                      display="flex"
+                                      alignItems="center"
+                                      justifyContent="center"
+                                    >
+                                      <IoCall
+                                        size={18}
+                                        color={colors.light.info}
+                                      />
+                                    </Box>
+                                    <Box>
+                                      <Text
+                                        fontSize="xs"
+                                        color={colors.light.textSub}
+                                      >
+                                        Phone Number
+                                      </Text>
+                                      <Text
+                                        fontSize="sm"
+                                        fontWeight="medium"
+                                        as="a"
+                                        href={`tel:${selectedOrder.delivery.phone}`}
+                                        color={
+                                          colorMode === "light"
+                                            ? colors.light.mainFixed
+                                            : colors.dark.mainFixed
+                                        }
+                                        _hover={{ textDecoration: "underline" }}
+                                      >
+                                        {selectedOrder.delivery.phone}
+                                      </Text>
+                                    </Box>
+                                  </HStack>
+                                )}
+                              </VStack>
+                            </Box>
+                          )}
+
                         {/* Actions Section */}
                         <Box
                           p={6}
@@ -795,7 +920,7 @@ const CookerOrders = () => {
                               <Button
                                 size="lg"
                                 rounded="xl"
-                                bg={isConfirmed ? "green.500" : "green.600"}
+                                bg={canClickConfirm ? "green.600" : "gray.500"}
                                 color="white"
                                 border="none"
                                 onClick={() =>
@@ -803,7 +928,9 @@ const CookerOrders = () => {
                                 }
                                 isDisabled={isUpdating || !canClickConfirm}
                                 _hover={{
-                                  bg: isConfirmed ? "green.500" : "green.700",
+                                  bg: canClickConfirm
+                                    ? "green.700"
+                                    : "gray.500",
                                 }}
                                 _disabled={{
                                   opacity: 0.5,
@@ -818,13 +945,7 @@ const CookerOrders = () => {
                                 <Button
                                   size="lg"
                                   rounded="xl"
-                                  bg={
-                                    isPreparing
-                                      ? colorMode === "light"
-                                        ? colors.light.mainFixed
-                                        : colors.dark.mainFixed
-                                      : "transparent"
-                                  }
+                                  bg={isPreparing ? "gray.500" : "green.500"}
                                   color={
                                     isPreparing
                                       ? "white"
@@ -835,11 +956,7 @@ const CookerOrders = () => {
                                   border={
                                     isPreparing
                                       ? "none"
-                                      : `2px solid ${
-                                          colorMode === "light"
-                                            ? colors.light.bgThird
-                                            : colors.dark.bgThird
-                                        }`
+                                      : `2px solid ${"transparent"}`
                                   }
                                   onClick={() =>
                                     handleStatusUpdate(
@@ -849,13 +966,7 @@ const CookerOrders = () => {
                                   }
                                   isDisabled={isUpdating || !canClickPreparing}
                                   _hover={{
-                                    bg: isPreparing
-                                      ? colorMode === "light"
-                                        ? colors.light.mainFixed
-                                        : colors.dark.mainFixed
-                                      : colorMode === "light"
-                                      ? colors.light.bgFourth
-                                      : colors.dark.bgFourth,
+                                    bg: isPreparing ? "gray.500" : "green.400",
                                   }}
                                   _disabled={{
                                     opacity: 0.5,
@@ -872,11 +983,7 @@ const CookerOrders = () => {
                                   size="lg"
                                   rounded="xl"
                                   bg={
-                                    isReadyForPickup
-                                      ? colorMode === "light"
-                                        ? colors.light.mainFixed
-                                        : colors.dark.mainFixed
-                                      : "transparent"
+                                    isReadyForPickup ? "gray.500" : "green.500"
                                   }
                                   color={
                                     isReadyForPickup
@@ -888,11 +995,7 @@ const CookerOrders = () => {
                                   border={
                                     isReadyForPickup
                                       ? "none"
-                                      : `2px solid ${
-                                          colorMode === "light"
-                                            ? colors.light.bgThird
-                                            : colors.dark.bgThird
-                                        }`
+                                      : `2px solid transparent`
                                   }
                                   onClick={() =>
                                     handleStatusUpdate(
@@ -905,12 +1008,8 @@ const CookerOrders = () => {
                                   }
                                   _hover={{
                                     bg: isReadyForPickup
-                                      ? colorMode === "light"
-                                        ? colors.light.mainFixed
-                                        : colors.dark.mainFixed
-                                      : colorMode === "light"
-                                      ? colors.light.bgFourth
-                                      : colors.dark.bgFourth,
+                                      ? "gray.500"
+                                      : "green.400",
                                   }}
                                   _disabled={{
                                     opacity: 0.5,
@@ -929,7 +1028,8 @@ const CookerOrders = () => {
                                   size="lg"
                                   rounded="xl"
                                   variant="outline"
-                                  colorScheme="red"
+                                  color="red"
+                                  borderColor="red"
                                   onClick={() => {
                                     dialog.setOpen(true);
                                     setDeleteId(selectedOrder.id);

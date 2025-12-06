@@ -13,7 +13,7 @@ import colors from '../../../theme/color';
 export default function UserGrowthChart() {
     const { colorMode } = useColorMode();
     const { data: userGrowth } = useGetUserGrowthByTypeQuery();
-    console.log(userGrowth);
+    
 
     const chart = useChart({
         data: userGrowth,

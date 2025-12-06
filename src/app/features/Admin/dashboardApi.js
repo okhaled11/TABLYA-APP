@@ -127,15 +127,7 @@ export const dashboardApi = createApi({
     // *************************************************
     // average order value 
     // *************************************************
-    // getAverageOrderValue: builder.query({
-    //   async queryFn() {
-    //     const { data, error } = await supabase.from("orders").select("total");
-    //     if (error) return { error };
-    //     const totalRevenue = data.reduce((acc, cur) => acc + Number(cur.total || 0), 0);
-    //     const average = data.length ? totalRevenue / data.length : 0;
-    //     return { data: average };
-    //   },
-    // }),
+    
 
     getAverageOrderValue: builder.query({
   async queryFn() {
@@ -345,76 +337,71 @@ export const dashboardApi = createApi({
 
 
     // -------------------------------
-    //  Top Performing Cuisines ( from order_items)
+    //  Top Performing Cuisines ( from order_items) this month 
     // -------------------------------
-    // getTopPerformingCuisines: builder.query({
-    //   async queryFn() {
-    //     const { data, error } = await supabase
-    //       .from("order_items")
-    //       .select("title, quantity");
-
-    //     if (error) return { error };
-
-    //     //count total quantity of every type
-    //     const cuisineCount = {};
-    //     data.forEach((item) => {
-    //       const name = item.title || "Unknown";
-    //       cuisineCount[name] = (cuisineCount[name] || 0) + Number(item.quantity || 0);
-    //     });
-
-    //     //convert it to array and sort it desecending
-    //     const sorted = Object.entries(cuisineCount)
-    //       .map(([title, count]) => ({ title, count }))
-    //       .sort((a, b) => b.count - a.count)
-    //       .slice(0, 5); //the best 5 
-
-    //     return { data: sorted };
-    //   },
-    // }),
-
-
-  getTopPerformingCuisines: builder.query({
+    
+getTopPerformingCuisines: builder.query({
   async queryFn() {
-    const { data, error } = await supabase
-      .from("order_items")
-      .select(`
-        title,
-        quantity,
-        menu_items:menu_item_id (
-          cookers:cooker_id (
-            kitchen_name
+    try {
+    
+      const now = new Date();
+      const firstDayOfMonth = new Date(now.getFullYear(), now.getMonth(), 1).toISOString();
+      const lastDayOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0).toISOString();
+
+      const { data: orders, error: ordersError } = await supabase
+        .from("orders")
+        .select("id")
+        .gte("created_at", firstDayOfMonth)
+        .lte("created_at", lastDayOfMonth);
+
+      if (ordersError) return { error: ordersError };
+      if (!orders || orders.length === 0) return { data: [] };
+
+      const orderIds = orders.map(o => o.id);
+
+     
+      const { data: orderItems, error: itemsError } = await supabase
+        .from("order_items")
+        .select(`
+          title,
+          quantity,
+          menu_items:menu_item_id (
+            cookers:cooker_id (
+              kitchen_name
+            )
           )
-        )
-      `);
+        `)
+        .in("order_id", orderIds);
 
-    if (error) return { error };
+      if (itemsError) return { error: itemsError };
+      if (!orderItems || orderItems.length === 0) return { data: [] };
 
-    const cuisineCount = {};
+      
+      const cuisineCount = {};
+      orderItems.forEach((item) => {
+        const name = item.title || "Unknown";
+        const qty = Number(item.quantity || 0);
+        const kitchen = item.menu_items?.cookers?.kitchen_name || "-";
 
-    data.forEach((item) => {
-      const name = item.title || "Unknown";
-      const qty = Number(item.quantity || 0);
+        if (!cuisineCount[name]) {
+          cuisineCount[name] = { count: 0, kitchen_name: kitchen };
+        }
+        cuisineCount[name].count += qty;
+      });
 
-      const kitchen =
-        item.menu_items?.cookers?.kitchen_name || "-";
+      const sorted = Object.entries(cuisineCount)
+        .map(([title, e]) => ({
+          title,
+          count: e.count,
+          kitchen_name: e.kitchen_name,
+        }))
+        .sort((a, b) => b.count - a.count)
+        .slice(0, 5);
 
-      if (!cuisineCount[name]) {
-        cuisineCount[name] = { count: 0, kitchen_name: kitchen };
-      }
-
-      cuisineCount[name].count += qty;
-    });
-
-    const sorted = Object.entries(cuisineCount)
-      .map(([title, e]) => ({
-        title,
-        count: e.count,
-        kitchen_name: e.kitchen_name,
-      }))
-      .sort((a, b) => b.count - a.count)
-      .slice(0, 5);
-
-    return { data: sorted };
+      return { data: sorted };
+    } catch (err) {
+      return { error: err };
+    }
   },
 }),
 
