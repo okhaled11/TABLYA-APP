@@ -87,13 +87,13 @@ export default function ChefTable() {
              
             toaster.create({
                 
-                description: `  Email of approval sent to ${selectedCooker.name}successfully   `,
+                description: `  Email of approval sent to ${selectedCooker.name} successfully   `,
                 type: "success",
             });
             // await refetch();
             toaster.create({
                 title: "Update successful",
-                description: `${selectedCooker.name}is added successfully `,
+                description: `${selectedCooker.name} is added successfully `,
                 type: "success",
             });
             
@@ -154,7 +154,7 @@ export default function ChefTable() {
 
              toaster.create({
                 
-                description: `  Email of rejection sent to ${selectedCooker.name}successfully   `,
+                description: `  Email of rejection sent to ${selectedCooker.name} successfully   `,
                 type: "success",
             });
             setLocalCookers((prev) => prev.filter(cooker => cooker.id !== selectedCooker.id));
@@ -187,7 +187,7 @@ export default function ChefTable() {
 
              toaster.create({
                 
-                description: `Email sent to ${selectedCooker.name}successfully`,
+                description: `Email sent to ${selectedCooker.name} successfully`,
                 type: "success",
             });
 
