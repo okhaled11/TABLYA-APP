@@ -175,6 +175,7 @@ const CustomerFavourite = () => {
               avg_rating={cooker.avg_rating}
               user_id={cooker.user_id}
               users={cooker.users}
+              kitchen_name={cooker.kitchen_name}
               total_reviews={cooker.total_reviews}
             />
           ))}

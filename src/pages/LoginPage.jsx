@@ -93,6 +93,9 @@ const LoginPage = ({ isAuthenticated }) => {
       if (result.payload?.type === "pending") {
         // Navigate to pending approval page instead of showing toast
         navigate("/pending-approval");
+      } else if (result.payload?.type === "suspended") {
+        // Navigate to account suspended page
+        navigate("/account-suspended");
       } else {
         toaster.create({
           title: t("login.errorTitle"),

@@ -36,6 +36,7 @@ import {
   useCreateReportMutation,
   useGetUserReportsQuery,
 } from "../../app/features/Customer/Reports/reportsApiSlice";
+import loadingGif from "../../assets/Transparent Version.gif";
 
 const OrderPage = () => {
   /* --------------------data login id as sub---------------------- */
@@ -55,6 +56,7 @@ const OrderPage = () => {
   const [reportReason, setReportReason] = useState("");
   const [reportDetails, setReportDetails] = useState("");
   const [reportTargetId, setReportTargetId] = useState(null);
+  const [cancellingOrderId, setCancellingOrderId] = useState(null);
   const ORDERS_PER_PAGE_ACTIVE = 2;
   const ORDERS_PER_PAGE_HISTORY = 3;
   const [currentPageActive, setCurrentPageActive] = useState(1);
@@ -404,8 +406,7 @@ const OrderPage = () => {
   // Handle cancel order
   const handleCancelOrder = async (orderId) => {
     try {
-      console.log("🚀 handleCancelOrder called with orderId:", orderId);
-      console.log("🚀 Calling cancelOrder mutation with:", { orderId });
+      setCancellingOrderId(orderId);
       await cancelOrder({ orderId }).unwrap();
       toaster.create({
         title: "Order Cancelled",
@@ -420,6 +421,8 @@ const OrderPage = () => {
         type: "error",
         duration: 3000,
       });
+    } finally {
+      setCancellingOrderId(null);
     }
   };
 
@@ -716,8 +719,7 @@ const OrderPage = () => {
 
                 <Button
                   onClick={() => handleCancelOrder(id)}
-                  isLoading={cancelLoading}
-                  loadingText="Cancelling..."
+                  isDisabled={cancellingOrderId === id}
                   variant="solid"
                   bg={
                     colorMode === "light"
@@ -745,7 +747,18 @@ const OrderPage = () => {
                     transform: "translateY(0px)",
                   }}
                 >
-                  Cancel Order
+                  {cancellingOrderId === id ? (
+                    <HStack spacing={2}>
+                      <Image
+                        src={loadingGif}
+                        alt="Loading"
+                        boxSize="24px"
+                      />
+                      <Text>Cancelling...</Text>
+                    </HStack>
+                  ) : (
+                    "Cancel Order"
+                  )}
                 </Button>
               </VStack>
             </Box>
