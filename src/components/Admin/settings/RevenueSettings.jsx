@@ -85,14 +85,14 @@ export default function RevenueSettings() {
 
   const handleReset = async () => {
     const newValues = {
-      platform_commission_pct: 10,
-      chef_fee_pct: 80,
+      platform_commission_pct: 20,
+      chef_fee_pct: 10,
       customer_fee_pct: 10,
       
 
       //-----------------------------------------------
       sales_tax_pct: 10,
-      default_delivery_fee: 0,
+      default_delivery_fee: 20,
       minimum_order_value: 200,
       free_delivery_threshold: 500,
     };
@@ -146,7 +146,7 @@ export default function RevenueSettings() {
 
       setPlatformComm(data.platform_commission_pct);
       setChefComm(data.chef_fee_pct);
-      setservice(data.service_fee_amount);
+      setcustomerfee(data.customer_fee_pct);
       setSalesTax(data.sales_tax_pct);
       setDeliveryFee(data.default_delivery_fee);
       setMinOrder(data.minimum_order_value);

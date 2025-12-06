@@ -1,5 +1,4 @@
 
-
 import React, { useEffect, useState } from 'react';
 import { supabase } from "../../../services/supabaseClient";
 import { FaRegCheckCircle } from "react-icons/fa";
@@ -32,6 +31,7 @@ import { MdMarkEmailRead } from "react-icons/md";
 import { IoDocumentTextOutline } from "react-icons/io5";
 import { HiOutlineSearchCircle } from "react-icons/hi";
 
+
 import colors from '../../../theme/color';
 // import { useGetAdminIdQuery } from '../../../app/features/Admin/adminData';
 
@@ -54,11 +54,7 @@ export default function ChefTable() {
 
     //handling remove rejectef cooker from the table after rejection
     const [localCookers, setLocalCookers] = useState([]);
-    // useEffect(() => {
-    //     if (localCookers.length ===0 ){
-    //         setLocalCookers(cooker_approvals);
-    //     }}, [cooker_approvals]);
-
+    
     useEffect(() => {
         if (cooker_approvals.length > 0 && localCookers.length === 0) {
             setLocalCookers([...cooker_approvals]);
@@ -88,14 +84,20 @@ export default function ChefTable() {
 
             setIsApproving(true);
             await approveCooker({ id: selectedCooker.id }).unwrap();  //if there's an admin we have to write approve_by : adminEmail 
-
+             
+            toaster.create({
+                
+                description: `  Email of approval sent to ${selectedCooker.name}successfully   `,
+                type: "success",
+            });
             // await refetch();
             toaster.create({
                 title: "Update successful",
-                description: `Cooker is added successfully `,
+                description: `${selectedCooker.name}is added successfully `,
                 type: "success",
             });
-
+            
+            
             //update local state to change cooker status to approved
             setLocalCookers((prev) => prev.map(cooker => cooker.id === selectedCooker.id ? { ...cooker, status: "approved" } : cooker));
 
@@ -149,6 +151,12 @@ export default function ChefTable() {
                 description: `${selectedCooker.name} has been rejected successfully`,
                 type: "success",
             });
+
+             toaster.create({
+                
+                description: `  Email of rejection sent to ${selectedCooker.name}successfully   `,
+                type: "success",
+            });
             setLocalCookers((prev) => prev.filter(cooker => cooker.id !== selectedCooker.id));
 
         } catch (err) {
@@ -173,7 +181,13 @@ export default function ChefTable() {
             await sendNotes({ id: selectedCooker.id, notes }).unwrap();
             toaster.create({
                 title: "Message sent",
-                description: ` Notes have been sent to ${selectedCooker.name} successfully`,
+                description: ` Notes have been sent to ${selectedCooker.name} successfully `,
+                type: "success",
+            });
+
+             toaster.create({
+                
+                description: `Email sent to ${selectedCooker.name}successfully`,
                 type: "success",
             });
 
@@ -209,22 +223,23 @@ export default function ChefTable() {
     const filteredCookers = useMemo(() => {
         return localCookers
             .filter(cooker => statusFilter === "all" || cooker.status === statusFilter)
-            .filter(cooker => {
-                // لو مفيش search query، ارجع كل الـ cookers
-                if (!searchQuery || searchQuery.trim() === "") return true;
-                
-                // لو فيه search query، دور في الـ name
-                const name = cooker.user?.name || "";
-                return name.toLowerCase().includes(searchQuery.toLowerCase());
-            });
+            .filter(cooker =>
+                cooker.user?.user_metadata?.name
+                    ?.toLowerCase()
+                    .includes(searchQuery.toLowerCase())
+            );
     }, [localCookers, statusFilter, searchQuery]);
 
+    // reset page to 1 when filter/search changes
+    useEffect(() => {
+        setCurrentPage(1);
+    }, [statusFilter, searchQuery, localCookers]);
 
 
     //******************************************************************** */
 
     //pagination handling
-    const itemsPerPage = 10;
+    const itemsPerPage = 4;
     const [currentPage, setCurrentPage] = useState(1);
 
     const indexOfLastItem = currentPage * itemsPerPage;
@@ -306,12 +321,13 @@ export default function ChefTable() {
 
 
                         {isLoading ? (
+
+
                             <Table.Row bg={colorMode === "dark" ? colors.dark.bgMain : ""} >
                                 <Table.Cell colSpan={7} textAlign="center">
-                                    <VStack colorPalette="teal" py={10}>
-                                        <Spinner color="colorPalette.600" size="xl" />
-                                        <Text color="colorPalette.600" fontSize="lg" fontWeight="medium">Loading Sellers...</Text>
-                                        <Text color="gray.500" fontSize="sm">Please wait while we fetch the data</Text>
+                                    <VStack colorPalette="teal">
+                                        <Spinner color="colorPalette.600" />
+                                        <Text color="colorPalette.600">Loading Cookers...</Text>
                                     </VStack>
                                 </Table.Cell>
                             </Table.Row>
@@ -344,14 +360,14 @@ export default function ChefTable() {
                                             No Results Found
                                         </Text>
                                         <Text fontSize="md" color="gray.500" maxW="400px">
-                                            {searchQuery 
+                                            {searchQuery
                                                 ? `No sellers found matching "${searchQuery}"`
                                                 : `No ${statusFilter} applications found`
                                             }
                                         </Text>
-                                        <Button 
-                                            size="sm" 
-                                            variant="outline" 
+                                        <Button
+                                            size="sm"
+                                            variant="outline"
                                             colorScheme="gray"
                                             onClick={() => {
                                                 setSearchQuery("");
@@ -360,7 +376,7 @@ export default function ChefTable() {
                                         >
                                             Clear Filters
                                             {/* TODO: add clear filters functionality */}
-                                            
+
                                         </Button>
                                     </VStack>
                                 </Table.Cell>
@@ -380,14 +396,14 @@ export default function ChefTable() {
                                             overflow="hidden"
                                             colorPalette={"red"}>
 
-                                            <Avatar.Image src={cooker.user?.avatar_url} />
+                                            <Avatar.Image src={cooker.user?.user_metadata?.avatar_url} />
                                             <Avatar.Fallback name={cooker.user?.name} />
                                         </Avatar.Root>
 
                                     </Table.Cell>
-                                    <Table.Cell>{cooker.user?.name}</Table.Cell>
+                                    <Table.Cell>{cooker.user?.user_metadata?.name}</Table.Cell>
                                     <Table.Cell>{cooker.specialty || "—"}</Table.Cell>
-                                    <Table.Cell>{cooker.name || "—"}</Table.Cell>
+                                    <Table.Cell>{cooker.user?.user_metadata?.KitchenName || "—"}</Table.Cell>
                                     <Table.Cell>{new Intl.DateTimeFormat("en-US", {
                                         year: "numeric",
                                         month: "short",
@@ -593,6 +609,13 @@ export default function ChefTable() {
 
     );
 }
+
+
+
+
+
+
+
 
 
 

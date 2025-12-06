@@ -232,7 +232,7 @@ const MariamCustomModal = ({
                           height="100px"
                           borderRadius="full"
                           overflow="hidden">
-                          <Avatar.Image src={cooker.user?.avatar_url} />
+                          <Avatar.Image src={cooker.user?.user_metadata?.avatar_url} />
                           <Avatar.Fallback name={cooker?.name} />
                         </Avatar.Root>
                       </DataList.ItemValue>

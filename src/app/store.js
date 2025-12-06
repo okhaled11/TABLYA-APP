@@ -41,6 +41,7 @@ import { MariamSettingsApi } from "./features/Admin/MariamSettings";
 import { landingReviews } from "./features/Landing/LandingReviews";
 import { deliveryApi } from "./features/delivery/deliveryApi";
 import { deleveryOrder } from "./features/delivery/deleveryOrder";
+import { LandingMenuApi } from "./features/Landing/LandingMenuApi";
 
 const persistCartConfig = {
   key: "cart",
@@ -84,6 +85,7 @@ export const store = configureStore({
     [MariamSettingsApi.reducerPath]: MariamSettingsApi.reducer,
     [adminReportActionsApi.reducerPath]: adminReportActionsApi.reducer,
     [landingReviews.reducerPath]:landingReviews.reducer,
+    [LandingMenuApi.reducerPath]:LandingMenuApi.reducer,
 
     // Auth & User
     [authApi.reducerPath]: authApi.reducer,
@@ -135,7 +137,8 @@ export const store = configureStore({
       adminReportActionsApi.middleware,
       landingReviews.middleware,
       deliveryApi.middleware,
-      deleveryOrder.middleware
+      deleveryOrder.middleware,
+      LandingMenuApi.middleware,
     ),
 });
 

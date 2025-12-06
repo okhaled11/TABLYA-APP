@@ -27,7 +27,7 @@ const Footer = () => {
       py={"10"}
       position={"relative"}
       overflow="hidden"
-      bottom={"-100px"}
+      
     >
       <Container maxW="6xl" position={"relative"}>
         {/* Logo */}
