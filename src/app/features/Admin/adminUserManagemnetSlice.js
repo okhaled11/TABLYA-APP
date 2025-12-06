@@ -36,6 +36,19 @@ export const AdminUserSlice = createApi({
       invalidatesTags: ["Users"],
     }),
 
+    toggleUserActive: builder.mutation({
+      async queryFn({ id, is_active }) {
+        const { data, error } = await supabase
+          .from("users")
+          .update({ is_active })
+          .eq("id", id);
+
+        if (error) return { error };
+        return { data };
+      },
+      invalidatesTags: ["Users"],
+    }),
+
     deleteUser: builder.mutation({
       async queryFn(id) {
         const { data, error } = await supabase
@@ -55,5 +68,5 @@ export const {
   useAddUserMutation,
   useUpdateUserMutation,
   useDeleteUserMutation,
-  useDeleteUserWithCheckMutation
+  useToggleUserActiveMutation
 } = AdminUserSlice

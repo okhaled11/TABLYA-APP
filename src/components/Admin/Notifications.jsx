@@ -3,7 +3,7 @@ import { supabase } from "../../services/supabaseClient";
 import { FaBell, FaShoppingCart, FaCheckCircle } from "react-icons/fa";
 import { GoReport } from "react-icons/go";
 import { Box, Menu, Portal, Badge, Button } from "@chakra-ui/react";
-
+import { FiDelete } from "react-icons/fi";
 export default function Notifications() {
   const [unread, setUnread] = useState(true);
   const [notifications, setNotifications] = useState([]);
@@ -17,7 +17,11 @@ export default function Notifications() {
   // handle remove notification
 
   const handleremove = (id) => {
-    setNotifications((prev) => prev.filter((n) => n.id !== id));
+    setNotifications((prev) => {
+      const updated = prev.filter((n) => n.id !== id);
+      localStorage.setItem("notifications", JSON.stringify(updated));
+      return updated;
+    });
   };
 
   //get notification from local storage
@@ -51,12 +55,16 @@ export default function Notifications() {
         { event: "INSERT", schema: "public", table: "orders" },
         (payload) => {
           const notif = {
+            id: payload.new.id,
             type: "order",
             data: payload.new,
-            timestamp: new Date().toLocaleTimeString("en-US", {
+            timestamp: new Intl.DateTimeFormat("en-US", {
+              year: "numeric",
+              month: "2-digit",
+              day: "2-digit",
               hour: "2-digit",
               minute: "2-digit",
-            }),
+            }).format(new Date()),
           };
           addNotification(notif);
         }
@@ -71,12 +79,16 @@ export default function Notifications() {
         { event: "INSERT", schema: "public", table: "cooker_approvals" },
         (payload) => {
           const notif = {
+            id: payload.new.id,
             type: "approval",
             data: payload.new,
-            timestamp: new Date().toLocaleTimeString("en-US", {
+            timestamp: new Intl.DateTimeFormat("en-US", {
+              year: "numeric",
+              month: "2-digit",
+              day: "2-digit",
               hour: "2-digit",
               minute: "2-digit",
-            }),
+            }).format(new Date()),
           };
           addNotification(notif);
         }
@@ -89,14 +101,21 @@ export default function Notifications() {
       .on(
         "postgres_changes",
         { event: "INSERT", schema: "public", table: "reports" },
+
         (payload) => {
+          const notifId =
+            payload.new.id || `report-${Date.now()}-${Math.random()}`;
           const notif = {
+            id: notifId,
             type: "report",
             data: payload.new,
-            timestamp: new Date().toLocaleTimeString("en-US", {
+            timestamp: new Intl.DateTimeFormat("en-US", {
+              year: "numeric",
+              month: "2-digit",
+              day: "2-digit",
               hour: "2-digit",
               minute: "2-digit",
-            }),
+            }).format(new Date()),
           };
           addNotification(notif);
         }
@@ -126,7 +145,7 @@ export default function Notifications() {
           >
             <FaBell size={20} color="white" />
 
-            {notifications.length > 0 && unread && (
+            {notifications.length > 0 && (
               <Badge
                 position="absolute"
                 top="-1"
@@ -209,24 +228,29 @@ export default function Notifications() {
                             </>
                           ) : (
                             <>
-                              <b>{n.data.reporter_user_id}</b> reported{" "}
-                              {n.data.target_type}
+                              <b>
+                                New report 
+                              </b>{" "}
+                              from User
                             </>
                           )}
                           {/* remove btn */}
                           <Button
                             outline="none"
                             bg="transparent"
-                            _hover={{ bg: "transparent" }}
+                            _hover={{ bg: "red.50" }}
                             _active={{ bg: "transparent" }}
                             _focus={{ bg: "transparent", boxShadow: "none" }}
                             variant={"none"}
                             color={"red"}
                             mx={"5px"}
-                            onClick={() => handleremove(n.id)}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleremove(n.id);
+                            }}
                             fontSize={"20px"}
                           >
-                            ✕
+                            <FiDelete />
                           </Button>
                         </Box>
 

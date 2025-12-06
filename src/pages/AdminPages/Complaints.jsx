@@ -50,7 +50,7 @@ const getStatusColor = (status) => {
 
 export default function Complaints() {
   const { data: reports, error, isLoading } = useGetReportsQuery();
-  // console.log(reports);
+  console.log(reports);
   if (error) console.error("Error fetching reports:", error);
   const { data: adminId } = useGetAdminIdQuery();
   // console.log(adminId);
@@ -71,56 +71,52 @@ export default function Complaints() {
 
   const pageSize = 5;
 
-  const allReports = useMemo(() => {
-    return reports && reports.length > 0 ? reports : [];
-  }, [reports]);
-
   const handleSearch = (e) => setSearchTerm(e.target.value.toLowerCase());
 
-  // Filtered data
-  // const handleFilterByDate = () => {
-  //   if (!startDate || !endDate) {
-  //     alert("Please select both start and end dates.");
-  //     return;
-  //   }
+  const filterByStatus = (report, status) => {
+    return status === "all" || report.status === status;
+  };
 
-  //   const start = new Date(startDate);
-  //   const end = new Date(endDate);
+  const filterBySearch = (report, search) => {
+    const s = search.toLowerCase();
+    return (
+      report.reason.toLowerCase().includes(s) ||
+      (report.details?.toLowerCase().includes(s) ?? false) ||
+      report.reporter?.name.toLowerCase().includes(s) ||
+      report.id.toLowerCase().includes(s) ||
+      report.reporter_user_id.toLowerCase().includes(s) ||
+      report.target_id.toLowerCase().includes(s)
+    );
+  };
 
-  //   const filtered = allReports.filter((r) => {
-  //     const reportDate = new Date(r.created_at);
-  //     return reportDate >= start && reportDate <= end;
-  //   });
+  const filterByDate = (user, start, end) => {
+    const createdAt = new Date(user.created_at);
+    const from = start ? new Date(start) : null;
+    const to = end ? new Date(end) : null;
+    return (!from || createdAt >= from) && (!to || createdAt <= to);
+  };
 
-  //   setFilteredByDate(filtered);
+  // const filterByCurrentMonth = (report) => {
+  //   const createdAt = new Date(report.created_at);
+  //   const now = new Date();
+
+  //   return (
+  //     createdAt.getMonth() === now.getMonth() &&
+  //     createdAt.getFullYear() === now.getFullYear()
+  //   );
   // };
 
   const filteredReports = useMemo(() => {
-    const reportsToFilter =
-      startDate || endDate
-        ? allReports.filter((r) => {
-            const reportDate = new Date(r.created_at);
-            if (startDate && reportDate < new Date(startDate)) return false;
-            if (endDate && reportDate > new Date(endDate)) return false;
-            return true;
-          })
-        : allReports;
-
-    return reportsToFilter.filter((r) => {
-      const search = searchTerm.toLowerCase();
-      const matchesSearch =
-        r.reason.toLowerCase().includes(search) ||
-        (r.details?.toLowerCase().includes(search) ?? false) ||
-        r.status.toLowerCase().includes(search) ||
-        r.target_type.toLowerCase().includes(search) ||
-        r.reporter_user_id.toLowerCase().includes(search) ||
-        r.target_id.toLowerCase().includes(search);
-
-      const matchesStatus =
-        selectedStatus === "all" || r.status === selectedStatus;
-      return matchesSearch && matchesStatus;
+    if (!reports) return [];
+    return reports.filter((r) => {
+      return (
+        filterByStatus(r, selectedStatus) &&
+        filterBySearch(r, searchTerm) &&
+        filterByDate(r, startDate, endDate)
+        // && filterByCurrentMonth(r)
+      );
     });
-  }, [allReports, searchTerm, selectedStatus, startDate, endDate]);
+  }, [reports, searchTerm, selectedStatus, startDate, endDate]);
 
   const totalPages = Math.ceil(filteredReports.length / pageSize);
   const startIndex = (page - 1) * pageSize;
@@ -237,7 +233,7 @@ export default function Complaints() {
           iconBg="transparent"
           iconColor="#19a2e6"
           label="Total Reports"
-          value={allReports.length}
+          value={reports.length}
           valueColor="#19a2e6"
         />
         <StatCard
@@ -246,7 +242,7 @@ export default function Complaints() {
           iconBg="transparent"
           iconColor="#d3df2b"
           label="Pending"
-          value={allReports.filter((r) => r.status === "open").length}
+          value={reports.filter((r) => r.status === "open").length}
           valueColor="#d3df2b"
         />
         <StatCard
@@ -255,7 +251,7 @@ export default function Complaints() {
           iconBg="transparent"
           iconColor="#da1414ff"
           label="Reviewed"
-          value={allReports.filter((r) => r.status === "closed").length}
+          value={reports.filter((r) => r.status === "closed").length}
           valueColor="#da1414ff"
         />
         <StatCard
@@ -264,7 +260,7 @@ export default function Complaints() {
           iconBg="transparent"
           iconColor="#24a855"
           label="Resolved"
-          value={allReports.filter((r) => r.status === "resolved").length}
+          value={reports.filter((r) => r.status === "resolved").length}
           valueColor="#24a855"
         />
       </SimpleGrid>
@@ -281,7 +277,7 @@ export default function Complaints() {
           <Flex flex={5} minW="200px">
             <InputGroup minW="200px" gap={2}>
               <Input
-                placeholder="Search"
+                placeholder="Search by Name or Report ID"
                 value={searchTerm}
                 onChange={handleSearch}
               />
@@ -376,7 +372,7 @@ export default function Complaints() {
                   }}
                   background={colorMode === "light" ? "white" : "rgb(20, 4, 2)"}
                 >
-                  <Table.Cell>ORD_{r.id.toString().slice(-4)}</Table.Cell>
+                  <Table.Cell>ORDER_{r.id.toString().slice(-4)}</Table.Cell>
                   <Table.Cell>{r.reporter?.name}</Table.Cell>
                   {/* <Table.Cell>{r.target_id}</Table.Cell> */}
                   <Table.Cell>
