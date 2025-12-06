@@ -70,13 +70,13 @@ export default function SalesChart() {
                   // domain={[0, 3000]}
                   domain={[0, Math.max(...chartData.map(d => d.revenue)) * 1.1]}  //for values in y axis to be depend on true value
                   // tickFormatter={(value) => `${value}`}
-                  label={{ value: "Revenue", angle: -90, position: "insideLeft", dy: 30 }}
+                  label={{ value: "Revenue (EGP)", angle: -90, position: "insideLeft", dy: 30 }}
                   tickMargin={2} //to not get out of the card
                   width={60}
                   tickFormatter={(value) => `${(value / 1000).toFixed(1)}K`}
 
                 />
-                <Tooltip cursor={{ fill: "rgba(0,0,0,0.05)" }} />
+                <Tooltip cursor={{ fill: "rgba(0,0,0,0.05)" }} formatter={(value) => `${value} EGP`} />
                 {chart.series.map((item) => (
                   <Bar
                     key={item.name}

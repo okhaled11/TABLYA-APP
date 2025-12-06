@@ -68,7 +68,7 @@ export default function Cards() {
   const { t } = useTranslation();
 
   return (
-    <Container maxW="7xl" py={{ base: 10, md: 20 }}  >
+    <Container maxW="7xl" py={{ base: 10, md: 20 }} >
       <SimpleGrid columns={{ base: 1, md: 3 }} spacing={"40px"} justifyItems="center" columnGap={{base: "30px" , md:"30px" , lg:"80px"}} rowGap="60px">
         <CardItem title={t('cards.homemadeMeals')} text={t('cards.homemadeMealsDesc')}
 

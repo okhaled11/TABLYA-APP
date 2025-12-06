@@ -8,18 +8,20 @@ import { FiShoppingCart } from "react-icons/fi";
 import { useGetUsersQuery } from '../../../app/features/UserSlice';
 import { useGetAverageOrderValueQuery, useGetOrdersGrowthRateQuery } from '../../../app/features/Admin/dashboardApi';
 import { useGetGrowthRateQuery } from '../../../app/features/Admin/dashboardApi';
+import {  FaArrowTrendDown } from "react-icons/fa6";
+
 
 export default function Kpis() {
 
     const { colorMode } = useColorMode();
 
     const { data: users = [], isLoading } = useGetUsersQuery();
-   
+
     const { data: avgOrder } = useGetAverageOrderValueQuery();
-    
+
     const { data: growth } = useGetGrowthRateQuery();
     const { data: OrdersGrowthRate } = useGetOrdersGrowthRateQuery();
-   
+
     return (
         <Container my={"30px"} mx="0px">
 
@@ -84,9 +86,11 @@ export default function Kpis() {
                             {/* Value + Icon */}
                             <Flex justifyContent="space-between" w="100%" align="center">
                                 <Text fontWeight="bold" fontSize="20px">{growth?.toFixed(1)}%</Text>
-                                <Box bg="rgb(231, 245, 236)" w="40px" h="40px" display="flex"
+                                <Box bg={OrdersGrowthRate >= 0 ? "rgb(231, 245, 236)" : "rgb(255, 230, 230)"} w="40px" h="40px" display="flex"
                                     justifyContent="center" alignItems="center" borderRadius="10px">
-                                    <FaArrowTrendUp size="30px" color="rgb(22, 162, 73)" />
+                                    
+
+                                    {growth>= 0 ? (<FaArrowTrendUp size="30px" color="rgb(22, 162, 73)"/>) : (<FaArrowTrendDown size="30px" color="rgb(220, 53, 69)" />)}
                                 </Box>
                             </Flex>
 
@@ -141,7 +145,7 @@ export default function Kpis() {
 
 
 
-                {/* total orders */}
+                {/*  orders growth rate */}
                 <Card.Root bg={colorMode === "light" ? "white" : "rgb(20, 4, 2)"}
                     borderRadius="xl"
 
@@ -160,11 +164,16 @@ export default function Kpis() {
 
                             {/* Value + Icon */}
                             <Flex justifyContent="space-between" w="100%" align="center">
-                                <Text fontWeight="bold" fontSize="20px">{OrdersGrowthRate?.toFixed(1) } %</Text>
-                                <Box bg="rgb(231, 245, 236)" w="40px" h="40px" display="flex"
+                                <Text fontWeight="bold" fontSize="20px">{OrdersGrowthRate?.toFixed(1)} %</Text>
+                                <Box bg={OrdersGrowthRate >= 0 ? "rgb(231, 245, 236)" : "rgb(255, 230, 230)"} w="40px" h="40px" display="flex"
                                     justifyContent="center" alignItems="center" borderRadius="10px">
-                                    <FiShoppingCart
-                                        size="30px" color="rgb(22, 162, 73)" />
+                                    {/* <FiShoppingCart
+                                        size="30px" color="rgb(22, 162, 73)" /> */}
+                                    {OrdersGrowthRate >= 0 ? (
+                                        <FaArrowTrendUp size="30px" color="rgb(22, 162, 73)" />
+                                    ) : (
+                                        <FaArrowTrendDown size="30px" color="rgb(220, 53, 69)" />
+                                    )}
                                 </Box>
                             </Flex>
 
