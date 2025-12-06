@@ -5,7 +5,7 @@ import { useGetAddressesQuery } from "../../app/features/Customer/addressSlice";
 import { useColorMode } from "../../theme/color-mode";
 import colors from "../../theme/color";
 import { useSelector } from "react-redux";
-export default function DeliveryInfoCard() {
+export default function DeliveryInfoCard({ selectedAddress = null }) {
   const { colorMode } = useColorMode();
   const { data: user, isLoading, isError } = useGetUserDataQuery(undefined, {
     refetchOnFocus: true,
@@ -31,19 +31,20 @@ export default function DeliveryInfoCard() {
   }, 0);
   const prepText = prepTimes.length ? `${avgPrep}-${Math.round(sumPrep)} min` : "—";
 
+  // Use selectedAddress if provided, otherwise fall back to primary address
+  const addressToDisplay = selectedAddress || addresses.find((a) => a.is_default);
+  
   // Default values in case user data is not available
   const deliveryInfo = {
-    // Prefer primary address from addresses slice
     address: (() => {
-      const primary = addresses.find((a) => a.is_default);
-      if (!primary) return "";
+      if (!addressToDisplay) return "";
       const parts = [
-        primary.building_no,
-        primary.street,
-        primary.area,
-        primary.city,
-        primary.floor ? `Floor ${primary.floor}` : "",
-        primary.apartment ? `Apt ${primary.apartment}` : "",
+        addressToDisplay.building_no,
+        addressToDisplay.street,
+        addressToDisplay.area,
+        addressToDisplay.city,
+        addressToDisplay.floor ? `Floor ${addressToDisplay.floor}` : "",
+        addressToDisplay.apartment ? `Apt ${addressToDisplay.apartment}` : "",
       ].filter(Boolean);
       return parts.join(", ");
     })(),

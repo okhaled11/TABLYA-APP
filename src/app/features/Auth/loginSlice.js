@@ -6,6 +6,7 @@ const initialState = {
   loading: false,
   error: null,
   isPending: false,
+  isSuspended: false,
 };
 
 // ✅ handle login with approval check
@@ -23,6 +24,25 @@ export const loginUser = createAsyncThunk(
 
       if (!currentUser) {
         return rejectWithValue("User not found");
+      }
+
+      // 🔍 Check if user account is active
+      const { data: userData, error: userError } = await supabase
+        .from("users")
+        .select("is_active")
+        .eq("id", currentUser.id)
+        .single();
+
+      if (userError && userError.code !== "PGRST116") {
+        return rejectWithValue(userError.message);
+      }
+
+      // ❌ If account is suspended (is_active = false)
+      if (userData && userData.is_active === false) {
+        return rejectWithValue({
+          type: "suspended",
+          message: "Your account has been temporarily suspended. Please contact support.",
+        });
       }
 
       // 🔍 get role from user metadata
@@ -97,10 +117,17 @@ const loginSlice = createSlice({
         // Check if it's a pending approval case
         if (action.payload?.type === "pending") {
           state.isPending = true;
+          state.isSuspended = false;
+          state.error = null;
+        } else if (action.payload?.type === "suspended") {
+          // Check if it's a suspended account case
+          state.isSuspended = true;
+          state.isPending = false;
           state.error = null;
         } else {
           state.error = action.payload;
           state.isPending = false;
+          state.isSuspended = false;
         }
       })
 

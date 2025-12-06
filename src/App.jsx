@@ -8,6 +8,7 @@ import CookieService from "./services/cookies";
 import { Toaster } from "./components/ui/toaster";
 import Landing from "./pages/Landing";
 import PendingApprovalPage from "./pages/PendingApprovalPage";
+import AccountSuspendedPage from "./pages/AccountSuspendedPage";
 import CustomerPage from "./pages/CustomerPage";
 import PersonalInfo from "./pages/customer/PersonalInfo";
 import ResetPasswordPage from "./pages/ResetPasswordPage";
@@ -81,6 +82,7 @@ function App() {
           element={<RegisterPage isAuthenticated={token} />}
         />
         <Route path="/pending-approval" element={<PendingApprovalPage />} />
+        <Route path="/account-suspended" element={<AccountSuspendedPage />} />
         <Route path="/forgot-password" element={<ForgotPasswordPage />} />
         <Route path="/reset-password" element={<ResetPasswordPage />} />
 
