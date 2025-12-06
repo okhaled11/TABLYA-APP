@@ -292,7 +292,7 @@ const MariamCustomModal = ({
                             alt="ID Front"
                             width="150"
                             style={{ borderRadius: "8px" }}
-                            onClick={() => setPreviewImage(cooker.id_card_back_url)}
+                            onClick={() => setPreviewImage(cooker.id_card_front_url)}
 
                           />
                         ) : (
