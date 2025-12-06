@@ -79,7 +79,6 @@ export const deleveryOrder = createApi({
             return { error: { message: ordersError.message } };
           }
 
-          console.log(" Found orders:", ordersData?.length || 0);
 
           // If no orders found, check if address-based filtering is needed
           if (!ordersData || ordersData.length === 0) {

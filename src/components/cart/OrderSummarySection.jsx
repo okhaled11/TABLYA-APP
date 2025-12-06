@@ -12,6 +12,8 @@ export default function OrderSummarySection({
   onCheckout = () => {},
   onValidate = () => true,
   onCreateOrderForPayPal = null,
+  selectedAddress = null,
+  onOpenAddressModal = () => {},
 }) {
   const { colorMode } = useColorMode();
   const deliveryFee = typeof deliveryFeeProp === "number" ? deliveryFeeProp : 0;
@@ -111,7 +113,7 @@ export default function OrderSummarySection({
         mb={5}
       />
 
-      <DeliveryInfoCard />
+      <DeliveryInfoCard selectedAddress={selectedAddress} />
       <Box
         w="100%"
         h="1px"
@@ -124,7 +126,14 @@ export default function OrderSummarySection({
         mb={5}
       />
 
-      <PaymentMethodSelect onCheckout={onCheckout} total={total} onValidate={onValidate} onCreateOrderForPayPal={onCreateOrderForPayPal} />
+      <PaymentMethodSelect 
+        onCheckout={onCheckout} 
+        total={total} 
+        onValidate={onValidate} 
+        onCreateOrderForPayPal={onCreateOrderForPayPal}
+        selectedAddress={selectedAddress}
+        onOpenAddressModal={onOpenAddressModal}
+      />
     </Box>
   );
 }
