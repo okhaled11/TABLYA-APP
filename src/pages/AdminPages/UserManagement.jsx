@@ -7,7 +7,7 @@ import {
   InputGroup,
   NativeSelect,
   Stack,
-  Heading,
+  Text,
   Table,
   Pagination,
   ButtonGroup,
@@ -24,90 +24,101 @@ import React, { useEffect, useState } from "react";
 import {
   useGetUsersQuery,
   useDeleteUserMutation,
+  useToggleUserActiveMutation,
 } from "../../app/features/Admin/adminUserManagemnetSlice";
+import { useCheckDeliveryOutForDeliveryQuery } from "../../app/features/Admin/ordersApi";
 import { LuChevronLeft, LuChevronRight } from "react-icons/lu";
 import { CiSearch } from "react-icons/ci";
 import { FaEye } from "react-icons/fa";
+import { BsPersonCheckFill, BsPersonDash } from "react-icons/bs";
 import { FaEdit } from "react-icons/fa";
 import { CiDeliveryTruck } from "react-icons/ci";
 import ConfirmDialog from "../../components/Admin/ConfirmDialog";
 import colors from "../../theme/color";
 import { FaUserXmark } from "react-icons/fa6";
 import { FaUserFriends, FaUtensils, FaMotorcycle } from "react-icons/fa";
+import { BsCircleFill } from "react-icons/bs";
 import StatCard from "../../components/Admin/StatCard";
 import { useColorMode } from "../../theme/color-mode";
 import UserInfoModal from "../../components/Admin/UserModal";
 import EditUserModal from "../../components/Admin/EditUserModal";
 import DeliveryModal from "../../components/Admin/DeliveryModal";
+import DeliveryStatusBadge from "../../components/Admin/DeliveryStatusBadge";
 import { toaster } from "../../components/ui/toaster";
+import { useMemo } from "react";
 export default function UserManagement() {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedRole, setSelectedRole] = useState("");
   const { data: users, error, isLoading } = useGetUsersQuery();
   const [deleteUser] = useDeleteUserMutation();
-
-  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [userToDelete, setUserToDelete] = useState(null);
+  const [toggleUserActive] = useToggleUserActiveMutation();
+  const { data: activeDeliveryOrders } = useCheckDeliveryOutForDeliveryQuery(
+    userToDelete?.id,
+    {
+      skip: !userToDelete || userToDelete.role !== "delivery",
+    }
+  );
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [userToToggle, setUserToToggle] = useState(null);
+  const [isToggleDialogOpen, setIsToggleDialogOpen] = useState(false);
   const [isDeliveryModalOpen, setIsDeliveryModalOpen] = useState(false);
   const [page, setPage] = useState(1);
-  // const [localUsers, setLocalUsers] = useState([]);
   const [selectedUser, setSelectedUser] = useState(null);
   const [isInfoOpen, setIsInfoOpen] = useState(false);
   const [isEditOpen, setIsEditOpen] = useState(false);
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
 
-  // console.log(users);
   const { colorMode } = useColorMode();
-
-  
-
-  if (isLoading)
-    return (
-      <Flex justify="center" align="center" height="100vh">
-        <Spinner size="xl" />
-      </Flex>
-    );
-
-  if (error)
-    return (
-      <Flex justify="center" align="center" height="50vh">
-        <Text color="red.500">Error loading users</Text>
-      </Flex>
-    );
 
   const customerCount = users?.filter((u) => u.role === "customer").length || 0;
   const chefCount = users?.filter((u) => u.role === "cooker").length || 0;
   const deliveryCount = users?.filter((u) => u.role === "delivery").length || 0;
   //  const adminCount = users?.filter((u) => u.role === "admin").length || 0;
 
-  const filteredUsers = users
-    ?.filter((user) => (selectedRole ? user.role === selectedRole : true))
-    ?.filter((user) => {
-      if (!searchTerm) return true;
-      const search = searchTerm.toLowerCase();
+  const filterByRole = (user, role) => {
+    return !role || user.role === role;
+  };
+
+  const filterBySearch = (user, search) => {
+    if (!search) return true;
+    const s = search.toLowerCase();
+
+    return (
+      user.name.toLowerCase().includes(s) ||
+      user.email.toLowerCase().includes(s)
+    );
+  };
+
+  const filterByDate = (user, start, end) => {
+    const createdAt = new Date(user.created_at);
+    const from = start ? new Date(start) : null;
+    const to = end ? new Date(end) : null;
+    return (!from || createdAt >= from) && (!to || createdAt <= to);
+  };
+
+  // const filterByCurrentMonth = (user) => {
+  //   const createdAt = new Date(user.created_at);
+  //   const now = new Date();
+
+  //   return (
+  //     createdAt.getMonth() === now.getMonth() &&
+  //     createdAt.getFullYear() === now.getFullYear()
+  //   );
+  // };
+
+  const filteredUsers = useMemo(() => {
+    if (!users) return [];
+    return users?.filter((u) => {
       return (
-        user.name.toLowerCase().includes(search) ||
-        user.email.toLowerCase().includes(search)
+        filterByRole(u, selectedRole) &&
+        filterBySearch(u, searchTerm) &&
+        filterByDate(u, startDate, endDate)
+        // && filterByCurrentMonth(u)
       );
-    })
-    ?.filter((user) => {
-      const createdAt = new Date(user.created_at);
-      const from = startDate ? new Date(startDate) : null;
-      const to = endDate ? new Date(endDate) : null;
-
-      if (from && to && to < from) {
-        return false;
-      }
-
-      if (from && !to) return createdAt >= from;
-
-      if (!from && to) return createdAt <= to;
-
-      if (from && to) return createdAt >= from && createdAt <= to;
-
-      return true; // no dates selected
     });
+  }, [users, selectedRole, searchTerm, startDate, endDate]);
 
   const pageSize = 5;
 
@@ -125,6 +136,40 @@ export default function UserManagement() {
   const handleRoleChange = (e) => {
     setSelectedRole(e.target.value);
     setPage(1);
+  };
+
+  const handleToggleActive = async () => {
+    if (userToToggle.role === "delivery" && activeDeliveryOrders?.length > 0) {
+      toaster.create({
+        title: "Cannot deactivate delivery partner",
+        description: "This delivery partner is currently out for delivery.",
+        type: "warning",
+      });
+      setIsToggleDialogOpen(false);
+      return; 
+    }
+
+    try {
+      await toggleUserActive({
+        id: userToToggle.id,
+        is_active: !userToToggle.is_active,
+      }).unwrap();
+
+      toaster.create({
+        title: userToToggle.is_active
+          ? "User deactivated successfully"
+          : "User activated successfully",
+        type: "success",
+      });
+    } catch (error) {
+      toaster.create({
+        title: "Failed to update user status",
+        type: "error",
+      });
+      console.error(error);
+    } finally {
+      setIsToggleDialogOpen(false);
+    }
   };
 
   // const handleFilterByDate = () => {
@@ -148,6 +193,16 @@ export default function UserManagement() {
   // };
 
   const handleDelete = async (userId) => {
+    if (userToDelete?.role === "delivery" && activeDeliveryOrders?.length > 0) {
+      toaster.create({
+        title: "Cannot delete delivery partner",
+        description: "This delivery partner is currently out for delivery.",
+        type: "error",
+      });
+      setIsDeleteDialogOpen(false);
+      return;
+    }
+
     try {
       await deleteUser(userId).unwrap();
       toaster.create({
@@ -220,6 +275,20 @@ export default function UserManagement() {
     return "red";
   };
 
+  if (isLoading)
+    return (
+      <Flex justify="center" align="center" height="100vh">
+        <Spinner size="xl" />
+      </Flex>
+    );
+
+  if (error)
+    return (
+      <Flex justify="center" align="center" height="50vh">
+        <Text color="red.500">Error loading users</Text>
+      </Flex>
+    );
+
   return (
     <Box
       p={30}
@@ -233,7 +302,7 @@ export default function UserManagement() {
         <Spacer />
         <Box onClick={handleDeliveryModal}>
           <Button background="#fa2c23">
-            Add new Delivery
+            <Text color="white">Add new Delivery</Text>
             <CiDeliveryTruck />
           </Button>
         </Box>
@@ -294,7 +363,7 @@ export default function UserManagement() {
             <Flex flex={2} marginInlineEnd={5}>
               <InputGroup startElement={<CiSearch />}>
                 <Input
-                  placeholder="Search"
+                  placeholder="Search by name or email"
                   value={searchTerm}
                   onChange={handleSearch}
                 />
@@ -406,17 +475,10 @@ export default function UserManagement() {
                     <Table.Cell>{user.name}</Table.Cell>
                     <Table.Cell>{user.email}</Table.Cell>
                     <Table.Cell>
-                      <Badge
-                        style={{
-                          borderRadius: "20px",
-                          padding: "4px 8px",
-                          borderColor: "{getBadgeColor(user.role)}",
-                          borderWidth: "1px",
-                        }}
-                        colorPalette={getBadgeColor(user.role)}
-                      >
-                        {user.role}
-                      </Badge>
+                      <DeliveryStatusBadge
+                        user={user}
+                        getBadgeColor={getBadgeColor}
+                      />
                     </Table.Cell>
 
                     <Table.Cell>
@@ -447,6 +509,33 @@ export default function UserManagement() {
                         <Button
                           size="sm"
                           variant="ghost"
+                          borderWidth="1px"
+                          borderColor={
+                            colorMode === "light" ? "gray.200" : "gray.800"
+                          }
+                          borderRadius="10px"
+                          background={
+                            colorMode === "light" ? "white" : "#140f0cff"
+                          }
+                          _hover={{
+                            backgroundColor: user.is_active
+                              ? "red.100"
+                              : "green.100",
+                          }}
+                          onClick={() => {
+                            setUserToToggle(user);
+                            setIsToggleDialogOpen(true);
+                          }}
+                        >
+                          {user.is_active ? (
+                            <BsPersonDash size={18} color="red" />
+                          ) : (
+                            <BsPersonCheckFill size={18} color="green" />
+                          )}
+                        </Button>
+                        {/* <Button
+                          size="sm"
+                          variant="ghost"
                           borderColor={
                             colorMode === "light" ? "gray.200" : "gray.800"
                           }
@@ -458,8 +547,8 @@ export default function UserManagement() {
                           onClick={() => handleOpenModal(user, "edit")}
                         >
                           <FaEdit />
-                        </Button>
-                        <Button
+                        </Button> */}
+                        {/* <Button
                           size="sm"
                           variant="ghost"
                           colorScheme="red"
@@ -475,7 +564,7 @@ export default function UserManagement() {
                           }}
                         >
                           <FaUserXmark color="red" />
-                        </Button>
+                        </Button> */}
                       </Flex>
                     </Table.Cell>
                   </Table.Row>
@@ -556,6 +645,20 @@ export default function UserManagement() {
         message={`Are you sure you want to permanently delete ${userToDelete?.name}?`}
         confirmLabel="Delete"
         cancelLabel="Cancel"
+      />
+
+      <ConfirmDialog
+        isOpen={isToggleDialogOpen}
+        onClose={() => setIsToggleDialogOpen(false)}
+        onConfirm={handleToggleActive}
+        title={userToToggle?.is_active ? "Deactivate User" : "Activate User"}
+        message={
+          userToToggle?.is_active
+            ? "Are you sure you want to deactivate this user?"
+            : "Are you sure you want to activate this user?"
+        }
+        confirmLabel={userToToggle?.is_active ? "Deactivate" : "Activate"}
+        confirmColor={userToToggle?.is_active ? "red" : "green"}
       />
       <DeliveryModal
         isOpen={isDeliveryModalOpen}

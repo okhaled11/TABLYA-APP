@@ -6,7 +6,10 @@ import {
   DataList,
   Dialog,
   Portal,
+  Tooltip as ChakraTooltip,
 } from "@chakra-ui/react";
+import { FaWhatsapp } from "react-icons/fa";
+
 import React from "react";
 
 const UserInfoModal = ({ user, isOpen, onClose }) => {
@@ -62,9 +65,33 @@ const UserInfoModal = ({ user, isOpen, onClose }) => {
                   </DataList.ItemValue>
                 </DataList.Item>
 
-                <DataList.Item>
+                {/* <DataList.Item>
                   <DataList.ItemLabel>Phone</DataList.ItemLabel>
                   <DataList.ItemValue>{user.phone}</DataList.ItemValue>
+                </DataList.Item> */}
+
+                <DataList.Item>
+                  <DataList.ItemLabel>Phone</DataList.ItemLabel>
+                  <DataList.ItemValue
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "8px",
+                    }}
+                  >
+                    <span style={{ marginRight: "8px" }}>{user.phone}</span>
+                    {user.role === "delivery" && user.phone && (
+                      <a
+                        href={`https://wa.me/${user.phone.replace(/\D/g, "")}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        title="Chat on WhatsApp"
+                        style={{ color: "#25D366" }}
+                      >
+                        <FaWhatsapp size={30} />
+                      </a>
+                    )}
+                  </DataList.ItemValue>
                 </DataList.Item>
 
                 <DataList.Item>
