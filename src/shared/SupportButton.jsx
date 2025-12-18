@@ -15,53 +15,14 @@ import { useColorMode } from "../theme/color-mode";
 import colors from "../theme/color";
 import { useGetUserDataQuery } from "../app/features/Auth/authSlice";
 import CookieService from "../services/cookies";
+import { useTranslation } from "react-i18next";
 
 // WhatsApp support number
 const SUPPORT_NUMBER = "201021459497";
 
-const supportIssues = [
-  {
-    id: "road",
-    label: "Road Problem",
-    icon: FaRoad,
-    message:
-      "السلام عليكم، أنا عندي مشكلة في الطريق. الطريق مقفول ومش قادر أوصل للعميل.",
-  },
-  {
-    id: "traffic",
-    label: "Heavy Traffic",
-    icon: FaCarCrash,
-    message:
-      "السلام عليكم، أنا واقف في زحمة شديدة ومش هقدر أوصل الأوردر في الوقت المحدد.",
-  },
-  {
-    id: "vehicle",
-    label: "Vehicle Issue",
-    icon: FaTools,
-    message: "السلام عليكم،  عندي عطل ومحتاج مساعدة.",
-  },
-  {
-    id: "accident",
-    label: "Accident",
-    icon: FaExclamationTriangle,
-    message: "السلام عليكم، حصلي حادثة في الطريق ومش قادر أكمل التوصيل.",
-  },
-  {
-    id: "unreachable",
-    label: "Customer Unreachable",
-    icon: FaPhoneSlash,
-    message: "السلام عليكم، العميل مش بيرد على التليفون ومش عارف أوصله.",
-  },
-  {
-    id: "other",
-    label: "Other Issue",
-    icon: FaQuestionCircle,
-    message: "السلام عليكم،عندي مشكله ومحتاج مساعدة في التوصيل.",
-  },
-];
-
 const SupportButton = () => {
   const { colorMode } = useColorMode();
+  const { t } = useTranslation();
   const [isOpen, setIsOpen] = useState(false);
 
   // Get current user data
@@ -69,6 +30,47 @@ const SupportButton = () => {
   const { data: user } = useGetUserDataQuery(undefined, {
     skip: !token,
   });
+
+  const supportIssues = [
+    {
+      id: "road",
+      label: t("supportButton.issues.road"),
+      icon: FaRoad,
+      message:
+        "السلام عليكم، أنا عندي مشكلة في الطريق. الطريق مقفول ومش قادر أوصل للعميل.",
+    },
+    {
+      id: "traffic",
+      label: t("supportButton.issues.traffic"),
+      icon: FaCarCrash,
+      message:
+        "السلام عليكم، أنا واقف في زحمة شديدة ومش هقدر أوصل الأوردر في الوقت المحدد.",
+    },
+    {
+      id: "vehicle",
+      label: t("supportButton.issues.vehicle"),
+      icon: FaTools,
+      message: "السلام عليكم،  عندي عطل ومحتاج مساعدة.",
+    },
+    {
+      id: "accident",
+      label: t("supportButton.issues.accident"),
+      icon: FaExclamationTriangle,
+      message: "السلام عليكم، حصلي حادثة في الطريق ومش قادر أكمل التوصيل.",
+    },
+    {
+      id: "unreachable",
+      label: t("supportButton.issues.unreachable"),
+      icon: FaPhoneSlash,
+      message: "السلام عليكم، العميل مش بيرد على التليفون ومش عارف أوصله.",
+    },
+    {
+      id: "other",
+      label: t("supportButton.issues.other"),
+      icon: FaQuestionCircle,
+      message: "السلام عليكم،عندي مشكله ومحتاج مساعدة في التوصيل.",
+    },
+  ];
 
   const handleIssueClick = (issue) => {
     // Add delivery person info to the message
@@ -199,7 +201,7 @@ const SupportButton = () => {
                     fontWeight="bold"
                     color={colorMode === "light" ? "gray.700" : "gray.200"}
                   >
-                    Report an Issue
+                    {t("supportButton.title")}
                   </Text>
                 </HStack>
                 <Text
@@ -207,7 +209,7 @@ const SupportButton = () => {
                   color={colorMode === "light" ? "gray.500" : "gray.400"}
                   mb={2}
                 >
-                  Select the issue you're facing
+                  {t("supportButton.subtitle")}
                 </Text>
               </Box>
 

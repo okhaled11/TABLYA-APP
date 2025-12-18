@@ -95,7 +95,7 @@ export default function Navbar() {
       // Use delivery data from RTK Query (real-time cached)
       setIsAvailable(!!deliveryData.availability);
     } else if (user?.role === "cooker" && user?.id) {
-      // Keep existing cooker logic with direct Supabase call
+      // Fetch initial cooker availability
       const fetchCookerAvailability = async () => {
         const { data, error } = await supabase
           .from("cookers")
@@ -112,6 +112,33 @@ export default function Navbar() {
         }
       };
       fetchCookerAvailability();
+
+      // Set up real-time subscription for cooker availability changes
+      const channel = supabase
+        .channel(`cooker-availability-${user.id}`)
+        .on(
+          "postgres_changes",
+          {
+            event: "UPDATE",
+            schema: "public",
+            table: "cookers",
+            filter: `user_id=eq.${user.id}`,
+          },
+          (payload) => {
+            console.log("🔄 Cooker availability updated:", payload.new);
+            if (payload.new?.is_available !== undefined) {
+              setIsAvailable(!!payload.new.is_available);
+            }
+          }
+        )
+        .subscribe((status) => {
+          console.log("📡 Cooker availability subscription status:", status);
+        });
+
+      // Cleanup subscription on unmount
+      return () => {
+        supabase.removeChannel(channel);
+      };
     }
   }, [user, deliveryData]);
 
@@ -273,12 +300,18 @@ export default function Navbar() {
         }).unwrap();
       } else if (user?.role === "cooker") {
         // Keep existing cooker logic with direct Supabase call
-        const { error } = await supabase
+        console.log("🔄 Updating cooker availability to:", newAvailability);
+        const { data, error } = await supabase
           .from("cookers")
           .update({ is_available: newAvailability })
-          .eq("user_id", user.id);
+          .eq("user_id", user.id)
+          .select();
 
-        if (error) throw error;
+        if (error) {
+          console.error("❌ Error updating availability:", error);
+          throw error;
+        }
+        console.log("✅ Availability updated successfully:", data);
       } else {
         throw new Error("Unsupported role");
       }
@@ -307,6 +340,7 @@ export default function Navbar() {
     const newLang = e.checked ? "ar" : "en";
 
     i18n.changeLanguage(newLang);
+    localStorage.setItem("i18nextLng", newLang);
     document.dir = newLang === "ar" ? "rtl" : "ltr";
   };
 
@@ -333,6 +367,28 @@ export default function Navbar() {
       setNotificationCount(0);
     }
     navigate("/cooker/orders");
+  };
+
+  // Handle logo click - navigate based on user role
+  const handleLogoClick = () => {
+    if (!user?.role) {
+      navigate("/home");
+      return;
+    }
+    
+    switch (user.role) {
+      case "customer":
+        navigate("/home");
+        break;
+      case "cooker":
+        navigate("/cooker/home");
+        break;
+      case "delivery":
+        navigate("/delivery/orders");
+        break;
+      default:
+        navigate("/home");
+    }
   };
 
   return (
@@ -368,12 +424,16 @@ export default function Navbar() {
               alt={t("navbar.logo_alt")}
               w={"150px"}
               display={{ base: "none", md: "block" }}
+              cursor="pointer"
+              onClick={handleLogoClick}
             />
             <Image
               src={Logo}
               alt={t("navbar.logo_alt")}
               w={{ base: "40px", sm: "60px" }}
               display={{ base: "block", md: "none" }}
+              cursor="pointer"
+              onClick={handleLogoClick}
             />
 
             <Flex alignItems="center">
@@ -478,11 +538,14 @@ export default function Navbar() {
                             ? "#FFE5E5"
                             : "#4A2626"
                         }
-                        borderRadius="8px"
+                        borderRadius="full"
                         fontSize={{ base: "10px", md: "sm" }}
                         px={{ base: 2, md: 3 }}
-                        py={{ base: 0.5, md: 1 }}
+                        py={{ base: 1, md: 1.5 }}
                         transition="all 0.3s ease"
+                        display="inline-flex"
+                        alignItems="center"
+                        minW="fit-content"
                       >
                         <Flex gap={2} alignItems="center">
                           <Status.Root
@@ -496,6 +559,7 @@ export default function Navbar() {
                                 ? "#DC2626"
                                 : "#EF4444"
                             }
+                            whiteSpace="nowrap"
                           >
                             <Status.Indicator
                               bg={isAvailable ? "green.400" : "red.400"}
@@ -506,14 +570,16 @@ export default function Navbar() {
                               }
                               filter="blur(0.5px)"
                             />
-                            {isAvailable ? "Available" : "Unavailable"}
+                            {isAvailable ? t("navbar.available") : t("navbar.unavailable")}
                           </Status.Root>
 
                           <Switch.Root
+                            dir="ltr"
                             checked={isAvailable}
                             onCheckedChange={handleAvailabilityChange}
                             colorPalette={isAvailable ? "green" : "red"}
                             size="sm"
+                            overflow="hidden"
                           >
                             <Switch.HiddenInput />
                             <Switch.Control>
@@ -551,12 +617,13 @@ export default function Navbar() {
                                   ? colors.light.bgSecond
                                   : colors.dark.bgFixed
                               }
+                              dir={i18n.dir()}
                             >
                               <Menu.Item value="Personal-Info" asChild>
                                 <Link to="/personal-info">
                                   <HStack spacing={3}>
                                     <Icon as={User} boxSize={4} />
-                                    <Text>Personal Info</Text>
+                                    <Text>{t("navbar.personalInfo")}</Text>
                                   </HStack>
                                 </Link>
                               </Menu.Item>
@@ -565,7 +632,7 @@ export default function Navbar() {
                                 <Link to="/personal-info/report">
                                   <HStack spacing={3}>
                                     <Icon as={Flag} boxSize={4} />
-                                    <Text>Report System</Text>
+                                    <Text>{t("navbar.reportSystem")}</Text>
                                   </HStack>
                                 </Link>
                               </Menu.Item>
@@ -578,14 +645,16 @@ export default function Navbar() {
                                     <Icon as={Moon} boxSize={4} />
                                     <Text>
                                       {colorMode === "light"
-                                        ? "Dark Mode"
-                                        : "Light Mode"}
+                                        ? t("navbar.darkMode")
+                                        : t("navbar.lightMode")}
                                     </Text>
                                     <Switch.Root
+                                      dir="ltr"
                                       checked={checked}
                                       onCheckedChange={handleChange}
                                       colorPalette={"green"}
                                       size="sm"
+                                      overflow="hidden"
                                     >
                                       <Switch.HiddenInput />
                                       <Switch.Control>
@@ -596,22 +665,24 @@ export default function Navbar() {
                                 </HStack>
                               </Menu.Item>
                               {/* Language Switch */}
-                              {/* <Menu.Item value="lang">
+                              <Menu.Item value="lang">
                                 <HStack justify="space-between" w="full">
                                   <HStack spacing={3}>
                                     <Icon as={Globe} boxSize={4} />
                                     <Text>
                                       {i18n.language === "en"
-                                        ? "Arabic"
-                                        : "English"}
+                                        ? t("navbarLanguage.ar")
+                                        : t("navbarLanguage.en")}
                                     </Text>
                                   </HStack>
                                   <HStack>
                                     <Switch.Root
+                                      dir="ltr"
                                       checked={checkedLang}
                                       onCheckedChange={handleLanguageChange}
                                       size="sm"
                                       colorPalette={"green"}
+                                      overflow="hidden"
                                     >
                                       <Switch.HiddenInput />
                                       <Switch.Control>
@@ -620,7 +691,7 @@ export default function Navbar() {
                                     </Switch.Root>
                                   </HStack>
                                 </HStack>
-                              </Menu.Item> */}
+                              </Menu.Item>
                               <Separator />
                               <Menu.Item
                                 value="logout"
@@ -628,8 +699,12 @@ export default function Navbar() {
                                 onClick={() => dialog.setOpen(true)}
                               >
                                 <HStack spacing={3}>
-                                  <Icon as={SignOut} boxSize={4} />
-                                  <Text>Logout</Text>
+                                  <Icon
+                                    as={SignOut}
+                                    boxSize={4}
+                                    transform={isArabic ? "scaleX(-1)" : "none"}
+                                  />
+                                  <Text>{t("navbar.logout")}</Text>
                                 </HStack>
                               </Menu.Item>
                             </Menu.Content>
@@ -644,7 +719,7 @@ export default function Navbar() {
                       display={{ base: "none", md: "flex" }}
                     >
                       <Text fontSize="12px" color="#FFF7F0B2">
-                        Hello
+                        {t("navbar.hello")}
                       </Text>
                       <Text fontSize="12px" color="#FFF7F0">
                         {user?.name || "UserName"}

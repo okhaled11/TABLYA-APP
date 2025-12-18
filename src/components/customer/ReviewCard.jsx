@@ -4,8 +4,10 @@ import { useColorMode } from "../../theme/color-mode";
 import colors from "../../theme/color";
 import { formatDate } from "../../utils";
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 
 const ReviewCard = ({ rating = 0, comment, updated_at, customers }) => {
+  const { t } = useTranslation();
   const { colorMode } = useColorMode();
   const [isExpanded, setIsExpanded] = useState(false);
   const MAX_LENGTH = 75; // Maximum characters before showing "Read More"
@@ -61,7 +63,7 @@ const ReviewCard = ({ rating = 0, comment, updated_at, customers }) => {
             h="auto"
             _hover={{ textDecoration: "underline" }}
           >
-            {isExpanded ? "Read Less" : "Read More"}
+            {isExpanded ? t("reviewCard.readLess") : t("reviewCard.readMore")}
           </Button>
         )}
       </Box>

@@ -7,11 +7,13 @@ import { useColorMode } from "../../theme/color-mode";
 import { useNavigate, useLocation } from "react-router-dom";
 import { MdRestaurantMenu } from "react-icons/md";
 import { FaRegStar } from "react-icons/fa";
+import { useTranslation } from "react-i18next";
 
 const CookerTabs = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { colorMode } = useColorMode();
+  const { t, i18n } = useTranslation();
   const getActiveTab = () => {
     const path = location.pathname;
     if (path === "/cooker/home") return "Home";
@@ -23,7 +25,7 @@ const CookerTabs = () => {
 
   return (
     <Tabs.Root value={getActiveTab()} position="sticky" top={{ base: 20, md: 20 }} zIndex="900" bg={colorMode === "light" ? colors.light.bgMain : colors.dark.bgMain}>
-      <Tabs.List >
+      <Tabs.List dir={i18n.dir()}>
         <Flex w="100%" justifyContent="center" gap={{ base: 6, md: 6 }}>
           <Tabs.Trigger
             colorPalette={"red"}
@@ -36,7 +38,7 @@ const CookerTabs = () => {
           >
             <Flex alignItems="center" gap={{ base: 1, md: 2 }} onClick={() => navigate("/cooker/home")}>
               <LuHouse size={20} />
-              <Box display={{ base: "none", sm: "inline" }}>Home</Box>
+              <Box display={{ base: "none", sm: "inline" }}>{t("cookerTabs.home")}</Box>
             </Flex>
           </Tabs.Trigger>
 
@@ -55,7 +57,7 @@ const CookerTabs = () => {
               onClick={() => navigate("/cooker/menu")}
             >
               <MdRestaurantMenu size={20} />
-              <Box display={{ base: "none", sm: "inline" }}>Menu</Box>
+              <Box display={{ base: "none", sm: "inline" }}>{t("cookerTabs.menu")}</Box>
             </Flex>
           </Tabs.Trigger>
           <Tabs.Trigger
@@ -73,7 +75,7 @@ const CookerTabs = () => {
               onClick={() => navigate("/cooker/orders")}
             >
               <RiFileList3Line size={20} />
-              <Box display={{ base: "none", sm: "inline" }}>Orders</Box>
+              <Box display={{ base: "none", sm: "inline" }}>{t("cookerTabs.orders")}</Box>
             </Flex>
           </Tabs.Trigger>
 
@@ -92,7 +94,7 @@ const CookerTabs = () => {
               onClick={() => navigate("/cooker/reviews")}
             >
               <FaRegStar size={20} />
-              <Box display={{ base: "none", sm: "inline" }}>Reviews</Box>
+              <Box display={{ base: "none", sm: "inline" }}>{t("cookerTabs.reviews")}</Box>
             </Flex>
           </Tabs.Trigger>
         </Flex>

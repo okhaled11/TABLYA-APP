@@ -16,11 +16,13 @@ import { useGetAddressesQuery, useSetPrimaryAddressMutation } from "../../app/fe
 import { MapPin } from "@phosphor-icons/react";
 import { useColorMode } from "../../theme/color-mode";
 import colors from "../../theme/color";
+import { useTranslation } from "react-i18next";
 
 export default function CartPage() {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const { colorMode } = useColorMode();
+  const { t } = useTranslation();
   const { cartItems, cookerId } = useSelector((state) => state.cart);
   const { data: user } = useGetUserDataQuery();
   const [createOrder] = useCreateOrderMutation();
@@ -77,8 +79,8 @@ export default function CartPage() {
     // Check if user has any addresses
     if (!addresses || addresses.length === 0) {
       toaster.create({
-        title: "Address required",
-        description: "Please add your delivery address before checkout.",
+        title: t("cart.addressRequired"),
+        description: t("customerRegister.addAddressError"),
         type: "warning",
         duration: 2500,
         isClosable: true,
@@ -90,8 +92,8 @@ export default function CartPage() {
     // Check if an address is selected
     if (!selectedAddress) {
       toaster.create({
-        title: "Select Address",
-        description: "Please select a delivery address.",
+        title: t("cart.selectAddress"),
+        description: t("cart.selectAddress"),
         type: "warning",
         duration: 2500,
         isClosable: true,
@@ -105,8 +107,8 @@ export default function CartPage() {
   const handleOpenAddressModal = () => {
     if (!addresses || addresses.length === 0) {
       toaster.create({
-        title: "No addresses",
-        description: "Please add an address first.",
+        title: t("cart.noAddresses"),
+        description: t("customerRegister.addAddressError"),
         type: "warning",
         duration: 2500,
         isClosable: true,
@@ -144,7 +146,7 @@ export default function CartPage() {
         console.log("Payment status updated successfully:", result);
 
         toaster.create({
-          title: "Payment successful",
+          title: t("cart.paymentSuccess"),
           description: `Order #${orderId} paid successfully via PayPal`,
           type: "success",
           duration: 3000,
@@ -195,7 +197,7 @@ export default function CartPage() {
         items: cartItems,
       }).unwrap();
       toaster.create({
-        title: "Order created",
+        title: t("cart.orderCreated"),
         description: `Order #${resp?.id || ""} created successfully`,
         type: "success",
         duration: 3000,

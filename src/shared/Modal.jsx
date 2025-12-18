@@ -1,4 +1,5 @@
 import { Box, Button, CloseButton, Dialog, Portal } from "@chakra-ui/react";
+import { useTranslation } from "react-i18next";
 import colors from "../theme/color";
 import { useColorMode } from "../theme/color-mode";
 const CustomModal = ({
@@ -13,6 +14,7 @@ const CustomModal = ({
   showFooter = true,
 }) => {
   const { colorMode } = useColorMode();
+  const { i18n } = useTranslation();
 
   return (
     <Dialog.RootProvider value={dialog} size={{ base: "sm", md: "lg" }}>
@@ -20,6 +22,7 @@ const CustomModal = ({
         <Dialog.Backdrop />
         <Dialog.Positioner>
           <Dialog.Content
+            dir={i18n.dir()}
             bg={
               colorMode == "light" ? colors.light.bgThird : colors.dark.bgThird
             }
@@ -62,7 +65,7 @@ const CustomModal = ({
                   colorPalette="red"
                   flex="1"
                   borderRadius="12px"
-                  ml={3}
+                  ms={3}
                   onClick={async () => {
                     try {
                       const ok = await onOkHandler();

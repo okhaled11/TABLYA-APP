@@ -37,9 +37,11 @@ export default function MenuCards() {
                 fontSize={{ base: "2xl", md: "50px" }}
                 color={colorMode === "light" ? "rgb(31, 6, 4)" : "white"}
             >
-                <Text as="span" color="rgb(255, 43, 43)">Menu</Text> That{' '}
-                <Text as="span">Always </Text>
-                Make You  <br /> Fall In  <Text as="span" color="rgb(255, 43, 43)">Love</Text>
+                <Text as="span" color="rgb(255, 43, 43)">{t("landing.menuTitle1")}</Text>{" "}
+                {t("landing.menuTitle2")} <br /> {t("landing.menuTitle3")}{" "}
+                <Text as="span" color="rgb(255, 43, 43)">
+                  {t("landing.menuTitle4")}
+                </Text>
             </Heading>
 
             <Container maxW="7xl" py={{ base: 10, md: 20 }}>
@@ -178,7 +180,7 @@ export default function MenuCards() {
                                                 navigate(`/home/cookers/${item.cooker_id}/meals/${item.id}`)
                                             }
                                         >
-                                            Order Now
+                                            {t("landing.orderNow")}
                                         </Box>
                                     </VStack>
                                 </Box>
@@ -350,7 +352,7 @@ export default function MenuCards() {
                                         onClick={() => navigate(`/home/cookers/${item.cooker_id}/meals/${item.id}`)}
 
                                     >
-                                        Order Now
+                                        {t("landing.orderNow")}
                                     </Box>
                                 </VStack>
                             </Box>

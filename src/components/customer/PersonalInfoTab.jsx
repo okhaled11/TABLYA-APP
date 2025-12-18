@@ -14,6 +14,7 @@ import {
 } from "@chakra-ui/react";
 import { User, Envelope, Phone, PencilSimple } from "@phosphor-icons/react";
 import { useState, useRef, useEffect } from "react";
+import { useTranslation } from "react-i18next";
 import { toaster } from "../ui/toaster";
 import {
   useGetUserProfileQuery,
@@ -34,6 +35,7 @@ const profileSchema = registerSchema.pick(["firstName", "lastName", "phone"]);
 
 export default function PersonalInfoTab({ user: authUser }) {
   const styles = useColorStyles();
+  const { t } = useTranslation();
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [email, setEmail] = useState("");
@@ -93,8 +95,8 @@ export default function PersonalInfoTab({ user: authUser }) {
     // Validate file type
     if (!file.type.startsWith("image/")) {
       toaster.create({
-        title: "Invalid File",
-        description: "Please select an image file",
+        title: t("personalInfo.invalidFile"),
+        description: t("personalInfo.fileInvalidDesc"),
         type: "error",
         duration: 3000,
       });
@@ -104,8 +106,8 @@ export default function PersonalInfoTab({ user: authUser }) {
     // Validate file size (max 5MB before conversion)
     if (file.size > 5 * 1024 * 1024) {
       toaster.create({
-        title: "File Too Large",
-        description: "Image size should be less than 5MB",
+        title: t("personalInfo.fileTooLarge"),
+        description: t("personalInfo.fileTooLargeDesc"),
         type: "error",
         duration: 3000,
       });
@@ -123,7 +125,7 @@ export default function PersonalInfoTab({ user: authUser }) {
       await uploadAvatar(webpFile).unwrap();
       toaster.create({
         title: "Success",
-        description: "Profile picture updated successfully",
+        description: t("personalInfo.successAvatar"),
         type: "success",
         duration: 3000,
       });
@@ -173,8 +175,8 @@ export default function PersonalInfoTab({ user: authUser }) {
       setFieldErrors(newErrors);
 
       toaster.create({
-        title: "Invalid data",
-        description: "Please fix the highlighted fields and try again.",
+        title: t("personalInfo.invalidData"),
+        description: t("personalInfo.invalidDataDesc"),
         type: "error",
         duration: 3000,
       });
@@ -205,7 +207,7 @@ export default function PersonalInfoTab({ user: authUser }) {
 
       toaster.create({
         title: "Success",
-        description: "Profile updated successfully",
+        description: t("personalInfo.successUpdate"),
         type: "success",
         duration: 3000,
       });
@@ -308,8 +310,8 @@ export default function PersonalInfoTab({ user: authUser }) {
           <Grid templateColumns={{ base: "1fr", md: "repeat(2, 1fr)" }} gap={6}>
             <GridItem>
               <FormField
-                label="First Name"
-                placeholder="Enter your first name"
+                label={t("personalInfo.labels.firstName")}
+                placeholder={t("personalInfo.placeholders.firstName")}
                 value={firstName}
                 onChange={(e) => {
                   setFirstName(e.target.value);
@@ -325,8 +327,8 @@ export default function PersonalInfoTab({ user: authUser }) {
 
             <GridItem>
               <FormField
-                label="Last Name"
-                placeholder="Enter your last name"
+                label={t("personalInfo.labels.lastName")}
+                placeholder={t("personalInfo.placeholders.lastName")}
                 value={lastName}
                 onChange={(e) => {
                   setLastName(e.target.value);
@@ -342,8 +344,8 @@ export default function PersonalInfoTab({ user: authUser }) {
 
             <GridItem>
               <FormField
-                label="Email"
-                placeholder="Enter your email"
+                label={t("personalInfo.labels.email")}
+                placeholder={t("personalInfo.placeholders.email")}
                 type="email"
                 disabled
                 value={email}
@@ -356,8 +358,8 @@ export default function PersonalInfoTab({ user: authUser }) {
 
             <GridItem>
               <FormField
-                label="Phone"
-                placeholder="Enter your phone number"
+                label={t("personalInfo.labels.phone")}
+                placeholder={t("personalInfo.placeholders.phone")}
                 type="tel"
                 value={phone}
                 onChange={(e) => {
@@ -382,8 +384,8 @@ export default function PersonalInfoTab({ user: authUser }) {
               >
                 <GridItem>
                   <FormField
-                    label="Kitchen Name"
-                    placeholder="Enter your kitchen name"
+                    label={t("personalInfo.labels.kitchenName")}
+                    placeholder={t("personalInfo.placeholders.kitchenName")}
                     value={kitchenName}
                     onChange={(e) => {
                       setKitchenName(e.target.value);
@@ -399,8 +401,8 @@ export default function PersonalInfoTab({ user: authUser }) {
 
                 <GridItem>
                   <FormField
-                    label="Specialty"
-                    placeholder="Enter your specialty"
+                    label={t("personalInfo.labels.specialty")}
+                    placeholder={t("personalInfo.placeholders.specialty")}
                     value={specialty}
                     onChange={(e) => {
                       setSpecialty(e.target.value);
@@ -422,10 +424,10 @@ export default function PersonalInfoTab({ user: authUser }) {
                   color={styles.textMain}
                   mb={2}
                 >
-                  Chef Description
+                  {t("personalInfo.labels.chefDesc")}
                 </Text>
                 <Textarea
-                  placeholder="Add your description"
+                  placeholder={t("personalInfo.placeholders.chefDesc")}
                   value={chefDescription}
                   onChange={(e) => {
                     setChefDescription(e.target.value);
@@ -453,7 +455,7 @@ export default function PersonalInfoTab({ user: authUser }) {
                   color={styles.textMain}
                   mb={2}
                 >
-                  Working Hours
+                  {t("personalInfo.labels.workingHours")}
                 </Text>
                 <Grid
                   templateColumns={{ base: "1fr", md: "repeat(2, 1fr)" }}
@@ -461,7 +463,7 @@ export default function PersonalInfoTab({ user: authUser }) {
                 >
                   <GridItem>
                     <FormField
-                      label="Start Time"
+                      label={t("personalInfo.labels.startTime")}
                       type="time"
                       value={startTime}
                       onChange={(e) => {
@@ -477,7 +479,7 @@ export default function PersonalInfoTab({ user: authUser }) {
                   </GridItem>
                   <GridItem>
                     <FormField
-                      label="End Time"
+                      label={t("personalInfo.labels.endTime")}
                       type="time"
                       value={endTime}
                       onChange={(e) => {
@@ -506,7 +508,7 @@ export default function PersonalInfoTab({ user: authUser }) {
               size="lg"
               onClick={handleSaveChanges}
               isLoading={isUpdating || isSavingCooker}
-              loadingText="Saving..."
+              loadingText={t("personalInfo.buttons.saving")}
               isDisabled={!isEditing}
               _hover={{ bg: styles.mainFixed70a }}
               _loading={{
@@ -514,7 +516,7 @@ export default function PersonalInfoTab({ user: authUser }) {
                 opacity: 0.7,
               }}
             >
-              Save Changes
+              {t("personalInfo.buttons.save")}
             </Button>
             <Button
               flex={1}
@@ -527,7 +529,7 @@ export default function PersonalInfoTab({ user: authUser }) {
               isDisabled={!isEditing || isUpdating || isSavingCooker}
               _hover={{ bg: styles.mainFixed10a }}
             >
-              Discard Changes
+              {t("personalInfo.buttons.discard")}
             </Button>
           </HStack>
         </VStack>

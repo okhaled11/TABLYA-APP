@@ -18,6 +18,7 @@ import {
   Avatar,
 } from "@chakra-ui/react";
 import { useState, useEffect, useMemo } from "react";
+import { useTranslation } from "react-i18next";
 import colors from "../../theme/color";
 import { useColorMode } from "../../theme/color-mode";
 import { toaster } from "../../components/ui/toaster";
@@ -39,6 +40,7 @@ const ORDERS_PER_PAGE = 10;
 
 const CookerOrders = () => {
   const { colorMode } = useColorMode();
+  const { t } = useTranslation();
   const [selectedStatus, setSelectedStatus] = useState("active");
   const [deleteId, setDeleteId] = useState([]);
   const [allOrder, setAllOrder] = useState([]);
@@ -147,8 +149,8 @@ const CookerOrders = () => {
 
     if (!canTransitionStatus(currentStatus, status)) {
       toaster.create({
-        title: "Attention",
-        description: "You can't go back to the previous step or skip a step.",
+        title: t("cookerOrders.toast.attention"),
+        description: t("cookerOrders.toast.cantSkip"),
         type: "warning",
         duration: 3000,
         isClosable: true,
@@ -192,13 +194,13 @@ const CookerOrders = () => {
 
   const getStatusBadge = (status) => {
     const statusColors = {
-      created: { bg: "#F3F4F6", color: "#374151", label: "New" },
-      confirmed: { bg: "#DBEAFE", color: "#1E40AF", label: "Confirmed" },
-      preparing: { bg: "#FEF3C7", color: "#B45309", label: "Preparing" },
-      ready_for_pickup: { bg: "#D1FAE5", color: "#065F46", label: "Ready" },
-      out_for_delivery: { bg: "#DBEAFE", color: "#1E40AF", label: "Out" },
-      delivered: { bg: "#D1FAE5", color: "#065F46", label: "Delivered" },
-      cancelled: { bg: "#FEE2E2", color: "#991B1B", label: "Cancelled" },
+      created: { bg: "#F3F4F6", color: "#374151", label: t("cookerOrders.statusMeta.created") },
+      confirmed: { bg: "#DBEAFE", color: "#1E40AF", label: t("cookerOrders.statusMeta.confirmed") },
+      preparing: { bg: "#FEF3C7", color: "#B45309", label: t("cookerOrders.statusMeta.preparing") },
+      ready_for_pickup: { bg: "#D1FAE5", color: "#065F46", label: t("cookerOrders.statusMeta.ready_for_pickup") },
+      out_for_delivery: { bg: "#DBEAFE", color: "#1E40AF", label: t("cookerOrders.statusMeta.out_for_delivery") },
+      delivered: { bg: "#D1FAE5", color: "#065F46", label: t("cookerOrders.statusMeta.delivered") },
+      cancelled: { bg: "#FEE2E2", color: "#991B1B", label: t("cookerOrders.statusMeta.cancelled") },
     };
 
     const normalizedStatus = (status || "created").toLowerCase();
@@ -220,12 +222,12 @@ const CookerOrders = () => {
   };
 
   const statusTabs = [
-    { label: "Active", value: "active" },
-    { label: "Confirmed", value: "confirmed" },
-    { label: "Preparing", value: "preparing" },
-    { label: "Ready for Pickup", value: "ready_for_pickup" },
-    { label: "Out for Delivery", value: "out_for_delivery" },
-    { label: "Cancelled", value: "cancelled" },
+    { label: t("cookerOrders.tabs.active"), value: "active" },
+    { label: t("cookerOrders.tabs.confirmed"), value: "confirmed" },
+    { label: t("cookerOrders.tabs.preparing"), value: "preparing" },
+    { label: t("cookerOrders.tabs.readyPickup"), value: "ready_for_pickup" },
+    { label: t("cookerOrders.tabs.outDelivery"), value: "out_for_delivery" },
+    { label: t("cookerOrders.tabs.cancelled"), value: "cancelled" },
   ];
 
   return (
@@ -241,7 +243,7 @@ const CookerOrders = () => {
           w="100%"
         >
           <Heading fontSize={{ base: "25px", lg: "45px" }} fontWeight={700}>
-            Orders
+            {t("cookerOrders.title")}
           </Heading>
 
           {/* Status Filter */}
@@ -294,9 +296,12 @@ const CookerOrders = () => {
             fontSize="sm"
             mb={4}
           >
-            Showing {(currentPage - 1) * ORDERS_PER_PAGE + 1} -{" "}
-            {Math.min(currentPage * ORDERS_PER_PAGE, allOrder.length)} of{" "}
-            {allOrder.length} orders
+
+            {t("cookerOrders.showing", {
+              start: (currentPage - 1) * ORDERS_PER_PAGE + 1,
+              end: Math.min(currentPage * ORDERS_PER_PAGE, allOrder.length),
+              total: allOrder.length
+            })}
           </Text>
         )}
 
@@ -310,7 +315,8 @@ const CookerOrders = () => {
         {/* Error */}
         {error && (
           <Text color="red.500" textAlign="center" my={6}>
-            Error: {error.message || "Failed to load orders"}
+
+            {error?.message || t("cookerOrders.error")}
           </Text>
         )}
 
@@ -334,7 +340,8 @@ const CookerOrders = () => {
               textAlign="center"
               my={6}
             >
-              No orders with the selected status
+
+              {t("cookerOrders.noOrdersStatus")}
             </Text>
           </Flex>
         )}
@@ -360,23 +367,23 @@ const CookerOrders = () => {
                     }
                   >
                     <Table.ColumnHeader minW="120px" fontWeight="bold">
-                      Order ID
+                      {t("cookerOrders.table.id")}
                     </Table.ColumnHeader>
                     <Table.ColumnHeader minW="150px" fontWeight="bold">
-                      Date & Time
+                      {t("cookerOrders.table.dateTime")}
                     </Table.ColumnHeader>
                     <Table.ColumnHeader minW="180px" fontWeight="bold">
-                      Customer
+                      {t("cookerOrders.table.customer")}
                     </Table.ColumnHeader>
                     <Table.ColumnHeader
                       minW="100px"
                       fontWeight="bold"
                       textAlign="right"
                     >
-                      Total
+                      {t("cookerOrders.table.total")}
                     </Table.ColumnHeader>
                     <Table.ColumnHeader minW="100px" fontWeight="bold">
-                      Status
+                      {t("cookerOrders.table.status")}
                     </Table.ColumnHeader>
                   </Table.Row>
                 </Table.Header>
@@ -433,7 +440,8 @@ const CookerOrders = () => {
                         <Table.Cell>
                           <VStack align="start" gap={0.5}>
                             <Text fontSize="sm" noOfLines={1}>
-                              {order.customer?.name || "No name"}
+
+                              {order.customer?.name || t("cookerOrders.drawer.noCustomerInfo")}
                             </Text>
                           </VStack>
                         </Table.Cell>
@@ -444,7 +452,7 @@ const CookerOrders = () => {
                             fontWeight="bold"
                             color={colors.light.mainFixed}
                           >
-                            {order.total?.toFixed(2) || "0.00"} LE
+                            {order.total?.toFixed(2) || "0.00"} {t("common.currency")}
                           </Text>
                         </Table.Cell>
 
@@ -531,7 +539,8 @@ const CookerOrders = () => {
             <Drawer.Header borderBottomWidth="1px">
               <Flex justify="space-between" w={"full"} align="center">
                 <Heading size="md">
-                  Order #{selectedOrder?.id.slice(0, 8).toUpperCase()}
+
+                  {t("cookerOrders.drawer.orderId", { id: selectedOrder?.id.slice(0, 8).toUpperCase() })}
                 </Heading>
                 <IconButton
                   variant="ghost"
@@ -598,7 +607,7 @@ const CookerOrders = () => {
                               color={colors.light.mainFixed}
                               mt={4}
                             >
-                              {selectedOrder.total?.toFixed(2) || "0.00"} LE
+                              {selectedOrder.total?.toFixed(2) || "0.00"} {t("common.currency")}
                             </Text>
                           </Box>
                           {getStatusBadge(selectedOrder.status)}
@@ -621,7 +630,7 @@ const CookerOrders = () => {
                             textTransform="uppercase"
                             letterSpacing="wider"
                           >
-                            Order Items
+                            {t("cookerOrders.drawer.items")}
                           </Text>
                           <VStack align="stretch" gap={3}>
                             {selectedOrder.order_items &&
@@ -655,7 +664,8 @@ const CookerOrders = () => {
                               ))
                             ) : (
                               <Text fontSize="sm" color={colors.light.textSub}>
-                                No items
+
+                                {t("cookerOrders.drawer.noItems")}
                               </Text>
                             )}
                           </VStack>
@@ -668,7 +678,8 @@ const CookerOrders = () => {
                               rounded="lg"
                             >
                               <Text fontSize="xs" fontWeight="bold" mb={1}>
-                                Special Instructions
+
+                                {t("cookerOrders.drawer.specialInstructions")}
                               </Text>
                               <Text fontSize="sm" color={colors.light.textSub}>
                                 {selectedOrder.notes}
@@ -687,7 +698,7 @@ const CookerOrders = () => {
                             textTransform="uppercase"
                             letterSpacing="wider"
                           >
-                            Customer Information
+                            {t("cookerOrders.drawer.customerInfo")}
                           </Text>
                           {selectedOrder.customer ? (
                             <VStack align="stretch" gap={3}>
@@ -711,10 +722,10 @@ const CookerOrders = () => {
                                     fontSize="xs"
                                     color={colors.light.textSub}
                                   >
-                                    Name
+                                    {t("cookerOrders.drawer.name")}
                                   </Text>
                                   <Text fontSize="md" fontWeight="medium">
-                                    {selectedOrder.customer.name || "No name"}
+                                    {selectedOrder.customer.name || t("cookerOrders.drawer.noCustomerInfo")}
                                   </Text>
                                 </Box>
                               </HStack>
@@ -740,10 +751,11 @@ const CookerOrders = () => {
                                     fontSize="xs"
                                     color={colors.light.textSub}
                                   >
-                                    Delivery Address
+
+                                    {t("cookerOrders.drawer.deliveryAddress")}
                                   </Text>
                                   <Text fontSize="sm">
-                                    {selectedOrder.address || "No address"}
+                                    {selectedOrder.address || t("cookerOrders.drawer.noAddress")}
                                   </Text>
                                 </Box>
                               </HStack>
@@ -768,18 +780,19 @@ const CookerOrders = () => {
                                     fontSize="xs"
                                     color={colors.light.textSub}
                                   >
-                                    Payment Method
+
+                                    {t("cookerOrders.drawer.paymentMethod")}
                                   </Text>
                                   <Text fontSize="sm" fontWeight="medium">
                                     {selectedOrder.payment_method ||
-                                      "Not specified"}
+                                      t("cookerOrders.drawer.notSpecified")}
                                   </Text>
                                 </Box>
                               </HStack>
                             </VStack>
                           ) : (
                             <Text fontSize="sm" color={colors.light.textSub}>
-                              No customer information
+                              {t("cookerOrders.drawer.noCustomerInfo")}
                             </Text>
                           )}
                         </Box>
@@ -796,7 +809,7 @@ const CookerOrders = () => {
                                 textTransform="uppercase"
                                 letterSpacing="wider"
                               >
-                                Delivery Information
+                                {t("cookerOrders.drawer.deliveryInfo")}
                               </Text>
                               <VStack align="stretch" gap={3}>
                                 <HStack gap={3}>
@@ -824,11 +837,11 @@ const CookerOrders = () => {
                                       fontSize="xs"
                                       color={colors.light.textSub}
                                     >
-                                      Delivery Person
+                                      {t("cookerOrders.drawer.deliveryPerson")}
                                     </Text>
                                     <Text fontSize="md" fontWeight="medium">
                                       {selectedOrder.delivery?.name ||
-                                        "Not assigned"}
+                                        t("cookerOrders.drawer.notAssigned")}
                                     </Text>
                                   </Box>
                                 </HStack>
@@ -854,7 +867,7 @@ const CookerOrders = () => {
                                         fontSize="xs"
                                         color={colors.light.textSub}
                                       >
-                                        Phone Number
+                                        {t("cookerOrders.drawer.phoneNumber")}
                                       </Text>
                                       <Text
                                         fontSize="sm"
@@ -914,12 +927,12 @@ const CookerOrders = () => {
                                 fontWeight="bold"
                               >
                                 {isCancelled
-                                  ? "Order Cancelled"
+                                  ? t("cookerOrders.drawer.status.cancelled")
                                   : isReadyForPickup
-                                  ? "Ready - Waiting for Delivery"
+                                  ? t("cookerOrders.drawer.status.waitingDelivery")
                                   : isOutForDelivery
-                                  ? "Out for Delivery"
-                                  : "Order Delivered"}
+                                  ? t("cookerOrders.drawer.status.outForDelivery")
+                                  : t("cookerOrders.drawer.status.delivered")}
                               </Badge>
                             </Flex>
                           ) : (
@@ -936,7 +949,8 @@ const CookerOrders = () => {
                                 textTransform="uppercase"
                                 letterSpacing="wider"
                               >
-                                Update Order Status
+
+                                {t("cookerOrders.drawer.updateStatus")}
                               </Text>
 
                               <Button
@@ -960,7 +974,8 @@ const CookerOrders = () => {
                                 }}
                                 leftIcon={<MdOutlineDoneOutline size={22} />}
                               >
-                                Confirm Order
+
+                                {t("cookerOrders.drawer.confirmOrder")}
                               </Button>
 
                               {!canClickConfirm && (
@@ -996,7 +1011,8 @@ const CookerOrders = () => {
                                   }}
                                   leftIcon={<PiCookingPot size={22} />}
                                 >
-                                  Mark as Preparing
+
+                                  {t("cookerOrders.drawer.markPreparing")}
                                 </Button>
                               )}
 
@@ -1041,7 +1057,8 @@ const CookerOrders = () => {
                                     <MdOutlineDeliveryDining size={22} />
                                   }
                                 >
-                                  Ready for Pickup
+
+                                  {t("cookerOrders.drawer.readyPickup")}
                                 </Button>
                               )}
 
@@ -1059,7 +1076,8 @@ const CookerOrders = () => {
                                   isDisabled={isUpdating}
                                   leftIcon={<MdOutlineCancel size={22} />}
                                 >
-                                  Cancel Order
+
+                                  {t("cookerOrders.drawer.cancelOrder")}
                                 </Button>
                               )}
                             </VStack>
@@ -1076,12 +1094,10 @@ const CookerOrders = () => {
 
       <CustomAlertDialog
         dialog={dialog}
-        title={"Are you sure you want to cancel this order?"}
-        description={
-          "This action cannot be undone. The order will be permanently cancelled."
-        }
-        cancelTxt={"No, go back"}
-        okTxt={"Yes, cancel it"}
+        title={t("cookerOrders.cancelAlert.title")}
+        description={t("cookerOrders.cancelAlert.desc")}
+        cancelTxt={t("cookerOrders.cancelAlert.cancel")}
+        okTxt={t("cookerOrders.cancelAlert.confirm")}
         onOkHandler={() => handleCancelOrder(deleteId)}
       />
     </>

@@ -32,11 +32,13 @@ import { IoMdClose } from "react-icons/io";
 import { useNavigate } from "react-router-dom";
 import { toaster } from "../ui/toaster";
 import { supabase } from "../../services/supabaseClient";
+import { useTranslation } from "react-i18next";
 
 const ORDERS_PER_PAGE = 3;
 
 const DeliveryOrders = () => {
   const { colorMode } = useColorMode();
+  const { t, i18n } = useTranslation();
   const { data: orders, isLoading } = useGetOrdersForDeliveryCityQuery();
   const [updateStatus, { isLoading: isUpdating }] =
     useUpdateOrderStatusMutation();
@@ -177,7 +179,7 @@ const DeliveryOrders = () => {
               : testColor.dark.textMain
           }
         >
-          Orders
+          {t("delivery.orders.title")}
         </Heading>
 
         <Tabs.Root
@@ -215,7 +217,7 @@ const DeliveryOrders = () => {
                 color: colors.light.mainFixed,
               }}
             >
-              Active
+              {t("delivery.tabs.active")}
             </Tabs.Trigger>
             <Tabs.Trigger
               value="ready_for_pickup"
@@ -231,7 +233,7 @@ const DeliveryOrders = () => {
                 color: colors.light.mainFixed,
               }}
             >
-              New
+              {t("delivery.tabs.new")}
             </Tabs.Trigger>
             <Tabs.Trigger
               value="delivered"
@@ -247,7 +249,7 @@ const DeliveryOrders = () => {
                 color: colors.light.mainFixed,
               }}
             >
-              Completed
+              {t("delivery.tabs.completed")}
             </Tabs.Trigger>
           </Tabs.List>
         </Tabs.Root>
@@ -274,9 +276,11 @@ const DeliveryOrders = () => {
               fontSize="sm"
               mb={4}
             >
-              Showing {(currentPage - 1) * ORDERS_PER_PAGE + 1} -{" "}
-              {Math.min(currentPage * ORDERS_PER_PAGE, filteredOrders.length)}{" "}
-              of {filteredOrders.length} orders
+              {t("delivery.orders.showingOrders", {
+                start: (currentPage - 1) * ORDERS_PER_PAGE + 1,
+                end: Math.min(currentPage * ORDERS_PER_PAGE, filteredOrders.length),
+                total: filteredOrders.length
+              })}
             </Text>
           )}
 
@@ -319,7 +323,7 @@ const DeliveryOrders = () => {
                       : colors.dark.textSub
                   }
                 >
-                  No orders available in your city
+                  {t("delivery.orders.noOrdersTitle")}
                 </Text>
                 <Text
                   fontSize={{ base: "12px", md: "14px" }}
@@ -330,7 +334,7 @@ const DeliveryOrders = () => {
                   }
                   opacity={0.8}
                 >
-                  New orders will appear here automatically.
+                  {t("delivery.orders.noOrdersDesc")}
                 </Text>
               </Flex>
             </Box>
@@ -374,7 +378,7 @@ const DeliveryOrders = () => {
                       fontSize={{ base: "13px", md: "14px" }}
                       fontWeight=""
                     >
-                      {formattedDate} | {formattedTime} | # ORD-
+                      {formattedDate} | {formattedTime} | # {t("delivery.orders.orderId")}-
                       {order.id.slice(0, 8).toUpperCase()}
                     </Text>
                     <Text
@@ -382,7 +386,7 @@ const DeliveryOrders = () => {
                       fontSize={{ base: "20px", md: "24px" }}
                       fontWeight="bold"
                     >
-                      {order.total?.toFixed(2) || "0.00"} LE
+                      {order.total?.toFixed(2) || "0.00"} {t("common.currency")}
                     </Text>
                   </Flex>
 
@@ -410,11 +414,11 @@ const DeliveryOrders = () => {
                             ? colors.light.textMain
                             : colors.dark.textMain
                         }
-                        textAlign={"left"}
+                        textAlign={"start"}
                       >
-                        Order Items
+                        {t("delivery.orders.orderItems")}
                       </Heading>
-                      <Box maxH="120px" overflowY="auto " textAlign={"left"}>
+                      <Box maxH="120px" overflowY="auto " textAlign={"start"}>
                         {order.order_items && order.order_items.length > 0 ? (
                           order.order_items.map((item, index) => (
                             <Text
@@ -439,7 +443,7 @@ const DeliveryOrders = () => {
                             }
                             fontSize="14px"
                           >
-                            No items
+                            {t("delivery.orders.noItems")}
                           </Text>
                         )}
                       </Box>
@@ -464,9 +468,9 @@ const DeliveryOrders = () => {
                             ? colors.light.textMain
                             : colors.dark.textMain
                         }
-                        textAlign={"left"}
+                        textAlign={"start"}
                       >
-                        Customer Details
+                        {t("delivery.orders.customerDetails")}
                       </Heading>
                       {order.customer ? (
                         <Box>
@@ -521,7 +525,7 @@ const DeliveryOrders = () => {
                               noOfLines={2}
                               fontWeight={"light"}
                             >
-                              {order.address || "No address"}
+                              {order.address || t("delivery.orders.noAddress")}
                             </Text>
                           </Flex>
                           <Flex
@@ -567,9 +571,9 @@ const DeliveryOrders = () => {
                                   ? colors.light.textMain
                                   : colors.dark.textMain
                               }
-                              textAlign={"left"}
+                              textAlign={"start"}
                             >
-                              Chef Details
+                              {t("delivery.orders.chefDetails")}
                             </Text>
                             <Flex
                               mb={2}
@@ -641,9 +645,9 @@ const DeliveryOrders = () => {
                                   ? colors.light.textMain
                                   : colors.dark.textMain
                               }
-                              textAlign={"left"}
+                              textAlign={"start"}
                             >
-                              Payment Method
+                              {t("delivery.orders.paymentMethod")}
                             </Text>
                             <Flex alignItems="center" gap={1.5}>
                               <BsFillCreditCardFill
@@ -677,7 +681,7 @@ const DeliveryOrders = () => {
                           }
                           fontSize="14px"
                         >
-                          No customer information
+                          {t("delivery.orders.noCustomerInfo")}
                         </Text>
                       )}
                     </Box>
@@ -760,7 +764,7 @@ const DeliveryOrders = () => {
                         <RiFileList3Fill size={16} />
 
                         <Box as="span" ml={1}>
-                          Receive Order
+                          {t("delivery.orders.receiveOrder")}
                         </Box>
                       </Button>
 
@@ -799,7 +803,7 @@ const DeliveryOrders = () => {
                       >
                         <FaLocationDot size={16} />
                         <Box as="span" ml={1}>
-                          Open In Map
+                          {t("delivery.orders.openMap")}
                         </Box>
                       </Button>
 
@@ -854,7 +858,7 @@ const DeliveryOrders = () => {
                         <IoCheckmarkDoneSharp size={16} />
 
                         <Box as="span" ml={1}>
-                          Mark Complete
+                          {t("delivery.orders.markComplete")}
                         </Box>
                       </Button>
 
@@ -895,7 +899,7 @@ const DeliveryOrders = () => {
                       >
                         <IoMdClose />
                         <Box as="span" ml={1}>
-                          Unable to Deliver
+                          {t("delivery.orders.unableToDeliver")}
                         </Box>
                       </Button>
                       <Box
@@ -913,7 +917,8 @@ const DeliveryOrders = () => {
                         ml="auto"
                         alignSelf="flex-end"
                       >
-                        Completed
+
+                        {t("delivery.orders.completedLabel")}
                       </Box>
                     </Flex>
                   </Flex>
@@ -1029,12 +1034,10 @@ const DeliveryOrders = () => {
 
       <CustomAlertDialog
         dialog={dialog}
-        title={"Are you sure you don't want this order?"}
-        description={
-          "This order will be removed from your view. It will not be deleted from the system."
-        }
-        cancelTxt={"No, go back"}
-        okTxt={"Yes, remove it"}
+        title={t("delivery.orders.confirmRemoveTitle")}
+        description={t("delivery.orders.confirmRemoveDesc")}
+        cancelTxt={t("delivery.orders.confirmRemoveNo")}
+        okTxt={t("delivery.orders.confirmRemoveYes")}
         onOkHandler={() => {
           if (deleteId) {
             handleRemoveOrder(deleteId);

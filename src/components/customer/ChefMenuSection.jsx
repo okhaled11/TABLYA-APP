@@ -1,6 +1,7 @@
 import { Box, Flex, Text, Icon } from "@chakra-ui/react";
 import { Select, Portal, createListCollection } from "@chakra-ui/react";
 import MenuItemCard from "./MenuItemCard";
+import { useTranslation } from "react-i18next";
 import { FiFilter, FiInbox } from "react-icons/fi";
 import colors from "../../theme/color";
 import { useColorMode } from "../../theme/color-mode";
@@ -10,8 +11,9 @@ import MenuItemCardSkeleton from "../ui/MenuItemCardSkeleton";
 import { useState } from "react";
 import ScrollAreaComponent from "../ui/ScrollAreaComponent";
 
-const ChefMenuSection = ({ isAvailable }) => {
+const ChefMenuSection = ({ isAvailable, isBusy }) => {
   const { colorMode } = useColorMode();
+  const { t, i18n } = useTranslation();
   const { id } = useParams();
   const { data: menuItems, isLoading: menuLoading } =
     useGetMenuItemsByCookerIdQuery(id);
@@ -30,10 +32,10 @@ const ChefMenuSection = ({ isAvailable }) => {
 
   const frameworks = createListCollection({
     items: [
-      { label: "All", value: "all" },
-      { label: "main dishes", value: "main dishes" },
-      { label: "Drinks", value: "drinks" },
-      { label: "Desserts", value: "desserts" },
+      { label: t("chefMenu.categories.all"), value: "all" },
+      { label: t("chefMenu.categories.mainDishes"), value: "main dishes" },
+      { label: t("chefMenu.categories.drinks"), value: "drinks" },
+      { label: t("chefMenu.categories.desserts"), value: "desserts" },
     ],
   });
 
@@ -65,7 +67,7 @@ const ChefMenuSection = ({ isAvailable }) => {
             colorMode == "light" ? colors.light.textMain : colors.dark.textMain
           }
         >
-          Avilable Menu
+          {t("chefMenu.availableMenu")}
         </Text>
         <Box>
           <Select.Root
@@ -97,9 +99,9 @@ const ChefMenuSection = ({ isAvailable }) => {
 
                 {/* Selected Text */}
                 <Select.ValueText
-                  placeholder="All Categories"
+                  placeholder={t("chefMenu.allCategories")}
                   flex="1"
-                  textAlign="left"
+                  textAlign="start"
                 />
 
                 <Select.Indicator />
@@ -150,7 +152,7 @@ const ChefMenuSection = ({ isAvailable }) => {
           ))
         ) : filteredMenuItems && filteredMenuItems.length > 0 ? (
           filteredMenuItems.map((item) => (
-            <MenuItemCard key={item.id} item={item} isAvailable={isAvailable} />
+            <MenuItemCard key={item.id} item={item} isAvailable={isAvailable} isBusy={isBusy} />
           ))
         ) : (
           <Flex mt={8} direction="column" align="center" justify="center" py={6} gap={2}>
@@ -167,7 +169,7 @@ const ChefMenuSection = ({ isAvailable }) => {
                 colorMode == "light" ? colors.light.textSub : colors.dark.textSub
               }
             >
-              No available items
+              {t("chefMenu.noItems")}
             </Text>
           </Flex>
         )}

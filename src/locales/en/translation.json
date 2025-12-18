@@ -7,14 +7,121 @@
     "logout": "Logout",
     "sign_in": "Sign In",
     "sign_up": "Sign Up",
-    "logout_confirm_title": "Are You Sure?",
-    "logout_confirm_description": "You will be logged out from the application!",
+    "logout_confirm_title": "Are you sure?",
+    "logout_confirm_description": "You will be logged out of the application!",
     "cancel": "Cancel",
-    "ok": "Ok",
+    "ok": "OK",
     "home": "Home",
     "features": "Features",
     "reviews": "Reviews",
-    "logoAlt": "Tablya Logo"
+    "menu": "Menu",
+    "logoAlt": "Tablya Logo",
+    "personalInfo": "Personal Information",
+    "reportSystem": "Report Issue",
+    "firstNamePlaceholder": "Enter your first name",
+    "lastNamePlaceholder": "Enter your last name",
+    "emailPlaceholder": "Enter your email",
+    "phonePlaceholder": "Enter your phone number",
+    "uploadId": "Upload your government ID",
+    "chooseFile": "Choose File",
+    "continue": "Continue",
+    "alreadyHaveAccount": "Already have an account?",
+    "login": "Login",
+    "successTitle": "👨‍🍳 Personal Info Saved!",
+    "successDescription": "Your data was saved successfully. Continue to the next step.",
+    "addressRequiredTitle": "Address Required",
+    "addressRequiredDesc": "Please add your address before continuing",
+    "idFrontLabel": "National ID (Front Side)",
+    "idBackLabel": "National ID (Back Side)",
+    "idSelfieLabel": "Selfie with ID",
+    "addAddress": "Add Address *",
+    "addressAdded": "✓ Address Added",
+    "hello": "Hello",
+    "darkMode": "Dark Mode",
+    "lightMode": "Light Mode",
+    "available": "Available",
+    "unavailable": "Unavailable"
+  },
+  "orders": {
+    "myOrders": "My Orders",
+    "activeOrders": "Active Orders",
+    "orderHistory": "Order History",
+    "orderId": "Order ID",
+    "date": "Date",
+    "status": "Status",
+    "total": "Total",
+    "items": "Items",
+    "trackOrder": "Track Order",
+    "viewDetails": "View Details",
+    "writeReview": "Write Review",
+    "noOrders": "No Orders",
+    "statusPending": "Pending",
+    "statusPreparing": "Preparing",
+    "statusOutForDelivery": "Out for Delivery",
+    "statusDelivered": "Delivered",
+    "statusCancelled": "Cancelled",
+    "activeOrderNow": "Active Orders Now",
+    "price": "Price",
+    "orderDetails": "Order Details",
+    "waitForConfirmation": "Wait for the chef to confirm your order!",
+    "cancelOrder": "Cancel Order",
+    "cancelling": "Cancelling...",
+    "noItems": "No items for this order",
+    "orderTracking": "Order Tracking",
+    "statuses": {
+      "created": "Created",
+      "confirmed": "Confirmed",
+      "preparing": "Preparing",
+      "ready_for_pickup": "Ready for Pickup",
+      "out_for_delivery": "Out for Delivery",
+      "delivered": "Delivered",
+      "cancelled": "Cancelled"
+    }
+  },
+  "chefMenu": {
+    "availableMenu": "Available Menu",
+    "allCategories": "All Categories",
+    "noItems": "No available items",
+    "categories": {
+      "all": "All",
+      "mainDishes": "Main Dishes",
+      "drinks": "Drinks",
+      "desserts": "Desserts"
+    }
+  },
+  "delivery": {
+    "tabs": {
+      "orders": "Orders",
+      "statistics": "Statistics",
+      "active": "Active",
+      "new": "New",
+      "completed": "Completed"
+    },
+    "orders": {
+      "title": "Orders",
+      "showingOrders": "Showing {{start}} - {{end}} of {{total}} orders",
+      "noOrdersTitle": "No orders available in your city",
+      "noOrdersDesc": "New orders will appear here automatically.",
+      "orderId": "Order ID",
+      "orderItems": "Order Items",
+      "noItems": "No items",
+      "customerDetails": "Customer Details",
+      "chefDetails": "Chef Details",
+      "paymentMethod": "Payment Method",
+      "receiveOrder": "Receive Order",
+      "openMap": "Open In Map",
+      "markComplete": "Mark Complete",
+      "unableToDeliver": "Unable to Deliver",
+      "completedLabel": "Completed",
+      "confirmRemoveTitle": "Are you sure you don't want this order?",
+      "confirmRemoveDesc": "This order will be removed from your view. It will not be deleted from the system.",
+      "confirmRemoveYes": "Yes, remove it",
+      "confirmRemoveNo": "No, go back"
+    }
+  },
+  "customerLayout": {
+    "address": "Address",
+    "security": "Security"
   },
   "personalRegisterChef": {
     "firstName": "First Name",
@@ -32,7 +139,14 @@
     "alreadyHaveAccount": "Already have an account?",
     "login": "Login",
     "successTitle": "👨‍🍳 Personal Info Saved!",
-    "successDescription": "Your data was saved successfully. Continue to the next step."
+    "successDescription": "Your data was saved successfully. Continue to the next step.",
+    "addressRequiredTitle": "Address Required",
+    "addressRequiredDesc": "Please add your address before continuing",
+    "idFrontLabel": "National ID (Front Side)",
+    "idBackLabel": "National ID (Back Side)",
+    "idSelfieLabel": "Selfie with National ID",
+    "addAddress": "Add Address *",
+    "addressAdded": "✓ Address Added"
   },
   "kitchenRegisterChef": {
     "kitchenName": "Kitchen Name",
@@ -90,6 +204,16 @@
     "login": "Login",
     "successTitle": "Registration Successful",
     "successDescription": "Your account has been created successfully! Please login to continue.",
+    "addAddress": "Add Address *",
+    "addressAdded": "✓ Address Added",
+    "addAddressError": "Please add your address before registering",
+    "checkEmailTitle": "Check Your Email",
+    "checkEmailDescription": "We've sent you a confirmation email. Please click the link in the email to complete your registration.",
+    "backToLogin": "Back to Login",
+    "resendEmail": "Resend Email",
+    "resendSuccess": "Email Sent!",
+    "resendSuccessDesc": "We've sent you a new confirmation email. Please check your inbox.",
+    "resendError": "Failed to Send Email",
     "errorTitle": "Register Failed",
     "errorDescription": "Something went wrong."
   },
@@ -97,7 +221,12 @@
     "heroTitle1": "Come Eat,",
     "heroTitle2": "Feel Home",
     "getStart": "Get Start",
-    "tablyaAlt": "Tablya Logo"
+    "tablyaAlt": "Tablya Logo",
+    "menuTitle1": "Menu",
+    "menuTitle2": "That Always",
+    "menuTitle3": "Make You Fall In",
+    "menuTitle4": "Love",
+    "orderNow": "Order Now"
   },
   "validation": {
     "emailRequired": "Email is required",
@@ -126,7 +255,40 @@
     "endTimeRequired": "End time is required",
     "endTimeInvalid": "Invalid time format (HH:MM)",
     "endTimeAfter": "End time must be after start time",
-    "idSelfieRequired": "Upload selfie with your ID card"
+    "passwordWeakMin": "Password must be at least 8 characters and include uppercase, lowercase, number, and special character.",
+    "passwordComplex": "Password must contain at least one uppercase letter, one lowercase letter, one number, and one special character.",
+    "idFrontRequired": "Upload National ID (Front Side)",
+    "idBackRequired": "Upload National ID (Back Side)",
+    "specialtyRequired": "Specialty is required",
+    "descriptionMax": "Description should not exceed 300 characters",
+    "mealNameRequired": "Meal name is required",
+    "mealNameMin": "Meal name should be at least 3 characters",
+    "mealNameMax": "Meal name should not exceed 50 characters",
+    "priceRequired": "Meal price is required",
+    "pricePositive": "Price must be a positive number",
+    "priceMin": "Price must be at least 1 LE",
+    "priceMax": "Price should not exceed 3,000 LE",
+    "mealDescRequired": "Meal description is required",
+    "mealDescMin": "Description should be at least 10 characters",
+    "mealDescMax": "Description should not exceed 500 characters",
+    "mealImageRequired": "Meal image is required",
+    "fileTooLarge": "File size is too large (max 5MB)",
+    "fileTypeUnsupported": "Unsupported file format (only jpg, jpeg, png, webp allowed)",
+    "categoryRequired": "Category is required",
+    "categoryInvalid": "Invalid category selected",
+    "stockRequired": "Stock quantity is required",
+    "stockInteger": "Stock must be a whole number",
+    "stockMin": "Stock cannot be negative",
+    "stockMax": "Stock should not exceed 1000 items",
+    "prepTimeRequired": "Preparation time is required",
+    "prepTimeInteger": "Preparation time must be a whole number",
+    "prepTimeMin": "Preparation time must be at least 1 minute",
+    "prepTimeMax": "Preparation time should not exceed 300 minutes",
+    "idSelfieRequired": "Upload selfie with your ID card",
+    "invalidFileTypeTitle": "Invalid File Type",
+    "invalidFileTypeDesc": "Please upload an image file only (JPG, PNG, GIF, etc.)",
+    "conversionErrorTitle": "Conversion Error",
+    "conversionErrorDesc": "Failed to process image. Please try another file."
   },
   "login": {
     "title": "Login",
@@ -145,6 +307,7 @@
     "errorDescription": "Invalid email or password",
     "imageAlt": "Signup Image"
   },
+
   "forgotPassword": {
     "title": "Forgot Password",
     "subtitle": "Enter your email address and we'll send you a link to reset your password",
@@ -171,7 +334,19 @@
     "whatNextDescription": "We'll review your submitted documents and kitchen information. You'll receive an email notification once your account is approved.",
     "goHome": "Go to Home",
     "contactSupport": "Contact Support",
-    "needHelp": "Need immediate assistance? Contact us at support@tablya.com"
+    "needHelp": "Need immediate assistance? Contact us at support@tablya.com",
+    "actionRequired": "Action Required",
+    "updateDocuments": "Update Documents",
+    "resubmitDocs": "Resubmit Documents",
+    "clickToUpload": "Click to upload or drag and drop",
+    "fileTypeInfo": "SVG, PNG, JPG or GIF (max. 5MB)",
+    "frontId": "National ID (Front)",
+    "backId": "National ID (Back)",
+    "selfieId": "Selfie with ID",
+    "noFilesTitle": "No files selected",
+    "noFilesDesc": "Please select at least one file to update.",
+    "successTitle": "Submitted Successfully",
+    "successDesc": "Your documents have been updated and are pending approval."
   },
 
   "cards": {
@@ -185,6 +360,692 @@
   "testimonials": {
     "title": "What Our Customers Say",
     "customerName": "Sara K.",
-    "customerReview": "I'm so glad I found this website! The food is incredible, and it feels so good to support local cooks. It's like having a home-cooked meal without any of the work"
+    "customerReview": "I'm so glad I found this website! The food is incredible, and it feels so good to support local cooks. It's like having a home-cooked meal without any of the work",
+    "forChef": "For Chef:"
+  },
+  "resetPassword": {
+    "title": "Set New Password",
+    "subtitle": "Please create a strong password for your account.",
+    "newPassword": "New Password",
+    "newPasswordPlaceholder": "Enter new password",
+    "confirmPassword": "Confirm Password",
+    "confirmPasswordPlaceholder": "Confirm new password",
+    "button": "Reset Password",
+    "requirementsTitle": "Password Requirements:",
+    "reqLength": "At least 8 characters",
+    "reqUppercase": "One uppercase letter",
+    "reqLowercase": "One lowercase letter",
+    "reqNumber": "One number",
+    "reqSpecial": "One special character",
+    "successTitle": "Success",
+    "successDescription": "Your password has been updated successfully. Please login with your new password.",
+    "errorTitle": "Error",
+    "invalidLinkTitle": "Invalid Link",
+    "invalidLinkDesc": "This password reset link is invalid or has expired. Please request a new one.",
+    "verifying": "Verifying secure link...",
+    "welcomeBack": "Welcome Back to Tablay",
+    "secureAccount": "Secure your account and get back to discovering delicious homemade meals.",
+    "validation": {
+        "required": "Please enter a new password",
+        "requirements": "Password does not meet all requirements",
+        "confirmRequired": "Please confirm your password",
+        "mismatch": "Passwords do not match"
+    }
+  },
+  "accountSuspended": {
+    "title": "Account Temporarily Suspended",
+    "description": "Your account has been temporarily suspended. Please contact our support team to resolve this issue.",
+    "contactSupport": "Contact Support",
+    "contactDesc": "Please reach out to our admin team to resolve this issue and reactivate your account.",
+    "logout": "Logout",
+    "logoutSuccessTitle": "Logged Out",
+    "logoutSuccessDesc": "You have been logged out successfully.",
+    "errorTitle": "Error",
+    "logoutErrorDesc": "Failed to logout. Please try again."
+  },
+  "cart": {
+    "yourCart": "Your Cart",
+    "emptyCart": "Your cart is empty",
+    "emptyCartDesc": "Looks like you haven't added any meals safely yet",
+    "startShopping": "Start Shopping",
+    "deliveryTo": "Delivery to:",
+    "change": "Change",
+    "orderSummary": "Order Summary",
+    "itemsTotal": "Items Total",
+    "deliveryFee": "Delivery Fee",
+    "serviceFee": "Service Fee",
+    "total": "Total",
+    "checkout": "Proceed to Checkout",
+    "paymentMethod": "Payment Method",
+    "cashOnDelivery": "Cash on Delivery",
+    "creditCard": "Credit Card",
+    "paypal": "PayPal",
+    "remove": "Remove",
+    "quantity": "Quantity",
+    "addressRequired": "Address required",
+    "selectAddress": "Select Address",
+    "noAddresses": "No addresses",
+    "paymentSuccess": "Payment successful",
+    "orderCreated": "Order created",
+    "minOrderValue": "Minimum order value",
+    "orderCancelled": "Order Cancelled",
+    "reportSubmitted": "Report Submitted Successfully",
+    "missingInfo": "Missing Information",
+    "unexpectedError": "Unexpected Error",
+    "notes": "Notes",
+    "optional": "(optional)",
+    "orderInstructionsPlaceholder": "Add any instructions for the order"
+  },
+  "menuItemCard": {
+    "noTitle": "No Title",
+    "noDesc": "No Description",
+    "currency": "EGP",
+    "decrease": "Decrease Quantity",
+    "increase": "Increase Quantity",
+    "maxReached": "Max Limit Reached",
+    "closed": "Restaurant Closed",
+    "outOfStock": "Out of Stock",
+    "addToCart": "Add to Cart",
+    "replaceDialog": {
+      "title": "Replace Cart Item?",
+      "desc": "Your cart contains items from another chef. Do you want to clear your cart and add this item instead?",
+      "cancel": "Cancel",
+      "confirm": "Yes, Replace"
+    },
+    "replaceSuccess": {
+      "title": "Cart Updated",
+      "desc": "Cart cleared and new item added successfully."
+    }
+  },
+  "favorites": {
+    "title": "My Favorites",
+    "empty": "No favorites yet",
+    "emptyDesc": "Save your favorite meals to order them quickly later",
+    "remove": "Remove from favorites",
+    "myFavoriteChefs": "My Favourite Chefs",
+    "emptyTitle": "No Favourite Chefs Yet",
+    "emptyDescFavorites": "Start exploring our amazing chefs and add them to your favourites to see them here!"
+  },
+  "profile": {
+    "title": "Personal Information",
+    "editProfile": "Edit Profile",
+    "saveChanges": "Save Changes",
+    "cancel": "Cancel",
+    "name": "Name",
+    "title": "Login",
+    "subtitle": "Continue your homemade experience",
+    "email": "Email",
+    "password": "Password",
+    "emailPlaceholder": "Enter your email",
+    "passwordPlaceholder": "Enter your password",
+    "forgotPassword": "Forgot Password?",
+    "loginButton": "Login",
+    "noAccount": "Don't have an account?",
+    "createAccount": "Create Account",
+    "successTitle": "Login Successful",
+    "successDescription": "Welcome back",
+    "errorTitle": "Login Failed",
+    "errorDescription": "Invalid email or password",
+    "imageAlt": "Signup Image"
+  },
+
+
+  "cookerReviews": {
+    "title": "Customer Reviews",
+    "empty": {
+      "title": "No Reviews Yet",
+      "desc": "Keep up the great work to get your first review!"
+    }
+  },
+  "cookerAnalytics": {
+    "week": "Week",
+    "months": ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
+    "days": ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"],
+    "statistics": "Statistics",
+    "analytics": "Analytics",
+    "daily": "Daily",
+    "weekly": "Weekly",
+    "monthly": "Monthly",
+    "selectMonth": "Select Month",
+    "monthlyOrders": "Monthly Orders",
+    "monthlyEarning": "Monthly Earning",
+    "dailyOrders": "Daily Orders",
+    "hourlyOrders": "Hourly Orders",
+    "totalOrdersWeek": "Total Orders This Week",
+    "totalOrdersDay": "Total Orders Today",
+    "noOrdersDay": "No orders for this day",
+    "noOrdersMonth": "No orders for this month",
+    "failedLoad": "Failed to load analytics data",
+    "tryAgain": "Try Again",
+    "earning": "Earnings",
+    "orders": "Orders"
+  },
+  "cookerTabs": {
+    "home": "Home",
+    "menu": "Menu",
+    "orders": "Orders",
+    "reviews": "Reviews"
+  },
+  "cookerMenu": {
+    "myMenu": "My Menu",
+    "addMeal": "Add Meal",
+    "all": "All",
+    "inStock": "In Stock",
+    "outOfStock": "Out of Stock",
+    "failedLoad": "Failed to load items",
+    "noItems": "No Items Found",
+    "addFirstMeal": "Get started by adding your first meal!",
+    "noItemsFor": "No items found for {{status}}",
+    "editMeal": "Edit Meal",
+    "deleteTitle": "Delete Meal",
+    "deleteDesc": "Are you sure you want to delete this meal?",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "itemDeleted": "Item deleted successfully",
+    "deleteFailed": "Failed to delete item",
+    "mealDetails": "Meal Description",
+    "noTitle": "No Title",
+    "noDesc": "No Description",
+    "left": "left"
+  },
+  "addressTab": {
+    "currentWorkCity": "You are currently working in",
+    "cityNotSet": "City not set yet",
+    "editCity": "Edit City",
+    "deletePrimaryError": "Cannot Delete Primary Address",
+    "deletePrimaryErrorDesc": "Please set another address as primary before deleting this one.",
+    "locationRequired": "Location Required",
+    "locationRequiredDesc": "Please use current location to auto-fill your city and area.",
+    "cityRequired": "City Required",
+    "cityRequiredDesc": "Please use current location so we can detect your city.",
+    "errors": {
+      "label": "Please select an address label",
+      "city": "Please enter city",
+      "area": "Please enter area",
+      "street": "Please enter street",
+      "buildingNumber": "Please enter a building number"
+    },
+    "locationDetected": "Location detected: {{city}}",
+    "noAddressData": "Could not get address details. Please enter manually.",
+    "locationError": "Failed to get address from location. Coordinates saved.",
+    "geolocationError": "Failed to get your location",
+    "locationSuccess": "Your delivery city has been updated successfully.",
+    "saveSuccess": "Address saved successfully",
+    "updateSuccess": "Address updated successfully",
+    "addSuccess": "Address added successfully",
+    "deleteSuccess": "Address deleted successfully",
+    "primarySuccess": "Primary address updated"
+  },
+  "chefCard": {
+    "reviews": "Reviews",
+    "viewMenu": "View Menu",
+    "loginToFav": "Please login to favorite chefs",
+    "addedFav": "Added to favorites ❤️",
+    "removedFav": "Removed from favorites 💔",
+    "actionFailed": "Action failed",
+    "busyNow": "Busy Now",
+    "unavailable": "Currently Unavailable"
+  },
+  "menuItemCard": {
+    "noTitle": "No Title",
+    "noDesc": "No Description Available",
+    "currency": "L.E",
+    "decrease": "Decrease quantity",
+    "increase": "Increase quantity",
+    "maxReached": "Maximum quantity reached",
+    "closed": "Closed",
+    "outOfStock": "Out of stock",
+    "addToCart": "Add to cart",
+    "replaceDialog": {
+      "title": "Replace cart with new restaurant?",
+      "desc": "You already have items from another restaurant in your cart. Adding this item will remove your current cart. Do you want to continue?",
+      "cancel": "Cancel",
+      "confirm": "Yes, Replace"
+    },
+    "replaceSuccess": {
+      "title": "Cart has been replaced",
+      "desc": "Cart has been replaced with the new restaurant’s item"
+    }
+  },
+  "mealDetails": {
+    "noData": "No data available",
+    "count": "Count",
+    "stockInfo": "Stock: {{stock}} | Remaining: {{remaining}}",
+    "preparedBy": "Prepared By",
+    "chefKitchen": "Chef's Kitchen",
+    "na": "N/A",
+    "reviews": "Reviews",
+    "addToCart": "Add To Cart",
+    "buyNow": "Buy Now",
+    "mealAlt": "Meal",
+    "chefAlt": "Chef"
+  },
+  "avgReview": {
+    "updateReview": "Update Review",
+    "addReview": "Add Review"
+  },
+  "chefProfile": {
+    "loginToFav": "Please login to favorite chefs",
+    "addedFav": "Added to favorites ❤️",
+    "removedFav": "Removed from favorites 💔",
+    "actionFailed": "Action failed",
+    "chefAvatarAlt": "Chef Avatar",
+    "chefNameFallback": "Chef Name",
+    "available": "Available Now",
+    "closed": "Closed Now",
+    "reviews": "Reviews",
+    "noSpecialty": "no specialty",
+    "noNumber": "no number",
+    "defaultBio": "This kitchen offers modern, home-style meals cooked with passion and served fresh every day."
+  },
+  "customerReviews": {
+    "title": "Customer Reviews",
+    "noReviews": "No Reviews available."
+  },
+  "customerTabs": {
+    "home": "Home",
+    "orders": "Orders",
+    "favourites": "Favourites"
+  },
+  "reviewCard": {
+    "readMore": "Read More",
+    "readLess": "Read Less"
+  },
+  "reviewModal": {
+    "title": "Review",
+    "provideRating": "Please provide a rating and review.",
+    "checkFailed": "Content Check Failed",
+    "checkFailedDesc": "Could not verify content. Please try again.",
+    "updateSuccess": "Review updated successfully",
+    "submitSuccess": "Review submitted successfully",
+    "submitFailed": "Failed to submit review",
+    "modalDesc": "Rate this meal and let others know your experience",
+    "updateTitle": "Update Your Review",
+    "addTitle": "Add A Review",
+    "updateBtn": "Update Review",
+    "submitBtn": "Submit Review",
+    "cancel": "Cancel",
+    "yourRating": "Your Rating",
+    "yourReview": "Your Review",
+    "placeholder": "Enter your review...",
+    "sensitiveTitle": "Sensitive Content Detected",
+    "sensitiveDesc": "Your review contains sensitive or inappropriate content. Please revise your review to be respectful and appropriate before submitting.",
+    "editReview": "Edit Review"
+  },
+  "securityTab": {
+    "emailSent": "Email Sent",
+    "emailSentDesc": "Password reset link has been sent to your email. Please check your inbox.",
+    "error": "Error",
+    "errorDesc": "Failed to send password reset email",
+    "password": "Password",
+    "passwordDesc": "Click the button below to receive a password reset link via email",
+    "sendEmail": "Send Email",
+    "sending": "Sending Email..."
+  },
+  "allCookers": {
+    "searchPlaceholder": "Search",
+    "title": "All Cookers",
+    "error": "Error loading cookers.",
+    "noResults": "No results found",
+    "noCookersInCity": "No cookers found in {{city}}"
+  },
+  "chefMenuProfile": {
+    "home": "Home",
+    "title": "Chef Profile",
+    "error": "Error loading cooker data"
+  },
+  "customerHome": {
+    "topCookers": "Top Cookers",
+    "viewAll": "View All Cookers",
+    "error": "Error loading cookers.",
+    "noCookersInCity": "No cookers found in {{city}}",
+    "noCookers": "No cookers available"
+  },
+  "mealDetailsPage": {
+    "menu": "Menu",
+    "title": "Meal Details",
+    "error": "Error loading meal data: {{error}}"
+  },
+  "cancelOrder": {
+    "title": "Cancel Order?",
+    "description": "Are you sure you want to cancel this order? This action cannot be undone.",
+    "keepOrder": "No, Keep Order",
+    "confirmCancel": "Yes, Cancel Order",
+    "cancelling": "Cancelling..."
+  },
+  "personalInfo": {
+    "invalidFile": "Invalid File",
+    "fileInvalidDesc": "Please select an image file",
+    "fileTooLarge": "File Too Large",
+    "fileTooLargeDesc": "Image size should be less than 5MB",
+    "successAvatar": "Profile picture updated successfully",
+    "invalidData": "Invalid data",
+    "invalidDataDesc": "Please fix the highlighted fields and try again.",
+    "successUpdate": "Profile updated successfully",
+    "labels": {
+      "firstName": "First Name",
+      "lastName": "Last Name",
+      "email": "Email",
+      "phone": "Phone",
+      "kitchenName": "Kitchen Name",
+      "specialty": "Specialty",
+      "chefDesc": "Chef Description",
+      "workingHours": "Working Hours",
+      "startTime": "Start Time",
+      "endTime": "End Time"
+    },
+    "placeholders": {
+      "firstName": "Enter your first name",
+      "lastName": "Enter your last name",
+      "email": "Enter your email",
+      "phone": "Enter your phone number",
+      "kitchenName": "Enter your kitchen name",
+      "specialty": "Enter your specialty",
+      "chefDesc": "Add your description"
+    },
+    "buttons": {
+      "save": "Save Changes",
+      "discard": "Discard Changes",
+      "saving": "Saving..."
+    }
+  },
+  "cookerStatistics": {
+    "totalOrders": "Total Orders",
+    "monthlyEarning": "Monthly Earning (LE)",
+    "activeMeals": "Active Meals",
+    "outOfStock": "out of stock",
+    "ratings": "Ratings",
+    "reviews": "reviews",
+    "maxActiveOrdersModal": {
+      "title": "Update Max Active Orders",
+      "description": "Set the maximum number of orders you can handle at once",
+      "label": "Max Active Orders",
+      "helperText": "Choose a value between 2 and 10",
+      "save": "Save",
+      "cancel": "Cancel",
+      "successTitle": "Updated Successfully",
+      "successDesc": "Your max active orders has been updated",
+      "errorTitle": "Update Failed",
+      "errorDesc": "Failed to update max active orders",
+      "rangeError": "Value must be between 2 and 10"
+    }
+  },
+  "addMeal": {
+    "titleAdd": "Add Meal",
+    "titleEdit": "Edit Meal",
+    "descAdd": "Fill in the details to add a new meal to your menu.",
+    "descEdit": "Update the details of your meal.",
+    "mealName": "Meal Name",
+    "mealNamePlaceholder": "Enter meal name",
+    "mealPrice": "Meal Price (LE)",
+    "mealPricePlaceholder": "Enter meal price",
+    "chefEarn": "Chef will earn: {{amount}} LE {{feeText}}",
+    "feeText": "(after {{fee}}% fee)",
+    "mealDesc": "Meal Description",
+    "mealDescPlaceholder": "Describe your meal",
+    "generateDesc": "generate description",
+    "mealImage": "Meal Image",
+    "mealCategory": "Meal Category",
+    "chooseCategory": "Choose meal category",
+    "inStock": "In Stock",
+    "stockPlaceholder": "Available quantity",
+    "prepTime": "Preparation Time (minutes)",
+    "prepTimePlaceholder": "Time in minutes",
+    "save": "Save Changes",
+    "add": "Add Meal",
+    "cancel": "Cancel",
+    "imageNotPermitted": "Image Not Permitted",
+    "imageNotPermittedDesc": "The selected image is not allowed. Please upload a clear food image without any NSFW content.",
+    "imageCheckFailed": "Image check failed",
+    "imageCheckFailedDesc": "Could not verify image. Please try another image.",
+    "successAdd": "Meal added successfully!",
+    "successEdit": "Meal updated successfully!",
+    "error": "Error",
+    "errorDesc": "Failed to add meal, Please try again",
+    "generateFailed": "Generate failed",
+    "addNameFirst": "Add a meal name first",
+    "addNameFirstDesc": "Please enter the meal name to generate a description.",
+    "categories": {
+      "mainDishes": "Main Dishes",
+      "drinks": "Drinks",
+      "desserts": "Desserts"
+    }
+  },
+  "cookerTabs": {
+    "home": "Home",
+    "menu": "Menu",
+    "orders": "Orders",
+    "reviews": "Reviews"
+  },
+  "navbarLanguage": {
+      "ar": "Arabic",
+      "en": "English"
+  },
+  "cookerOrders": {
+    "title": "All Orders",
+    "tabs": {
+      "active": "Active",
+      "confirmed": "Confirmed",
+      "preparing": "Preparing",
+      "readyPickup": "Ready for Pickup",
+      "outDelivery": "Out for Delivery",
+      "cancelled": "Cancelled"
+    },
+    "showing": "Showing {{start}} - {{end}} of {{total}}",
+    "error": "Failed to load orders",
+    "noOrdersStatus": "No orders found for this status",
+    "table": {
+      "id": "Order ID",
+      "dateTime": "Date & Time",
+      "customer": "Customer",
+      "total": "Total",
+      "status": "Status"
+    },
+    "statusMeta": {
+      "created": "Created",
+      "confirmed": "Confirmed",
+      "preparing": "Preparing",
+      "ready_for_pickup": "Ready for Pickup",
+      "out_for_delivery": "Out for Delivery",
+      "delivered": "Delivered",
+      "cancelled": "Cancelled"
+    },
+    "toast": {
+      "attention": "Attention",
+      "cantSkip": "You cannot skip status steps. Please follow the correct order flow."
+    },
+    "drawer": {
+      "orderId": "Order #{{id}}",
+      "items": "Order Items",
+      "noItems": "No items in this order",
+      "specialInstructions": "Special Instructions",
+      "customerInfo": "Customer Information",
+      "name": "Name",
+      "noCustomerInfo": "Unknown Customer",
+      "deliveryAddress": "Delivery Address",
+      "noAddress": "No address provided",
+      "paymentMethod": "Payment Method",
+      "notSpecified": "Not specified",
+      "deliveryInfo": "Delivery Information",
+      "deliveryPerson": "Delivery Person",
+      "notAssigned": "Not assigned yet",
+      "phoneNumber": "Phone Number",
+      "status": {
+        "cancelled": "Order Cancelled",
+        "waitingDelivery": "Waiting for Delivery",
+        "outForDelivery": "Out for Delivery",
+        "delivered": "Order Delivered"
+      },
+      "updateStatus": "Update Order Status",
+      "confirmOrder": "Confirm Order",
+      "markPreparing": "Mark as Preparing",
+      "readyPickup": "Ready for Pickup",
+      "cancelOrder": "Cancel Order"
+    },
+    "cancelAlert": {
+      "title": "Cancel Order",
+      "desc": "Are you sure? this will cancel the order",
+      "cancel": "No, Keep Order",
+      "confirm": "Yes, Cancel Order"
+    }
+  },
+  "reportSystem": {
+    "title": "Report System Problem",
+    "subtitle": "Found a bug or experiencing technical issues? Let us know and we'll look into it as soon as possible.",
+    "reportType": "Report Type:",
+    "reportTypeValue": "System Problem",
+    "target": "Target:",
+    "targetValue": "System",
+    "problemDetails": "Problem Details *",
+    "placeholder": "Please describe the issue you're experiencing in detail...",
+    "helperText": "Please be as detailed as possible to help us resolve the issue quickly.",
+    "clearButton": "Clear",
+    "submitButton": "Submit Report",
+    "submitting": "Submitting...",
+    "validation": {
+      "missingInfo": "Missing Information",
+      "provideDetails": "Please provide details about the system problem"
+    },
+    "success": {
+      "title": "Success",
+      "description": "Your report has been submitted successfully"
+    },
+    "error": {
+      "title": "Error",
+      "description": "Failed to submit report"
+    }
+  },
+  "deliveryStatistics": {
+    "title": "Statistics",
+    "activeDeliveries": "Active Deliveries",
+    "completedToday": "Completed Today",
+    "earningsToday": "Earnings Today (LE)"
+  },
+  "supportButton": {
+    "title": "Report an Issue",
+    "subtitle": "Select the issue you're facing",
+    "issues": {
+      "road": "Road Problem",
+      "traffic": "Heavy Traffic",
+      "vehicle": "Vehicle Issue",
+      "accident": "Accident",
+      "unreachable": "Customer Unreachable",
+      "other": "Other Issue"
+    }
+  },
+  "addressDialog": {
+    "title": {
+      "customer": "Add Address for Customer",
+      "chef": "Add Address for Chef"
+    },
+    "subtitle": "City and area are filled automatically from your current location.",
+    "labels": {
+      "label": "Label",
+      "home": "Home",
+      "work": "Work",
+      "department": "Department",
+      "city": "City",
+      "area": "Area",
+      "street": "Street",
+      "buildingNo": "Building No.",
+      "floor": "Floor (optional)",
+      "apartment": "Apartment (optional)"
+    },
+    "placeholders": {
+      "autoFilled": "Auto-filled from location",
+      "street": "Enter street name",
+      "building": "Building number",
+      "floor": "Floor",
+      "apartment": "Apartment"
+    },
+    "buttons": {
+      "useLocation": "Use Current Location",
+      "gettingLocation": "Getting Location...",
+      "cancel": "Cancel",
+      "save": "Save Address"
+    },
+    "errors": {
+      "selectLabel": "Please select an address label",
+      "enterStreet": "Please enter street",
+      "enterBuilding": "Please enter a building number",
+      "useLocation": "You must use current location to set city"
+    },
+    "toasts": {
+      "geolocationNotSupported": {
+        "title": "Error",
+        "description": "Geolocation is not supported by your browser"
+      },
+      "locationSuccess": {
+        "title": "Success",
+        "description": "Location detected"
+      },
+      "addressWarning": {
+        "title": "Warning",
+        "description": "Could not get address details. Please try again."
+      },
+      "addressError": {
+        "title": "Error",
+        "description": "Failed to get address from location. Coordinates saved."
+      },
+      "locationErrors": {
+        "denied": "Location permission denied. Please enable location access.",
+        "unavailable": "Location information is unavailable",
+        "timeout": "Location request timed out",
+        "unknown": "An unknown error occurred"
+      },
+      "saveSuccess": {
+        "title": "Success",
+        "description": "Address saved successfully"
+      },
+      "saveError": {
+        "title": "Error",
+        "description": "Failed to save address"
+      }
+    }
+  },
+  "addressTab": {
+    "dialogTitle": {
+      "edit": "Edit Address",
+      "add": "Add New Address"
+    },
+    "dialogSubtitle": {
+      "delivery": "Your city will be detected from your current location.",
+      "default": "Provide your address information"
+    },
+    "setPrimary": "Set as Primary Address",
+    "primaryNote": "This will be your default delivery address",
+    "noAddresses": "No Addresses Yet",
+    "addFirstAddress": "Add your first delivery address to get started",
+    "primaryBadge": "Primary",
+    "required": "Required",
+    "autoFill": "Auto-fill address fields",
+    "locationDetected": "Location detected"
+  },
+  "orderPage": {
+    "orderHistory": "Order History",
+    "noActiveOrders": "You currently have no active orders",
+    "noOrderHistory": "You currently have no orders in your order history",
+    "report": "Report",
+    "reportSubmitted": "✓ Report Submitted",
+    "reportProblem": "Report a Problem",
+    "reportSubtitle": "Report any issues you've encountered.",
+    "complaintTitle": "Complaint Title",
+    "complaintTitlePlaceholder": "Brief description of the issue",
+    "complaintCategory": "Complaint Category",
+    "selectCategory": "Select a complaint category",
+    "foodProblem": "Food problem",
+    "deliveryProblem": "Delivery problem",
+    "moneyProblem": "Money problem",
+    "complaintDescription": "Complaint Description",
+    "complaintDescriptionPlaceholder": "Please provide detailed information about your complaint...",
+    "sendReport": "Send Report",
+    "cancel": "Cancel"
+  },
+  "common": {
+    "currency": "LE",
+    "total": "Total",
+    "subtotal": "Subtotal",
+    "deliveryFee": "Delivery Fee",
+    "price": "Price"
   }
 }

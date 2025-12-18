@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useTranslation } from "react-i18next";
 import {
   Box,
   Input,
@@ -43,6 +44,7 @@ import { useGetPlatformSettingsQuery } from "../../app/features/Admin/MariamSett
 
 const AddMealModal = ({ dialog, item = null, mode = "create" }) => {
   const { colorMode } = useColorMode();
+  const { t } = useTranslation();
   const [createMenuItem, { isLoading: isCreating }] =
     useCreateMenuItemMutation();
   const [updateMenuItem, { isLoading: isUpdating }] =
@@ -56,9 +58,9 @@ const AddMealModal = ({ dialog, item = null, mode = "create" }) => {
   const isEditing = mode === "edit" && !!item;
 
   const categoryOptions = [
-    { label: "main dishes", value: "main dishes" },
-    { label: "drinks", value: "drinks" },
-    { label: "desserts", value: "desserts" },
+    { label: t("addMeal.categories.mainDishes"), value: "main dishes" },
+    { label: t("addMeal.categories.drinks"), value: "drinks" },
+    { label: t("addMeal.categories.desserts"), value: "desserts" },
   ];
 
   const frameworks = createListCollection({
@@ -145,7 +147,7 @@ const AddMealModal = ({ dialog, item = null, mode = "create" }) => {
           setValue("image", undefined, { shouldValidate: true });
           setImagePreview(isEditing ? item?.menu_img || null : null);
           setWarningText(
-            "The selected image is not allowed. Please upload a clear food image without any NSFW content."
+            t("addMeal.imageNotPermittedDesc")
           );
           setWarningOpen(true);
         } else {
@@ -153,9 +155,9 @@ const AddMealModal = ({ dialog, item = null, mode = "create" }) => {
         }
       } catch (err) {
         toaster.create({
-          title: "Image check failed",
+          title: t("addMeal.imageCheckFailed"),
           description:
-            err?.message || "Could not verify image. Please try another image.",
+            err?.message || t("addMeal.imageCheckFailedDesc"),
           type: "error",
           duration: 3000,
           isClosable: true,
@@ -267,8 +269,8 @@ const AddMealModal = ({ dialog, item = null, mode = "create" }) => {
       const title = getValues("name")?.trim();
       if (!title) {
         toaster.create({
-          title: "Add a meal name first",
-          description: "Please enter the meal name to generate a description.",
+          title: t("addMeal.addNameFirst"),
+          description: t("addMeal.addNameFirstDesc"),
           type: "warning",
           duration: 2500,
           isClosable: true,
@@ -295,8 +297,8 @@ const AddMealModal = ({ dialog, item = null, mode = "create" }) => {
       }
     } catch (e) {
       toaster.create({
-        title: "Generate failed",
-        description: e?.message || "Please try again.",
+        title: t("addMeal.generateFailed"),
+        description: e?.message || t("addMeal.errorDesc"),
         type: "error",
         duration: 3000,
         isClosable: true,
@@ -354,8 +356,11 @@ const AddMealModal = ({ dialog, item = null, mode = "create" }) => {
       if (isEditing) {
         await updateMenuItem(payload).unwrap();
         toaster.create({
+          title: t("addMeal.successEdit"), // Success
+          description: t("addMeal.successEdit"), // Using same message for title/desc for now or fix keys
+// Actually I defined successAdd and successEdit separately
           title: "Success",
-          description: "Meal updated successfully!",
+          description: t("addMeal.successEdit"),
           type: "success",
           duration: 3000,
           isClosable: true,
@@ -365,7 +370,7 @@ const AddMealModal = ({ dialog, item = null, mode = "create" }) => {
         await createMenuItem(payload).unwrap();
         toaster.create({
           title: "Success",
-          description: "Meal added successfully!",
+          description: t("addMeal.successAdd"),
           type: "success",
           duration: 3000,
           isClosable: true,
@@ -379,8 +384,8 @@ const AddMealModal = ({ dialog, item = null, mode = "create" }) => {
       return true;
     } catch (err) {
       toaster.create({
-        title: "Error",
-        description: err?.message || "Failed to add meal, Please try again",
+        title: t("addMeal.error"),
+        description: err?.message || t("addMeal.errorDesc"),
         type: "error",
         duration: 3000,
         isClosable: true,
@@ -400,14 +405,14 @@ const AddMealModal = ({ dialog, item = null, mode = "create" }) => {
     <>
       <CustomModal
         dialog={dialog}
-        title={isEditing ? "Edit Meal" : "Add Meal"}
+        title={isEditing ? t("addMeal.titleEdit") : t("addMeal.titleAdd")}
         description={
           isEditing
-            ? "Update the details of your meal."
-            : "Fill in the details to add a new meal to your menu."
+            ? t("addMeal.descEdit")
+            : t("addMeal.descAdd")
         }
-        okTxt={isEditing ? "Save Changes" : "Add Meal"}
-        cancelTxt="Cancel"
+        okTxt={isEditing ? t("addMeal.save") : t("addMeal.add")}
+        cancelTxt={t("addMeal.cancel")}
         onOkHandler={handleOk}
         isLoading={isCreating || isUpdating || imageCheckPending}
       >
@@ -424,12 +429,12 @@ const AddMealModal = ({ dialog, item = null, mode = "create" }) => {
                   }
                   mb={2}
                 >
-                  Meal Name
+                  {t("addMeal.mealName")}
                 </Field.Label>
                 <InputGroup startElement={<PiForkKnifeFill />}>
                   <Input
                     {...register("name", { onBlur: handleNameBlur })}
-                    placeholder="Enter meal name"
+                    placeholder={t("addMeal.mealNamePlaceholder")}
                     bg={
                       colorMode === "light"
                         ? colors.light.bgInput
@@ -456,13 +461,13 @@ const AddMealModal = ({ dialog, item = null, mode = "create" }) => {
                   }
                   mb={2}
                 >
-                  Meal Price (LE)
+                  {t("addMeal.mealPrice")}
                 </Field.Label>
                 <InputGroup startElement={<PiMoneyWavyFill />}>
                   <Input
                     {...register("price", { valueAsNumber: true })}
                     type="number"
-                    placeholder="Enter meal price"
+                    placeholder={t("addMeal.mealPricePlaceholder")}
                     bg={
                       colorMode === "light"
                         ? colors.light.bgInput
@@ -485,7 +490,10 @@ const AddMealModal = ({ dialog, item = null, mode = "create" }) => {
                       : colors.dark.textSub
                   }
                 >
-                  Chef will earn: {Number.isFinite(chefEarnings) ? chefEarnings.toFixed(2) : "0.00"} LE {feePct ? `(after ${feePct}% fee)` : ""}
+                  {t("addMeal.chefEarn", {
+                    amount: Number.isFinite(chefEarnings) ? chefEarnings.toFixed(2) : "0.00",
+                    feeText: feePct ? t("addMeal.feeText", { fee: feePct }) : ""
+                  })}
                 </Text>
               </Field.Root>
             </GridItem>
@@ -502,7 +510,7 @@ const AddMealModal = ({ dialog, item = null, mode = "create" }) => {
                 }
                 mb={2}
               >
-                Meal Description
+                {t("addMeal.mealDesc")}
               </Field.Label>
               <InputGroup
                 endElement={
@@ -513,10 +521,10 @@ const AddMealModal = ({ dialog, item = null, mode = "create" }) => {
                       size="xs"
                       variant="ghost"
                       onClick={handleDescriptionGenerateClick}
-                      title="Generate description"
+                      title={t("addMeal.generateDesc")}
                       border="1px solid gray"
                     >
-                      generate description
+                      {t("addMeal.generateDesc")}
                       <MdDescription />
                     </Button>
                   ) : undefined
@@ -524,7 +532,7 @@ const AddMealModal = ({ dialog, item = null, mode = "create" }) => {
               >
                 <Textarea
                   {...register("description")}
-                  placeholder="Describe your meal"
+                  placeholder={t("addMeal.mealDescPlaceholder")}
                   rows={3}
                   bg={
                     colorMode === "light"
@@ -554,7 +562,7 @@ const AddMealModal = ({ dialog, item = null, mode = "create" }) => {
                   }
                   mb={2}
                 >
-                  Meal Image
+                  {t("addMeal.mealImage")}
                 </Field.Label>
 
                 <FileUpload.Root accept="image/*" gap="1" maxWidth="100%">
@@ -608,7 +616,7 @@ const AddMealModal = ({ dialog, item = null, mode = "create" }) => {
                   }
                   mb={2}
                 >
-                  Meal Category
+                  {t("addMeal.mealCategory")}
                 </Field.Label>
                 <Controller
                   name="category"
@@ -643,7 +651,7 @@ const AddMealModal = ({ dialog, item = null, mode = "create" }) => {
                         >
                           <FiFilter />
                           <Select.ValueText
-                            placeholder="Choose meal category"
+                            placeholder={t("addMeal.chooseCategory")}
                             flex="1"
                             textAlign="left"
                           />
@@ -701,7 +709,7 @@ const AddMealModal = ({ dialog, item = null, mode = "create" }) => {
                   }
                   mb={2}
                 >
-                  In Stock
+                  {t("addMeal.inStock")}
                 </Field.Label>
                 <InputGroup
                   startElement={<MdOutlineProductionQuantityLimits />}
@@ -709,7 +717,7 @@ const AddMealModal = ({ dialog, item = null, mode = "create" }) => {
                   <Input
                     {...register("stock", { valueAsNumber: true })}
                     type="number"
-                    placeholder="Available quantity"
+                    placeholder={t("addMeal.stockPlaceholder")}
                     bg={
                       colorMode === "light"
                         ? colors.light.bgInput
@@ -736,13 +744,13 @@ const AddMealModal = ({ dialog, item = null, mode = "create" }) => {
                   }
                   mb={2}
                 >
-                  Preparation Time (minutes)
+                  {t("addMeal.prepTime")}
                 </Field.Label>
                 <InputGroup startElement={<IoTimeOutline />}>
                   <Input
                     {...register("preparation_time", { valueAsNumber: true })}
                     type="number"
-                    placeholder="Time in minutes"
+                    placeholder={t("addMeal.prepTimePlaceholder")}
                     bg={
                       colorMode === "light"
                         ? colors.light.bgInput
@@ -795,7 +803,7 @@ const AddMealModal = ({ dialog, item = null, mode = "create" }) => {
                     <IoWarningOutline size={28} />
                   </Box>
                   <Dialog.Title fontSize="xl" fontWeight="bold" color="red.600">
-                    Image Not Permitted
+                    {t("addMeal.imageNotPermitted")}
                   </Dialog.Title>
                 </Flex>
               </Dialog.Header>

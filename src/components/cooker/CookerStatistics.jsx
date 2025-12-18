@@ -1,9 +1,11 @@
 import React, { useEffect, useMemo, useState } from "react";
-import { SimpleGrid } from "@chakra-ui/react";
+import { useTranslation } from "react-i18next";
+import { SimpleGrid, IconButton, useDialog } from "@chakra-ui/react";
 import { useColorMode } from "../../theme/color-mode";
 import colors from "../../theme/color";
 import CookerStaticsCard from "./CookerStaticsCard";
-import { FiMenu } from "react-icons/fi";
+import MaxActiveOrdersModal from "./MaxActiveOrdersModal";
+import { FiMenu, FiSettings } from "react-icons/fi";
 import { FaMoneyBillWave, FaStar } from "react-icons/fa";
 import { TbSoup } from "react-icons/tb";
 import { PiMoneyWavyFill } from "react-icons/pi";
@@ -12,8 +14,10 @@ import { useGetCookerOrdersQuery } from "../../app/features/cooker/CookerAcceptO
 import { useGetMyMenuItemsQuery } from "../../app/features/cooker/CookerMenuApi";
 import { useGetCookerByIdQuery } from "../../app/features/Customer/CookersApi";
 import { supabase } from "../../services/supabaseClient";
+
 const CookerStatistics = () => {
   const [userId, setUserId] = useState(null);
+  const dialog = useDialog();
   useEffect(() => {
     let mounted = true;
     supabase.auth.getUser().then(({ data: { user } }) => {
@@ -24,6 +28,7 @@ const CookerStatistics = () => {
     };
   }, []);
   const { colorMode } = useColorMode();
+  const { t } = useTranslation();
 
   const { data: orders = [], isLoading: ordersLoading } =
     useGetCookerOrdersQuery();
@@ -103,65 +108,89 @@ const CookerStatistics = () => {
   const fmt = (n) => new Intl.NumberFormat("en-EG").format(Number(n || 0));
 
   return (
-    <SimpleGrid columns={{ base: 1, md: 2, lg: 4 }} gap={4}>
-      <CookerStaticsCard
-        title="Total Orders"
-        value={totalOrders}
-        loading={ordersLoading}
-        icon={RiFileList3Fill}
-        iconBg={
-          colorMode === "light" ? colors.light.info20a : colors.dark.info20a
-        }
-        iconColor={colorMode === "light" ? colors.light.info : colors.dark.info}
+    <>
+      <MaxActiveOrdersModal
+        dialog={dialog}
+        userId={userId}
+        currentValue={cookerDetails?.max_active_orders || 5}
       />
 
-      <CookerStaticsCard
-        title="Monthly Earning (LE)"
-        value={fmt(monthlyEarning)}
-        loading={ordersLoading}
-        icon={PiMoneyWavyFill}
-        iconBg={
-          colorMode === "light"
-            ? colors.light.success20a
-            : colors.dark.success20a
-        }
-        iconColor={
-          colorMode === "light" ? colors.light.success : colors.dark.success
-        }
-      />
+      <SimpleGrid columns={{ base: 1, md: 2, lg: 4 }} gap={4}>
+        <CookerStaticsCard
+          title={t("cookerStatistics.totalOrders")}
+          value={totalOrders}
+          loading={ordersLoading}
+          icon={RiFileList3Fill}
+          iconBg={
+            colorMode === "light" ? colors.light.info20a : colors.dark.info20a
+          }
+          iconColor={
+            colorMode === "light" ? colors.light.info : colors.dark.info
+          }
+          actionButton={
+            <IconButton
+              aria-label="Settings"
+              variant="ghost"
+              size="sm"
+              onClick={() => dialog.setOpen(true)}
+              color={colorMode === "light" ? "gray.600" : "gray.400"}
+              _hover={{
+                bg: colorMode === "light" ? "gray.100" : "gray.700",
+              }}
+            >
+              <FiSettings />
+            </IconButton>
+          }
+        />
 
-      <CookerStaticsCard
-        title="Active Meals"
-        value={activeMeals}
-        subtext={`${outOfStock} out of stock`}
-        loading={menuLoading}
-        icon={TbSoup}
-        iconBg={
-          colorMode === "light"
-            ? colors.light.pending20a
-            : colors.dark.pending20a
-        }
-        iconColor={
-          colorMode === "light" ? colors.light.pending : colors.dark.pending
-        }
-      />
+        <CookerStaticsCard
+          title={t("cookerStatistics.monthlyEarning")}
+          value={fmt(monthlyEarning)}
+          loading={ordersLoading}
+          icon={PiMoneyWavyFill}
+          iconBg={
+            colorMode === "light"
+              ? colors.light.success20a
+              : colors.dark.success20a
+          }
+          iconColor={
+            colorMode === "light" ? colors.light.success : colors.dark.success
+          }
+        />
 
-      <CookerStaticsCard
-        title="Ratings"
-        value={avgRating || 0}
-        subtext={`${totalReviews} reviews`}
-        loading={cookerLoading}
-        icon={FaStar}
-        iconBg={
-          colorMode === "light"
-            ? colors.light.warning20a
-            : colors.dark.warning20a
-        }
-        iconColor={
-          colorMode === "light" ? colors.light.warning : colors.dark.warning
-        }
-      />
-    </SimpleGrid>
+        <CookerStaticsCard
+          title={t("cookerStatistics.activeMeals")}
+          value={activeMeals}
+          subtext={`${outOfStock} ${t("cookerStatistics.outOfStock")}`}
+          loading={menuLoading}
+          icon={TbSoup}
+          iconBg={
+            colorMode === "light"
+              ? colors.light.pending20a
+              : colors.dark.pending20a
+          }
+          iconColor={
+            colorMode === "light" ? colors.light.pending : colors.dark.pending
+          }
+        />
+
+        <CookerStaticsCard
+          title={t("cookerStatistics.ratings")}
+          value={avgRating || 0}
+          subtext={`${totalReviews} ${t("cookerStatistics.reviews")}`}
+          loading={cookerLoading}
+          icon={FaStar}
+          iconBg={
+            colorMode === "light"
+              ? colors.light.warning20a
+              : colors.dark.warning20a
+          }
+          iconColor={
+            colorMode === "light" ? colors.light.warning : colors.dark.warning
+          }
+        />
+      </SimpleGrid>
+    </>
   );
 };
 

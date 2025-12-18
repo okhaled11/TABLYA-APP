@@ -8,9 +8,11 @@ import { PiMoneyWavyFill } from "react-icons/pi";
 import { useState, useEffect, useMemo } from "react";
 import { useGetOrdersForDeliveryCityQuery } from "../../app/features/delivery/deleveryOrder";
 import { supabase } from "../../services/supabaseClient";
+import { useTranslation } from "react-i18next";
 
 const DeliveryStatistics = () => {
   const { colorMode } = useColorMode();
+  const { t } = useTranslation();
   const [userId, setUserId] = useState(null);
   useEffect(() => {
     supabase.auth.getUser().then(({ data: { user } }) => {
@@ -73,11 +75,11 @@ const DeliveryStatistics = () => {
             colorMode == "light" ? colors.light.textMain : colors.dark.textMain
           }
         >
-          Statistics
+          {t("deliveryStatistics.title")}
         </Heading>
         <SimpleGrid columns={{ base: 1, md: 2, lg: 3 }} gap={4}>
           <CookerStaticsCard
-            title="Active Deliveries"
+            title={t("deliveryStatistics.activeDeliveries")}
             value={activeDeliveries}
             icon={TbTruckDelivery}
             iconBg={
@@ -90,7 +92,7 @@ const DeliveryStatistics = () => {
             }
           />
           <CookerStaticsCard
-            title="Completed Today"
+            title={t("deliveryStatistics.completedToday")}
             value={completedToday}
             icon={BsFillBoxSeamFill}
             iconBg={
@@ -103,7 +105,7 @@ const DeliveryStatistics = () => {
             }
           />
           <CookerStaticsCard
-            title="Earnings Today (LE)"
+            title={t("deliveryStatistics.earningsToday")}
             value={fmt(earningsToday)}
             icon={PiMoneyWavyFill}
             iconBg={

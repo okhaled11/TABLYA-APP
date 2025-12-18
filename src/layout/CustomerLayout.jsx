@@ -6,6 +6,7 @@ import { useState, useRef, useEffect } from "react";
 import { User, MapPin, Lock, ArrowLeft, Warning } from "@phosphor-icons/react";
 import Footer from "../shared/Footer";
 import { useLocation, useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 
 export default function CustomerLayout({ tabs, lockToAddressTab = false }) {
   const { colorMode } = useColorMode();
@@ -38,21 +39,23 @@ export default function CustomerLayout({ tabs, lockToAddressTab = false }) {
     sliderRef.current.scrollLeft = scrollLeft - walk;
   };
 
+  const { t } = useTranslation();
+
   const menuItems = [
     {
-      title: "Personal Info",
+      title: t("navbar.personalInfo"),
       icon: User,
     },
     {
-      title: "Address",
+      title: t("customerLayout.address"),
       icon: MapPin,
     },
     {
-      title: "Security",
+      title: t("customerLayout.security"),
       icon: Lock,
     },
     {
-      title: "Report System",
+      title: t("navbar.reportSystem"),
       icon: Warning,
     },
   ];

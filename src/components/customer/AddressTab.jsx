@@ -31,6 +31,7 @@ import {
   House,
 } from "@phosphor-icons/react";
 import { useState, useEffect } from "react";
+import { useTranslation } from "react-i18next";
 import { toaster } from "../ui/toaster";
 import { supabase } from "../../services/supabaseClient";
 import CookieService from "../../services/cookies";
@@ -49,6 +50,7 @@ import {
 
 export default function AddressTab() {
   const { colorMode } = useColorMode();
+  const { t, i18n } = useTranslation();
   const [isAddressDialogOpen, setIsAddressDialogOpen] = useState(false);
   const [newAddressLabel, setNewAddressLabel] = useState("");
   const [city, setCity] = useState("");
@@ -120,7 +122,7 @@ export default function AddressTab() {
   const handleGetCurrentLocation = async () => {
     if (!navigator.geolocation) {
       toaster.create({
-        title: "Error",
+        title: t("addressTab.geolocationError"),
         description: "Geolocation is not supported by your browser",
         type: "error",
         duration: 3000,
@@ -255,7 +257,7 @@ export default function AddressTab() {
 
             toaster.create({
               title: "Success",
-              description: `Location detected: ${cityName || "Unknown city"}`,
+              description: t("addressTab.locationDetected", { city: cityName || "Unknown city" }),
               type: "success",
               duration: 3000,
             });
@@ -264,7 +266,7 @@ export default function AddressTab() {
             toaster.create({
               title: "Warning",
               description:
-                "Could not get address details. Please enter manually.",
+                t("addressTab.noAddressData"),
               type: "warning",
               duration: 3000,
             });
@@ -274,7 +276,7 @@ export default function AddressTab() {
           toaster.create({
             title: "Error",
             description:
-              "Failed to get address from location. Coordinates saved.",
+              t("addressTab.locationError"),
             type: "error",
             duration: 3000,
           });
@@ -285,7 +287,7 @@ export default function AddressTab() {
       (error) => {
         console.error("❌ Geolocation Error:", error);
         setIsGettingLocation(false);
-        let errorMessage = "Failed to get your location";
+        let errorMessage = t("addressTab.geolocationError");
 
         switch (error.code) {
           case error.PERMISSION_DENIED:
@@ -330,9 +332,9 @@ export default function AddressTab() {
     // Require using current location to fill city and area
     if (!latitude || !longitude) {
       toaster.create({
-        title: "Location Required",
+        title: t("addressTab.locationRequired"),
         description:
-          "Please use current location to auto-fill your city and area.",
+          t("addressTab.locationRequiredDesc"),
         type: "error",
         duration: 3000,
       });
@@ -344,9 +346,9 @@ export default function AddressTab() {
     if (userRole === "delivery") {
       if (!city.trim()) {
         toaster.create({
-          title: "City Required",
+          title: t("addressTab.cityRequired"),
           description:
-            "Please use current location so we can detect your city.",
+            t("addressTab.cityRequiredDesc"),
           type: "error",
           duration: 3000,
         });
@@ -364,8 +366,8 @@ export default function AddressTab() {
         }).unwrap();
 
         toaster.create({
-          title: "Location Saved",
-          description: "Your delivery city has been updated successfully.",
+          title: "Success", // Should add translations for common titles if consistent
+          description: t("addressTab.locationSuccess"),
           type: "success",
           duration: 3000,
         });
@@ -408,27 +410,27 @@ export default function AddressTab() {
     };
 
     if (!newAddressLabel) {
-      errors.label = "Please select an address label";
+      errors.label = t("addressTab.errors.label");
       hasError = true;
     }
 
     if (!city.trim()) {
-      errors.city = "Please enter city";
+      errors.city = t("addressTab.errors.city");
       hasError = true;
     }
 
     if (!area.trim()) {
-      errors.area = "Please enter area";
+      errors.area = t("addressTab.errors.area");
       hasError = true;
     }
 
     if (!street.trim()) {
-      errors.street = "Please enter street";
+      errors.street = t("addressTab.errors.street");
       hasError = true;
     }
 
     if (!buildingNumber.trim()) {
-      errors.buildingNumber = "Please enter a building number";
+      errors.buildingNumber = t("addressTab.errors.buildingNumber");
       hasError = true;
     }
 
@@ -460,7 +462,7 @@ export default function AddressTab() {
 
         toaster.create({
           title: "Success",
-          description: "Address updated successfully",
+          description: t("addressTab.updateSuccess"),
           type: "success",
           duration: 3000,
         });
@@ -470,7 +472,7 @@ export default function AddressTab() {
 
         toaster.create({
           title: "Success",
-          description: "Address added successfully",
+          description: t("addressTab.addSuccess"),
           type: "success",
           duration: 3000,
         });
@@ -518,9 +520,9 @@ export default function AddressTab() {
     const addressToDelete = addresses.find((addr) => addr.id === id);
     if (addressToDelete?.is_default) {
       toaster.create({
-        title: "Cannot Delete Primary Address",
+        title: t("addressTab.deletePrimaryError"),
         description:
-          "Please set another address as primary before deleting this one.",
+          t("addressTab.deletePrimaryErrorDesc"),
         type: "error",
         duration: 3000,
       });
@@ -531,7 +533,7 @@ export default function AddressTab() {
       await deleteAddress(id).unwrap();
       toaster.create({
         title: "Success",
-        description: "Address deleted successfully",
+        description: t("addressTab.deleteSuccess"),
         type: "success",
         duration: 3000,
       });
@@ -550,7 +552,7 @@ export default function AddressTab() {
       await setPrimaryAddress(id).unwrap();
       toaster.create({
         title: "Success",
-        description: "Primary address updated",
+        description: t("addressTab.primarySuccess"),
         type: "success",
         duration: 3000,
       });
@@ -631,7 +633,7 @@ export default function AddressTab() {
                               : colors.dark.textSub
                           }
                         >
-                          You are currently working in
+                          {t("addressTab.currentWorkCity")}
                         </Text>
                         <Text
                           fontSize="lg"
@@ -642,7 +644,7 @@ export default function AddressTab() {
                               : colors.dark.textMain
                           }
                         >
-                          {deliveryData?.city || "City not set yet"}
+                          {deliveryData?.city || t("addressTab.cityNotSet")}
                         </Text>
                       </VStack>
                     </HStack>
@@ -669,7 +671,7 @@ export default function AddressTab() {
                             : colors.dark.mainFixed10a,
                       }}
                     >
-                      Edit City
+                      {t("addressTab.editCity")}
                     </Button>
                   </HStack>
                 </Box>
@@ -1012,7 +1014,7 @@ export default function AddressTab() {
               }
               fontSize="2xl"
             >
-              {editingAddressId ? "Edit Address" : "Add New Address"}
+              {editingAddressId ? t("addressTab.dialogTitle.edit") : t("addressTab.dialogTitle.add")}
             </DialogTitle>
             <Text
               fontSize="sm"
@@ -1024,8 +1026,8 @@ export default function AddressTab() {
               mt={1}
             >
               {userRole === "delivery"
-                ? "Your city will be detected from your current location."
-                : "Provide your address information"}
+                ? t("addressTab.dialogSubtitle.delivery")
+                : t("addressTab.dialogSubtitle.default")}
             </Text>
           </DialogHeader>
           <DialogCloseTrigger />
@@ -1049,10 +1051,10 @@ export default function AddressTab() {
                         : colors.dark.textMain
                     }
                   >
-                    City
+                    {t("addressDialog.labels.city")}
                   </Text>
                   <Input
-                    placeholder="Auto-filled from current location"
+                    placeholder={t("addressDialog.placeholders.autoFilled")}
                     value={city}
                     isDisabled
                     bg={
@@ -1087,7 +1089,7 @@ export default function AddressTab() {
                   borderRadius="12px"
                   onClick={handleGetCurrentLocation}
                   isLoading={isGettingLocation}
-                  loadingText="Getting Location..."
+                  loadingText={t("addressDialog.buttons.gettingLocation")}
                   _hover={{
                     bg:
                       colorMode === "light"
@@ -1096,7 +1098,7 @@ export default function AddressTab() {
                     opacity: 0.9,
                   }}
                 >
-                  Use Current Location
+                  {t("addressDialog.buttons.useLocation")}
                 </Button>
               </VStack>
             ) : (
@@ -1116,7 +1118,7 @@ export default function AddressTab() {
                           : colors.dark.textMain
                       }
                     >
-                      Label
+                      {t("addressDialog.labels.label")}
                     </Text>
                     <HStack spacing={3}>
                       {/* Home Button */}
@@ -1166,7 +1168,7 @@ export default function AddressTab() {
                               : colors.dark.bgFourth,
                         }}
                       >
-                        Home
+                        {t("addressDialog.labels.home")}
                       </Button>
 
                       {/* Work Button */}
@@ -1216,7 +1218,7 @@ export default function AddressTab() {
                               : colors.dark.bgFourth,
                         }}
                       >
-                        Work
+                        {t("addressDialog.labels.work")}
                       </Button>
 
                       {/* Department Button */}
@@ -1266,7 +1268,7 @@ export default function AddressTab() {
                               : colors.dark.bgFourth,
                         }}
                       >
-                        Department
+                        {t("addressDialog.labels.department")}
                       </Button>
                     </HStack>
                     {addressErrors.label && (
@@ -1296,11 +1298,11 @@ export default function AddressTab() {
                           : colors.dark.textMain
                       }
                     >
-                      City
+                      {t("addressDialog.labels.city")}
                     </Text>
                     <Box position="relative">
                       <Input
-                        placeholder="Auto-filled from current location"
+                        placeholder={t("addressDialog.placeholders.autoFilled")}
                         value={city}
                         onChange={(e) => {
                           setCity(e.target.value);
@@ -1404,10 +1406,10 @@ export default function AddressTab() {
                           : colors.dark.textMain
                       }
                     >
-                      Area
+                      {t("addressDialog.labels.area")}
                     </Text>
                     <Input
-                      placeholder="Auto-filled from current location"
+                      placeholder={t("addressDialog.placeholders.autoFilled")}
                       value={area}
                       onChange={(e) => {
                         setArea(e.target.value);
@@ -1477,10 +1479,10 @@ export default function AddressTab() {
                           : colors.dark.textMain
                       }
                     >
-                      Street
+                      {t("addressDialog.labels.street")}
                     </Text>
                     <Input
-                      placeholder="Enter street or use current location"
+                      placeholder={t("addressDialog.placeholders.street")}
                       value={street}
                       onChange={(e) => {
                         setStreet(e.target.value);
@@ -1542,10 +1544,10 @@ export default function AddressTab() {
                           : colors.dark.textMain
                       }
                     >
-                      Building Number
+                      {t("addressDialog.labels.buildingNo")}
                     </Text>
                     <Input
-                      placeholder="e.g., 123"
+                      placeholder={t("addressDialog.placeholders.building")}
                       value={buildingNumber}
                       onChange={(e) => {
                         const value = e.target.value;
@@ -1617,10 +1619,10 @@ export default function AddressTab() {
                           : colors.dark.textMain
                       }
                     >
-                      Floor (Optional)
+                      {t("addressDialog.labels.floor")}
                     </Text>
                     <Input
-                      placeholder="e.g., 3"
+                      placeholder={t("addressDialog.placeholders.floor")}
                       value={floor}
                       onChange={(e) => {
                         const value = e.target.value;
@@ -1666,10 +1668,10 @@ export default function AddressTab() {
                           : colors.dark.textMain
                       }
                     >
-                      Apartment (Optional)
+                      {t("addressDialog.labels.apartment")}
                     </Text>
                     <Input
-                      placeholder="e.g., 5A"
+                      placeholder={t("addressDialog.placeholders.apartment")}
                       value={apartment}
                       onChange={(e) => {
                         const value = e.target.value;
@@ -1737,7 +1739,7 @@ export default function AddressTab() {
                     px={4}
                     onClick={handleGetCurrentLocation}
                     isLoading={isGettingLocation}
-                    loadingText="Getting location..."
+                    loadingText={t("addressDialog.buttons.gettingLocation")}
                     w="full"
                   >
                     <HStack spacing={2} w="full" justify="center">
@@ -1745,11 +1747,11 @@ export default function AddressTab() {
                       <VStack align="start" spacing={0} flex={1}>
                         <HStack spacing={2}>
                           <Text fontSize="sm" fontWeight="bold">
-                            Use Current Location
+                            {t("addressDialog.buttons.useLocation")}
                           </Text>
                           {!latitude && !longitude && (
                             <Text fontSize="xs" color="inherit">
-                              (Required)
+                              ({t("addressTab.required")})
                             </Text>
                           )}
                         </HStack>
@@ -1762,10 +1764,10 @@ export default function AddressTab() {
                           }
                         >
                           {latitude && longitude
-                            ? `✓ Location detected (${latitude.toFixed(
+                            ? `✓ ${t("addressTab.locationDetected")} (${latitude.toFixed(
                                 6
                               )}, ${longitude.toFixed(6)})`
-                            : "Auto-fill address fields"}
+                            : t("addressTab.autoFill")}
                         </Text>
                       </VStack>
                     </HStack>
@@ -1842,7 +1844,7 @@ export default function AddressTab() {
                       </Box>
                       <VStack align="start" spacing={0} flex={1}>
                         <Text fontSize="sm" fontWeight="bold">
-                          Set as Primary Address
+                          {t("addressTab.setPrimary")}
                         </Text>
                         <Text
                           fontSize="xs"
@@ -1852,7 +1854,7 @@ export default function AddressTab() {
                               : colors.dark.textSub
                           }
                         >
-                          This will be your default delivery address
+                          {t("addressTab.primaryNote")}
                         </Text>
                       </VStack>
                     </HStack>
@@ -1909,8 +1911,7 @@ export default function AddressTab() {
                       ? colors.light.bgFourth
                       : colors.dark.bgFourth,
                 }}
-              >
-                Cancel
+              > {t("addressDialog.buttons.cancel")}                
               </Button>
               <Button
                 flex={1}
@@ -1931,7 +1932,7 @@ export default function AddressTab() {
                 isLoading={isAdding || isUpdating || isUpdatingDelivery}
                 loadingText={editingAddressId ? "Updating..." : "Saving..."}
               >
-                {editingAddressId ? "Update" : "Save"}
+             {t("addressDialog.buttons.save")}
               </Button>
             </HStack>
           </DialogFooter>

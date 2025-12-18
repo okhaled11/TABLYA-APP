@@ -17,7 +17,7 @@ import { useSelector, useDispatch } from "react-redux";
 import { clearRegistrationAddress } from "../../app/features/Auth/registrationAddressSlice";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
-import { registerSchemaKitchenChef } from "../../validation";
+import { getRegisterSchemaKitchenChef } from "../../validation";
 import { toaster } from "../ui/toaster";
 import { useRegisterChefMutation } from "../../app/features/Auth/registerChefSlice";
 import { useNavigate } from "react-router-dom";
@@ -51,7 +51,7 @@ export default function KitchenRegisterChef() {
     handleSubmit,
     formState: { errors },
     reset,
-  } = useForm({ resolver: yupResolver(registerSchemaKitchenChef) });
+  } = useForm({ resolver: yupResolver(getRegisterSchemaKitchenChef(t)) });
 
   const onSubmit = (data) => {
     console.log(dataRegisterChef);
@@ -60,6 +60,7 @@ export default function KitchenRegisterChef() {
       name: `${dataRegisterChef.firstName} ${dataRegisterChef.lastName}`,
       ...dataRegisterChef,
       ...data,
+      specialty: data.specialty, // Keep original value or use key? Usually stored as english value or key. Assuming value for now.
     };
     console.log(allDataRegisterChef);
     registerChef(allDataRegisterChef);
@@ -108,7 +109,6 @@ export default function KitchenRegisterChef() {
                 : colors.dark.textMain
             }
             mb={2}
-            me={"auto"}
             dir={isRTL ? "rtl" : "ltr"}
           >
             {t("kitchenRegisterChef.kitchenName")}
@@ -116,11 +116,7 @@ export default function KitchenRegisterChef() {
               *
             </Text>
           </Field.Label>
-          <InputGroup
-            {...(isRTL
-              ? { endElement: <TbToolsKitchen2 /> }
-              : { startElement: <TbToolsKitchen2 /> })}
-          >
+          <InputGroup startElement={<TbToolsKitchen2 />}>
             <Input
               rounded="md"
               placeholder={t("kitchenRegisterChef.kitchenNamePlaceholder")}
@@ -134,6 +130,7 @@ export default function KitchenRegisterChef() {
               }
               _placeholder={{ color: "gray.500" }}
               textAlign={isRTL ? "right" : "left"}
+              ps="2rem"
               {...register("KitchenName")}
             />
           </InputGroup>
@@ -182,11 +179,7 @@ export default function KitchenRegisterChef() {
                   *
                 </Text>
               </Field.Label>
-              <InputGroup
-                {...(isRTL
-                  ? { endElement: <MdAccessTime /> }
-                  : { startElement: <MdAccessTime /> })}
-              >
+              <InputGroup startElement={<MdAccessTime />}>
                 <Input
                   rounded="md"
                   type="time"
@@ -201,6 +194,7 @@ export default function KitchenRegisterChef() {
                       : colors.dark.textSub
                   }
                   textAlign={isRTL ? "right" : "left"}
+                  ps="2rem"
                   {...register("StartTime")}
                 />
               </InputGroup>
@@ -227,11 +221,7 @@ export default function KitchenRegisterChef() {
                   *
                 </Text>
               </Field.Label>
-              <InputGroup
-                {...(isRTL
-                  ? { endElement: <MdAccessTime /> }
-                  : { startElement: <MdAccessTime /> })}
-              >
+              <InputGroup startElement={<MdAccessTime />}>
                 <Input
                   rounded="md"
                   type="time"
@@ -246,6 +236,7 @@ export default function KitchenRegisterChef() {
                       : colors.dark.textSub
                   }
                   textAlign={isRTL ? "right" : "left"}
+                  ps="2rem"
                   {...register("EndTime")}
                 />
               </InputGroup>
@@ -268,7 +259,7 @@ export default function KitchenRegisterChef() {
             mb={2}
             dir={isRTL ? "rtl" : "ltr"}
           >
-            {t("specialty ")}
+            {t("kitchenRegisterChef.specialty")}
             <Text as="span" color="#FA2c23">
               *
             </Text>
@@ -297,18 +288,26 @@ export default function KitchenRegisterChef() {
                 {...register("specialty")}
               >
                 <option value="" selected>
-                  Choose your specialty{" "}
+                  {t("kitchenRegisterChef.chooseSpecialty")}
                 </option>
                 <option value="Traditional Egyptian">
-                  Traditional Egyptian
+                  {t("kitchenRegisterChef.specialties.egyptian")}
                 </option>
-                <option value="Homemade Grills">Homemade Grills</option>
-                <option value="Seafood">Seafood</option>
-                <option value="Desserts & Sweets">Desserts & Sweets</option>
+                <option value="Homemade Grills">
+                  {t("kitchenRegisterChef.specialties.grills")}
+                </option>
+                <option value="Seafood">
+                  {t("kitchenRegisterChef.specialties.seafood")}
+                </option>
+                <option value="Desserts & Sweets">
+                  {t("kitchenRegisterChef.specialties.desserts")}
+                </option>
                 <option value="Healthy & Diet Meals">
-                  Healthy & Diet Meals
+                  {t("kitchenRegisterChef.specialties.healthy")}
                 </option>
-                <option value="Vegetarian Dishes">Vegetarian Dishes</option>
+                <option value="Vegetarian Dishes">
+                  {t("kitchenRegisterChef.specialties.vegetarian")}
+                </option>
               </NativeSelectField>
             </NativeSelectRoot>
             <Box
@@ -340,42 +339,28 @@ export default function KitchenRegisterChef() {
             </Text>
           </Field.Label>
           <InputGroup
-            {...(isRTL
-              ? {
-                  startElement: showPassword ? (
-                    <AiOutlineEyeInvisible
-                      size={18}
-                      onClick={() => setShowPassword((prev) => !prev)}
-                    />
-                  ) : (
-                    <AiOutlineEye
-                      size={18}
-                      onClick={() => setShowPassword((prev) => !prev)}
-                    />
-                  ),
-                  endElement: <FaLock />,
-                }
-              : {
-                  startElement: <FaLock />,
-                  endElement: showPassword ? (
-                    <AiOutlineEyeInvisible
-                      size={18}
-                      onClick={() => setShowPassword((prev) => !prev)}
-                    />
-                  ) : (
-                    <AiOutlineEye
-                      size={18}
-                      onClick={() => setShowPassword((prev) => !prev)}
-                    />
-                  ),
-                })}
+            startElement={<FaLock />}
+            endElement={
+              showPassword ? (
+                <AiOutlineEyeInvisible
+                  size={18}
+                  onClick={() => setShowPassword((prev) => !prev)}
+                />
+              ) : (
+                <AiOutlineEye
+                  size={18}
+                  onClick={() => setShowPassword((prev) => !prev)}
+                />
+              )
+            }
           >
             <Input
               placeholder={t("kitchenRegisterChef.passwordPlaceholder")}
               type={showPassword ? "text" : "password"}
               bg={bgInput}
               borderRadius="10px"
-              pr="3rem"
+              pe="3rem"
+              ps="2.5rem"
               textAlign={isRTL ? "right" : "left"}
               {...register("password")}
             />
@@ -394,42 +379,28 @@ export default function KitchenRegisterChef() {
             </Text>
           </Field.Label>
           <InputGroup
-            {...(isRTL
-              ? {
-                  startElement: showConfirmPassword ? (
-                    <AiOutlineEyeInvisible
-                      size={18}
-                      onClick={() => setShowConfirmPassword((prev) => !prev)}
-                    />
-                  ) : (
-                    <AiOutlineEye
-                      size={18}
-                      onClick={() => setShowConfirmPassword((prev) => !prev)}
-                    />
-                  ),
-                  endElement: <FaLock />,
-                }
-              : {
-                  startElement: <FaLock />,
-                  endElement: showConfirmPassword ? (
-                    <AiOutlineEyeInvisible
-                      size={18}
-                      onClick={() => setShowConfirmPassword((prev) => !prev)}
-                    />
-                  ) : (
-                    <AiOutlineEye
-                      size={18}
-                      onClick={() => setShowConfirmPassword((prev) => !prev)}
-                    />
-                  ),
-                })}
+            startElement={<FaLock />}
+            endElement={
+              showConfirmPassword ? (
+                <AiOutlineEyeInvisible
+                  size={18}
+                  onClick={() => setShowConfirmPassword((prev) => !prev)}
+                />
+              ) : (
+                <AiOutlineEye
+                  size={18}
+                  onClick={() => setShowConfirmPassword((prev) => !prev)}
+                />
+              )
+            }
           >
             <Input
               placeholder={t("kitchenRegisterChef.confirmPasswordPlaceholder")}
               type={showConfirmPassword ? "text" : "password"}
               bg={bgInput}
               borderRadius="10px"
-              pr="3rem"
+              pe="3rem"
+              ps="2rem"
               textAlign={isRTL ? "right" : "left"}
               {...register("confirmPassword")}
             />

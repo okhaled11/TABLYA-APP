@@ -23,6 +23,7 @@ import { MapTrifold } from "@phosphor-icons/react";
 import { toaster } from "../ui/toaster";
 import { useDispatch } from "react-redux";
 import { setRegistrationAddress } from "../../app/features/Auth/registrationAddressSlice";
+import { useTranslation } from "react-i18next";
 
 const AddressDialog = ({
   isOpen,
@@ -31,6 +32,7 @@ const AddressDialog = ({
   userType = "customer",
 }) => {
   const { colorMode } = useColorMode();
+  const { t, i18n } = useTranslation();
   const dispatch = useDispatch();
   const [newAddressLabel, setNewAddressLabel] = useState("");
   const [city, setCity] = useState("");
@@ -71,8 +73,8 @@ const AddressDialog = ({
   const handleGetCurrentLocation = async () => {
     if (!navigator.geolocation) {
       toaster.create({
-        title: "Error",
-        description: "Geolocation is not supported by your browser",
+        title: t("addressDialog.toasts.geolocationNotSupported.title"),
+        description: t("addressDialog.toasts.geolocationNotSupported.description"),
         type: "error",
         duration: 3000,
       });
@@ -90,7 +92,12 @@ const AddressDialog = ({
           setLongitude(lng);
 
           const response = await fetch(
-            `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&addressdetails=1`
+            `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&addressdetails=1`,
+            {
+              headers: {
+                'Accept-Language': 'en'
+              }
+            }
           );
           const data = await response.json();
 
@@ -119,6 +126,11 @@ const AddressDialog = ({
             } else {
               areaName =
                 address.suburb || address.district || address.hamlet || "";
+            }
+            
+            // If no area is found, use city as area
+            if (!areaName && cityName) {
+              areaName = cityName;
             }
             setArea(areaName);
 
@@ -157,24 +169,23 @@ const AddressDialog = ({
             setAddressErrors((prev) => ({ ...prev, location: "" }));
 
             toaster.create({
-              title: "Success",
-              description: `Location detected: ${cityName || "Unknown city"}`,
+              title: t("addressDialog.toasts.locationSuccess.title"),
+              description: `${t("addressDialog.toasts.locationSuccess.description")}: ${cityName || "Unknown city"}`,
               type: "success",
               duration: 3000,
             });
           } else {
             toaster.create({
-              title: "Warning",
-              description: "Could not get address details. Please try again.",
+              title: t("addressDialog.toasts.addressWarning.title"),
+              description: t("addressDialog.toasts.addressWarning.description"),
               type: "warning",
               duration: 3000,
             });
           }
         } catch (error) {
           toaster.create({
-            title: "Error",
-            description:
-              "Failed to get address from location. Coordinates saved.",
+            title: t("addressDialog.toasts.addressError.title"),
+            description: t("addressDialog.toasts.addressError.description"),
             type: "error",
             duration: 3000,
           });
@@ -184,25 +195,24 @@ const AddressDialog = ({
       },
       (error) => {
         setIsGettingLocation(false);
-        let errorMessage = "Failed to get your location";
+        let errorMessage = t("addressDialog.toasts.locationErrors.unknown");
 
         switch (error.code) {
           case error.PERMISSION_DENIED:
-            errorMessage =
-              "Location permission denied. Please enable location access.";
+            errorMessage = t("addressDialog.toasts.locationErrors.denied");
             break;
           case error.POSITION_UNAVAILABLE:
-            errorMessage = "Location information is unavailable";
+            errorMessage = t("addressDialog.toasts.locationErrors.unavailable");
             break;
           case error.TIMEOUT:
-            errorMessage = "Location request timed out";
+            errorMessage = t("addressDialog.toasts.locationErrors.timeout");
             break;
           default:
-            errorMessage = "An unknown error occurred";
+            errorMessage = t("addressDialog.toasts.locationErrors.unknown");
         }
 
         toaster.create({
-          title: "Error",
+          title: t("addressDialog.toasts.addressError.title"),
           description: errorMessage,
           type: "error",
           duration: 3000,
@@ -228,22 +238,22 @@ const AddressDialog = ({
     const errors = { label: "", street: "", buildingNumber: "", location: "" };
 
     if (!newAddressLabel) {
-      errors.label = "Please select an address label";
+      errors.label = t("addressDialog.errors.selectLabel");
       hasError = true;
     }
 
     if (!street.trim()) {
-      errors.street = "Please enter street";
+      errors.street = t("addressDialog.errors.enterStreet");
       hasError = true;
     }
 
     if (!buildingNumber.trim()) {
-      errors.buildingNumber = "Please enter a building number";
+      errors.buildingNumber = t("addressDialog.errors.enterBuilding");
       hasError = true;
     }
 
-    if (!latitude || !longitude || !city || !area) {
-      errors.location = "You must use current location to set city and area";
+    if (!latitude || !longitude || !city) {
+      errors.location = t("addressDialog.errors.useLocation");
       hasError = true;
     }
 
@@ -270,8 +280,8 @@ const AddressDialog = ({
       dispatch(setRegistrationAddress(addressData));
 
       toaster.create({
-        title: "Success",
-        description: `Address for ${userType} saved successfully`,
+        title: t("addressDialog.toasts.saveSuccess.title"),
+        description: t("addressDialog.toasts.saveSuccess.description"),
         type: "success",
         duration: 3000,
       });
@@ -285,8 +295,8 @@ const AddressDialog = ({
       resetState();
     } catch (error) {
       toaster.create({
-        title: "Error",
-        description: error.message || "Failed to save address",
+        title: t("addressDialog.toasts.saveError.title"),
+        description: error.message || t("addressDialog.toasts.saveError.description"),
         type: "error",
         duration: 3000,
       });
@@ -310,6 +320,7 @@ const AddressDialog = ({
     >
       <DialogBackdrop bg="blackAlpha.700" backdropFilter="blur(4px)" />
       <DialogContent
+        dir={i18n.dir()}
         bg={colorMode === "light" ? colors.light.bgThird : colors.dark.bgThird}
         borderRadius="20px"
         maxW={{ base: "90%", sm: "500px", md: "700px", lg: "800px" }}
@@ -330,7 +341,7 @@ const AddressDialog = ({
             }
             fontSize="2xl"
           >
-            Add Address for {userType === "customer" ? "Customer" : "Chef"}
+            {t(`addressDialog.title.${userType}`)}
           </DialogTitle>
           <Text
             fontSize="sm"
@@ -339,7 +350,7 @@ const AddressDialog = ({
             }
             mt={1}
           >
-            City and area are filled automatically from your current location.
+            {t("addressDialog.subtitle")}
           </Text>
         </DialogHeader>
         <DialogCloseTrigger />
@@ -364,7 +375,7 @@ const AddressDialog = ({
                       : colors.dark.textMain
                   }
                 >
-                  Label
+                  {t("addressDialog.labels.label")}
                 </Text>
                 <HStack spacing={3}>
                   <Button
@@ -403,7 +414,7 @@ const AddressDialog = ({
                       }
                     }}
                   >
-                    Home
+                    {t("addressDialog.labels.home")}
                   </Button>
 
                   <Button
@@ -442,7 +453,7 @@ const AddressDialog = ({
                       }
                     }}
                   >
-                    Work
+                    {t("addressDialog.labels.work")}
                   </Button>
 
                   <Button
@@ -481,7 +492,7 @@ const AddressDialog = ({
                       }
                     }}
                   >
-                    Department
+                    {t("addressDialog.labels.department")}
                   </Button>
                 </HStack>
                 {addressErrors.label && (
@@ -513,7 +524,7 @@ const AddressDialog = ({
                 borderRadius="12px"
                 onClick={handleGetCurrentLocation}
                 isLoading={isGettingLocation}
-                loadingText="Getting Location..."
+                loadingText={t("addressDialog.buttons.gettingLocation")}
                 _hover={{
                   bg:
                     colorMode === "light"
@@ -522,7 +533,7 @@ const AddressDialog = ({
                   opacity: 0.9,
                 }}
               >
-                Use Current Location
+                {t("addressDialog.buttons.useLocation")}
               </Button>
               {addressErrors.location && (
                 <Text
@@ -551,7 +562,7 @@ const AddressDialog = ({
                       : colors.dark.textMain
                   }
                 >
-                  City
+                  {t("addressDialog.labels.city")}
                 </Text>
                 <Input
                   value={city}
@@ -579,7 +590,7 @@ const AddressDialog = ({
                       : colors.dark.textMain
                   }
                 >
-                  Area
+                  {t("addressDialog.labels.area")}
                 </Text>
                 <Input
                   value={area}
@@ -607,12 +618,12 @@ const AddressDialog = ({
                       : colors.dark.textMain
                   }
                 >
-                  Street
+                  {t("addressDialog.labels.street")}
                 </Text>
                 <Input
                   value={street}
                   onChange={(e) => setStreet(e.target.value)}
-                  placeholder="Enter street name"
+                  placeholder={t("addressDialog.placeholders.street")}
                   borderRadius="12px"
                 />
                 {addressErrors.street && (
@@ -642,12 +653,12 @@ const AddressDialog = ({
                       : colors.dark.textMain
                   }
                 >
-                  Building No.
+                  {t("addressDialog.labels.buildingNo")}
                 </Text>
                 <Input
                   value={buildingNumber}
                   onChange={(e) => setBuildingNumber(e.target.value)}
-                  placeholder="Building number"
+                  placeholder={t("addressDialog.placeholders.building")}
                   borderRadius="12px"
                 />
                 {addressErrors.buildingNumber && (
@@ -677,12 +688,12 @@ const AddressDialog = ({
                       : colors.dark.textMain
                   }
                 >
-                  Floor (optional)
+                  {t("addressDialog.labels.floor")}
                 </Text>
                 <Input
                   value={floor}
                   onChange={(e) => setFloor(e.target.value)}
-                  placeholder="Floor"
+                  placeholder={t("addressDialog.placeholders.floor")}
                   borderRadius="12px"
                 />
               </VStack>
@@ -700,12 +711,12 @@ const AddressDialog = ({
                       : colors.dark.textMain
                   }
                 >
-                  Apartment (optional)
+                  {t("addressDialog.labels.apartment")}
                 </Text>
                 <Input
                   value={apartment}
                   onChange={(e) => setApartment(e.target.value)}
-                  placeholder="Apartment"
+                  placeholder={t("addressDialog.placeholders.apartment")}
                   borderRadius="12px"
                 />
               </VStack>
@@ -722,7 +733,7 @@ const AddressDialog = ({
         >
           <HStack justify="flex-end" w="full" spacing={3}>
             <Button variant="ghost" onClick={handleClose}>
-              Cancel
+              {t("addressDialog.buttons.cancel")}
             </Button>
             <Button
               bg={
@@ -741,7 +752,7 @@ const AddressDialog = ({
                 opacity: 0.9,
               }}
             >
-              Save Address
+              {t("addressDialog.buttons.save")}
             </Button>
           </HStack>
         </DialogFooter>

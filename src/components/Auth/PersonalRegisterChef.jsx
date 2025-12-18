@@ -18,7 +18,7 @@ import AddressDialog from "../shared/AddressDialog";
 import { LuUpload } from "react-icons/lu";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
-import { registerSchemaPersonaChef } from "../../validation";
+import { getRegisterSchemaPersonaChef } from "../../validation";
 import { useDispatch } from "react-redux";
 import { getDataRegisterChef } from "../../app/features/PersonalRegisterChefSlice";
 import { toaster } from "../ui/toaster";
@@ -49,14 +49,14 @@ export const PersonalRegisterChef = ({ nextStepHandler }) => {
     handleSubmit,
     setValue,
     formState: { errors },
-  } = useForm({ resolver: yupResolver(registerSchemaPersonaChef) });
+  } = useForm({ resolver: yupResolver(getRegisterSchemaPersonaChef(t)) });
 
   const onSubmit = (data) => {
     // Check if address has been added
     if (!hasAddedAddress) {
       toaster.create({
-        title: "Address Required",
-        description: "Please add your address before continuing",
+        title: t("personalRegisterChef.addressRequiredTitle"),
+        description: t("personalRegisterChef.addressRequiredDesc"),
         type: "error",
         duration: 3500,
       });
@@ -89,16 +89,13 @@ export const PersonalRegisterChef = ({ nextStepHandler }) => {
               *
             </Text>
           </Field.Label>
-          <InputGroup
-            {...(isRTL
-              ? { endElement: <FaUser /> }
-              : { startElement: <FaUser /> })}
-          >
+          <InputGroup startElement={<FaUser />}>
             <Input
               rounded="md"
               placeholder={t("personalRegisterChef.firstNamePlaceholder")}
               bg={bgInput}
               textAlign={isRTL ? "right" : "left"}
+              ps="2rem"
               {...register("firstName")}
             />
           </InputGroup>
@@ -117,16 +114,13 @@ export const PersonalRegisterChef = ({ nextStepHandler }) => {
               *
             </Text>
           </Field.Label>
-          <InputGroup
-            {...(isRTL
-              ? { endElement: <FaUser /> }
-              : { startElement: <FaUser /> })}
-          >
+          <InputGroup startElement={<FaUser />}>
             <Input
               rounded="md"
               placeholder={t("personalRegisterChef.lastNamePlaceholder")}
               bg={bgInput}
               textAlign={isRTL ? "right" : "left"}
+              ps="2rem"
               {...register("lastName")}
             />
           </InputGroup>
@@ -146,16 +140,13 @@ export const PersonalRegisterChef = ({ nextStepHandler }) => {
             *
           </Text>
         </Field.Label>
-        <InputGroup
-          {...(isRTL
-            ? { endElement: <MdEmail /> }
-            : { startElement: <MdEmail /> })}
-        >
+        <InputGroup startElement={<MdEmail />}>
           <Input
             rounded="md"
             placeholder={t("personalRegisterChef.emailPlaceholder")}
             bg={bgInput}
             textAlign={isRTL ? "right" : "left"}
+            ps="2rem"
             {...register("email")}
           />
         </InputGroup>
@@ -174,16 +165,13 @@ export const PersonalRegisterChef = ({ nextStepHandler }) => {
             *
           </Text>
         </Field.Label>
-        <InputGroup
-          {...(isRTL
-            ? { endElement: <FaPhoneAlt /> }
-            : { startElement: <FaPhoneAlt /> })}
-        >
+        <InputGroup startElement={<FaPhoneAlt />}>
           <Input
             rounded="md"
             placeholder={t("personalRegisterChef.phonePlaceholder")}
             bg={bgInput}
             textAlign={isRTL ? "right" : "left"}
+            ps="2rem"
             {...register("phone")}
           />
         </InputGroup>
@@ -198,7 +186,7 @@ export const PersonalRegisterChef = ({ nextStepHandler }) => {
       {/* Upload selfie with your ID card front */}
       <Field.Root invalid={!!errors.id_card_front_url} spaceY={1}>
         <Field.Label me={"auto"} dir={isRTL ? "rtl" : "ltr"}>
-          National ID (Front Side)
+          {t("personalRegisterChef.idFrontLabel")}
           <Text as="span" color="#FA2c23">
             *
           </Text>
@@ -221,9 +209,9 @@ export const PersonalRegisterChef = ({ nextStepHandler }) => {
             // Validate file type
             if (!file.type.startsWith("image/")) {
               toaster.create({
-                title: "Invalid File Type",
+                title: t("validation.invalidFileTypeTitle"),
                 description:
-                  "Please upload an image file only (JPG, PNG, GIF, etc.)",
+                  t("validation.invalidFileTypeDesc"),
                 type: "error",
                 duration: 3500,
               });
@@ -244,9 +232,9 @@ export const PersonalRegisterChef = ({ nextStepHandler }) => {
               });
             } catch (error) {
               toaster.create({
-                title: "Conversion Error",
+                title: t("validation.conversionErrorTitle"),
                 description:
-                  "Failed to process image. Please try another file.",
+                  t("validation.conversionErrorDesc"),
                 type: "error",
                 duration: 3500,
               });
@@ -256,39 +244,26 @@ export const PersonalRegisterChef = ({ nextStepHandler }) => {
         >
           <FileUpload.HiddenInput accept="image/*" />
           <InputGroup
-            {...(isRTL
-              ? {
-                  startElement: (
-                    <FileUpload.ClearTrigger asChild>
-                      <CloseButton
-                        me="-1"
-                        size="xs"
-                        variant="plain"
-                        focusVisibleRing="inside"
-                        focusRingWidth="2px"
-                        pointerEvents="auto"
-                      />
-                    </FileUpload.ClearTrigger>
-                  ),
-                  endElement: <MdInsertPhoto />,
-                }
-              : {
-                  startElement: <MdInsertPhoto />,
-                  endElement: (
-                    <FileUpload.ClearTrigger asChild>
-                      <CloseButton
-                        me="-1"
-                        size="xs"
-                        variant="plain"
-                        focusVisibleRing="inside"
-                        focusRingWidth="2px"
-                        pointerEvents="auto"
-                      />
-                    </FileUpload.ClearTrigger>
-                  ),
-                })}
+            startElement={<MdInsertPhoto />}
+            endElement={
+              <FileUpload.ClearTrigger asChild>
+                <CloseButton
+                  me="-1"
+                  size="xs"
+                  variant="plain"
+                  focusVisibleRing="inside"
+                  focusRingWidth="2px"
+                  pointerEvents="auto"
+                />
+              </FileUpload.ClearTrigger>
+            }
           >
-            <Input asChild textAlign={isRTL ? "right" : "left"}>
+            <Input
+              asChild
+              textAlign={isRTL ? "right" : "left"}
+              ps="2.5rem"
+              pe="2.5rem"
+            >
               <FileUpload.Trigger>
                 <FileUpload.FileText lineClamp={1} />
               </FileUpload.Trigger>
@@ -304,7 +279,7 @@ export const PersonalRegisterChef = ({ nextStepHandler }) => {
       {/* Upload selfie with your ID card back */}
       <Field.Root invalid={!!errors.id_card_back_url} spaceY={1}>
         <Field.Label me={"auto"} dir={isRTL ? "rtl" : "ltr"}>
-          National ID (Back Side)
+          {t("personalRegisterChef.idBackLabel")}
           <Text as="span" color="#FA2c23">
             *
           </Text>
@@ -362,39 +337,26 @@ export const PersonalRegisterChef = ({ nextStepHandler }) => {
         >
           <FileUpload.HiddenInput accept="image/*" />
           <InputGroup
-            {...(isRTL
-              ? {
-                  startElement: (
-                    <FileUpload.ClearTrigger asChild>
-                      <CloseButton
-                        me="-1"
-                        size="xs"
-                        variant="plain"
-                        focusVisibleRing="inside"
-                        focusRingWidth="2px"
-                        pointerEvents="auto"
-                      />
-                    </FileUpload.ClearTrigger>
-                  ),
-                  endElement: <MdInsertPhoto />,
-                }
-              : {
-                  startElement: <MdInsertPhoto />,
-                  endElement: (
-                    <FileUpload.ClearTrigger asChild>
-                      <CloseButton
-                        me="-1"
-                        size="xs"
-                        variant="plain"
-                        focusVisibleRing="inside"
-                        focusRingWidth="2px"
-                        pointerEvents="auto"
-                      />
-                    </FileUpload.ClearTrigger>
-                  ),
-                })}
+            startElement={<MdInsertPhoto />}
+            endElement={
+              <FileUpload.ClearTrigger asChild>
+                <CloseButton
+                  me="-1"
+                  size="xs"
+                  variant="plain"
+                  focusVisibleRing="inside"
+                  focusRingWidth="2px"
+                  pointerEvents="auto"
+                />
+              </FileUpload.ClearTrigger>
+            }
           >
-            <Input asChild textAlign={isRTL ? "right" : "left"}>
+            <Input
+              asChild
+              textAlign={isRTL ? "right" : "left"}
+              ps="2.5rem"
+              pe="2.5rem"
+            >
               <FileUpload.Trigger>
                 <FileUpload.FileText lineClamp={1} />
               </FileUpload.Trigger>
@@ -410,7 +372,7 @@ export const PersonalRegisterChef = ({ nextStepHandler }) => {
       {/* Upload Selfie with National ID */}
       <Field.Root invalid={!!errors.selfie_with_id_url} spaceY={2}>
         <Field.Label me={"auto"} dir={isRTL ? "rtl" : "ltr"}>
-          Selfie with National ID
+          {t("personalRegisterChef.idSelfieLabel")}
           <Text as="span" color="#FA2c23">
             *
           </Text>
@@ -468,39 +430,26 @@ export const PersonalRegisterChef = ({ nextStepHandler }) => {
         >
           <FileUpload.HiddenInput accept="image/*" />
           <InputGroup
-            {...(isRTL
-              ? {
-                  startElement: (
-                    <FileUpload.ClearTrigger asChild>
-                      <CloseButton
-                        me="-1"
-                        size="xs"
-                        variant="plain"
-                        focusVisibleRing="inside"
-                        focusRingWidth="2px"
-                        pointerEvents="auto"
-                      />
-                    </FileUpload.ClearTrigger>
-                  ),
-                  endElement: <MdInsertPhoto />,
-                }
-              : {
-                  startElement: <MdInsertPhoto />,
-                  endElement: (
-                    <FileUpload.ClearTrigger asChild>
-                      <CloseButton
-                        me="-1"
-                        size="xs"
-                        variant="plain"
-                        focusVisibleRing="inside"
-                        focusRingWidth="2px"
-                        pointerEvents="auto"
-                      />
-                    </FileUpload.ClearTrigger>
-                  ),
-                })}
+            startElement={<MdInsertPhoto />}
+            endElement={
+              <FileUpload.ClearTrigger asChild>
+                <CloseButton
+                  me="-1"
+                  size="xs"
+                  variant="plain"
+                  focusVisibleRing="inside"
+                  focusRingWidth="2px"
+                  pointerEvents="auto"
+                />
+              </FileUpload.ClearTrigger>
+            }
           >
-            <Input asChild textAlign={isRTL ? "right" : "left"}>
+            <Input
+              asChild
+              textAlign={isRTL ? "right" : "left"}
+              ps="2.5rem"
+              pe="2.5rem"
+            >
               <FileUpload.Trigger>
                 <FileUpload.FileText lineClamp={1} />
               </FileUpload.Trigger>
@@ -527,7 +476,7 @@ export const PersonalRegisterChef = ({ nextStepHandler }) => {
           bg: "#FA2c2310",
         }}
       >
-        {hasAddedAddress ? "✓ Address Added" : "Add Address *"}
+        {hasAddedAddress ? t("personalRegisterChef.addressAdded") : t("personalRegisterChef.addAddress")}
       </Button>
 
       {/* Continue */}

@@ -1,4 +1,5 @@
 import { Box, Heading, Grid, Text, Flex } from "@chakra-ui/react";
+import { useTranslation } from "react-i18next";
 import { useColorMode } from "../../../theme/color-mode";
 import colors from "../../../theme/color";
 import { useGetUserDataQuery } from "../../../app/features/Auth/authSlice";
@@ -9,6 +10,7 @@ import CookieService from "../../../services/cookies";
 import { FaRegStar } from "react-icons/fa";
 
 const CookerReviews = () => {
+  const { t } = useTranslation();
   const { colorMode } = useColorMode();
   const token = CookieService.get("access_token");
   const { data: userData } = useGetUserDataQuery(undefined, {
@@ -31,7 +33,8 @@ const CookerReviews = () => {
             colorMode === "light" ? colors.light.textMain : colors.dark.textMain
           }
         >
-          Customer Reviews
+        
+          {t("cookerReviews.title")}
         </Heading>
 
         {isLoading ? (
@@ -80,7 +83,7 @@ const CookerReviews = () => {
                   : colors.dark.textMain
               }
             >
-              No Reviews Yet
+              {t("cookerReviews.empty.title")}
             </Text>
             <Text
               fontSize="md"
@@ -90,7 +93,7 @@ const CookerReviews = () => {
                   : colors.dark.textSub
               }
             >
-              Keep up the great work to get your first review!
+              {t("cookerReviews.empty.desc")}
             </Text>
           </Box>
         )}
