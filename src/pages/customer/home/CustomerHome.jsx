@@ -6,9 +6,12 @@ import { Link, Outlet } from "react-router-dom";
 import { useGetTopCookersQuery, useGetCustomerCityQuery } from "../../../app/features/Customer/CookersApi.js";
 import ChefCardSkelaton from "../../../components/ui/ChefCardSkelaton.jsx";
 import { useMemo } from "react";
+import { useTranslation } from "react-i18next";
+
 
 const CustomerHome = () => {
   const { colorMode } = useColorMode();
+  const { t } = useTranslation();
   const { data: cookers, isLoading, error, isError } = useGetTopCookersQuery();
   const { data: customerCity, error: cityError } = useGetCustomerCityQuery();
 
@@ -48,7 +51,7 @@ const CustomerHome = () => {
                 : colors.dark.textMain
             }
           >
-            Top Cookers
+            {t("customerHome.topCookers")}
           </Text>
           <Text
             as={Link}
@@ -64,7 +67,7 @@ const CustomerHome = () => {
             transition="0.3s ease"
             _hover={{ textDecoration: "underline" }}
           >
-            View All Cookers
+            {t("customerHome.viewAll")}
           </Text>
         </Flex>
         <Grid
@@ -77,12 +80,12 @@ const CustomerHome = () => {
               <ChefCardSkelaton key={index} />
             ))
           ) : error ? (
-            <Text>Error loading cookers.</Text>
+            <Text>{t("customerHome.error")}</Text>
           ) : filteredCookers.length === 0 ? (
             <Text gridColumn={{ base: "1 / -1" }} textAlign="center">
               {customerCity 
-                ? `No cookers found in ${customerCity}` 
-                : "No cookers available"}
+                ? t("customerHome.noCookersInCity", { city: customerCity })
+                : t("customerHome.noCookers")}
             </Text>
           ) : (
             filteredCookers.map((cooker) => (

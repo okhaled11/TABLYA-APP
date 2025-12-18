@@ -10,9 +10,12 @@ i18n
             en: { translation: translationEN },
             ar: { translation: translationAR },
         },
-        lng: "en", // اللغة الافتراضية
+        lng: localStorage.getItem("i18nextLng") || "en", // Get from storage or default to en
         fallbackLng: "en",
         interpolation: { escapeValue: false },
     });
+
+// Set initial direction based on language
+document.dir = i18n.language === "ar" ? "rtl" : "ltr";
 
 export default i18n;

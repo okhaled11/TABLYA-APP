@@ -17,7 +17,10 @@ import ChefCard from "../../components/customer/ChefCard";
 import { useColorMode } from "../../theme/color-mode";
 import colors from "../../theme/color";
 import { FaHeart } from "react-icons/fa";
+import { useTranslation } from "react-i18next";
+
 const CustomerFavourite = () => {
+  const { t } = useTranslation();
   const { colorMode } = useColorMode();
   const customerIdFromRedux = useSelector((s) => s.auth?.userData?.user?.id);
   const [customerIdFromSupabase, setCustomerIdFromSupabase] = useState(null);
@@ -76,7 +79,7 @@ const CustomerFavourite = () => {
           colorMode === "light" ? colors.light.textMain : colors.dark.textMain
         }
       >
-        My Favourite Chefs
+        {t("favorites.myFavoriteChefs")}
       </Text>
 
       {isPending && (
@@ -142,7 +145,7 @@ const CustomerFavourite = () => {
                   : colors.dark.textMain
               }
             >
-              No Favourite Chefs Yet
+              {t("favorites.emptyTitle")}
             </Text>
             <Text
               fontSize={{ base: "sm", md: "md" }}
@@ -153,8 +156,7 @@ const CustomerFavourite = () => {
               }
               maxW="md"
             >
-              Start exploring our amazing chefs and add them to your favourites
-              to see them here!
+              {t("favorites.emptyDescFavorites")}
             </Text>
           </VStack>
         </Box>

@@ -4,6 +4,7 @@ import DeliveryInfoCard from "./DeliveryInfoCard";
 import PaymentMethodSelect from "./PaymentMethodSelect";
 import { useColorMode } from "../../theme/color-mode";
 import colors from "../../theme/color";
+import { useTranslation } from "react-i18next";
 
 export default function OrderSummarySection({
   subtotal = 0,
@@ -15,6 +16,7 @@ export default function OrderSummarySection({
   selectedAddress = null,
   onOpenAddressModal = () => {},
 }) {
+  const { t } = useTranslation();
   const { colorMode } = useColorMode();
   const deliveryFee = typeof deliveryFeeProp === "number" ? deliveryFeeProp : 0;
   const total = typeof totalProp === "number" ? totalProp : subtotal + deliveryFee;
@@ -40,7 +42,7 @@ export default function OrderSummarySection({
           colorMode == "light" ? colors.light.textMain : colors.dark.textMain
         }
       >
-        Order Summary
+        {t("cart.orderSummary")}
       </Text>
 
       <VStack spacing={3} align="stretch">
@@ -49,8 +51,9 @@ export default function OrderSummarySection({
             color={
               colorMode == "light" ? colors.light.textSub : colors.dark.textSub
             }
+            title={t("cart.itemsTotal")}
           >
-            Subtotal
+            {t("cart.itemsTotal")}
           </Text>
           <Text
             color={
@@ -66,7 +69,7 @@ export default function OrderSummarySection({
               colorMode == "light" ? colors.light.textSub : colors.dark.textSub
             }
           >
-            Delivery Fee
+            {t("cart.deliveryFee")}
           </Text>
           <Text
             color={
@@ -75,7 +78,7 @@ export default function OrderSummarySection({
                 : colors.dark.textMain
             }
           >
-            {deliveryFee === 0 ? "Free" : `${deliveryFee.toFixed(2)} L.E`}
+            {deliveryFee === 0 ? t("navbar.free") || "Free" : `${deliveryFee.toFixed(2)} L.E`}
           </Text>
         </HStack>
 
@@ -87,7 +90,7 @@ export default function OrderSummarySection({
                 : colors.dark.mainFixed
             }
           >
-            Total
+            {t("cart.total")}
           </Text>
           <Text
             color={

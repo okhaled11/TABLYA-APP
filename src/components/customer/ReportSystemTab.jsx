@@ -6,9 +6,11 @@ import { useColorMode } from "../../theme/color-mode";
 import colors from "../../theme/color";
 import { useCreateSystemReportMutation } from "../../app/features/Customer/Reports/reportsApiSlice";
 import { v4 as uuidv4 } from "uuid";
+import { useTranslation } from "react-i18next";
 
 export default function ReportSystemTab() {
   const { colorMode } = useColorMode();
+  const { t } = useTranslation();
   const [details, setDetails] = useState("");
   const [createSystemReport, { isLoading: isSubmitting }] =
     useCreateSystemReportMutation();
@@ -17,8 +19,8 @@ export default function ReportSystemTab() {
     // Validate details
     if (!details.trim()) {
       toaster.create({
-        title: "Missing Information",
-        description: "Please provide details about the system problem",
+        title: t("reportSystem.validation.missingInfo"),
+        description: t("reportSystem.validation.provideDetails"),
         type: "warning",
         duration: 3000,
       });
@@ -32,8 +34,8 @@ export default function ReportSystemTab() {
       }).unwrap();
 
       toaster.create({
-        title: "Success",
-        description: "Your report has been submitted successfully",
+        title: t("reportSystem.success.title"),
+        description: t("reportSystem.success.description"),
         type: "success",
         duration: 3000,
       });
@@ -43,8 +45,8 @@ export default function ReportSystemTab() {
     } catch (error) {
       console.error("Failed to submit report:", error);
       toaster.create({
-        title: "Error",
-        description: error || "Failed to submit report",
+        title: t("reportSystem.error.title"),
+        description: error || t("reportSystem.error.description"),
         type: "error",
         duration: 3000,
       });
@@ -79,7 +81,7 @@ export default function ReportSystemTab() {
                   : colors.dark.textMain
               }
             >
-              Report System Problem
+              {t("reportSystem.title")}
             </Text>
           </HStack>
           <Text
@@ -88,8 +90,7 @@ export default function ReportSystemTab() {
               colorMode === "light" ? colors.light.textSub : colors.dark.textSub
             }
           >
-            Found a bug or experiencing technical issues? Let us know and we'll
-            look into it as soon as possible.
+            {t("reportSystem.subtitle")}
           </Text>
         </VStack>
 
@@ -115,7 +116,7 @@ export default function ReportSystemTab() {
                     : colors.dark.textMain
                 }
               >
-                Report Type:
+                {t("reportSystem.reportType")}
               </Text>
               <Text
                 fontSize="sm"
@@ -125,7 +126,7 @@ export default function ReportSystemTab() {
                     : colors.dark.textSub
                 }
               >
-                System Problem
+                {t("reportSystem.reportTypeValue")}
               </Text>
             </HStack>
             <HStack spacing={2}>
@@ -138,7 +139,7 @@ export default function ReportSystemTab() {
                     : colors.dark.textMain
                 }
               >
-                Target:
+                {t("reportSystem.target")}
               </Text>
               <Text
                 fontSize="sm"
@@ -148,7 +149,7 @@ export default function ReportSystemTab() {
                     : colors.dark.textSub
                 }
               >
-                System
+                {t("reportSystem.targetValue")}
               </Text>
             </HStack>
           </VStack>
@@ -166,10 +167,10 @@ export default function ReportSystemTab() {
             }
             mb={2}
           >
-            Problem Details *
+            {t("reportSystem.problemDetails")}
           </Text>
           <Textarea
-            placeholder="Please describe the issue you're experiencing in detail..."
+            placeholder={t("reportSystem.placeholder")}
             value={details}
             onChange={(e) => setDetails(e.target.value)}
             bg={
@@ -197,8 +198,7 @@ export default function ReportSystemTab() {
             }
             mt={2}
           >
-            Please be as detailed as possible to help us resolve the issue
-            quickly.
+            {t("reportSystem.helperText")}
           </Text>
         </Box>
 
@@ -228,7 +228,7 @@ export default function ReportSystemTab() {
                   : colors.dark.mainFixed10a,
             }}
           >
-            Clear
+            {t("reportSystem.clearButton")}
           </Button>
           <Button
             flex={1}
@@ -242,7 +242,7 @@ export default function ReportSystemTab() {
             size="lg"
             onClick={handleSubmitReport}
             isLoading={isSubmitting}
-            loadingText="Submitting..."
+            loadingText={t("reportSystem.submitting")}
             _hover={{
               bg:
                 colorMode === "light"
@@ -257,7 +257,7 @@ export default function ReportSystemTab() {
               opacity: 0.7,
             }}
           >
-            Submit Report
+            {t("reportSystem.submitButton")}
           </Button>
         </HStack>
       </VStack>

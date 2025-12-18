@@ -1,6 +1,7 @@
 import { Text, Box, Button, Flex } from "@chakra-ui/react";
 import CartItemCard from "./CartItemCard";
 import { useDispatch, useSelector } from "react-redux";
+import { useTranslation } from "react-i18next";
 import {
   removeItemFromCart,
   updateQuantity,
@@ -14,6 +15,7 @@ import { MdOutlineKeyboardArrowLeft } from "react-icons/md";
 
 export default function CartSection() {
   const { colorMode } = useColorMode();
+  const { t } = useTranslation();
   const { cartItems } = useSelector((state) => state.cart);
   console.log(cartItems);
   const dispatch = useDispatch();
@@ -60,7 +62,7 @@ export default function CartSection() {
             colorMode == "light" ? colors.light.textMain : colors.dark.textMain
           }
         >
-          Cart
+           {t("cart.yourCart")}
         </Text>
         <Box>
           <Text
@@ -69,7 +71,7 @@ export default function CartSection() {
               colorMode == "light" ? colors.light.textSub : colors.dark.textSub
             }
           >
-            {cartItems?.length || 0} items
+            {cartItems?.length || 0} {t("orders.items")}
           </Text>
         </Box>
       </Flex>
@@ -113,7 +115,7 @@ export default function CartSection() {
           bg={"transparent"}
         >
           <MdOutlineKeyboardArrowLeft />
-          Continue Shopping
+          {t("cart.startShopping")}
         </Button>
       </Box>
     </Box>

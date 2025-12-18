@@ -10,6 +10,7 @@ const CookerStaticsCard = ({
   icon: Icon,
   iconBg,
   iconColor,
+  actionButton,
 }) => {
   const { colorMode } = useColorMode();
 
@@ -25,12 +26,15 @@ const CookerStaticsCard = ({
     >
       <CardBody>
         <Flex direction="column" justifyContent="space-between">
-          <Text
-            color={colorMode === "light" ? "gray.600" : "gray.400"}
-            fontSize="15px"
-          >
-            {title}
-          </Text>
+          <Flex justifyContent="space-between" alignItems="center">
+            <Text
+              color={colorMode === "light" ? "gray.600" : "gray.400"}
+              fontSize="15px"
+            >
+              {title}
+            </Text>
+            {actionButton && actionButton}
+          </Flex>
           <Box
             h="1px"
             w="100%"

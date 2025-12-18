@@ -15,6 +15,8 @@ import {
 } from "@chakra-ui/react";
 import { useColorMode } from "../../theme/color-mode";
 import colors from "../../theme/color";
+import { useTranslation } from "react-i18next";
+
 
 function DialogCancelOrder({ 
   isOpen, 
@@ -24,6 +26,8 @@ function DialogCancelOrder({
   children
 }) {
   const { colorMode } = useColorMode();
+  const { t } = useTranslation();
+
 
   return (
     <DialogRoot 
@@ -57,7 +61,7 @@ function DialogCancelOrder({
       >
         <DialogHeader>
           <DialogTitle fontSize={{ base: "lg", md: "xl" }} fontWeight="bold">
-            Cancel Order?
+            {t("cancelOrder.title")}
           </DialogTitle>
           <DialogCloseTrigger />
         </DialogHeader>
@@ -71,7 +75,7 @@ function DialogCancelOrder({
                 : colors.dark.textSub
             }
           >
-            Are you sure you want to cancel this order? This action cannot be undone.
+            {t("cancelOrder.description")}
           </Text>
         </DialogBody>
 
@@ -85,7 +89,7 @@ function DialogCancelOrder({
               mr={{ base: 0, md: 3 }}
               w={{ base: "full", md: "auto" }}
             >
-              No, Keep Order
+              {t("cancelOrder.keepOrder")}
             </Button>
           </DialogActionTrigger>
           <Button
@@ -97,11 +101,11 @@ function DialogCancelOrder({
             color="white"
             onClick={onConfirm}
             isLoading={isLoading}
-            loadingText="Cancelling..."
+            loadingText={t("cancelOrder.cancelling")}
             _hover={{ opacity: 0.8 }}
             w={{ base: "full", md: "auto" }}
           >
-            Yes, Cancel Order
+            {t("cancelOrder.confirmCancel")}
           </Button>
         </DialogFooter>
       </DialogContent>

@@ -1,5 +1,6 @@
 import { Box, VStack, HStack, Text, Icon, Skeleton } from "@chakra-ui/react";
 import { FiMapPin, FiClock, FiPhone, FiUser } from "react-icons/fi";
+import { useTranslation } from "react-i18next";
 import { useGetUserDataQuery } from "../../app/features/Auth/authSlice";
 import { useGetAddressesQuery } from "../../app/features/Customer/addressSlice";
 import { useColorMode } from "../../theme/color-mode";
@@ -7,6 +8,7 @@ import colors from "../../theme/color";
 import { useSelector } from "react-redux";
 export default function DeliveryInfoCard({ selectedAddress = null }) {
   const { colorMode } = useColorMode();
+  const { t } = useTranslation();
   const { data: user, isLoading, isError } = useGetUserDataQuery(undefined, {
     refetchOnFocus: true,
     refetchOnReconnect: true,
@@ -43,13 +45,14 @@ export default function DeliveryInfoCard({ selectedAddress = null }) {
         addressToDisplay.street,
         addressToDisplay.area,
         addressToDisplay.city,
-        addressToDisplay.floor ? `Floor ${addressToDisplay.floor}` : "",
-        addressToDisplay.apartment ? `Apt ${addressToDisplay.apartment}` : "",
+        addressToDisplay.city,
+        addressToDisplay.floor ? `${t("cart.floor")} ${addressToDisplay.floor}` : "",
+        addressToDisplay.apartment ? `${t("cart.apt")} ${addressToDisplay.apartment}` : "",
       ].filter(Boolean);
       return parts.join(", ");
     })(),
-    phone: user?.phone || "No phone number provided",
-    name: user?.name || "Guest User",
+    phone: user?.phone || t("cart.noPhone"),
+    name: user?.name || t("cart.guest"),
   };
 
   if (isLoading) {
@@ -106,7 +109,7 @@ export default function DeliveryInfoCard({ selectedAddress = null }) {
                 : colors.dark.textMain
             }
           >
-            Delivery Information
+            {t("cart.deliveryInfo")}
           </Text>
         </HStack>
         <HStack>
@@ -157,7 +160,7 @@ export default function DeliveryInfoCard({ selectedAddress = null }) {
               fontWeight="medium"
               color={colorMode == "light" ? colors.light.error : colors.dark.error}
             >
-              No address added
+              {t("cart.noAddress")}
             </Text>
           )}
         </HStack>

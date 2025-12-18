@@ -14,12 +14,14 @@ import { useColorMode } from "../../../theme/color-mode.jsx";
 import colors from "../../../theme/color.js";
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { FiArrowLeft, FiSearch } from "react-icons/fi";
 import { useGetAllCookersQuery, useGetCustomerCityQuery } from "../../../app/features/Customer/CookersApi.js";
 import ChefCardSkelaton from "../../../components/ui/ChefCardSkelaton.jsx";
 
 const AllCookers = () => {
   const { colorMode } = useColorMode();
+  const { t } = useTranslation();
   const navigate = useNavigate();
 
   const { data: cookers, isLoading, error, isError } = useGetAllCookersQuery();
@@ -94,7 +96,7 @@ const AllCookers = () => {
               }
             >
               <Input
-                placeholder="Search"
+                placeholder={t("allCookers.searchPlaceholder")}
                 bg={
                   colorMode == "light"
                     ? colors.light.white10a
@@ -120,7 +122,7 @@ const AllCookers = () => {
                 : colors.dark.textMain
             }
           >
-            All Cookers
+            {t("allCookers.title")}
           </Text>
 
           {/* <Box w={{ base: "0", md: "70px" }} /> */}
@@ -136,7 +138,7 @@ const AllCookers = () => {
               <ChefCardSkelaton key={index} />
             ))
           ) : error ? (
-            <Text>Error loading cookers.</Text>
+            <Text>{t("allCookers.error")}</Text>
           ) : (
             (() => {
               const q = query.trim().toLowerCase();
@@ -169,8 +171,8 @@ const AllCookers = () => {
                 return (
                   <Text gridColumn={{ base: "1 / -1" }} textAlign="center">
                     {customerCity 
-                      ? `No cookers found in ${customerCity}` 
-                      : "No results found"}
+                      ? t("allCookers.noCookersInCity", { city: customerCity })
+                      : t("allCookers.noResults")}
                   </Text>
                 );
               }

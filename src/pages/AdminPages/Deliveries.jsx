@@ -58,7 +58,10 @@ function Deliveries() {
     if (!orders) return [];
     return orders.map((order) => ({
       id: order.id,
-      restaurant: order.cooker?.users?.name || "Unknown Chef",
+      restaurant:
+        order.cooker?.kitchen_name ||
+        order.cooker?.users?.name ||
+        "Unknown Chef",
       customer: order.customer?.users?.name || "Unknown Customer",
       deliveryPartner: order.delivery?.users?.name || "Unassigned",
       status: order.status,
@@ -68,25 +71,45 @@ function Deliveries() {
     }));
   }, [orders]);
 
+  const filterByStatus = (order, status) => {
+    return !status || order.status === status;
+  };
+
+  const filterBySearch = (order, search) => {
+    if (!search) return true;
+    const s = search.toLowerCase();
+    return (
+      order.restaurant.toLowerCase().includes(s) ||
+      order.customer.toLowerCase().includes(s) ||
+      order.deliveryPartner.toLowerCase().includes(s)
+    );
+  };
+
+  const filterByDate = (order, start, end) => {
+    const orderDate = new Date(order.orderDate);
+    const from = start ? new Date(start) : null;
+    const to = end ? new Date(end) : null;
+    return (!from || orderDate >= from) && (!to || orderDate <= to);
+  };
+
+  // const filterByCurrentMonth = (order) => {
+  //   const orderDate = new Date(order.orderDate);
+  //   const now = new Date();
+
+  //   return (
+  //     orderDate.getMonth() === now.getMonth() &&
+  //     orderDate.getFullYear() === now.getFullYear()
+  //   );
+  // };
+
   const filteredOrders = useMemo(() => {
     return ordersData.filter((order) => {
-      const matchesStatus =
-        statusFilter === "" || order.status === statusFilter;
-
-      const matchesSearch =
-        searchTerm === "" ||
-        order.restaurant.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        order.customer.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        order.deliveryPartner.toLowerCase().includes(searchTerm.toLowerCase());
-
-      const orderDate = new Date(order.orderDate);
-      const from = startDate ? new Date(startDate) : null;
-      const to = endDate ? new Date(endDate) : null;
-
-      const matchesDate =
-        (!from || orderDate >= from) && (!to || orderDate <= to);
-
-      return matchesStatus && matchesSearch && matchesDate;
+      return (
+        filterByStatus(order, statusFilter) &&
+        filterBySearch(order, searchTerm) &&
+        filterByDate(order, startDate, endDate)
+        // && filterByCurrentMonth(order)
+      );
     });
   }, [ordersData, statusFilter, searchTerm, startDate, endDate]);
 
@@ -415,6 +438,7 @@ function Deliveries() {
                       size="sm"
                       variant="outline"
                       colorScheme="teal"
+                      _hover={{ bg: "#16a249", color: "white" }}
                       onClick={() => {
                         const fullOrder = orders?.find(
                           (o) => o.id === order.id

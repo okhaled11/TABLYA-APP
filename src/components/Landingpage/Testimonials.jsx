@@ -157,7 +157,7 @@ export default function Testimonials() {
                             <FaQuoteLeft color="#f44336" size="28px" />
                             
                             <HStack gap="1">
-                              <Text fontSize={"small"}>For Chef:</Text>
+                              <Text fontSize={"small"}>{t("testimonials.forChef")}</Text>
                               <Avatar.Root style={{ width: "28px", height: "28px" }}>
                                 <Avatar.Fallback />
                                 <Avatar.Image src={item.cooker?.avatar_url} />

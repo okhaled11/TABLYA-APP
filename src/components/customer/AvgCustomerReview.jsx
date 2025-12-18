@@ -8,6 +8,7 @@ import {
   useDialog,
 } from "@chakra-ui/react";
 import React, { useEffect, useMemo, useState } from "react";
+import { useTranslation } from "react-i18next";
 import colors from "../../theme/color";
 import { useColorMode } from "../../theme/color-mode";
 import { useParams } from "react-router-dom";
@@ -22,6 +23,7 @@ import { supabase } from "../../services/supabaseClient";
 
 const AvgCustomerReview = () => {
   const dialog = useDialog();
+  const { t } = useTranslation();
   const { colorMode } = useColorMode();
   const { id } = useParams();
   const { data: cooker } = useGetCookerByIdQuery(id);
@@ -165,7 +167,7 @@ const AvgCustomerReview = () => {
             dialog.setOpen(true);
           }}
         >
-          {hasReviewed ? "Update Review" : "Add Review"}
+          {hasReviewed ? t("avgReview.updateReview") : t("avgReview.addReview")}
         </Button>
       </Box>
       <ReviewModal dialog={dialog} existingReview={existingReview} />

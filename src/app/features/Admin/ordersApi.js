@@ -13,9 +13,9 @@ export const ordersApi = createApi({
           .select(
             `
             *,
-            customer:customers(user_id, users(name, email,avatar_url)),
-            cooker:cookers(user_id, users(name, email,avatar_url)),
-            delivery:deliveries(user_id, users(name, email,avatar_url))
+            customer:customers(user_id, users(name, email,avatar_url,phone)),
+            cooker:cookers(user_id,kitchen_name, users(name, email,avatar_url,phone)),
+            delivery:deliveries(user_id, users(name, email,avatar_url,phone))
           `
           )
           .order("created_at", { ascending: false });
@@ -101,6 +101,45 @@ export const ordersApi = createApi({
       },
       invalidatesTags: ["Order"],
     }),
+
+    checkDeliveryOutForDelivery: builder.query({
+      async queryFn(delivery_id) {
+        const { data, error } = await supabase
+          .from("orders")
+          .select("id")
+          .eq("delivery_id", delivery_id)
+          .eq("status", "out_for_delivery");
+
+        if (error) return { error: error.message };
+        return { data };
+      },
+    }),
+    getDeliveryStatuses: builder.query({
+      async queryFn() {
+        const { data, error } = await supabase
+          .from("orders")
+          .select("delivery_id")
+          .eq("status", "out_for_delivery");
+
+        if (error) return { error: error.message };
+
+        // Count active orders per delivery
+        const map = {};
+        data.forEach((order) => {
+          map[order.delivery_id] = (map[order.delivery_id] || 0) + 1;
+        });
+
+        // Convert map to array if you prefer
+        const result = Object.entries(map).map(
+          ([delivery_id, activeOrders]) => ({
+            delivery_id,
+            activeOrders,
+          })
+        );
+
+        return { data: result };
+      },
+    }),
   }),
 });
 
@@ -111,4 +150,6 @@ export const {
   useCreateOrderMutation,
   useUpdateOrderMutation,
   useDeleteOrderMutation,
+  useCheckDeliveryOutForDeliveryQuery,
+  useGetDeliveryStatusesQuery,
 } = ordersApi;

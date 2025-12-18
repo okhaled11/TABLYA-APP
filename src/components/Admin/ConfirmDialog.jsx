@@ -29,11 +29,11 @@ const ConfirmDialog = ({
               <p>{message}</p>
             </Dialog.Body>
             <Dialog.Footer>
-              <Dialog.ActionTrigger asChild>
+              {/* <Dialog.ActionTrigger asChild>
                 <Button variant="outline" onClick={onClose}>
                   {cancelLabel}
                 </Button>
-              </Dialog.ActionTrigger>
+              </Dialog.ActionTrigger> */}
               <Button colorPalette={confirmColor} onClick={onConfirm}>
                 {confirmLabel}
               </Button>

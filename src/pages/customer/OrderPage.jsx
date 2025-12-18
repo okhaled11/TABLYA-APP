@@ -37,6 +37,7 @@ import {
   useGetUserReportsQuery,
 } from "../../app/features/Customer/Reports/reportsApiSlice";
 import loadingGif from "../../assets/Transparent Version.gif";
+import { useTranslation } from "react-i18next";
 
 const OrderPage = () => {
   /* --------------------data login id as sub---------------------- */
@@ -49,6 +50,7 @@ const OrderPage = () => {
 
   /* --------------------------state------------------------- */
   const { colorMode } = useColorMode();
+  const { t } = useTranslation();
   const [hiddenOrderIds, setHiddenOrderIds] = useState([]);
   const [orderStatusTracker, setOrderStatusTracker] = useState({});
   const [isReportOpen, setIsReportOpen] = useState(false);
@@ -82,9 +84,6 @@ const OrderPage = () => {
   });
   const [cancelOrder, { isLoading: cancelLoading }] = useCancelOrderMutation();
 
-  console.log("All orders:", orders);
-  console.log("Orders error:", ordersError);
-  console.log("Order history:", orderHistory);
   // Skeleton Loading Component
   const OrderSkeleton = () => (
     <Box
@@ -313,16 +312,9 @@ const OrderPage = () => {
   /* -----------------HANDLER---------------------------- */
   // Status name mapping
   const getStatusDisplayName = (status) => {
-    const statusMap = {
-      confirmed: "Order Placed",
-      preparing: "Preparing",
-      ready_for_pickup: "Ready for Pickup",
-      out_for_delivery: "Out for Delivery",
-      delivered: "Delivered",
-      cancelled: "Cancelled",
-      created: "Created",
-    };
-    return statusMap[status] || status;
+    // Return translation key or fallback
+    const key = `orders.statuses.${status}`;
+    return t(key, { defaultValue: status });
   };
 
   const getStatusBadgeStyles = (status) => {
@@ -409,7 +401,7 @@ const OrderPage = () => {
       setCancellingOrderId(orderId);
       await cancelOrder({ orderId }).unwrap();
       toaster.create({
-        title: "Order Cancelled",
+        title: t("cart.orderCancelled"),
         description: "Your order has been cancelled successfully.",
         type: "success",
         duration: 3000,
@@ -442,7 +434,7 @@ const OrderPage = () => {
   const handleSendReport = async () => {
     if (!reportReason || !reportDetails) {
       toaster.create({
-        title: "Missing Information",
+        title: t("cart.missingInfo"),
         description:
           "Please select a complaint category and provide a description.",
         type: "warning",
@@ -462,7 +454,7 @@ const OrderPage = () => {
       });
       if (res && !res.error) {
         toaster.create({
-          title: "Report Submitted Successfully",
+          title: t("cart.reportSubmitted"),
           description:
             "Your report has been sent to our team for review. We'll investigate the issue promptly.",
           type: "success",
@@ -480,7 +472,7 @@ const OrderPage = () => {
       }
     } catch (e) {
       toaster.create({
-        title: "Unexpected Error",
+        title: t("cart.unexpectedError"),
         description:
           "Something went wrong while sending your report. Please try again.",
         type: "error",
@@ -544,7 +536,7 @@ const OrderPage = () => {
                 }
                 mt={{ base: 2, sm: 0 }}
               >
-                Total: {total} LE
+                {t("cart.total")}: {total} LE
               </Text>
             </Flex>
 
@@ -602,7 +594,7 @@ const OrderPage = () => {
                         fontSize={{ base: "12px", md: "14px" }}
                         color={colors.light.textSub}
                       >
-                        Price:{" "}
+                        {t("orders.price")}:{" "}
                         {item.price_at_order ||
                           item?.price_for_customer}{" "}
                         LE
@@ -627,7 +619,7 @@ const OrderPage = () => {
                   color={colors.light.textSub}
                   textAlign="center"
                 >
-                  No items found for this order
+                  {t("orders.noItems")}
                 </Text>
               )}
             </VStack>
@@ -658,7 +650,7 @@ const OrderPage = () => {
                       : colors.dark.mainFixedActive,
                 }}
               >
-                Order Details
+                {t("orders.orderDetails")}
               </Button>
             </Flex>
           </Box>
@@ -714,7 +706,7 @@ const OrderPage = () => {
                       : colors.dark.textMain
                   }
                 >
-                  Wait for the chef to confirm your order!
+                  {t("orders.waitForConfirmation")}
                 </Text>
 
                 <Button
@@ -754,10 +746,10 @@ const OrderPage = () => {
                         alt="Loading"
                         boxSize="24px"
                       />
-                      <Text>Cancelling...</Text>
+                      <Text>{t("orders.cancelling")}</Text>
                     </HStack>
                   ) : (
-                    "Cancel Order"
+                    t("orders.cancelOrder")
                   )}
                 </Button>
               </VStack>
@@ -772,7 +764,7 @@ const OrderPage = () => {
     <>
       <Box>
         <Text fontSize={{ base: "20px", md: "40px" }} fontWeight={"700"} my={6}>
-          Active Order Now
+          {t("orders.activeOrderNow")}
         </Text>
         {ordersLoading ? (
           <>
@@ -808,7 +800,7 @@ const OrderPage = () => {
                 fontSize={{ base: "16px", md: "20px" }}
                 color={colors.light.textSub}
               >
-                You currently have no active orders
+                {t("orderPage.noActiveOrders")}
               </Text>
             </VStack>
           </Box>
@@ -918,7 +910,7 @@ const OrderPage = () => {
 
       <Box>
         <Text fontSize={{ base: "20px", md: "40px" }} fontWeight={"700"}>
-          Order History
+          {t("orderPage.orderHistory")}
         </Text>
         {orderHistoryLoading ? (
           <>
@@ -976,7 +968,7 @@ const OrderPage = () => {
                           : colors.dark.textMain
                       }
                     >
-                      Total: {orderDetails?.total || 0} LE
+                      {t("common.total")}: {orderDetails?.total || 0} {t("common.currency")}
                     </Text>
                   </Box>
                 </Flex>
@@ -1070,22 +1062,22 @@ const OrderPage = () => {
 
                 <Flex direction="column" gap={2}>
                   <Flex justify="space-between">
-                    <Text color={colors.light.textSub}>Subtotal:</Text>
+                    <Text color={colors.light.textSub}>{t("common.subtotal")}:</Text>
                     <Text fontWeight={500}>
-                      {orderDetails?.subtotal || 0} LE
+                      {orderDetails?.subtotal || 0} {t("common.currency")}
                     </Text>
                   </Flex>
                   <Flex justify="space-between">
-                    <Text color={colors.light.textSub}>Delivery Fee:</Text>
+                    <Text color={colors.light.textSub}>{t("common.deliveryFee")}:</Text>
                     <Text fontWeight={500}>
-                      {orderDetails?.delivery_fee || 0} LE
+                      {orderDetails?.delivery_fee || 0} {t("common.currency")}
                     </Text>
                   </Flex>
                   {orderDetails?.discount > 0 && (
                     <Flex justify="space-between">
                       <Text color={colors.light.textSub}>Discount:</Text>
                       <Text fontWeight={500} color="green.500">
-                        -{orderDetails?.discount} LE
+                        -{orderDetails?.discount} {t("common.currency")}
                       </Text>
                     </Flex>
                   )}
@@ -1127,7 +1119,7 @@ const OrderPage = () => {
                           colorMode === "light" ? "red.600" : "red.300",
                       }}
                     >
-                      Report
+                      {t("orderPage.report")}
                     </Button>
                   </Flex>
                 )}
@@ -1138,7 +1130,7 @@ const OrderPage = () => {
                       color={colorMode === "light" ? "green.600" : "green.400"}
                       fontWeight={500}
                     >
-                      ✓ Report Submitted
+                      {t("orderPage.reportSubmitted")}
                     </Text>
                   </Flex>
                 )}
@@ -1172,7 +1164,7 @@ const OrderPage = () => {
                 fontSize={{ base: "16px", md: "20px" }}
                 color={colors.light.textSub}
               >
-                You currently have no orders in your order history
+                {t("orderPage.noOrderHistory")}
               </Text>
             </VStack>
           </Box>
@@ -1319,7 +1311,7 @@ const OrderPage = () => {
                     : colors.dark.textMain
                 }
               >
-                Report a Problem
+                {t("orderPage.reportProblem")}
               </Text>
               <Text
                 fontSize={{ base: "14px", md: "14px" }}
@@ -1337,12 +1329,12 @@ const OrderPage = () => {
             <VStack align="stretch" marginTop={4} gap={4}>
               <Box>
                 <Text mb={2} color={colors.light.textSub}>
-                  Complaint Title
+                  {t("orderPage.complaintTitle")}
                 </Text>
                 <Box
                   as="input"
                   type="text"
-                  placeholder="Brief description of the issue"
+                  placeholder={t("orderPage.complaintTitlePlaceholder")}
                   value={reportTitle}
                   onChange={(e) => setReportTitle(e.target.value)}
                   bg={
@@ -1369,7 +1361,7 @@ const OrderPage = () => {
               </Box>
               <Box>
                 <Text mb={2} color={colors.light.textSub}>
-                  Complaint Category
+                  {t("orderPage.complaintCategory")}
                 </Text>
                 <Box
                   as="select"
@@ -1414,19 +1406,19 @@ const OrderPage = () => {
                     },
                   }}
                 >
-                  <option value="">Select a complaint category</option>
-                  <option value="food_problem">Food problem</option>
-                  <option value="delivery_problem">Delivery problem</option>
-                  <option value="money_problem">Money problem</option>
+                  <option value="">{t("orderPage.selectCategory")}</option>
+                  <option value="food_problem">{t("orderPage.foodProblem")}</option>
+                  <option value="delivery_problem">{t("orderPage.deliveryProblem")}</option>
+                  <option value="money_problem">{t("orderPage.moneyProblem")}</option>
                 </Box>
               </Box>
               <Box>
                 <Text mb={2} color={colors.light.textSub}>
-                  Complaint Description
+                  {t("orderPage.complaintDescription")}
                 </Text>
                 <Box
                   as="textarea"
-                  placeholder="Please provide detailed information about your complaint..."
+                  placeholder={t("orderPage.complaintDescriptionPlaceholder")}
                   value={reportDetails}
                   onChange={(e) => setReportDetails(e.target.value)}
                   rows={5}
@@ -1473,7 +1465,7 @@ const OrderPage = () => {
                       : colors.dark.mainFixedActive,
                 }}
               >
-                Send Report
+                {t("orderPage.sendReport")}
               </Button>
               <Button
                 variant="outline"
@@ -1482,7 +1474,7 @@ const OrderPage = () => {
                 rounded="xl"
                 onClick={closeReportModal}
               >
-                Cancel
+                {t("orderPage.cancel")}
               </Button>
             </HStack>
           </Box>

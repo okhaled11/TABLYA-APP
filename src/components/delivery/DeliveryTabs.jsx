@@ -4,26 +4,28 @@ import { FaArrowTrendUp, FaRegHeart } from "react-icons/fa6";
 import colors from "../../theme/color";
 import { useColorMode } from "../../theme/color-mode";
 import { useNavigate, useLocation } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 
 
 const DeliveryTabs = () => {
   const {colorMode} = useColorMode();
+  const { t, i18n } = useTranslation();
   const navigate = useNavigate();
   const location = useLocation();
   const getActiveTab = () => {
     const path = location.pathname;
-    if (path === "/delivery/orders") return "Orders";
-    if (path === "/delivery/Statistics") return "Statistics";
-    return "Orders"; 
+    if (path === "/delivery/orders") return t("delivery.tabs.orders");
+    if (path === "/delivery/Statistics") return t("delivery.tabs.statistics");
+    return t("delivery.tabs.orders"); 
   };
 
   return (
     <Tabs.Root value={getActiveTab()} position="sticky" top={{ base: 20, md: 20 }} zIndex="900" bg={colorMode === "light" ? colors.light.bgMain : colors.dark.bgMain}>
-      <Tabs.List>
+      <Tabs.List dir={i18n.dir()}>
         <Flex w="100%" justifyContent="center" gap={{ base: 6, md: 6 }}>
           <Tabs.Trigger
             colorPalette={"red"}
-            value="Orders"
+            value={t("delivery.tabs.orders")}
             _selected={{
               color: colors.light.mainFixed,
             }}
@@ -37,12 +39,12 @@ const DeliveryTabs = () => {
             >
               <RiFileList3Line size={20} />
 
-              <Box >Orders</Box>
+              <Box >{t("delivery.tabs.orders")}</Box>
             </Flex>
           </Tabs.Trigger>
 
           <Tabs.Trigger
-            value="Statistics"
+            value={t("delivery.tabs.statistics")}
             colorPalette={"red"}
             _selected={{
               color: colors.light.mainFixed,
@@ -56,7 +58,7 @@ const DeliveryTabs = () => {
               onClick={() => navigate("/delivery/Statistics")}
             >
               <FaArrowTrendUp size={20}/>
-              <Box >Statistics</Box>
+              <Box >{t("delivery.tabs.statistics")}</Box>
             </Flex>
           </Tabs.Trigger>
         </Flex>

@@ -218,6 +218,30 @@ export default function SidebarLayout() {
   const { colorMode } = useColorMode();
   const isMobile = useBreakpointValue({ base: true, md: false });
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+  // Enforce LTR and English for Admin Dashboard
+  /*
+  useEffect(() => {
+    const originalDir = document.dir;
+    const originalLang = document.documentElement.lang;
+
+    document.dir = "ltr";
+    document.documentElement.lang = "en";
+
+    return () => {
+      // Optional: Restore context if needed, but usually the next page handles it
+      // For now, let's validly switch back based on i18n state if we had access to it,
+      // but since this is a layout, we might just leave it be until another component changes it.
+      // Better yet, let's just force it here.
+    };
+  }, []);
+  */
+  // Actually, let's just use the existing i18n to switch to english if not already?
+  // The requirement says: "Admin pages should remain unchanged and use the default language and layout."
+  // So we should force EN/LTR.
+
+   useEffect(() => {
+    document.dir = "ltr";
+  }, []);
 
   const sidebarContent = (
     <Box

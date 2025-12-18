@@ -21,7 +21,7 @@ import AddressDialog from "../shared/AddressDialog";
 import { Link, useNavigate } from "react-router-dom";
 import { useColorMode } from "../../theme/color-mode";
 import colors from "../../theme/color";
-import { registerSchema } from "../../validation";
+import { getRegisterSchema } from "../../validation";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { useDispatch, useSelector } from "react-redux";
@@ -66,7 +66,7 @@ const CustomerRegister = () => {
     formState: { errors },
     clearErrors,
   } = useForm({
-    resolver: yupResolver(registerSchema),
+    resolver: yupResolver(getRegisterSchema(t)),
   });
   // handle submit
   const onSubmit = async (data) => {
@@ -74,7 +74,7 @@ const CustomerRegister = () => {
     if (!hasAddedAddress) {
       toaster.create({
         title: t("customerRegister.errorTitle"),
-        description: "Please add your address before registering",
+        description: t("customerRegister.addAddressError"),
         type: "error",
         duration: 3000,
         isClosable: true,
@@ -94,10 +94,10 @@ const CustomerRegister = () => {
       // Check if email confirmation is needed
       if (result.payload.needsEmailConfirmation) {
         toaster.create({
-          title: "Registration Successful!",
+          title: t("customerRegister.successTitle"),
           description:
             result.payload.message ||
-            "Please check your email and click the confirmation link.",
+            t("customerRegister.checkEmailDescription"),
           status: "info",
           duration: 8000,
           isClosable: true,
@@ -136,16 +136,15 @@ const CustomerRegister = () => {
     try {
       await resendConfirmation(user.email);
       toaster.create({
-        title: "Email Sent!",
-        description:
-          "We've sent you a new confirmation email. Please check your inbox.",
+        title: t("customerRegister.resendSuccess"),
+        description: t("customerRegister.resendSuccessDesc"),
         status: "success",
         duration: 5000,
       });
     } catch (error) {
       toaster.create({
-        title: "Failed to Send Email",
-        description: error.message || "Please try again later.",
+        title: t("customerRegister.resendError"),
+        description: error.message || t("customerRegister.errorDescription"),
         status: "error",
         duration: 5000,
       });
@@ -189,7 +188,7 @@ const CustomerRegister = () => {
                   : colors.dark.textMain
               }
             >
-              Check Your Email
+              {t("customerRegister.checkEmailTitle")}
             </Text>
             <Text
               fontSize="md"
@@ -201,7 +200,7 @@ const CustomerRegister = () => {
               textAlign="center"
             >
               {confirmationMessage ||
-                "We've sent you a confirmation email. Please click the link in the email to complete your registration."}
+                t("customerRegister.checkEmailDescription")}
             </Text>
             <Flex gap={3} mt={4} direction={{ base: "column", sm: "row" }}>
               <Button
@@ -209,17 +208,17 @@ const CustomerRegister = () => {
                 onClick={() => navigate("/login")}
                 flex={1}
               >
-                Back to Login
+                {t("customerRegister.backToLogin")}
               </Button>
               <Button
                 onClick={handleResendConfirmation}
                 isLoading={resendLoading}
-                loadingText="Sending..."
+                loadingText={t("customerRegister.resendEmail") + "..."}
                 colorScheme="blue"
                 flex={1}
                 bg={colors.light.error}
               >
-                Resend Email
+                {t("customerRegister.resendEmail")}
               </Button>
             </Flex>
           </Flex>
@@ -239,11 +238,7 @@ const CustomerRegister = () => {
                 {t("customerRegister.firstName")}{" "}
                 <Field.RequiredIndicator></Field.RequiredIndicator>
               </Field.Label>
-              <InputGroup
-                {...(isRTL
-                  ? { endElement: <FaUser /> }
-                  : { startElement: <FaUser /> })}
-              >
+              <InputGroup startElement={<FaUser />}>
                 <Input
                   placeholder={t("customerRegister.firstNamePlaceholder")}
                   textAlign={isRTL ? "right" : "left"}
@@ -251,6 +246,7 @@ const CustomerRegister = () => {
                   {...register("firstName")}
                   type="text"
                   value={user.firstName}
+                  ps="2.5rem"
                   onChange={(e) => {
                     handleChange(e);
                     clearErrors("firstName");
@@ -275,17 +271,14 @@ const CustomerRegister = () => {
                 {t("customerRegister.lastName")}{" "}
                 <Field.RequiredIndicator></Field.RequiredIndicator>
               </Field.Label>
-              <InputGroup
-                {...(isRTL
-                  ? { endElement: <FaUser /> }
-                  : { startElement: <FaUser /> })}
-              >
+              <InputGroup startElement={<FaUser />}>
                 <Input
                   placeholder={t("customerRegister.lastNamePlaceholder")}
                   textAlign={isRTL ? "right" : "left"}
                   name="lastName"
                   {...register("lastName")}
                   value={user.lastName}
+                  ps="2.5rem"
                   onChange={(e) => {
                     handleChange(e);
                     clearErrors("lastName");
@@ -312,11 +305,7 @@ const CustomerRegister = () => {
               {t("customerRegister.email")}{" "}
               <Field.RequiredIndicator></Field.RequiredIndicator>
             </Field.Label>
-            <InputGroup
-              {...(isRTL
-                ? { endElement: <FaEnvelope /> }
-                : { startElement: <FaEnvelope /> })}
-            >
+            <InputGroup startElement={<FaEnvelope />}>
               <Input
                 placeholder={t("customerRegister.emailPlaceholder")}
                 textAlign={isRTL ? "right" : "left"}
@@ -324,6 +313,7 @@ const CustomerRegister = () => {
                 name="email"
                 {...register("email")}
                 value={user.email}
+                ps="2.5rem"
                 onChange={(e) => {
                   handleChange(e);
                   clearErrors("email");
@@ -349,17 +339,14 @@ const CustomerRegister = () => {
               {t("customerRegister.phone")}{" "}
               <Field.RequiredIndicator></Field.RequiredIndicator>
             </Field.Label>
-            <InputGroup
-              {...(isRTL
-                ? { endElement: <FaPhone /> }
-                : { startElement: <FaPhone /> })}
-            >
+            <InputGroup startElement={<FaPhone />}>
               <Input
                 placeholder={t("customerRegister.phonePlaceholder")}
                 textAlign={isRTL ? "right" : "left"}
                 name="phone"
                 {...register("phone")}
                 value={user.phone}
+                ps="2.5rem"
                 onChange={(e) => {
                   handleChange(e);
                   clearErrors("phone");
@@ -387,35 +374,20 @@ const CustomerRegister = () => {
                 <Field.RequiredIndicator></Field.RequiredIndicator>
               </Field.Label>
               <InputGroup
-                {...(isRTL
-                  ? {
-                      startElement: showPassword ? (
-                        <AiOutlineEye
-                          size={18}
-                          onClick={() => setShowPassword((prev) => !prev)}
-                        />
-                      ) : (
-                        <AiOutlineEyeInvisible
-                          size={18}
-                          onClick={() => setShowPassword((prev) => !prev)}
-                        />
-                      ),
-                      endElement: <FaLock />,
-                    }
-                  : {
-                      startElement: <FaLock />,
-                      endElement: showPassword ? (
-                        <AiOutlineEye
-                          size={18}
-                          onClick={() => setShowPassword((prev) => !prev)}
-                        />
-                      ) : (
-                        <AiOutlineEyeInvisible
-                          size={18}
-                          onClick={() => setShowPassword((prev) => !prev)}
-                        />
-                      ),
-                    })}
+                startElement={<FaLock />}
+                endElement={
+                  showPassword ? (
+                    <AiOutlineEye
+                      size={18}
+                      onClick={() => setShowPassword((prev) => !prev)}
+                    />
+                  ) : (
+                    <AiOutlineEyeInvisible
+                      size={18}
+                      onClick={() => setShowPassword((prev) => !prev)}
+                    />
+                  )
+                }
               >
                 <Input
                   placeholder={t("customerRegister.passwordPlaceholder")}
@@ -435,7 +407,8 @@ const CustomerRegister = () => {
                       : colors.dark.bgInput
                   }
                   borderRadius="10px"
-                  pr="3rem"
+                  pe="3rem"
+                  ps="2.5rem"
                 />
               </InputGroup>
               {errors?.password && (
@@ -450,43 +423,24 @@ const CustomerRegister = () => {
                 <Field.RequiredIndicator></Field.RequiredIndicator>
               </Field.Label>
               <InputGroup
-                {...(isRTL
-                  ? {
-                      startElement: showConfirmPassword ? (
-                        <AiOutlineEye
-                          size={18}
-                          onClick={() =>
-                            setShowConfirmPassword((prev) => !prev)
-                          }
-                        />
-                      ) : (
-                        <AiOutlineEyeInvisible
-                          size={18}
-                          onClick={() =>
-                            setShowConfirmPassword((prev) => !prev)
-                          }
-                        />
-                      ),
-                      endElement: <FaLock />,
-                    }
-                  : {
-                      startElement: <FaLock />,
-                      endElement: showConfirmPassword ? (
-                        <AiOutlineEye
-                          size={18}
-                          onClick={() =>
-                            setShowConfirmPassword((prev) => !prev)
-                          }
-                        />
-                      ) : (
-                        <AiOutlineEyeInvisible
-                          size={18}
-                          onClick={() =>
-                            setShowConfirmPassword((prev) => !prev)
-                          }
-                        />
-                      ),
-                    })}
+                startElement={<FaLock />}
+                endElement={
+                  showConfirmPassword ? (
+                    <AiOutlineEye
+                      size={18}
+                      onClick={() =>
+                        setShowConfirmPassword((prev) => !prev)
+                      }
+                    />
+                  ) : (
+                    <AiOutlineEyeInvisible
+                      size={18}
+                      onClick={() =>
+                        setShowConfirmPassword((prev) => !prev)
+                      }
+                    />
+                  )
+                }
               >
                 <Input
                   placeholder={t("customerRegister.confirmPasswordPlaceholder")}
@@ -506,7 +460,8 @@ const CustomerRegister = () => {
                       : colors.dark.bgInput
                   }
                   borderRadius="10px"
-                  pr="3rem"
+                  pe="3rem"
+                  ps="2.5rem"
                 />
               </InputGroup>
               {errors?.confirmPassword && (
@@ -550,7 +505,9 @@ const CustomerRegister = () => {
                   : colors.dark.mainFixed10a,
             }}
           >
-            {hasAddedAddress ? "✓ Address Added" : "Add Address *"}
+            {hasAddedAddress
+              ? t("customerRegister.addressAdded")
+              : t("customerRegister.addAddress")}
           </Button>
 
           {/* Submit Button */}

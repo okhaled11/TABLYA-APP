@@ -14,12 +14,14 @@ import { FiArrowLeft } from "react-icons/fi";
 import { LuChefHat, LuHouse, LuShirt } from "react-icons/lu";
 import { Link, useNavigate } from "react-router-dom";
 import { useParams } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import MealDetailsCard from "../../../components/customer/Order/MealDetailsCard";
 import { useGetMealAndChefDetailsQuery } from "../../../app/features/Customer/Orders/ordersApiCustomerSlice";
 
 const MealDetails = () => {
   /* ---------------------hooks-------------------- */
   const { chefId, mealId } = useParams();
+  const { t } = useTranslation();
   const navigate = useNavigate();
 
   const { data, isLoading, error } = useGetMealAndChefDetailsQuery(
@@ -46,7 +48,7 @@ const MealDetails = () => {
             <Breadcrumb.Item>
               <Breadcrumb.Link as={Link} to="/home">
                 <LuHouse />
-                Menu
+                {t("mealDetailsPage.menu")}
               </Breadcrumb.Link>
             </Breadcrumb.Item>
             <Breadcrumb.Separator />
@@ -55,7 +57,7 @@ const MealDetails = () => {
               <Breadcrumb.CurrentLink>
                 <Flex align="center" gap={1}>
                   <LuChefHat />
-                  MealDetails
+                  {t("mealDetailsPage.title")}
                 </Flex>
               </Breadcrumb.CurrentLink>
             </Breadcrumb.Item>
@@ -99,7 +101,7 @@ const MealDetails = () => {
           </Flex>
         </Container>
       ) : error ? (
-        <div>Error loading meal data: {error}</div>
+        <div>{t("mealDetailsPage.error", { error })}</div>
       ) : data ? (
         <MealDetailsCard mealData={data.meal} chefData={data.chef} />
       ) : null}

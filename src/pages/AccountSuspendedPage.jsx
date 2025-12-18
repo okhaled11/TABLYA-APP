@@ -19,11 +19,13 @@ import Footer from "../shared/Footer";
 import { motion } from "framer-motion";
 import { supabase } from "../services/supabaseClient";
 import { toaster } from "../components/ui/toaster";
+import { useTranslation } from "react-i18next";
 
 const MotionBox = motion(Box);
 
 const AccountSuspendedPage = () => {
   const { colorMode } = useColorMode();
+  const { t } = useTranslation();
   const navigate = useNavigate();
 
   const bgMain = colorMode === "light" ? "gray.50" : "gray.900";
@@ -35,8 +37,8 @@ const AccountSuspendedPage = () => {
     try {
       await supabase.auth.signOut();
       toaster.create({
-        title: "Logged Out",
-        description: "You have been logged out successfully.",
+        title: t("accountSuspended.logoutSuccessTitle"),
+        description: t("accountSuspended.logoutSuccessDesc"),
         type: "success",
         duration: 3000,
       });
@@ -44,8 +46,8 @@ const AccountSuspendedPage = () => {
     } catch (error) {
       console.error("Logout error:", error);
       toaster.create({
-        title: "Error",
-        description: "Failed to logout. Please try again.",
+        title: t("accountSuspended.errorTitle"),
+        description: t("accountSuspended.logoutErrorDesc"),
         type: "error",
         duration: 3000,
       });
@@ -126,7 +128,7 @@ const AccountSuspendedPage = () => {
                   fontWeight="bold"
                   color={textColor}
                 >
-                  Account Temporarily Suspended
+                  {t("accountSuspended.title")}
                 </Heading>
                 <Text
                   fontSize="md"
@@ -134,8 +136,7 @@ const AccountSuspendedPage = () => {
                   maxW="md"
                   lineHeight="tall"
                 >
-                  Your account has been temporarily suspended. Please contact
-                  our support team to resolve this issue.
+                  {t("accountSuspended.description")}
                 </Text>
               </VStack>
 
@@ -144,7 +145,7 @@ const AccountSuspendedPage = () => {
                 <HStack color="red.500" spacing={2}>
                   <Icon as={MdEmail} boxSize={5} />
                   <Text fontWeight="bold" fontSize="md">
-                    Contact Support
+                    {t("accountSuspended.contactSupport")}
                   </Text>
                 </HStack>
                 <Text
@@ -153,8 +154,7 @@ const AccountSuspendedPage = () => {
                   textAlign="center"
                   lineHeight="relaxed"
                 >
-                  Please reach out to our admin team to resolve this issue
-                  and reactivate your account.
+                  {t("accountSuspended.contactDesc")}
                 </Text>
                 <Box
                   as="a"
@@ -214,7 +214,7 @@ const AccountSuspendedPage = () => {
                 w="full"
                 maxW="xs"
               >
-                Logout
+                {t("accountSuspended.logout")}
               </Button>
             </VStack>
           </MotionBox>

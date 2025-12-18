@@ -1,5 +1,6 @@
 import { useMemo, useState } from "react";
 import { useColorStyles } from "../../hooks/useColorStyles";
+import { useTranslation } from "react-i18next";
 import { Box, Grid, Text, Tabs, Flex, Image } from "@chakra-ui/react";
 import {
   BarChart,
@@ -19,20 +20,7 @@ import {
 } from "../../app/features/Cooker/CookerAnalytics";
 import srcLoadingImg from "../../assets/Transparent Version.gif";
 
-const monthLabels = [
-  "January",
-  "February",
-  "March",
-  "April",
-  "May",
-  "June",
-  "July",
-  "August",
-  "September",
-  "October",
-  "November",
-  "December",
-];
+
 
 // Helper function to get current week number
 const getCurrentWeekNumber = () => {
@@ -47,16 +35,18 @@ const getDaysInMonth = (month, year) => {
   return new Date(year, month, 0).getDate();
 };
 
-const formatWeekLabel = (weekKey) => {
-  if (!weekKey) return "Week";
+const formatWeekLabel = (weekKey, t) => {
+  if (!weekKey) return t("cookerAnalytics.week");
   const number = weekKey.replace("week", "");
-  return `Week ${number}`;
+  return `${t("cookerAnalytics.week")} ${number}`;
 };
 
 export const CookerAnalytics = () => {
   const colors = useColorStyles();
   const bgCard = colors.bgThird;
   const textColor = colors.textSub;
+  const { t } = useTranslation();
+  const monthLabels = t("cookerAnalytics.months", { returnObjects: true });
 
   const currentDate = useMemo(() => new Date(), []);
   const currentYear = currentDate.getFullYear();
@@ -118,38 +108,31 @@ export const CookerAnalytics = () => {
     ) {
       // Default data for demo
       return [
-        { name: "Week 1", earning: 3700 },
-        { name: "Week 2", earning: 4600 },
-        { name: "Week 3", earning: 4300 },
-        { name: "Week 4", earning: 4800 },
+        { name: `${t("cookerAnalytics.week")} 1`, earning: 3700 },
+        { name: `${t("cookerAnalytics.week")} 2`, earning: 4600 },
+        { name: `${t("cookerAnalytics.week")} 3`, earning: 4300 },
+        { name: `${t("cookerAnalytics.week")} 4`, earning: 4800 },
       ];
     }
     return monthlyData.weeklyEarnings.map((item) => ({
-      name: formatWeekLabel(item.week),
+      name: formatWeekLabel(item.week, t),
       earning: item.earning,
     }));
-  }, [monthlyData?.weeklyEarnings]);
+  }, [monthlyData?.weeklyEarnings, t]);
 
   const weeklyOrders = useMemo(() => {
     if (!monthlyData?.weeklyOrders) return [];
     return monthlyData.weeklyOrders.map((item) => ({
-      name: formatWeekLabel(item.week),
+      name: formatWeekLabel(item.week, t),
       orders: item.orders,
     }));
-  }, [monthlyData?.weeklyOrders]);
+  }, [monthlyData?.weeklyOrders, t]);
 
   const dailyOrders = useMemo(() => {
     if (!weeklyData?.dailyOrders) {
       // Return all days with 0 orders if no data
-      return [
-        { name: "Sun", orders: 0 },
-        { name: "Mon", orders: 0 },
-        { name: "Tue", orders: 0 },
-        { name: "Wed", orders: 0 },
-        { name: "Thu", orders: 0 },
-        { name: "Fri", orders: 0 },
-        { name: "Sat", orders: 0 },
-      ];
+      const days = t("cookerAnalytics.days", { returnObjects: true });
+      return days.map(day => ({ name: day, orders: 0 }));
     }
 
     // Create a map of existing data
@@ -160,12 +143,12 @@ export const CookerAnalytics = () => {
     });
 
     // Ensure all 7 days are present
-    const allDays = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+    const allDays = t("cookerAnalytics.days", { returnObjects: true });
     return allDays.map((day) => ({
       name: day,
       orders: dataMap.get(day) || 0,
     }));
-  }, [weeklyData?.dailyOrders]);
+  }, [weeklyData?.dailyOrders, t]);
 
   const hourlyOrders = useMemo(() => {
     if (!dailyData?.hourlyOrders) return [];
@@ -215,7 +198,7 @@ export const CookerAnalytics = () => {
         fontSize={{ base: "sm", md: "md" }}
         textAlign="center"
       >
-        {error?.message || "Failed to load analytics data."}
+        {error?.message || t("cookerAnalytics.failedLoad")}
       </Text>
       <Text
         as="button"
@@ -224,7 +207,7 @@ export const CookerAnalytics = () => {
         fontWeight="bold"
         fontSize={{ base: "sm", md: "md" }}
       >
-        Try again
+        {t("cookerAnalytics.tryAgain")}
       </Text>
     </Flex>
   );
@@ -242,7 +225,7 @@ export const CookerAnalytics = () => {
             fontSize={{ base: "sm", md: "md" }}
             textAlign="center"
           >
-            No orders recorded for this month yet.
+            {t("cookerAnalytics.noOrdersMonth")}
           </Text>
         </Flex>
       );
@@ -267,7 +250,7 @@ export const CookerAnalytics = () => {
             color={textColor}
             fontSize={{ base: "md", md: "lg" }}
           >
-            Monthly Orders
+            {t("cookerAnalytics.monthlyOrders")}
           </Text>
           <Box w="100%" h={{ base: "220px", sm: "250px", md: "280px" }}>
             <ResponsiveContainer width="100%" height="100%">
@@ -289,7 +272,7 @@ export const CookerAnalytics = () => {
                   width={40}
                 />
                 <Tooltip
-                  formatter={(value) => [`${value}`, "Orders"]}
+                  formatter={(value) => [`${value}`, t("cookerAnalytics.orders")]}
                   contentStyle={{
                     backgroundColor: "#2b0000",
                     color: "#fff",
@@ -317,7 +300,7 @@ export const CookerAnalytics = () => {
             color={textColor}
             fontSize={{ base: "md", md: "lg" }}
           >
-            Monthly Earning
+            {t("cookerAnalytics.monthlyEarning")}
           </Text>
           <Box w="100%" h={{ base: "220px", sm: "250px", md: "280px" }}>
             <ResponsiveContainer width="100%" height="100%">
@@ -338,7 +321,7 @@ export const CookerAnalytics = () => {
                   width={60}
                 />
                 <Tooltip
-                  formatter={(value) => [`${value.toFixed(2)} LE`, "Earning"]}
+                  formatter={(value) => [`${value.toFixed(2)} ${t("common.currency")}`, t("cookerAnalytics.earning")]}
                   contentStyle={{
                     backgroundColor: "#2b0000",
                     color: "#fff",
@@ -384,7 +367,7 @@ export const CookerAnalytics = () => {
             color={textColor}
             fontSize={{ base: "md", md: "lg" }}
           >
-            Daily Orders
+            {t("cookerAnalytics.dailyOrders")}
           </Text>
           <Box w="100%" h={{ base: "220px", sm: "250px", md: "280px" }}>
             <ResponsiveContainer width="100%" height="100%">
@@ -405,7 +388,7 @@ export const CookerAnalytics = () => {
                   fontSize={{ base: 10, sm: 12 }}
                 />
                 <Tooltip
-                  formatter={(value) => [`${value}`, "Orders"]}
+                  formatter={(value) => [`${value}`, t("cookerAnalytics.orders")]}
                   contentStyle={{
                     backgroundColor: "#2b0000",
                     color: "#fff",
@@ -433,7 +416,7 @@ export const CookerAnalytics = () => {
         >
           <Box>
             <Text fontSize={{ base: "md", md: "lg" }} mb={2}>
-              Total Orders This Week
+              {t("cookerAnalytics.totalOrdersWeek")}
             </Text>
             <Text
               fontSize={{ base: "4xl", md: "5xl" }}
@@ -459,7 +442,7 @@ export const CookerAnalytics = () => {
             fontSize={{ base: "sm", md: "md" }}
             textAlign="center"
           >
-            No orders recorded for this day yet.
+            {t("cookerAnalytics.noOrdersDay")}
           </Text>
         </Flex>
       );
@@ -483,7 +466,7 @@ export const CookerAnalytics = () => {
             color={textColor}
             fontSize={{ base: "md", md: "lg" }}
           >
-            Hourly Orders
+            {t("cookerAnalytics.hourlyOrders")}
           </Text>
           <Box w="100%" h={{ base: "220px", sm: "250px", md: "280px" }}>
             <ResponsiveContainer width="100%" height="100%">
@@ -507,7 +490,7 @@ export const CookerAnalytics = () => {
                   fontSize={{ base: 10, sm: 12 }}
                 />
                 <Tooltip
-                  formatter={(value) => [`${value}`, "Orders"]}
+                  formatter={(value) => [`${value}`, t("cookerAnalytics.orders")]}
                   contentStyle={{
                     backgroundColor: "#2b0000",
                     color: "#fff",
@@ -535,7 +518,7 @@ export const CookerAnalytics = () => {
         >
           <Box>
             <Text fontSize={{ base: "md", md: "lg" }} mb={2}>
-              Total Orders This Day
+              {t("cookerAnalytics.totalOrdersDay")}
             </Text>
             <Text
               fontSize={{ base: "4xl", md: "5xl" }}
@@ -563,21 +546,21 @@ export const CookerAnalytics = () => {
             fontSize={{ base: "sm", md: "md" }}
             px={{ base: 3, md: 4 }}
           >
-            Daily
+            {t("cookerAnalytics.daily")}
           </Tabs.Trigger>
           <Tabs.Trigger
             value="weekly"
             fontSize={{ base: "sm", md: "md" }}
             px={{ base: 3, md: 4 }}
           >
-            Weekly
+            {t("cookerAnalytics.weekly")}
           </Tabs.Trigger>
           <Tabs.Trigger
             value="monthly"
             fontSize={{ base: "sm", md: "md" }}
             px={{ base: 3, md: 4 }}
           >
-            Monthly
+            {t("cookerAnalytics.monthly")}
           </Tabs.Trigger>
         </Tabs.List>
 
@@ -593,7 +576,7 @@ export const CookerAnalytics = () => {
                   mb={2}
                   fontSize={{ base: "sm", md: "md" }}
                 >
-                  Select Month
+                  {t("cookerAnalytics.selectMonth")}
                 </Text>
                 <Box
                   as="select"
@@ -625,7 +608,7 @@ export const CookerAnalytics = () => {
                   mb={2}
                   fontSize={{ base: "sm", md: "md" }}
                 >
-                  Select Day
+                  {t("cookerAnalytics.selectDay")}
                 </Text>
                 <Box
                   as="select"
@@ -667,7 +650,7 @@ export const CookerAnalytics = () => {
         <Tabs.Content value="weekly">
           <Box mb={6}>
             <Text color={textColor} mb={2} fontSize={{ base: "sm", md: "md" }}>
-              Select Week (1-52)
+              {t("cookerAnalytics.selectWeek")}
             </Text>
             <Box
               as="select"
@@ -688,7 +671,7 @@ export const CookerAnalytics = () => {
                   value={week.toString()}
                   color={colors.textMain}
                 >
-                  Week {week}
+                  {t("cookerAnalytics.week")} {week}
                 </option>
               ))}
             </Box>
@@ -699,7 +682,7 @@ export const CookerAnalytics = () => {
         <Tabs.Content value="monthly">
           <Box mb={6}>
             <Text color={textColor} mb={2} fontSize={{ base: "sm", md: "md" }}>
-              Select Month
+              {t("cookerAnalytics.selectMonth")}
             </Text>
             <Box
               as="select"
