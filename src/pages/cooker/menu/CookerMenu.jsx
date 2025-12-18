@@ -6,6 +6,7 @@ import { useColorMode } from "../../../theme/color-mode";
 import colors from "../../../theme/color";
 import { FaPlus } from "react-icons/fa";
 import { FiPlus } from "react-icons/fi";
+import { useTranslation } from "react-i18next";
 import CookerMenuCard from "../../../components/cooker/CookerMenuCard";
 import { useGetMyMenuItemsQuery } from "../../../app/features/cooker/CookerMenuApi";
 import MenuItemCardSkeleton from "../../../components/ui/MenuItemCardSkeleton";
@@ -13,6 +14,7 @@ import { MdRestaurantMenu } from "react-icons/md";
 import AddMealModal from "../../../components/cooker/AddMealModal";
 const CookerMenu = () => {
   const { colorMode } = useColorMode();
+  const { t } = useTranslation();
   const { data: items = [], isLoading, isError } = useGetMyMenuItemsQuery();
   const addMealDialog = useDialog();
   const [filterStatus, setFilterStatus] = useState("all");
@@ -36,7 +38,8 @@ const CookerMenu = () => {
             colorMode == "light" ? colors.light.textMain : colors.dark.textMain
           }
         >
-          My Menu
+        
+          {t("cookerMenu.myMenu")}
         </Heading>
         <Button
           bg={
@@ -50,7 +53,7 @@ const CookerMenu = () => {
           color={"white"}
         >
           <FiPlus />
-          Add Meal
+          {t("cookerMenu.addMeal")}
         </Button>
       </Flex>
 
@@ -100,10 +103,10 @@ const CookerMenu = () => {
             // boxShadow={filterStatus === status ? "sm" : "none"}
           >
             {status === "all"
-              ? "All"
+              ? t("cookerMenu.all")
               : status === "in-stock"
-              ? "In Stock"
-              : "Out of Stock"}
+              ? t("cookerMenu.inStock")
+              : t("cookerMenu.outOfStock")}
           </Button>
         ))}
       </Flex>
@@ -116,7 +119,7 @@ const CookerMenu = () => {
             ))}
           </>
         )}
-        {isError && <Text color="red.400">Failed to load menu items.</Text>}
+        {isError && <Text color="red.400">{t("cookerMenu.failedLoad")}</Text>}
         {!isLoading && !isError && filteredItems.length === 0 && (
           <Flex
             direction="column"
@@ -146,12 +149,12 @@ const CookerMenu = () => {
                   : colors.dark.textMain
               }
             >
-              No items found
+              {t("cookerMenu.noItems")}
             </Heading>
             <Text fontSize="sm">
               {filterStatus === "all"
-                ? "Add your first meal to start your menu."
-                : `No items found for ${filterStatus.replace("-", " ")}.`}
+                ? t("cookerMenu.addFirstMeal")
+                : t("cookerMenu.noItemsFor", { status: filterStatus === "in-stock" ? t("cookerMenu.inStock") : t("cookerMenu.outOfStock") })}
             </Text>
           </Flex>
         )}

@@ -48,6 +48,7 @@ const FileUploadBox = ({
   borderColor,
   hoverBorderColor,
 }) => {
+  const { t } = useTranslation();
   return (
     <Box>
       <Text
@@ -100,11 +101,11 @@ const FileUploadBox = ({
             color={file ? "green.600" : "gray.500"}
             fontWeight="medium"
           >
-            {file ? file.name : "Click to upload or drag and drop"}
+            {file ? file.name : t("pendingApproval.clickToUpload")}
           </Text>
           {!file && (
             <Text fontSize="xs" color="gray.400">
-              SVG, PNG, JPG or GIF (max. 5MB)
+              {t("pendingApproval.fileTypeInfo")}
             </Text>
           )}
         </VStack>
@@ -183,8 +184,8 @@ const PendingApprovalPage = () => {
   const handleResubmit = async () => {
     if (!files.frontId && !files.backId && !files.selfie) {
       toaster.create({
-        title: "No files selected",
-        description: "Please select at least one file to update.",
+        title: t("pendingApproval.noFilesTitle"),
+        description: t("pendingApproval.noFilesDesc"),
         type: "error",
         duration: 3000,
       });
@@ -222,9 +223,9 @@ const PendingApprovalPage = () => {
       if (error) throw error;
 
       toaster.create({
-        title: "Submitted Successfully",
+        title: t("pendingApproval.successTitle"),
         description:
-          "Your documents have been updated and are pending approval.",
+          t("pendingApproval.successDesc"),
         type: "success",
         duration: 3000,
       });
@@ -367,7 +368,7 @@ const PendingApprovalPage = () => {
                     <HStack color="red.500" spacing={2}>
                       <MdError size={20} />
                       <Text fontWeight="bold" fontSize="md">
-                        Action Required
+                        {t("pendingApproval.actionRequired")}
                       </Text>
                     </HStack>
                     <Text
@@ -391,12 +392,12 @@ const PendingApprovalPage = () => {
                     align={isRTL ? "right" : "left"}
                     color={textColor}
                   >
-                    Update Documents
+                    {t("pendingApproval.updateDocuments")}
                   </Text>
 
                   <Stack direction={{ base: "column", md: "row" }} spacing={3}>
                     <FileUploadBox
-                      label="National ID (Front)"
+                      label={t("pendingApproval.frontId")}
                       onChange={(e) => handleFileChange(e, "frontId")}
                       file={files.frontId}
                       isRTL={isRTL}
@@ -405,7 +406,7 @@ const PendingApprovalPage = () => {
                       hoverBorderColor={hoverBorderColor}
                     />
                     <FileUploadBox
-                      label="National ID (Back)"
+                      label={t("pendingApproval.backId")}
                       onChange={(e) => handleFileChange(e, "backId")}
                       file={files.backId}
                       isRTL={isRTL}
@@ -415,7 +416,7 @@ const PendingApprovalPage = () => {
                     />
                   </Stack>
                   <FileUploadBox
-                    label="Selfie with ID"
+                    label={t("pendingApproval.selfieId")}
                     onChange={(e) => handleFileChange(e, "selfie")}
                     file={files.selfie}
                     isRTL={isRTL}
@@ -441,7 +442,7 @@ const PendingApprovalPage = () => {
                     borderRadius="lg"
                     mt={2}
                   >
-                    Resubmit Documents
+                    {t("pendingApproval.resubmitDocs")}
                   </Button>
                 </VStack>
               )}

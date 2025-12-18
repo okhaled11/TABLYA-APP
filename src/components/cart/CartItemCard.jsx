@@ -12,8 +12,10 @@ import { useColorMode } from "../../theme/color-mode";
 import colors from "../../theme/color";
 import { truncateText } from "../../utils";
 import CustomAlertDialog from "../../shared/CustomAlertDailog";
+import { useTranslation } from "react-i18next";
 
 export default function CartItemCard({ item, onRemove, onQuantityChange }) {
+  const { t } = useTranslation();
   const { colorMode } = useColorMode();
   const dialog = useDialog();
   const isMaxQuantity = item.quantity >= Number(item?.stock || 1);
@@ -222,10 +224,10 @@ export default function CartItemCard({ item, onRemove, onQuantityChange }) {
       </Flex>
       <CustomAlertDialog
         dialog={dialog}
-        title={"Remove item?"}
-        description={`Remove ${item.title} from cart?`}
-        cancelTxt={"Cancel"}
-        okTxt={"Remove"}
+        title={t("cart.remove") + "?"}
+        description={`${t("cart.remove")} ${item.title}?`}
+        cancelTxt={t("navbar.cancel")}
+        okTxt={t("cart.remove")}
         onOkHandler={async () => {
           onRemove(item.id);
         }}

@@ -8,6 +8,7 @@ import {
   Text,
 } from "@chakra-ui/react";
 import { useEffect, useMemo, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { FaStar } from "react-icons/fa6";
 import { FaHeart, FaRegHeart } from "react-icons/fa";
 import { useColorMode } from "../../theme/color-mode";
@@ -33,8 +34,10 @@ const ChefCard = ({
   users,
   total_reviews,
   kitchen_name,
+  is_busy,
 }) => {
   const { colorMode } = useColorMode();
+  const { t } = useTranslation();
 
   const dispatch = useDispatch();
 
@@ -88,7 +91,7 @@ const ChefCard = ({
         activeCustomerId = fetchedId;
       } else {
         toaster.create({
-          title: "Please login to favorite chefs",
+          title: t("chefCard.loginToFav"),
           type: "warning",
           duration: 2000,
           isClosable: true,
@@ -107,7 +110,7 @@ const ChefCard = ({
         });
         if (res.error) throw res.error;
         toaster.create({
-          title: "Added to favorites ❤️",
+          title: t("chefCard.addedFav"),
           type: "success",
           duration: 1500,
         });
@@ -119,7 +122,7 @@ const ChefCard = ({
         });
         if (res.error) throw res.error;
         toaster.create({
-          title: "Removed from favorites 💔",
+          title: t("chefCard.removedFav"),
           type: "success",
           duration: 1500,
         });
@@ -132,7 +135,7 @@ const ChefCard = ({
       } else {
         dispatch(addFavoriteCooker(user_id));
       }
-      toaster.create({ title: "Action failed", type: "error", duration: 1800 });
+      toaster.create({ title: t("chefCard.actionFailed"), type: "error", duration: 1800 });
     }
   };
   return (
@@ -204,16 +207,30 @@ const ChefCard = ({
       />
 
       <Box flex="1">
-        <Text
-          fontWeight="semibold"
-          fontSize={{ base: "lg", md: "2xl" }}
-          mb="1"
-          color={
-            colorMode == "light" ? colors.light.textMain : colors.dark.textMain
-          }
-        >
-          {kitchen_name || users?.name}
-        </Text>
+        <Flex alignItems="center" gap="2" mb="1" wrap="wrap">
+          <Text
+            fontWeight="semibold"
+            fontSize={{ base: "lg", md: "2xl" }}
+            color={
+              colorMode == "light" ? colors.light.textMain : colors.dark.textMain
+            }
+          >
+            {kitchen_name || users?.name}
+          </Text>
+          {is_busy && (
+            <Box
+              bg="red.500"
+              color="white"
+              px="2"
+              py="0.5"
+              borderRadius="md"
+              fontSize="xs"
+              fontWeight="medium"
+            >
+              {t("chefCard.busyNow")}
+            </Box>
+          )}
+        </Flex>
         <Flex
           alignItems="center"
           justifyContent={{ base: "flex-start", md: "center" }}
@@ -238,7 +255,7 @@ const ChefCard = ({
               colorMode == "light" ? colors.light.textSub : colors.dark.textSub
             }
           >
-            ( {total_reviews || "0"} Reviews )
+            ( {total_reviews || "0"} {t("chefCard.reviews")} )
           </Text>
         </Flex>
 
@@ -248,10 +265,12 @@ const ChefCard = ({
         </Text> */}
 
         <Button
-          as={Link}
-          to={`/home/cookers/${user_id}`}
+          as={is_busy ? undefined : Link}
+          to={is_busy ? undefined : `/home/cookers/${user_id}`}
           bg={
-            colorMode == "light"
+            is_busy
+              ? "gray.400"
+              : colorMode == "light"
               ? colors.light.mainFixed
               : colors.dark.mainFixed
           }
@@ -262,9 +281,12 @@ const ChefCard = ({
           fontSize="md"
           w={{ base: "110px", md: "135px" }}
           borderRadius="12px"
-          _hover={{ bg: colors.light.mainHover }}
+          _hover={{ bg: is_busy ? "gray.400" : colors.light.mainHover }}
+          disabled={is_busy}
+          cursor={is_busy ? "not-allowed" : "pointer"}
+          opacity={is_busy ? 0.6 : 1}
         >
-          View Menu
+          {is_busy ? t("chefCard.unavailable") : t("chefCard.viewMenu")}
         </Button>
       </Box>
     </Card.Root>

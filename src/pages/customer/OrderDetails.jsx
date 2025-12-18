@@ -35,11 +35,13 @@ import colors from "../../theme/color";
 import imgChef from "../../assets/image 17.png";
 import { useNavigate, useParams } from "react-router-dom";
 import { useGetOrderDetailsQuery } from "../../app/features/Customer/Orders/ordersApiCustomerSlice";
+import { useTranslation } from "react-i18next";
 
 function OrderDetails() {
   /* ------------variable------------------------ */
   const { orderId } = useParams();
   const { colorMode } = useColorMode();
+  const { t } = useTranslation();
   const [currentStep, setCurrentStep] = useState(1);
   const navigate = useNavigate();
 
@@ -213,22 +215,22 @@ function OrderDetails() {
   const steps = [
     {
       key: "placed",
-      title: "Confirmed",
+      title: t("orders.statuses.confirmed"),
       icon: IoCheckmarkCircle,
     },
     {
       key: "cooking",
-      title: "Preparing",
+      title: t("orders.statuses.preparing"),
       icon: IoRestaurant,
     },
     {
       key: "out_for_delivery",
-      title: "Out for Delivery",
+      title: t("orders.statuses.out_for_delivery"),
       icon: IoBicycle,
     },
     {
       key: "delivered",
-      title: "Delivered",
+      title: t("orders.statuses.delivered"),
       icon: IoHome,
     },
   ];
@@ -260,7 +262,7 @@ function OrderDetails() {
             />
           </Button>
           <Heading as="h1" size={{ base: "xl", md: "2xl" }}>
-            Order Tracking
+            {t("orders.orderTracking")}
           </Heading>
         </Flex>
 
@@ -485,13 +487,14 @@ function OrderDetails() {
                             color="gray.400"
                             fontSize={{ base: "xs", md: "sm" }}
                           >
-                            Price:{" "}
+                            {t("orders.price")}:{" "}
                             {(
+                              item.price_at_order ||
                               item.price_at_order ||
                               item.menu_items?.price ||
                               0
                             ).toFixed(2)}{" "}
-                            LE
+                            {t("common.currency")}
                           </Text>
                         </Box>
                         <Text
@@ -536,7 +539,7 @@ function OrderDetails() {
                     }
                     mb={{ base: 3, md: 4 }}
                   >
-                    Bill Details
+                    {t("orders.billDetails")}
                   </Heading>
                   <VStack gap={2} align="stretch">
                     <Flex justify="space-between" color="gray.300">
@@ -547,7 +550,7 @@ function OrderDetails() {
                             : colors.dark.textSub
                         }
                       >
-                        Subtotal
+                        {t("cart.itemsTotal")}
                       </Text>
                       <Text
                         color={
@@ -556,7 +559,7 @@ function OrderDetails() {
                             : colors.dark.textMain
                         }
                       >
-                        {subtotal.toFixed(2)} LE
+                        {subtotal.toFixed(2)} {t("common.currency")}
                       </Text>
                     </Flex>
 
@@ -568,7 +571,7 @@ function OrderDetails() {
                             : colors.dark.textSub
                         }
                       >
-                        Delivery Fee
+                        {t("cart.deliveryFee")}
                       </Text>
                       <Text
                         color={
@@ -577,7 +580,7 @@ function OrderDetails() {
                             : colors.dark.textMain
                         }
                       >
-                        {deliveryFee.toFixed(2)} LE
+                        {deliveryFee.toFixed(2)} {t("common.currency")}
                       </Text>
                     </Flex>
                     <Flex justify="space-between" color="gray.300">
@@ -588,7 +591,7 @@ function OrderDetails() {
                             : colors.dark.textSub
                         }
                       >
-                        discount
+                        {t("orders.discount")}
                       </Text>
                       <Text
                         color={
@@ -597,7 +600,7 @@ function OrderDetails() {
                             : colors.dark.textMain
                         }
                       >
-                        {discount.toFixed(2)} LE
+                        {discount.toFixed(2)} {t("common.currency")}
                       </Text>
                     </Flex>
 
@@ -612,8 +615,8 @@ function OrderDetails() {
                       fontSize="xl"
                       fontWeight="bold"
                     >
-                      <Text>Total</Text>
-                      <Text>{total?.toFixed(2)} LE</Text>
+                      <Text>{t("cart.total")}</Text>
+                      <Text>{total?.toFixed(2)} {t("common.currency")}</Text>
                     </Flex>
                   </VStack>
                 </Box>
@@ -638,7 +641,7 @@ function OrderDetails() {
                     }
                     mb={{ base: 3, md: 4 }}
                   >
-                    Delivery Information
+                    {t("orders.deliveryInfo")}
                   </Heading>
                   <VStack gap={2} align="stretch">
                     <HStack gap={3}>
@@ -732,7 +735,7 @@ function OrderDetails() {
                     }
                     mb={{ base: 3, md: 4 }}
                   >
-                    Delivery Info
+                    {t("orders.deliveryPartnerInfo")}
                   </Heading>
                   {(orderDetails?.status === "out_for_delivery" || orderDetails?.status === "delivered") &&
                   deliveryUser ? (
@@ -785,7 +788,7 @@ function OrderDetails() {
                           noOfLines={1}
                           fontWeight="light"
                         >
-                          {deliveryUser?.name || "Delivery Partner"}
+                          {deliveryUser?.name || t("orders.deliveryPartner")}
                         </Heading>
                         <HStack
                           gap={{ base: 1, md: 2 }}
@@ -861,7 +864,7 @@ function OrderDetails() {
                               : colors.dark.textMain
                           }
                         >
-                          No delivery assigned yet
+                          {t("orders.noDeliveryAssigned")}
                         </Text>
                         <Text
                           fontSize="sm"
@@ -871,8 +874,7 @@ function OrderDetails() {
                               : colors.dark.textSub
                           }
                         >
-                          You'll see your delivery partner here once your order
-                          is on the way.
+                          {t("orders.deliveryPendingMsg")}
                         </Text>
                       </Box>
                     </Flex>
@@ -886,7 +888,7 @@ function OrderDetails() {
                     size={{ base: "md", md: "xl" }}
                     mb={{ base: 3, md: 6 }}
                   >
-                    Cooker Information
+                    {t("orders.cookerInfo")}
                   </Heading>
                   <Flex
                     align="center"
@@ -957,7 +959,7 @@ function OrderDetails() {
                           }
                           fontSize={{ base: "xs", md: "sm" }}
                         >
-                          ({orderDetails?.cooker?.total_reviews || 0} Reviews)
+                          ({orderDetails?.cooker?.total_reviews || 0}  {t("navbar.reviews")})
                         </Text>
                       </HStack>
                     </Box>

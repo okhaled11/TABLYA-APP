@@ -14,6 +14,7 @@ import {
   Portal,
 } from "@chakra-ui/react";
 import { LuChevronLeft, LuChevronRight } from "react-icons/lu";
+import { useTranslation } from "react-i18next";
 import testColor from "../../theme/color";
 import { useColorMode } from "../../theme/color-mode";
 import { IoPerson } from "react-icons/io5";
@@ -34,6 +35,7 @@ const ORDERS_PER_PAGE = 2;
 const DeliveryOrders = () => {
   const colors = useColorStyles();
   const { colorMode } = useColorMode();
+  const { t } = useTranslation();
   const { data: orders, isLoading } = useGetOrdersForDeliveryCityQuery();
   const [updateStatus, { isLoading: isUpdating }] =
     useUpdateOrderStatusMutation();
@@ -165,7 +167,7 @@ const DeliveryOrders = () => {
                       fontSize={{ base: "20px", md: "24px" }}
                       fontWeight="bold"
                     >
-                      {order.total?.toFixed(2) || "0.00"} LE
+                      {order.total?.toFixed(2) || "0.00"} {t("common.currency")}
                     </Text>
                   </Flex>
 

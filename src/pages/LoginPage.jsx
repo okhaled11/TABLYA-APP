@@ -18,7 +18,7 @@ import { FaEnvelope, FaLock } from "react-icons/fa";
 import { Link, Navigate, useNavigate } from "react-router-dom";
 import { useColorMode } from "../theme/color-mode";
 import colors from "../theme/color";
-import { LoginSchema } from "../validation";
+import { getLoginSchema } from "../validation";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import Navbar from "../layout/Navbar";
@@ -51,7 +51,7 @@ const LoginPage = ({ isAuthenticated }) => {
     formState: { errors },
     clearErrors,
   } = useForm({
-    resolver: yupResolver(LoginSchema),
+    resolver: yupResolver(getLoginSchema(t)),
   });
   const onSubmit = async (data) => {
     const result = await dispatch(loginUser(data));
@@ -169,16 +169,13 @@ const LoginPage = ({ isAuthenticated }) => {
                     {t("login.email")}{" "}
                     <Field.RequiredIndicator></Field.RequiredIndicator>
                   </Field.Label>
-                  <InputGroup
-                    {...(isRTL
-                      ? { endElement: <FaEnvelope /> }
-                      : { startElement: <FaEnvelope /> })}
-                  >
+                  <InputGroup startElement={<FaEnvelope />}>
                     <Input
                       placeholder={t("login.emailPlaceholder")}
                       textAlign={isRTL ? "right" : "left"}
                       type="email"
                       name="email"
+                      ps="2.5rem"
                       {...register("email")}
                       value={user.email}
                       onChange={(e) => {
@@ -206,35 +203,20 @@ const LoginPage = ({ isAuthenticated }) => {
                     <Field.RequiredIndicator></Field.RequiredIndicator>
                   </Field.Label>
                   <InputGroup
-                    {...(isRTL
-                      ? {
-                          startElement: showPassword ? (
-                            <AiOutlineEye
-                              size={18}
-                              onClick={() => setShowPassword((prev) => !prev)}
-                            />
-                          ) : (
-                            <AiOutlineEyeInvisible
-                              size={18}
-                              onClick={() => setShowPassword((prev) => !prev)}
-                            />
-                          ),
-                          endElement: <FaLock />,
-                        }
-                      : {
-                          startElement: <FaLock />,
-                          endElement: showPassword ? (
-                            <AiOutlineEye
-                              size={18}
-                              onClick={() => setShowPassword((prev) => !prev)}
-                            />
-                          ) : (
-                            <AiOutlineEyeInvisible
-                              size={18}
-                              onClick={() => setShowPassword((prev) => !prev)}
-                            />
-                          ),
-                        })}
+                    startElement={<FaLock />}
+                    endElement={
+                      showPassword ? (
+                        <AiOutlineEye
+                          size={18}
+                          onClick={() => setShowPassword((prev) => !prev)}
+                        />
+                      ) : (
+                        <AiOutlineEyeInvisible
+                          size={18}
+                          onClick={() => setShowPassword((prev) => !prev)}
+                        />
+                      )
+                    }
                   >
                     <Input
                       placeholder={t("login.passwordPlaceholder")}
@@ -254,7 +236,8 @@ const LoginPage = ({ isAuthenticated }) => {
                           : colors.dark.bgInput
                       }
                       borderRadius="10px"
-                      pr="3rem"
+                      pe="3rem"
+                      ps="2.5rem"
                     />
                   </InputGroup>
                   {errors.password && (

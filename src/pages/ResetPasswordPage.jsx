@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useTranslation } from "react-i18next";
 import {
   Box,
   VStack,
@@ -35,6 +36,8 @@ const MotionFlex = motion(Flex);
 
 export default function ResetPasswordPage() {
   const { colorMode } = useColorMode();
+  const { t, i18n } = useTranslation();
+  const isRTL = i18n.language === "ar";
   const navigate = useNavigate();
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
@@ -51,11 +54,11 @@ export default function ResetPasswordPage() {
 
   // Password Validation Rules
   const passwordRules = [
-    { label: "At least 8 characters", valid: newPassword.length >= 8 },
-    { label: "One uppercase letter", valid: /[A-Z]/.test(newPassword) },
-    { label: "One lowercase letter", valid: /[a-z]/.test(newPassword) },
-    { label: "One number", valid: /\d/.test(newPassword) },
-    { label: "One special character", valid: /[\W_]/.test(newPassword) },
+    { label: t("resetPassword.reqLength"), valid: newPassword.length >= 8 },
+    { label: t("resetPassword.reqUppercase"), valid: /[A-Z]/.test(newPassword) },
+    { label: t("resetPassword.reqLowercase"), valid: /[a-z]/.test(newPassword) },
+    { label: t("resetPassword.reqNumber"), valid: /\d/.test(newPassword) },
+    { label: t("resetPassword.reqSpecial"), valid: /[\W_]/.test(newPassword) },
   ];
 
   const isPasswordValid = passwordRules.every((rule) => rule.valid);
@@ -71,9 +74,8 @@ export default function ResetPasswordPage() {
 
         if (error || !session) {
           toaster.create({
-            title: "Invalid Link",
-            description:
-              "This password reset link is invalid or has expired. Please request a new one.",
+            title: t("resetPassword.invalidLinkTitle"),
+            description: t("resetPassword.invalidLinkDesc"),
             type: "error",
             duration: 5000,
           });
@@ -86,8 +88,8 @@ export default function ResetPasswordPage() {
       } catch (error) {
         console.error("Session check error:", error);
         toaster.create({
-          title: "Error",
-          description: "Failed to verify reset link",
+          title: t("resetPassword.errorTitle"),
+          description: t("resetPassword.errorTitle"),
           type: "error",
           duration: 5000,
         });
@@ -111,18 +113,18 @@ export default function ResetPasswordPage() {
     const newErrors = { newPassword: "", confirmPassword: "" };
 
     if (!newPassword) {
-      newErrors.newPassword = "Please enter a new password";
+      newErrors.newPassword = t("resetPassword.validation.required");
       hasError = true;
     } else if (!isPasswordValid) {
-      newErrors.newPassword = "Password does not meet all requirements";
+      newErrors.newPassword = t("resetPassword.validation.requirements");
       hasError = true;
     }
 
     if (!confirmPassword) {
-      newErrors.confirmPassword = "Please confirm your password";
+      newErrors.confirmPassword = t("resetPassword.validation.confirmRequired");
       hasError = true;
     } else if (newPassword !== confirmPassword) {
-      newErrors.confirmPassword = "Passwords do not match";
+      newErrors.confirmPassword = t("resetPassword.validation.mismatch");
       hasError = true;
     }
 
@@ -142,9 +144,8 @@ export default function ResetPasswordPage() {
       CookieService.remove("refresh_token");
 
       toaster.create({
-        title: "Success",
-        description:
-          "Your password has been updated successfully. Please login with your new password.",
+        title: t("resetPassword.successTitle"),
+        description: t("resetPassword.successDescription"),
         type: "success",
         duration: 5000,
       });
@@ -155,8 +156,8 @@ export default function ResetPasswordPage() {
       }, 2000);
     } catch (error) {
       toaster.create({
-        title: "Error",
-        description: error.message || "Failed to update password",
+        title: t("resetPassword.errorTitle"),
+        description: error.message || t("resetPassword.errorTitle"),
         type: "error",
         duration: 5000,
       });
@@ -196,7 +197,7 @@ export default function ResetPasswordPage() {
               colorMode === "light" ? colors.light.textSub : colors.dark.textSub
             }
           >
-            Verifying secure link...
+            {t("resetPassword.verifying")}
           </Text>
         </VStack>
       </Box>
@@ -277,7 +278,7 @@ export default function ResetPasswordPage() {
                       : colors.dark.textMain
                   }
                 >
-                  Set New Password
+                  {t("resetPassword.title")}
                 </Heading>
                 <Text
                   fontSize="md"
@@ -287,7 +288,7 @@ export default function ResetPasswordPage() {
                       : colors.dark.textSub
                   }
                 >
-                  Please create a strong password for your account.
+                  {t("resetPassword.subtitle")}
                 </Text>
               </VStack>
 
@@ -304,12 +305,12 @@ export default function ResetPasswordPage() {
                           : colors.dark.textMain
                       }
                     >
-                      New Password
+                      {t("resetPassword.newPassword")}
                     </Text>
                     <Box position="relative">
                       <Input
                         type={showNewPassword ? "text" : "password"}
-                        placeholder="Enter new password"
+                        placeholder={t("resetPassword.newPasswordPlaceholder")}
                         value={newPassword}
                         onChange={(e) => {
                           setNewPassword(e.target.value);
@@ -386,7 +387,7 @@ export default function ResetPasswordPage() {
                         mb={2}
                         color={colorMode === "light" ? "gray.600" : "gray.400"}
                       >
-                        Password Requirements:
+                        {t("resetPassword.requirementsTitle")}
                       </Text>
                       <List.Root spacing={1} variant="plain">
                         {passwordRules.map((rule, index) => (
@@ -443,12 +444,12 @@ export default function ResetPasswordPage() {
                           : colors.dark.textMain
                       }
                     >
-                      Confirm Password
+                      {t("resetPassword.confirmPassword")}
                     </Text>
                     <Box position="relative">
                       <Input
                         type={showConfirmPassword ? "text" : "password"}
-                        placeholder="Confirm new password"
+                        placeholder={t("resetPassword.confirmPasswordPlaceholder")}
                         value={confirmPassword}
                         onChange={(e) => {
                           setConfirmPassword(e.target.value);
@@ -551,7 +552,7 @@ export default function ResetPasswordPage() {
                     transition="all 0.2s"
                     mt={4}
                   >
-                    Reset Password
+                    {t("resetPassword.button")}
                   </Button>
                 </VStack>
               </form>
@@ -622,7 +623,7 @@ export default function ResetPasswordPage() {
                 }
                 mb={4}
               >
-                Welcome Back to Tablay
+                {t("resetPassword.welcomeBack")}
               </Heading>
 
               <Text
@@ -631,8 +632,7 @@ export default function ResetPasswordPage() {
                 color={colorMode === "light" ? "gray.600" : "gray.400"}
                 maxW="sm"
               >
-                Secure your account and get back to discovering delicious
-                homemade meals.
+                {t("resetPassword.secureAccount")}
               </Text>
             </MotionBox>
           </Box>

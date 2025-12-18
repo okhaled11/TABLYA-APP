@@ -17,6 +17,7 @@ import { RxCross2 } from "react-icons/rx";
 import colors from "../../theme/color";
 import { useColorMode } from "../../theme/color-mode";
 import { useEffect, useMemo, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { useDispatch, useSelector } from "react-redux";
 import { supabase } from "../../services/supabaseClient";
 import {toaster} from "../../components/ui/toaster";
@@ -39,11 +40,13 @@ const ChefProfileCard = ({
   start_time,
   end_time,
   is_available,
+  is_busy,
   kitchen_name,
   specialty,
   total_reviews,
   user_id, // optional explicit cooker user_id if provided by parent
 }) => {
+  const { t } = useTranslation();
   const { colorMode } = useColorMode();
   const dispatch = useDispatch();
   const isSmallScreen = useBreakpointValue({ base: true, md: false });
@@ -94,7 +97,7 @@ const ChefProfileCard = ({
         setCustomerIdFromSupabase(fetchedId);
         activeCustomerId = fetchedId;
       } else {
-        toaster.create({ title: "Please login to favorite chefs", type: "warning", duration: 2000, isClosable: true });
+        toaster.create({ title: t("chefProfile.loginToFav"), type: "warning", duration: 2000, isClosable: true });
         return;
       }
     }
@@ -105,12 +108,12 @@ const ChefProfileCard = ({
         dispatch(addFavoriteCooker(cookerId));
         const res = await addFav({ customerId: activeCustomerId, cookerId });
         if (res.error) throw res.error;
-        toaster.create({ title: "Added to favorites ❤️", type: "success", duration: 1500 });
+        toaster.create({ title: t("chefProfile.addedFav"), type: "success", duration: 1500 });
       } else {
         dispatch(removeFavoriteCooker(cookerId));
         const res = await removeFav({ customerId: activeCustomerId, cookerId });
         if (res.error) throw res.error;
-        toaster.create({ title: "Removed from favorites 💔", type: "success", duration: 1500 });
+        toaster.create({ title: t("chefProfile.removedFav"), type: "success", duration: 1500 });
       }
     } catch (e) {
       setFav(!optimisticNext);
@@ -119,7 +122,7 @@ const ChefProfileCard = ({
       } else {
         dispatch(addFavoriteCooker(cookerId));
       }
-      toaster.create({ title: "Action failed", type: "error", duration: 1800 });
+      toaster.create({ title: t("chefProfile.actionFailed"), type: "error", duration: 1800 });
     }
   };
 
@@ -167,8 +170,8 @@ const ChefProfileCard = ({
       >
         {/* Left: Chef Image */}
         <Image
-          src={users?.avatar_url || "/default-avatar.png"}
-          alt="Chef Avatar"
+           src={users?.avatar_url || "/default-avatar.png"}
+          alt={t("chefProfile.chefAvatarAlt")}
           borderRadius="full"
           boxSize={{ base: "100px", md: "150px" }}
           objectFit="cover"
@@ -189,10 +192,28 @@ const ChefProfileCard = ({
                   : colors.dark.textMain
               }
             >
-              {kitchen_name || users?.name || "Chef Name"}
+              {kitchen_name || users?.name || t("chefProfile.chefNameFallback")}
             </Text>
-            {/* check status */}
-            {is_available ? (
+            {/* check status - Busy takes priority */}
+            {is_busy ? (
+              <Badge
+                bg="red.500"
+                borderRadius="8px"
+                fontSize={{ base: "xs", md: "sm" }}
+                px={3}
+                py={1}
+                color="white"
+              >
+                <Status.Root colorPalette="red" color="white">
+                  <Status.Indicator
+                    bg="red.400"
+                    boxShadow="0 0 12px 2px #DC2626"
+                    filter="blur(0.5px)"
+                  />
+                  {t("chefCard.busyNow")}
+                </Status.Root>
+              </Badge>
+            ) : is_available ? (
               <Badge
                 bg={
                   colorMode === "light"
@@ -217,7 +238,7 @@ const ChefProfileCard = ({
                     boxShadow="0 0 12px 2px #2EB200"
                     filter="blur(0.5px)"
                   />
-                  Available Now
+                  {t("chefProfile.available")}
                 </Status.Root>
               </Badge>
             ) : (
@@ -236,7 +257,7 @@ const ChefProfileCard = ({
                 }
               >
                 <RxCross2 size={20} />
-                Closed Now
+                {t("chefProfile.closed")}
               </Badge>
             )}
           </Flex>
@@ -262,7 +283,7 @@ const ChefProfileCard = ({
                       : colors.dark.textMain
                   }
                 >
-                  {avg_rating || 0}({total_reviews || "0"} Reviews)
+                  {avg_rating || 0}({total_reviews || "0"} {t("chefProfile.reviews")})
                 </Text>
                 {/* <Icon
                   as={FaPhoneAlt}
@@ -303,7 +324,7 @@ const ChefProfileCard = ({
                       : colors.dark.textMain
                   }
                 >
-                  {specialty || "no specialty"}
+                  {specialty || t("chefProfile.noSpecialty")}
                 </Text>
                 <Icon
                   as={FaClock}
@@ -352,7 +373,7 @@ const ChefProfileCard = ({
                       : colors.dark.textMain
                   }
                 >
-                  {avg_rating || 0}({total_reviews || "0"} Reviews)
+                  {avg_rating || 0}({total_reviews || "0"} {t("chefProfile.reviews")})
                 </Text>
               </Flex>
               <Flex align="center" gap={2}>
@@ -373,7 +394,7 @@ const ChefProfileCard = ({
                       : colors.dark.textMain
                   }
                 >
-                  {specialty || "no specialty"}
+                  {specialty || t("chefProfile.noSpecialty")}
                 </Text>
               </Flex>
               <Flex align="center" gap={2}>
@@ -432,7 +453,7 @@ const ChefProfileCard = ({
             lineHeight="1.6"
           >
             {bio ||
-              "This kitchen offers modern, home-style meals cooked with passion and served fresh every day."}
+              t("chefProfile.defaultBio")}
           </Text>
         </Box>
       </Flex>

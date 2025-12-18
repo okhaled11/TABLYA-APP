@@ -1,4 +1,5 @@
 import { Button, CloseButton, Dialog, Portal } from "@chakra-ui/react";
+import { useTranslation } from "react-i18next";
 import colors from "../theme/color";
 import { useColorMode } from "../theme/color-mode";
 export default function CustomAlertDialog({
@@ -11,12 +12,14 @@ export default function CustomAlertDialog({
   isLoading = false,
 }) {
   const { colorMode } = useColorMode();
+  const { i18n } = useTranslation();
   return (
     <Dialog.RootProvider value={dialog}>
       <Portal>
         <Dialog.Backdrop />
         <Dialog.Positioner>
           <Dialog.Content
+            dir={i18n.dir()}
             bg={
               colorMode == "light" ? colors.light.bgThird : colors.dark.bgThird
             }
@@ -60,7 +63,7 @@ export default function CustomAlertDialog({
                 variant="outline"
                 flex="1"
                 borderRadius="12px"
-                ml={3}
+                ms={3}
                 onClick={async () => {
                   await onOkHandler();
                   dialog.setOpen(false);

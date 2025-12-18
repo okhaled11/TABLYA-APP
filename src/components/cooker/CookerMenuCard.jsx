@@ -9,6 +9,7 @@ import {
   Button,
   Box,
 } from "@chakra-ui/react";
+import { useTranslation } from "react-i18next";
 import { FaPen } from "react-icons/fa";
 import AddMealModal from "./AddMealModal";
 import { useColorMode } from "../../theme/color-mode";
@@ -27,6 +28,7 @@ import { truncateText } from "../../utils";
 
 const CookerMenuCard = ({ item }) => {
   const { colorMode } = useColorMode();
+  const { t } = useTranslation();
   // const dispatch = useDispatch();
   const dialog = useDialog(); // delete dialog
   const editDialog = useDialog(); // edit modal dialog
@@ -99,7 +101,7 @@ const CookerMenuCard = ({ item }) => {
                 bg={item?.available ? "green.500" : "red.500"}
               />
               <Text fontSize="xs" fontWeight="bold">
-                {item?.available ? "In Stock" : "Out of Stock"}
+                {item?.available ? t("cookerMenu.inStock") : t("cookerMenu.outOfStock")}
               </Text>
             </Flex>
           </Badge>
@@ -117,7 +119,7 @@ const CookerMenuCard = ({ item }) => {
               }
               noOfLines={1}
             >
-              {truncateText(item?.title, 15) || "No Title"}
+              {truncateText(item?.title, 15) || t("cookerMenu.noTitle")}
             </Text>
             <Text
               fontWeight="bold"
@@ -129,7 +131,7 @@ const CookerMenuCard = ({ item }) => {
               }
               whiteSpace="nowrap"
             >
-              {item?.price ?? 0} L.E
+              {item?.price ?? 0} {t("common.currency")}
             </Text>
           </Flex>
 
@@ -141,7 +143,7 @@ const CookerMenuCard = ({ item }) => {
             noOfLines={2}
             minH="40px"
           >
-            {truncateText(item?.description, 80) || "No Description Available"}
+            {truncateText(item?.description, 80) || t("cookerMenu.noDesc")}
           </Text>
 
           <Flex gap={3} mt={3}>
@@ -175,7 +177,7 @@ const CookerMenuCard = ({ item }) => {
                 editDialog.setOpen(true);
               }}
             >
-              <FaPen size={14} style={{ marginRight: "8px" }} /> Edit Meal
+              <FaPen size={14} style={{ marginRight: "8px" }} /> {t("cookerMenu.editMeal")}
             </Button>
             <Button
               size="md"
@@ -209,15 +211,15 @@ const CookerMenuCard = ({ item }) => {
 
       <CustomAlertDialog
         dialog={dialog}
-        title={"Delete this item?"}
-        description={"This action cannot be undone."}
-        cancelTxt={"Cancel"}
-        okTxt={"Delete"}
+        title={t("cookerMenu.deleteTitle")}
+        description={t("cookerMenu.deleteDesc")}
+        cancelTxt={t("cookerMenu.cancel")}
+        okTxt={t("cookerMenu.delete")}
         onOkHandler={async () => {
           try {
             await deleteItem(item.id).unwrap();
             toaster.create({
-              title: "Item deleted",
+              title: t("cookerMenu.itemDeleted"),
               type: "success",
               duration: 2000,
               isClosable: true,
@@ -225,7 +227,7 @@ const CookerMenuCard = ({ item }) => {
             });
           } catch (e) {
             toaster.create({
-              title: "Failed to delete item",
+              title: t("cookerMenu.deleteFailed"),
               description: e?.data?.message || e?.message,
               type: "error",
               duration: 3000,
@@ -242,8 +244,8 @@ const CookerMenuCard = ({ item }) => {
       {/* Show details */}
       <CustomModal
         dialog={viewDialog}
-        title={item?.title || "Meal Details"}
-        description="View meal details"
+        title={item?.title || t("cookerMenu.mealDetails")}
+        description={t("cookerMenu.mealDetails")}
         showFooter={false}
       >
         <Flex direction="column" gap={4}>
@@ -277,7 +279,7 @@ const CookerMenuCard = ({ item }) => {
                   : colors.dark.mainFixed
               }
             >
-              {item?.price ?? 0} L.E
+              {item?.price ?? 0} {t("common.currency")}
             </Text>
           {/* </Flex> */}
           <Flex gap={2} align="center">
@@ -286,11 +288,12 @@ const CookerMenuCard = ({ item }) => {
               variant="solid"
               size="md"
             >
-              {item?.available ? "In Stock" : "Out of Stock"}
+            
+              {item?.available ? t("cookerMenu.inStock") : t("cookerMenu.outOfStock")}
             </Badge>
             {item?.stock !== undefined && (
               <Text fontSize="sm" color="gray.500">
-                ({item.stock} left)
+                ({item.stock} {t("cookerMenu.left")})
               </Text>
             )}
           </Flex>
@@ -300,7 +303,7 @@ const CookerMenuCard = ({ item }) => {
               colorMode === "light" ? colors.light.textSub : colors.dark.textSub
             }
           >
-            {item?.description || "No description available."}
+            {item?.description || t("cookerMenu.noDesc")}
           </Text>
         </Flex>
       </CustomModal>

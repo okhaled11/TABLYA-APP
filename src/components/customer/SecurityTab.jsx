@@ -12,8 +12,10 @@ import { useSendPasswordResetEmailMutation } from "../../app/features/Customer/p
 import { LockKey } from "@phosphor-icons/react";
 import { useColorStyles } from "../../hooks/useColorStyles";
 import IconBox from "../ui/IconBox";
+import { useTranslation } from "react-i18next";
 
 export default function SecurityTab({ user, isLoading }) {
+  const { t } = useTranslation();
   const styles = useColorStyles();
   const [sendPasswordResetEmail, { isLoading: isSendingEmail }] =
     useSendPasswordResetEmailMutation();
@@ -22,16 +24,15 @@ export default function SecurityTab({ user, isLoading }) {
     try {
       await sendPasswordResetEmail(user?.email).unwrap();
       toaster.create({
-        title: "Email Sent",
-        description:
-          "Password reset link has been sent to your email. Please check your inbox.",
+        title: t("securityTab.emailSent"),
+        description: t("securityTab.emailSentDesc"),
         type: "success",
         duration: 5000,
       });
     } catch (error) {
       toaster.create({
-        title: "Error",
-        description: error.message || "Failed to send password reset email",
+        title: t("securityTab.error"),
+        description: error.message || t("securityTab.errorDesc"),
         type: "error",
         duration: 5000,
       });
@@ -49,11 +50,10 @@ export default function SecurityTab({ user, isLoading }) {
             <VStack align="start" spacing={3} flex={1}>
               <VStack align="start" spacing={1}>
                 <Heading size="lg" fontWeight="bold" color={styles.textMain}>
-                  Password
+                  {t("securityTab.password")}
                 </Heading>
                 <Text fontSize="sm" color={styles.textSub}>
-                  Click the button below to receive a password reset link via
-                  email
+                  {t("securityTab.passwordDesc")}
                 </Text>
               </VStack>
               <Button
@@ -63,10 +63,10 @@ export default function SecurityTab({ user, isLoading }) {
                 size="md"
                 onClick={handlePasswordReset}
                 isLoading={isSendingEmail}
-                loadingText="Sending Email..."
+                loadingText={t("securityTab.sending")}
                 _hover={{ bg: styles.mainFixed70a }}
               >
-                Send Email
+                {t("securityTab.sendEmail")}
               </Button>
             </VStack>
           </HStack>

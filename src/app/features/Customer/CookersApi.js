@@ -11,7 +11,7 @@ export const cookersApi = createApi({
       async queryFn() {
         const { data, error } = await supabase
           .from("cookers")
-          .select("*, users(name, avatar_url)")
+          .select("*, users(name, avatar_url), is_busy")
           .eq("is_approved", true)
           .order("avg_rating", { ascending: false })
           .limit(6);
@@ -27,7 +27,7 @@ export const cookersApi = createApi({
       async queryFn() {
         const { data, error } = await supabase
           .from("cookers")
-          .select("*, users(name, avatar_url)")
+          .select("*, users(name, avatar_url), is_busy")
           .eq("is_approved", true)
           .order("avg_rating", { ascending: false });
 
@@ -148,6 +148,52 @@ export const cookersApi = createApi({
       },
       providesTags: ["Cookers"],
     }),
+
+    // Update max_active_orders for a cooker
+    updateMaxActiveOrders: builder.mutation({
+      async queryFn({ userId, maxActiveOrders }) {
+        try {
+          const { data, error } = await supabase
+            .from("cookers")
+            .update({ max_active_orders: maxActiveOrders })
+            .eq("user_id", userId)
+            .select()
+            .single();
+
+          if (error) return { error };
+          return { data };
+        } catch (error) {
+          return { error: { message: error.message } };
+        }
+      },
+      invalidatesTags: (result, error, { userId }) => [
+        { type: "Cooker", id: userId },
+        "Cookers",
+      ],
+    }),
+
+    // Update is_busy status for a cooker
+    updateBusyStatus: builder.mutation({
+      async queryFn({ userId, isBusy }) {
+        try {
+          const { data, error } = await supabase
+            .from("cookers")
+            .update({ is_busy: isBusy })
+            .eq("user_id", userId)
+            .select()
+            .single();
+
+          if (error) return { error };
+          return { data };
+        } catch (error) {
+          return { error: { message: error.message } };
+        }
+      },
+      invalidatesTags: (result, error, { userId }) => [
+        { type: "Cooker", id: userId },
+        "Cookers",
+      ],
+    }),
   }),
 });
 
@@ -158,4 +204,6 @@ export const {
   useGetMenuItemsByCookerIdQuery,
   useGetCookersByIdsQuery,
   useGetCustomerCityQuery,
+  useUpdateMaxActiveOrdersMutation,
+  useUpdateBusyStatusMutation,
 } = cookersApi;

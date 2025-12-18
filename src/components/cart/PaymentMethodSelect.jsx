@@ -10,9 +10,11 @@ import colors from "../../theme/color";
 import { FaMoneyBillWave } from "react-icons/fa";
 import { useGetPlatformSettingsQuery } from "../../app/features/Admin/MariamSettings";
 import { toaster } from "../ui/toaster";
+import { useTranslation } from "react-i18next";
 
 export default function PaymentMethodSelect({ onCheckout = () => {}, total = 0, selectedAddress = null, onOpenAddressModal = () => {} }) {
   const { colorMode } = useColorMode();
+  const { t } = useTranslation();
   const [notes, setNotes] = useState("");
 
   const { data: settings } = useGetPlatformSettingsQuery();
@@ -39,7 +41,7 @@ export default function PaymentMethodSelect({ onCheckout = () => {}, total = 0, 
           w="full"
           borderRadius="12px"
         >
-          Change Address
+          {t("cart.changeAddress")}
         </Button>
       )}
       
@@ -49,7 +51,7 @@ export default function PaymentMethodSelect({ onCheckout = () => {}, total = 0, 
           colorMode == "light" ? colors.light.textMain : colors.dark.textMain
         }
       >
-        Payment Method
+        {t("cart.paymentMethod")}
       </Text>
       
       {/* Cash on Delivery - Static Display */}
@@ -73,7 +75,7 @@ export default function PaymentMethodSelect({ onCheckout = () => {}, total = 0, 
           fontWeight="medium"
         >
           <FaMoneyBillWave />
-          Cash on Delivery
+          {t("cart.cashOnDelivery")}
         </Text>
       </VStack>
 
@@ -84,10 +86,10 @@ export default function PaymentMethodSelect({ onCheckout = () => {}, total = 0, 
             colorMode == "light" ? colors.light.textMain : colors.dark.textMain
           }
         >
-          Notes (optional)
+          {t("cart.notes")} {t("cart.optional")}
         </Text>
         <Textarea
-          placeholder="Add any instructions for the order"
+          placeholder={t("cart.orderInstructionsPlaceholder")}
           value={notes}
           onChange={(e) => setNotes(e.target.value)}
           bg={colorMode == "light" ? colors.light.bgInput : colors.dark.bgInput}
@@ -109,8 +111,8 @@ export default function PaymentMethodSelect({ onCheckout = () => {}, total = 0, 
         onClick={() => {
           if (Number(total) < minOrder) {
             toaster.create({
-              title: "Minimum order value",
-              description: `You must order at least ${minOrder.toFixed(2)} L.E`,
+              title: t("cart.minOrderValue"),
+              description: t("cart.minOrderDesc", { amount: minOrder.toFixed(2) }),
               type: "warning",
               duration: 2500,
               isClosable: true,
@@ -125,7 +127,7 @@ export default function PaymentMethodSelect({ onCheckout = () => {}, total = 0, 
           });
         }}
       >
-        Checkout
+        {t("cart.checkout")}
       </Button>
     </VStack>
   );

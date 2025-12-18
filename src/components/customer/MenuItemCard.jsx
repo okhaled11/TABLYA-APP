@@ -7,6 +7,7 @@ import {
   IconButton,
   HStack,
 } from "@chakra-ui/react";
+import { useTranslation } from "react-i18next";
 import { FaShoppingCart } from "react-icons/fa";
 import { RxCross2 } from "react-icons/rx";
 import { useColorMode } from "../../theme/color-mode";
@@ -24,8 +25,9 @@ import CustomAlertDialog from "../../shared/CustomAlertDailog";
 import { toaster } from "../../components/ui/toaster";
 import { truncateText } from "../../utils";
 
-const MenuItemCard = ({ item, isAvailable }) => {
+const MenuItemCard = ({ item, isAvailable, isBusy }) => {
   const { colorMode } = useColorMode();
+  const { t, i18n } = useTranslation();
   const dispatch = useDispatch();
   const { cartItems, cookerId } = useSelector((state) => state.cart);
   const dialog = useDialog();
@@ -36,7 +38,8 @@ const MenuItemCard = ({ item, isAvailable }) => {
   const isOutOfStock = item.stock <= 0;
   const isMaxQuantity = currentQuantity >= item.stock;
   // Use availability from DB (menu_items.available) instead of parent flag
-  const isRestaurantClosed = item?.available === false || isAvailable === false;
+  // Also check if chef is busy
+  const isRestaurantClosed = item?.available === false || isAvailable === false || isBusy === true;
 
   const handleAddToCart = (e) => {
     e.preventDefault();
@@ -83,7 +86,9 @@ const MenuItemCard = ({ item, isAvailable }) => {
 
   return (
     <>
+
       <Card.Root
+        dir={i18n.dir()}
         as={isDetailsDisabled ? Box : Link}
         to={
           isDetailsDisabled
@@ -122,7 +127,7 @@ const MenuItemCard = ({ item, isAvailable }) => {
             borderRadius="12px"
             flexShrink={0}
           />
-          <Flex ml={4} flex="1" direction="column" minW="0">
+          <Flex ms={4} flex="1" direction="column" minW="0">
             <Text
               fontWeight="medium"
               fontSize={{ base: "md", md: "lg", lg: "xl" }}
@@ -135,8 +140,9 @@ const MenuItemCard = ({ item, isAvailable }) => {
                   ? colors.light.textMain
                   : colors.dark.textMain
               }
+              textAlign="start"
             >
-              {truncateText(item.title, 20) || "No Title"}
+              {truncateText(item.title, 20) || t("menuItemCard.noTitle")}
             </Text>
             <Text
               fontSize={{ base: "xs", md: "sm" }}
@@ -149,9 +155,10 @@ const MenuItemCard = ({ item, isAvailable }) => {
               noOfLines={2}
               overflowWrap="anywhere"
               wordBreak="break-word"
+              textAlign="start"
             >
               {truncateText(item.description, 200) ||
-                "No Description Available"}
+                t("menuItemCard.noDesc")}
             </Text>
             <Flex
               justify="space-between"
@@ -169,7 +176,7 @@ const MenuItemCard = ({ item, isAvailable }) => {
                     : colors.dark.mainFixed
                 }
               >
-                {item?.price_for_customer.toFixed(2)} L.E
+                {item?.price_for_customer.toFixed(2)} {t("common.currency")}
               </Text>
               {currentQuantity > 0 ? (
                 <HStack px={3} py={1} spacing={2} flexShrink={0}>
@@ -204,7 +211,7 @@ const MenuItemCard = ({ item, isAvailable }) => {
                     size="xs"
                     variant="ghost"
                     onClick={handleDecrement}
-                    aria-label="Decrease quantity"
+                    aria-label={t("menuItemCard.decrease")}
                     opacity={currentQuantity > 1 ? 1 : 0.5}
                     cursor={currentQuantity > 1 ? "pointer" : "pointer"}
                   >
@@ -261,8 +268,8 @@ const MenuItemCard = ({ item, isAvailable }) => {
                     onClick={handleIncrement}
                     aria-label={
                       isMaxQuantity
-                        ? "Maximum quantity reached"
-                        : "Increase quantity"
+                        ? t("menuItemCard.maxReached")
+                        : t("menuItemCard.increase")
                     }
                     opacity={isMaxQuantity ? 0.5 : 1}
                     cursor={isMaxQuantity ? "not-allowed" : "pointer"}
@@ -275,12 +282,12 @@ const MenuItemCard = ({ item, isAvailable }) => {
                   onClick={handleAddToCart}
                   aria-label={
                     isRestaurantClosed
-                      ? "Closed"
+                      ? t("menuItemCard.closed")
                       : isOutOfStock
-                      ? "Out of stock"
+                      ? t("menuItemCard.outOfStock")
                       : isMaxQuantity
-                      ? "Maximum quantity reached"
-                      : "Add to cart"
+                      ? t("menuItemCard.maxReached")
+                      : t("menuItemCard.addToCart")
                   }
                   colorScheme="teal"
                   variant="outline"
@@ -324,22 +331,22 @@ const MenuItemCard = ({ item, isAvailable }) => {
                   }
                   title={
                     isRestaurantClosed
-                      ? "Closed"
+                      ? t("menuItemCard.closed")
                       : isOutOfStock
-                      ? "Out of stock"
+                      ? t("menuItemCard.outOfStock")
                       : isMaxQuantity
-                      ? "Maximum quantity reached"
-                      : "Add to cart"
+                      ? t("menuItemCard.maxReached")
+                      : t("menuItemCard.addToCart")
                   }
                 >
                   {isRestaurantClosed ? (
                     <HStack spacing={1} align="center" px={2} flexShrink={0}>
                       <RxCross2 />
-                      <Text fontSize={{ base: "2xs", md: "xs" }}>Closed</Text>
+                      <Text fontSize={{ base: "2xs", md: "xs" }}>{t("menuItemCard.closed")}</Text>
                     </HStack>
                   ) : isOutOfStock ? (
                     <Text fontSize={{ base: "2xs", md: "xs" }}>
-                      Out of Stock
+                      {t("menuItemCard.outOfStock")}
                     </Text>
                   ) : isMaxQuantity ? (
                     <Box
@@ -347,7 +354,7 @@ const MenuItemCard = ({ item, isAvailable }) => {
                       p={{ base: 3, md: 5 }}
                       bg="transarent"
                     >
-                      Out of Stock
+                      {t("menuItemCard.outOfStock")} 
                     </Box>
                   ) : (
                     <FaShoppingCart />
@@ -361,19 +368,19 @@ const MenuItemCard = ({ item, isAvailable }) => {
       </Card.Root>
       <CustomAlertDialog
         dialog={dialog}
-        title={"Replace cart with new restaurant?"}
+        title={t("menuItemCard.replaceDialog.title")}
         description={
-          "You already have items from another restaurant in your cart. Adding this item will remove your current cart. Do you want to continue?"
+         t("menuItemCard.replaceDialog.desc")
         }
-        cancelTxt={"Cancel"}
-        okTxt={"Yes, Replace"}
+        cancelTxt={t("menuItemCard.replaceDialog.cancel")}
+        okTxt={t("menuItemCard.replaceDialog.confirm")}
         onOkHandler={async () => {
           await dispatch(clearCart());
           await dispatch(addToCart(item));
           toaster.create({
-            title: "Cart has been replaced",
+            title: t("menuItemCard.replaceSuccess.title"),
             description:
-              "Cart has been replaced with the new restaurant’s item",
+              t("menuItemCard.replaceSuccess.desc"),
             type: "success",
             duration: 3000,
             isClosable: true,

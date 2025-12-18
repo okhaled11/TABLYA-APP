@@ -9,6 +9,7 @@ import { FiMoon, FiSun } from 'react-icons/fi';
 import { useColorMode } from '../../theme/color-mode';
 import { useTranslation } from 'react-i18next';
 import { Link as RouterLink } from "react-router-dom";
+import { Globe } from '@phosphor-icons/react';
 
 export default function Navbar() {
   const { t, i18n } = useTranslation();
@@ -21,6 +22,7 @@ export default function Navbar() {
 
   const changeLanguage = (lang) => {
     i18n.changeLanguage(lang);
+    localStorage.setItem("i18nextLng", lang);
     document.dir = lang === "ar" ? "rtl" : "ltr";
   };
   return (
@@ -99,7 +101,7 @@ export default function Navbar() {
               {t("navbar.reviews")}
             </Link>
 
-              <Link
+             <Link
               href='#menu'
               px={3}
               py={1}
@@ -111,52 +113,51 @@ export default function Navbar() {
                 borderRadius: "md",
               }}
             >
-             Menu
+             {t("navbar.menu")}
             </Link>
           </HStack>
         </Box>
 
         {/* right : toggle button (right aligned) */}
-        <Box flex={1} display={"flex"} justifyContent={"flex-end"}>
-          {/* ---------------------------------------------------------- */}
-          {/* test language */}
-          {/* <button
-            onClick={() => changeLanguage("en")}
-            style={{
-              backgroundColor: "#fff",
-              color: "#3b82f6",
-              border: "none",
-              padding: "2px 2px",
-              borderRadius: "8px",
-              cursor: "pointer",
-              fontWeight: "bold",
-              transition: "0.3s",
-            }}
-            onMouseOver={(e) => (e.target.style.backgroundColor = "#e0e7ff")}
-            onMouseOut={(e) => (e.target.style.backgroundColor = "#fff")}
-          >
-            English
-          </button>
-
-          <button
-            onClick={() => changeLanguage("ar")}
-            style={{
-              backgroundColor: "#3b82f6",
-              color: "#fff",
-              border: "2px solid #fff",
-              padding: "1px 2px",
-              borderRadius: "8px",
-              cursor: "pointer",
-              fontWeight: "bold",
-              transition: "0.3s",
-            }}
-            onMouseOver={(e) => (e.target.style.backgroundColor = "#2563eb")}
-            onMouseOut={(e) => (e.target.style.backgroundColor = "#3b82f6")}
-          >
-            عربي
-          </button> */}
-
-
+        <Box flex={1} display={"flex"} justifyContent={"flex-end"} alignItems={"center"} gap={2}>
+          {/* Language Switcher with Earth Icon */}
+          <HStack spacing={0} display={{ base: "none", md: "flex" }}>
+            <Button
+              onClick={() => changeLanguage("en")}
+              leftIcon={<Globe size={18} weight="fill" />}
+              size="sm"
+              bg={i18n.language === "en" ? "#FF6B35" : "transparent"}
+              color="white"
+              border="2px solid"
+              borderColor="#FF6B35"
+              borderRadius="8px 0 0 8px"
+              fontWeight="bold"
+              px={3}
+              _hover={{
+                bg: i18n.language === "en" ? "#e55a2b" : "#FF6B3520",
+              }}
+            >
+              English
+            </Button>
+            <Button
+              onClick={() => changeLanguage("ar")}
+              rightIcon={<Globe size={18} weight="fill" />}
+              size="sm"
+              bg={i18n.language === "ar" ? "#FF6B35" : "transparent"}
+              color="white"
+              border="2px solid"
+              borderColor="#FF6B35"
+              borderLeft="none"
+              borderRadius="0 8px 8px 0"
+              fontWeight="bold"
+              px={3}
+              _hover={{
+                bg: i18n.language === "ar" ? "#e55a2b" : "#FF6B3520",
+              }}
+            >
+              عربي
+            </Button>
+          </HStack>
 
           {/* theme toggle for dark and light modes */}
 
@@ -248,7 +249,7 @@ export default function Navbar() {
               _hover={{ textDecoration: "none", color: "gray.300" }}
               onClick={() => setIsOpen(false)}
             >
-             Menu
+             {t("navbar.menu")}
             </Link>
 
 
