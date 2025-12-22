@@ -3,6 +3,7 @@ import Navbar from "../../layout/Navbar";
 import Footer from "../../shared/Footer";
 import { Container } from "@chakra-ui/react";
 import CookerTabs from "../../components/cooker/CookerTabs";
+import ChatSupport from "../../shared/ChatSupport";
 
 const CookerPage = () => {
   return (
@@ -12,6 +13,7 @@ const CookerPage = () => {
         <CookerTabs />
         <Outlet />
       </Container>
+      <ChatSupport />
       <Footer />
     </>
   );

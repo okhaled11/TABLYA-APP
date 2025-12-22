@@ -3,6 +3,7 @@ import { Container } from "@chakra-ui/react";
 import CustomerTabs from "../components/customer/CustomerTabs";
 import { Outlet } from "react-router-dom";
 import Footer from "../shared/Footer";
+import ChatSupport from "../shared/ChatSupport";
 
 const CustomerPage = () => {
   //   const { colorMode } = useColorMode();
@@ -13,6 +14,7 @@ const CustomerPage = () => {
         <CustomerTabs />
         <Outlet />
       </Container>
+      <ChatSupport />
       <Footer />
     </>
   );
