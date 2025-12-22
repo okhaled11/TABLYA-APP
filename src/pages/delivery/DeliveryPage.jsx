@@ -5,7 +5,7 @@ import DeliveryTabs from "../../components/delivery/DeliveryTabs";
 import { Container } from "@chakra-ui/react";
 import { Outlet, useNavigate } from "react-router-dom";
 import Footer from "../../shared/Footer";
-import SupportButton from "../../shared/SupportButton";
+import ChatSupport from "../../shared/ChatSupport";
 import CookieService from "../../services/cookies";
 import { useGetUserDataQuery } from "../../app/features/Auth/authSlice";
 import { useGetDeliveryByUserIdQuery } from "../../app/features/delivery/deliveryApi";
@@ -37,7 +37,7 @@ const DeliveryPage = () => {
         <DeliveryTabs />
         <Outlet />
       </Container>
-      <SupportButton />
+      <ChatSupport />
       <Footer />
     </>
   );

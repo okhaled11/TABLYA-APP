@@ -42,6 +42,7 @@ import { landingReviews } from "./features/Landing/LandingReviews";
 import { deliveryApi } from "./features/delivery/deliveryApi";
 import { deleveryOrder } from "./features/delivery/deleveryOrder";
 import { LandingMenuApi } from "./features/Landing/LandingMenuApi";
+import { supportApi } from "./features/Support/supportApi";
 
 const persistCartConfig = {
   key: "cart",
@@ -100,6 +101,9 @@ export const store = configureStore({
     // Delivery APIs
     [deliveryApi.reducerPath]: deliveryApi.reducer,
     [deleveryOrder.reducerPath]: deleveryOrder.reducer,
+
+    // Support API
+    [supportApi.reducerPath]: supportApi.reducer,
   },
 
   middleware: (getDefaultMiddleware) =>
@@ -139,6 +143,7 @@ export const store = configureStore({
       deliveryApi.middleware,
       deleveryOrder.middleware,
       LandingMenuApi.middleware,
+      supportApi.middleware,
     ),
 });
 

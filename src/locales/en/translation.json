@@ -1047,5 +1047,13 @@
     "subtotal": "Subtotal",
     "deliveryFee": "Delivery Fee",
     "price": "Price"
+  },
+  "chat": {
+    "welcome": "Hello! How can we help you today?",
+    "autoResponse": "Thank you for reaching out. A support agent will be with you shortly.",
+    "supportTeam": "Tablya Support",
+    "onlineStatus": "Online - Usually responds in minutes",
+    "placeholder": "Type your message...",
+    "send": "Send"
   }
 }
