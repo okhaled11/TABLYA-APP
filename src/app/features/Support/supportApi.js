@@ -70,6 +70,7 @@ export const supportApi = createApi({
     getAllConversations: builder.query({
       async queryFn({ status } = {}) {
         try {
+          // 1. Fetch conversations
           let query = supabase
             .from("support_conversations")
             .select("*")
@@ -79,13 +80,48 @@ export const supportApi = createApi({
             query = query.eq("status", status);
           }
 
-          const { data, error } = await query;
+          const { data: conversations, error: convError } = await query;
 
-          if (error) {
-            return { error: { message: error.message } };
+          if (convError) {
+            return { error: { message: convError.message } };
           }
 
-          return { data };
+          // 2. Fetch related users manually
+          if (!conversations || conversations.length === 0) {
+            return { data: [] };
+          }
+
+          const userIds = [
+            ...new Set(conversations.map((c) => c.user_id).filter(Boolean)),
+          ];
+
+          if (userIds.length === 0) {
+            return { data: conversations };
+          }
+
+          const { data: users, error: userError } = await supabase
+            .from("users")
+            .select("id, name, avatar_url, email, role")
+            .in("id", userIds);
+
+          if (userError) {
+            console.error("Error fetching users:", userError);
+            // Return conversations without user details if user fetch fails
+            return { data: conversations };
+          }
+
+          // 3. Merge data
+          const usersMap = (users || []).reduce((acc, user) => {
+            acc[user.id] = user;
+            return acc;
+          }, {});
+
+          const enrichedConversations = conversations.map((convo) => ({
+            ...convo,
+            users: usersMap[convo.user_id] || null,
+          }));
+
+          return { data: enrichedConversations };
         } catch (error) {
           return { error: { message: error.message } };
         }

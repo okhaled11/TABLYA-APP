@@ -24,12 +24,12 @@ import { passwordApi } from "./features/Customer/passwordSlice";
 import { personalInfoApi } from "./features/Customer/personalInfoSlice";
 import { addressApi } from "./features/Customer/addressSlice";
 import { OrdersHistoryCustomerSlice } from "./features/Customer/Orders/OrdersHistoryCustomerSlice";
-import { OrdersApiCustomerSlice } from "./features/Customer/Orders/ordersApiCustomerSlice";
+import { OrdersApiCustomerSlice } from "./features/Customer/Orders/OrdersApiCustomerSlice";
 import { ReportsApiSlice } from "./features/Customer/Reports/reportsApiSlice";
 import { reviewsApi } from "./features/Customer/reviewsApi";
 import { UserSlice } from "./features/UserSlice";
 import { CookerAcceptOrder } from "./features/Cooker/CookerAcceptOrder";
-import { CookerMenuApi } from "./features/cooker/CookerMenuApi";
+import { CookerMenuApi } from "./features/Cooker/CookerMenuApi";
 import { CookerAnalyticsApi } from "./features/Cooker/CookerAnalytics";
 
 import CartSlice from "./features/Customer/CartSlice";
@@ -85,8 +85,8 @@ export const store = configureStore({
     [AdminUserSlice.reducerPath]: AdminUserSlice.reducer,
     [MariamSettingsApi.reducerPath]: MariamSettingsApi.reducer,
     [adminReportActionsApi.reducerPath]: adminReportActionsApi.reducer,
-    [landingReviews.reducerPath]:landingReviews.reducer,
-    [LandingMenuApi.reducerPath]:LandingMenuApi.reducer,
+    [landingReviews.reducerPath]: landingReviews.reducer,
+    [LandingMenuApi.reducerPath]: LandingMenuApi.reducer,
 
     // Auth & User
     [authApi.reducerPath]: authApi.reducer,
@@ -143,7 +143,7 @@ export const store = configureStore({
       deliveryApi.middleware,
       deleveryOrder.middleware,
       LandingMenuApi.middleware,
-      supportApi.middleware,
+      supportApi.middleware
     ),
 });
 
