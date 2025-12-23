@@ -3,7 +3,7 @@ import { useTranslation } from "react-i18next";
 import colors from "../../../theme/color";
 import { useColorMode } from "../../../theme/color-mode";
 import CookerStatistics from "../../../components/cooker/CookerStatistics";
-import { CookerAnalytics } from "../../../components/Cooker/CookerAnalytics";
+import { CookerAnalytics } from "../../../components/cooker/CookerAnalytics";
 const CookerHome = () => {
   const { colorMode } = useColorMode();
   const { t } = useTranslation();
@@ -18,7 +18,6 @@ const CookerHome = () => {
           colorMode == "light" ? colors.light.textMain : colors.dark.textMain
         }
       >
-      
         {t("cookerAnalytics.statistics")}
       </Heading>
       {/* statistics */}
@@ -33,7 +32,6 @@ const CookerHome = () => {
           colorMode == "light" ? colors.light.textMain : colors.dark.textMain
         }
       >
-      
         {t("cookerAnalytics.analytics")}
       </Heading>
       <CookerAnalytics />
