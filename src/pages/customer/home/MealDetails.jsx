@@ -16,7 +16,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { useParams } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import MealDetailsCard from "../../../components/customer/Order/MealDetailsCard";
-import { useGetMealAndChefDetailsQuery } from "../../../app/features/Customer/Orders/ordersApiCustomerSlice";
+import { useGetMealAndChefDetailsQuery } from "../../../app/features/Customer/Orders/OrdersApiCustomerSlice";
 
 const MealDetails = () => {
   /* ---------------------hooks-------------------- */
