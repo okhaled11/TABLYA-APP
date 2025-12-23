@@ -53,6 +53,7 @@ function ScrollToTop() {
 import DeliveryOrders from "./components/delivery/DeliveryOrders";
 import DeliveryStatistics from "./components/delivery/DeliveryStatistics";
 import DeliveryOrderMap from "./pages/delivery/DeliveryOrderMap";
+import AdminSupportDashboard from "./pages/AdminPages/AdminSupportDashboard";
 
 function App() {
   const token = CookieService.get("access_token");
@@ -118,6 +119,7 @@ function App() {
               <Route path="deliveries" element={<Deliveries />} />
               <Route path="complaints" element={<Complaints />} />
               <Route path="settings" element={<Settings />} />
+              <Route path="support" element={<AdminSupportDashboard />} />
             </Route>
           </Route>
 
@@ -140,10 +142,10 @@ function App() {
               />
               <Route path="orders" element={<DeliveryOrders />} />
               <Route path="Statistics" element={<DeliveryStatistics />} />
-            <Route
-              path="orders/map/:orderId"
-              element={<DeliveryOrderMap />}
-            />
+              <Route
+                path="orders/map/:orderId"
+                element={<DeliveryOrderMap />}
+              />
             </Route>
           </Route>
         </Route>

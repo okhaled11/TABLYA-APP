@@ -195,8 +195,9 @@ import { LuLayoutDashboard, LuChartColumn, LuUserCheck } from "react-icons/lu";
 import { FiUsers, FiShoppingBag } from "react-icons/fi";
 import { GrCompliance } from "react-icons/gr";
 import { IoSettingsOutline } from "react-icons/io5";
+import { BiSupport } from "react-icons/bi";
 import { GiHamburgerMenu } from "react-icons/gi";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import colors from "../../theme/color";
 import logo from '../../assets/logotitle.png';
 import { Image } from "@chakra-ui/react";
@@ -212,6 +213,7 @@ export default function SidebarLayout() {
     { to: "/admin/user-management", label: "User Management", icon: FiUsers },
     { to: "/admin/deliveries", label: "Deliveries", icon: FiShoppingBag },
     { to: "/admin/complaints", label: "Complaints", icon: GrCompliance },
+    { to: "/admin/support", label: "Support", icon: BiSupport },
     { to: "/admin/settings", label: "Settings", icon: IoSettingsOutline },
   ];
 
