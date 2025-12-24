@@ -114,7 +114,9 @@ const AddMealModal = ({ dialog, item = null, mode = "create" }) => {
 
   const priceValue = watch("price");
   const { data: settings } = useGetPlatformSettingsQuery();
-  const feePct = Number(settings?.chef_fee_pct ?? settings?.chef_commission_pct ?? 0);
+  const feePct = Number(
+    settings?.chef_fee_pct ?? settings?.chef_commission_pct ?? 0
+  );
   const chefEarnings = Number(priceValue || 0) * (1 - feePct / 100);
 
   const handleImageChange = (e) => {
@@ -146,9 +148,7 @@ const AddMealModal = ({ dialog, item = null, mode = "create" }) => {
         if (!ok) {
           setValue("image", undefined, { shouldValidate: true });
           setImagePreview(isEditing ? item?.menu_img || null : null);
-          setWarningText(
-            t("addMeal.imageNotPermittedDesc")
-          );
+          setWarningText(t("addMeal.imageNotPermittedDesc"));
           setWarningOpen(true);
         } else {
           proceedPreview(file);
@@ -156,8 +156,7 @@ const AddMealModal = ({ dialog, item = null, mode = "create" }) => {
       } catch (err) {
         toaster.create({
           title: t("addMeal.imageCheckFailed"),
-          description:
-            err?.message || t("addMeal.imageCheckFailedDesc"),
+          description: err?.message || t("addMeal.imageCheckFailedDesc"),
           type: "error",
           duration: 3000,
           isClosable: true,
@@ -356,9 +355,6 @@ const AddMealModal = ({ dialog, item = null, mode = "create" }) => {
       if (isEditing) {
         await updateMenuItem(payload).unwrap();
         toaster.create({
-          title: t("addMeal.successEdit"), // Success
-          description: t("addMeal.successEdit"), // Using same message for title/desc for now or fix keys
-// Actually I defined successAdd and successEdit separately
           title: "Success",
           description: t("addMeal.successEdit"),
           type: "success",
@@ -406,11 +402,7 @@ const AddMealModal = ({ dialog, item = null, mode = "create" }) => {
       <CustomModal
         dialog={dialog}
         title={isEditing ? t("addMeal.titleEdit") : t("addMeal.titleAdd")}
-        description={
-          isEditing
-            ? t("addMeal.descEdit")
-            : t("addMeal.descAdd")
-        }
+        description={isEditing ? t("addMeal.descEdit") : t("addMeal.descAdd")}
         okTxt={isEditing ? t("addMeal.save") : t("addMeal.add")}
         cancelTxt={t("addMeal.cancel")}
         onOkHandler={handleOk}
@@ -491,8 +483,12 @@ const AddMealModal = ({ dialog, item = null, mode = "create" }) => {
                   }
                 >
                   {t("addMeal.chefEarn", {
-                    amount: Number.isFinite(chefEarnings) ? chefEarnings.toFixed(2) : "0.00",
-                    feeText: feePct ? t("addMeal.feeText", { fee: feePct }) : ""
+                    amount: Number.isFinite(chefEarnings)
+                      ? chefEarnings.toFixed(2)
+                      : "0.00",
+                    feeText: feePct
+                      ? t("addMeal.feeText", { fee: feePct })
+                      : "",
                   })}
                 </Text>
               </Field.Root>

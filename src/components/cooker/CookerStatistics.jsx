@@ -10,8 +10,8 @@ import { FaMoneyBillWave, FaStar } from "react-icons/fa";
 import { TbSoup } from "react-icons/tb";
 import { PiMoneyWavyFill } from "react-icons/pi";
 import { RiFileList3Fill } from "react-icons/ri";
-import { useGetCookerOrdersQuery } from "../../app/features/cooker/CookerAcceptOrder";
-import { useGetMyMenuItemsQuery } from "../../app/features/cooker/CookerMenuApi";
+import { useGetCookerOrdersQuery } from "../../app/features/Cooker/CookerAcceptOrder";
+import { useGetMyMenuItemsQuery } from "../../app/features/Cooker/CookerMenuApi";
 import { useGetCookerByIdQuery } from "../../app/features/Customer/CookersApi";
 import { supabase } from "../../services/supabaseClient";
 

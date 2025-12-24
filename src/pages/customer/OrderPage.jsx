@@ -23,7 +23,7 @@ import { supabase } from "../../services/supabaseClient";
 import {
   useGetCustomerOrdersQuery,
   useCancelOrderMutation,
-} from "../../app/features/Customer/Orders/ordersApiCustomerSlice";
+} from "../../app/features/Customer/Orders/OrdersApiCustomerSlice";
 import { useGetCustomerOrderHistoryQuery } from "../../app/features/Customer/Orders/OrdersHistoryCustomerSlice";
 import { toaster } from "../../components/ui/toaster";
 import {
@@ -595,9 +595,7 @@ const OrderPage = () => {
                         color={colors.light.textSub}
                       >
                         {t("orders.price")}:{" "}
-                        {item.price_at_order ||
-                          item?.price_for_customer}{" "}
-                        LE
+                        {item.price_at_order || item?.price_for_customer} LE
                       </Text>
                     </Box>
                     <Text
@@ -741,11 +739,7 @@ const OrderPage = () => {
                 >
                   {cancellingOrderId === id ? (
                     <HStack spacing={2}>
-                      <Image
-                        src={loadingGif}
-                        alt="Loading"
-                        boxSize="24px"
-                      />
+                      <Image src={loadingGif} alt="Loading" boxSize="24px" />
                       <Text>{t("orders.cancelling")}</Text>
                     </HStack>
                   ) : (
@@ -968,7 +962,8 @@ const OrderPage = () => {
                           : colors.dark.textMain
                       }
                     >
-                      {t("common.total")}: {orderDetails?.total || 0} {t("common.currency")}
+                      {t("common.total")}: {orderDetails?.total || 0}{" "}
+                      {t("common.currency")}
                     </Text>
                   </Box>
                 </Flex>
@@ -1062,13 +1057,17 @@ const OrderPage = () => {
 
                 <Flex direction="column" gap={2}>
                   <Flex justify="space-between">
-                    <Text color={colors.light.textSub}>{t("common.subtotal")}:</Text>
+                    <Text color={colors.light.textSub}>
+                      {t("common.subtotal")}:
+                    </Text>
                     <Text fontWeight={500}>
                       {orderDetails?.subtotal || 0} {t("common.currency")}
                     </Text>
                   </Flex>
                   <Flex justify="space-between">
-                    <Text color={colors.light.textSub}>{t("common.deliveryFee")}:</Text>
+                    <Text color={colors.light.textSub}>
+                      {t("common.deliveryFee")}:
+                    </Text>
                     <Text fontWeight={500}>
                       {orderDetails?.delivery_fee || 0} {t("common.currency")}
                     </Text>
@@ -1407,9 +1406,15 @@ const OrderPage = () => {
                   }}
                 >
                   <option value="">{t("orderPage.selectCategory")}</option>
-                  <option value="food_problem">{t("orderPage.foodProblem")}</option>
-                  <option value="delivery_problem">{t("orderPage.deliveryProblem")}</option>
-                  <option value="money_problem">{t("orderPage.moneyProblem")}</option>
+                  <option value="food_problem">
+                    {t("orderPage.foodProblem")}
+                  </option>
+                  <option value="delivery_problem">
+                    {t("orderPage.deliveryProblem")}
+                  </option>
+                  <option value="money_problem">
+                    {t("orderPage.moneyProblem")}
+                  </option>
                 </Box>
               </Box>
               <Box>
