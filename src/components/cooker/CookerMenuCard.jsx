@@ -23,7 +23,7 @@ import { BsFillTrash3Fill } from "react-icons/bs";
 import {
   // useUpdateMenuItemAvailabilityMutation,
   useDeleteMenuItemMutation,
-} from "../../app/features/cooker/CookerMenuApi";
+} from "../../app/features/Cooker/CookerMenuApi";
 import { truncateText } from "../../utils";
 
 const CookerMenuCard = ({ item }) => {
@@ -101,7 +101,9 @@ const CookerMenuCard = ({ item }) => {
                 bg={item?.available ? "green.500" : "red.500"}
               />
               <Text fontSize="xs" fontWeight="bold">
-                {item?.available ? t("cookerMenu.inStock") : t("cookerMenu.outOfStock")}
+                {item?.available
+                  ? t("cookerMenu.inStock")
+                  : t("cookerMenu.outOfStock")}
               </Text>
             </Flex>
           </Badge>
@@ -177,7 +179,8 @@ const CookerMenuCard = ({ item }) => {
                 editDialog.setOpen(true);
               }}
             >
-              <FaPen size={14} style={{ marginRight: "8px" }} /> {t("cookerMenu.editMeal")}
+              <FaPen size={14} style={{ marginRight: "8px" }} />{" "}
+              {t("cookerMenu.editMeal")}
             </Button>
             <Button
               size="md"
@@ -258,29 +261,29 @@ const CookerMenuCard = ({ item }) => {
             borderRadius="xl"
           />
           {/* <Flex justify="space-between" align="center" > */}
-            <Text
-              fontWeight="semibold"
-              fontSize="xl"
-              noOfLines={2}
-              color={
-                colorMode === "light"
-                  ? colors.light.textMain
-                  : colors.dark.textMain
-              }
-            >
-              {item?.title}
-            </Text>
-            <Text
-              fontWeight="bold"
-              fontSize="lg"
-              color={
-                colorMode === "light"
-                  ? colors.light.mainFixed
-                  : colors.dark.mainFixed
-              }
-            >
-              {item?.price ?? 0} {t("common.currency")}
-            </Text>
+          <Text
+            fontWeight="semibold"
+            fontSize="xl"
+            noOfLines={2}
+            color={
+              colorMode === "light"
+                ? colors.light.textMain
+                : colors.dark.textMain
+            }
+          >
+            {item?.title}
+          </Text>
+          <Text
+            fontWeight="bold"
+            fontSize="lg"
+            color={
+              colorMode === "light"
+                ? colors.light.mainFixed
+                : colors.dark.mainFixed
+            }
+          >
+            {item?.price ?? 0} {t("common.currency")}
+          </Text>
           {/* </Flex> */}
           <Flex gap={2} align="center">
             <Badge
@@ -288,8 +291,9 @@ const CookerMenuCard = ({ item }) => {
               variant="solid"
               size="md"
             >
-            
-              {item?.available ? t("cookerMenu.inStock") : t("cookerMenu.outOfStock")}
+              {item?.available
+                ? t("cookerMenu.inStock")
+                : t("cookerMenu.outOfStock")}
             </Badge>
             {item?.stock !== undefined && (
               <Text fontSize="sm" color="gray.500">
