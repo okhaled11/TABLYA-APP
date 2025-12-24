@@ -74,7 +74,9 @@ const AddressDialog = ({
     if (!navigator.geolocation) {
       toaster.create({
         title: t("addressDialog.toasts.geolocationNotSupported.title"),
-        description: t("addressDialog.toasts.geolocationNotSupported.description"),
+        description: t(
+          "addressDialog.toasts.geolocationNotSupported.description"
+        ),
         type: "error",
         duration: 3000,
       });
@@ -95,8 +97,8 @@ const AddressDialog = ({
             `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&addressdetails=1`,
             {
               headers: {
-                'Accept-Language': 'en'
-              }
+                "Accept-Language": "en",
+              },
             }
           );
           const data = await response.json();
@@ -127,7 +129,7 @@ const AddressDialog = ({
               areaName =
                 address.suburb || address.district || address.hamlet || "";
             }
-            
+
             // If no area is found, use city as area
             if (!areaName && cityName) {
               areaName = cityName;
@@ -170,7 +172,9 @@ const AddressDialog = ({
 
             toaster.create({
               title: t("addressDialog.toasts.locationSuccess.title"),
-              description: `${t("addressDialog.toasts.locationSuccess.description")}: ${cityName || "Unknown city"}`,
+              description: `${t(
+                "addressDialog.toasts.locationSuccess.description"
+              )}: ${cityName || "Unknown city"}`,
               type: "success",
               duration: 3000,
             });
@@ -195,6 +199,7 @@ const AddressDialog = ({
       },
       (error) => {
         setIsGettingLocation(false);
+        console.error("❌ Geolocation Error:", error);
         let errorMessage = t("addressDialog.toasts.locationErrors.unknown");
 
         switch (error.code) {
@@ -219,9 +224,9 @@ const AddressDialog = ({
         });
       },
       {
-        enableHighAccuracy: true,
-        timeout: 10000,
-        maximumAge: 0,
+        enableHighAccuracy: false, // Changed to false for faster response
+        timeout: 30000, // Increased to 30 seconds
+        maximumAge: 60000, // Cache location for 1 minute
       }
     );
   };
@@ -296,7 +301,8 @@ const AddressDialog = ({
     } catch (error) {
       toaster.create({
         title: t("addressDialog.toasts.saveError.title"),
-        description: error.message || t("addressDialog.toasts.saveError.description"),
+        description:
+          error.message || t("addressDialog.toasts.saveError.description"),
         type: "error",
         duration: 3000,
       });
