@@ -34,7 +34,7 @@ import { useColorMode } from "../../theme/color-mode";
 import colors from "../../theme/color";
 import imgChef from "../../assets/image 17.png";
 import { useNavigate, useParams } from "react-router-dom";
-import { useGetOrderDetailsQuery } from "../../app/features/Customer/Orders/ordersApiCustomerSlice";
+import { useGetOrderDetailsQuery } from "../../app/features/Customer/Orders/OrdersApiCustomerSlice";
 import { useTranslation } from "react-i18next";
 
 function OrderDetails() {
@@ -200,17 +200,25 @@ function OrderDetails() {
 
   // Compute prep time from order items (avg and sum weighted by quantity)
   const orderPrepTimes = (orderDetails?.order_items || [])
-    .map((it) => Number(it?.menu_items?.prep_time_minutes ?? it?.prep_time_minutes ?? 0))
+    .map((it) =>
+      Number(it?.menu_items?.prep_time_minutes ?? it?.prep_time_minutes ?? 0)
+    )
     .filter((n) => Number.isFinite(n) && n > 0);
   const avgPrep = orderPrepTimes.length
-    ? Math.round(orderPrepTimes.reduce((a, b) => a + b, 0) / orderPrepTimes.length)
+    ? Math.round(
+        orderPrepTimes.reduce((a, b) => a + b, 0) / orderPrepTimes.length
+      )
     : null;
   const sumPrep = (orderDetails?.order_items || []).reduce((sum, it) => {
-    const t = Number(it?.menu_items?.prep_time_minutes ?? it?.prep_time_minutes ?? 0);
+    const t = Number(
+      it?.menu_items?.prep_time_minutes ?? it?.prep_time_minutes ?? 0
+    );
     const q = Number(it?.quantity ?? 0);
     return sum + (Number.isFinite(t) && Number.isFinite(q) ? t * q : 0);
   }, 0);
-  const prepText = orderPrepTimes.length ? `${avgPrep}-${Math.round(sumPrep)} min` : null;
+  const prepText = orderPrepTimes.length
+    ? `${avgPrep}-${Math.round(sumPrep)} min`
+    : null;
 
   const steps = [
     {
@@ -616,7 +624,9 @@ function OrderDetails() {
                       fontWeight="bold"
                     >
                       <Text>{t("cart.total")}</Text>
-                      <Text>{total?.toFixed(2)} {t("common.currency")}</Text>
+                      <Text>
+                        {total?.toFixed(2)} {t("common.currency")}
+                      </Text>
                     </Flex>
                   </VStack>
                 </Box>
@@ -709,7 +719,7 @@ function OrderDetails() {
                       >
                         {orderDetails?.order_delivery?.eta_minutes
                           ? `${orderDetails.order_delivery.eta_minutes} min`
-                          : (prepText || "—")}
+                          : prepText || "—"}
                       </Text>
                     </HStack>
                   </VStack>
@@ -737,7 +747,8 @@ function OrderDetails() {
                   >
                     {t("orders.deliveryPartnerInfo")}
                   </Heading>
-                  {(orderDetails?.status === "out_for_delivery" || orderDetails?.status === "delivered") &&
+                  {(orderDetails?.status === "out_for_delivery" ||
+                    orderDetails?.status === "delivered") &&
                   deliveryUser ? (
                     <Flex
                       align="center"
@@ -959,7 +970,8 @@ function OrderDetails() {
                           }
                           fontSize={{ base: "xs", md: "sm" }}
                         >
-                          ({orderDetails?.cooker?.total_reviews || 0}  {t("navbar.reviews")})
+                          ({orderDetails?.cooker?.total_reviews || 0}{" "}
+                          {t("navbar.reviews")})
                         </Text>
                       </HStack>
                     </Box>

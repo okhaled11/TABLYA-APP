@@ -8,7 +8,7 @@ import { FaPlus } from "react-icons/fa";
 import { FiPlus } from "react-icons/fi";
 import { useTranslation } from "react-i18next";
 import CookerMenuCard from "../../../components/cooker/CookerMenuCard";
-import { useGetMyMenuItemsQuery } from "../../../app/features/cooker/CookerMenuApi";
+import { useGetMyMenuItemsQuery } from "../../../app/features/Cooker/CookerMenuApi";
 import MenuItemCardSkeleton from "../../../components/ui/MenuItemCardSkeleton";
 import { MdRestaurantMenu } from "react-icons/md";
 import AddMealModal from "../../../components/cooker/AddMealModal";
@@ -38,7 +38,6 @@ const CookerMenu = () => {
             colorMode == "light" ? colors.light.textMain : colors.dark.textMain
           }
         >
-        
           {t("cookerMenu.myMenu")}
         </Heading>
         <Button
@@ -60,7 +59,7 @@ const CookerMenu = () => {
       <Flex
         mb={6}
         justify="center"
-        bg={colorMode === "light" ? colors.light.bgThird: colors.dark.bgThird}
+        bg={colorMode === "light" ? colors.light.bgThird : colors.dark.bgThird}
         p={1}
         borderRadius="full"
         width="fit-content"
@@ -154,7 +153,12 @@ const CookerMenu = () => {
             <Text fontSize="sm">
               {filterStatus === "all"
                 ? t("cookerMenu.addFirstMeal")
-                : t("cookerMenu.noItemsFor", { status: filterStatus === "in-stock" ? t("cookerMenu.inStock") : t("cookerMenu.outOfStock") })}
+                : t("cookerMenu.noItemsFor", {
+                    status:
+                      filterStatus === "in-stock"
+                        ? t("cookerMenu.inStock")
+                        : t("cookerMenu.outOfStock"),
+                  })}
             </Text>
           </Flex>
         )}
