@@ -2,7 +2,7 @@ import { Container, Box } from "@chakra-ui/react";
 import { Flex, Text } from "@chakra-ui/react";
 import { useState } from "react";
 import KitchenRegisterChef from "./KitchenRegisterChef";
-import { PersonalRegisterChef } from "./personalRegisterChef";
+import { PersonalRegisterChef } from "./PersonalRegisterChef";
 
 function CustomerRegister() {
   /* ---------------state----------------- */
