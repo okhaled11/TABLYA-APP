@@ -257,7 +257,9 @@ export default function AddressTab() {
 
             toaster.create({
               title: "Success",
-              description: t("addressTab.locationDetected", { city: cityName || "Unknown city" }),
+              description: t("addressTab.locationDetected", {
+                city: cityName || "Unknown city",
+              }),
               type: "success",
               duration: 3000,
             });
@@ -265,8 +267,7 @@ export default function AddressTab() {
             console.warn("⚠️ No address data returned from API");
             toaster.create({
               title: "Warning",
-              description:
-                t("addressTab.noAddressData"),
+              description: t("addressTab.noAddressData"),
               type: "warning",
               duration: 3000,
             });
@@ -275,8 +276,7 @@ export default function AddressTab() {
           console.error("❌ Reverse Geocoding Error:", error);
           toaster.create({
             title: "Error",
-            description:
-              t("addressTab.locationError"),
+            description: t("addressTab.locationError"),
             type: "error",
             duration: 3000,
           });
@@ -312,9 +312,9 @@ export default function AddressTab() {
         });
       },
       {
-        enableHighAccuracy: true,
-        timeout: 10000,
-        maximumAge: 0,
+        enableHighAccuracy: false, // Changed to false for faster response
+        timeout: 30000, // Increased to 30 seconds
+        maximumAge: 60000, // Cache location for 1 minute
       }
     );
   };
@@ -333,8 +333,7 @@ export default function AddressTab() {
     if (!latitude || !longitude) {
       toaster.create({
         title: t("addressTab.locationRequired"),
-        description:
-          t("addressTab.locationRequiredDesc"),
+        description: t("addressTab.locationRequiredDesc"),
         type: "error",
         duration: 3000,
       });
@@ -347,8 +346,7 @@ export default function AddressTab() {
       if (!city.trim()) {
         toaster.create({
           title: t("addressTab.cityRequired"),
-          description:
-            t("addressTab.cityRequiredDesc"),
+          description: t("addressTab.cityRequiredDesc"),
           type: "error",
           duration: 3000,
         });
@@ -521,8 +519,7 @@ export default function AddressTab() {
     if (addressToDelete?.is_default) {
       toaster.create({
         title: t("addressTab.deletePrimaryError"),
-        description:
-          t("addressTab.deletePrimaryErrorDesc"),
+        description: t("addressTab.deletePrimaryErrorDesc"),
         type: "error",
         duration: 3000,
       });
@@ -1014,7 +1011,9 @@ export default function AddressTab() {
               }
               fontSize="2xl"
             >
-              {editingAddressId ? t("addressTab.dialogTitle.edit") : t("addressTab.dialogTitle.add")}
+              {editingAddressId
+                ? t("addressTab.dialogTitle.edit")
+                : t("addressTab.dialogTitle.add")}
             </DialogTitle>
             <Text
               fontSize="sm"
@@ -1764,9 +1763,11 @@ export default function AddressTab() {
                           }
                         >
                           {latitude && longitude
-                            ? `✓ ${t("addressTab.locationDetected")} (${latitude.toFixed(
+                            ? `✓ ${t(
+                                "addressTab.locationDetected"
+                              )} (${latitude.toFixed(6)}, ${longitude.toFixed(
                                 6
-                              )}, ${longitude.toFixed(6)})`
+                              )})`
                             : t("addressTab.autoFill")}
                         </Text>
                       </VStack>
@@ -1911,7 +1912,9 @@ export default function AddressTab() {
                       ? colors.light.bgFourth
                       : colors.dark.bgFourth,
                 }}
-              > {t("addressDialog.buttons.cancel")}                
+              >
+                {" "}
+                {t("addressDialog.buttons.cancel")}
               </Button>
               <Button
                 flex={1}
@@ -1932,7 +1935,7 @@ export default function AddressTab() {
                 isLoading={isAdding || isUpdating || isUpdatingDelivery}
                 loadingText={editingAddressId ? "Updating..." : "Saving..."}
               >
-             {t("addressDialog.buttons.save")}
+                {t("addressDialog.buttons.save")}
               </Button>
             </HStack>
           </DialogFooter>
