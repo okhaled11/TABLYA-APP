@@ -24,7 +24,7 @@ import CustomModal from "../../shared/Modal";
 import {
   useCreateMenuItemMutation,
   useUpdateMenuItemMutation,
-} from "../../app/features/cooker/CookerMenuApi";
+} from "../../app/features/Cooker/CookerMenuApi";
 import { convertImageToWebP } from "../../services/imageToWebp";
 import { toaster } from "../ui/toaster";
 import { useForm, Controller } from "react-hook-form";
